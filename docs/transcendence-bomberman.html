@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ft_transcendence — Bomberman</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0e0e0e;
+    --surface:   #1a1a1a;
+    --border:    #2a2a2a;
+    --yellow:    #f5c518;
+    --orange:    #e8622a;
+    --green:     #4caf6e;
+    --red:       #e84040;
+    --muted:     #555;
+    --text:      #e0e0e0;
+    --text-dim:  #888;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 2px solid var(--yellow);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--surface);
+  }
+
+  .bomb-icon {
+    font-size: 28px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  header h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    color: var(--yellow);
+    line-height: 1.5;
+  }
+
+  header h1 span {
+    display: block;
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .version-badge {
+    margin-left: auto;
+    background: var(--border);
+    border: 1px solid var(--muted);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: monospace;
+  }
+
+  /* SCORE BOARD */
+  .scoreboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .score-cell {
+    background: var(--surface);
+    padding: 20px 32px;
+    text-align: center;
+  }
+
+  .score-cell .label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .score-cell .value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px;
+  }
+
+  .score-cell .value.yellow { color: var(--yellow); }
+  .score-cell .value.green  { color: var(--green); }
+  .score-cell .value.orange { color: var(--orange); }
+
+  .score-cell .sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  section {
+    padding: 28px 32px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  section:nth-child(even) { border-right: none; }
+
+  .section-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--yellow);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+
+  /* MODULE TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+    padding: 0 0 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th:last-child { text-align: center; }
+
+  td {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  td:last-child { text-align: center; }
+
+  tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-mayor {
+    background: rgba(232, 98, 42, 0.15);
+    color: var(--orange);
+    border: 1px solid rgba(232, 98, 42, 0.3);
+  }
+
+  .badge-menor {
+    background: rgba(245, 197, 24, 0.1);
+    color: var(--yellow);
+    border: 1px solid rgba(245, 197, 24, 0.25);
+  }
+
+  .pts {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--green);
+  }
+
+  .pts-bonus {
+    color: var(--orange);
+  }
+
+  .module-name {
+    color: var(--text);
+  }
+
+  /* SUBTOTAL ROWS */
+  .subtotal-row td {
+    padding-top: 12px;
+    border-top: 2px solid var(--border);
+    border-bottom: none;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .subtotal-row .pts {
+    font-size: 13px;
+  }
+
+  /* STACK SECTION */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stack-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+  }
+
+  .stack-item .layer {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .stack-item .tech {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .stack-item .tech span {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  /* PHASES */
+  .phases { display: flex; flex-direction: column; gap: 10px; }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .phase-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--bg);
+    background: var(--yellow);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .phase-content .phase-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .phase-content .phase-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* ROLES */
+  .roles { display: flex; flex-direction: column; gap: 12px; }
+
+  .role-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--yellow);
+    border-radius: 4px;
+    padding: 12px 14px;
+  }
+
+  .role-card .role-title {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: var(--yellow);
+  }
+
+  .role-card .role-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* TOTAL FOOTER */
+  footer {
+    grid-column: 1 / -1;
+    border-top: 2px solid var(--yellow);
+    background: var(--surface);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .total-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .total-breakdown {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .total-item {
+    text-align: center;
+  }
+
+  .total-item .t-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .total-item .t-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+  }
+
+  .t-value.yellow { color: var(--yellow); }
+  .t-value.orange { color: var(--orange); }
+  .t-value.green  { color: var(--green); }
+
+  .plus-sign {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .eq-sign {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  /* FULL WIDTH SECTION */
+  .full-width {
+    grid-column: 1 / -1;
+    border-right: none;
+  }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; }
+    section { border-right: none; }
+    .full-width { grid-column: 1; }
+    .scoreboard { grid-template-columns: 1fr; }
+    .stack-grid { grid-template-columns: 1fr; }
+    .total-breakdown { flex-wrap: wrap; gap: 16px; }
+    header h1 { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bomb-icon">💣</div>
+  <h1>
+    ft_transcendence — Bomberman
+    <span>Plan de módulos y organización del proyecto</span>
+  </h1>
+  <div class="version-badge">v21.2</div>
+</header>
+
+<!-- SCOREBOARD -->
+<div class="scoreboard">
+  <div class="score-cell">
+    <div class="label">Puntos obligatorios</div>
+    <div class="value yellow">14</div>
+    <div class="sub">mínimo requerido</div>
+  </div>
+  <div class="score-cell">
+    <div class="label">Puntos bonus disponibles</div>
+    <div class="value orange">8</div>
+    <div class="sub">máximo efectivo: 5</div>
+  </div>
+  <div class="score-cell">
+    <div class="label">Puntuación final máxima</div>
+    <div class="value green">19</div>
+    <div class="sub">con colchón de seguridad</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- MÓDULOS OBLIGATORIOS -->
+  <section>
+    <div class="section-title">// Módulos obligatorios</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Módulo</th>
+          <th>Tipo</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="module-name">Juego web completo (Bomberman)</td>
+          <td><span class="badge badge-mayor">Mayor</span></td>
+          <td><span class="pts">2</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Jugadores remotos</td>
+          <td><span class="badge badge-mayor">Mayor</span></td>
+          <td><span class="pts">2</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Multiplayer 3+ jugadores</td>
+          <td><span class="badge badge-mayor">Mayor</span></td>
+          <td><span class="pts">2</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Interacción usuarios (chat + perfiles + amigos)</td>
+          <td><span class="badge badge-mayor">Mayor</span></td>
+          <td><span class="pts">2</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Frameworks frontend + backend</td>
+          <td><span class="badge badge-mayor">Mayor</span></td>
+          <td><span class="pts">2</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Gestión estándar de usuarios</td>
+          <td><span class="badge badge-mayor">Mayor</span></td>
+          <td><span class="pts">2</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Sistema de torneos</td>
+          <td><span class="badge badge-menor">Menor</span></td>
+          <td><span class="pts">1</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Personalización del juego</td>
+          <td><span class="badge badge-menor">Menor</span></td>
+          <td><span class="pts">1</span></td>
+        </tr>
+        <tr class="subtotal-row">
+          <td colspan="2" style="color: var(--text-dim);">Subtotal</td>
+          <td><span class="pts" style="font-size:15px;">14</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- MÓDULOS BONUS -->
+  <section>
+    <div class="section-title">// Módulos bonus</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Módulo</th>
+          <th>Tipo</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="module-name">ORM (Prisma)</td>
+          <td><span class="badge badge-menor">Menor</span></td>
+          <td><span class="pts pts-bonus">1</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Estadísticas + historial de partidas</td>
+          <td><span class="badge badge-menor">Menor</span></td>
+          <td><span class="pts pts-bonus">1</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Gamificación (XP, logros, leaderboard)</td>
+          <td><span class="badge badge-menor">Menor</span></td>
+          <td><span class="pts pts-bonus">1</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">Modo espectador</td>
+          <td><span class="badge badge-menor">Menor</span></td>
+          <td><span class="pts pts-bonus">1</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">OAuth 2.0 (login con 42 / GitHub)</td>
+          <td><span class="badge badge-menor">Menor</span></td>
+          <td><span class="pts pts-bonus">1</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">2FA (Two-Factor Authentication)</td>
+          <td><span class="badge badge-menor">Menor</span></td>
+          <td><span class="pts pts-bonus">1</span></td>
+        </tr>
+        <tr>
+          <td class="module-name">IA Opponent</td>
+          <td><span class="badge badge-mayor">Mayor</span></td>
+          <td><span class="pts pts-bonus">2</span></td>
+        </tr>
+        <tr class="subtotal-row">
+          <td colspan="2" style="color: var(--text-dim);">Disponibles / Efectivos</td>
+          <td><span class="pts pts-bonus" style="font-size:15px;">8 / 5</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- STACK -->
+  <section>
+    <div class="section-title">// Stack técnico</div>
+    <div class="stack-grid">
+      <div class="stack-item">
+        <div class="layer">Frontend</div>
+        <div class="tech">React + Tailwind CSS<span>UI del juego y lobby</span></div>
+      </div>
+      <div class="stack-item">
+        <div class="layer">Backend</div>
+        <div class="tech">NestJS<span>API REST + WebSockets</span></div>
+      </div>
+      <div class="stack-item">
+        <div class="layer">Tiempo real</div>
+        <div class="tech">Socket.io<span>Motor del juego online</span></div>
+      </div>
+      <div class="stack-item">
+        <div class="layer">Base de datos</div>
+        <div class="tech">PostgreSQL + Prisma<span>ORM — 1pt gratis</span></div>
+      </div>
+      <div class="stack-item">
+        <div class="layer">Contenedores</div>
+        <div class="tech">Docker Compose<span>Un comando para levantar todo</span></div>
+      </div>
+      <div class="stack-item">
+        <div class="layer">Auth</div>
+        <div class="tech">JWT + bcrypt<span>+ OAuth 42/GitHub + 2FA</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section>
+    <div class="section-title">// Roles del equipo (4 personas)</div>
+    <div class="roles">
+      <div class="role-card">
+        <div class="role-title">Persona 1 — Tech Lead + Backend/Infra</div>
+        <div class="role-desc">Docker Compose, arquitectura NestJS, API REST, WebSockets, base de datos y esquema Prisma.</div>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Persona 2 — Product Owner + Game Engine</div>
+        <div class="role-desc">Backlog y prioridades. Motor del Bomberman en canvas: movimiento, bombas, explosiones, colisiones, power-ups. Torneos.</div>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Persona 3 — Desarrollador Frontend/UX</div>
+        <div class="role-desc">UI completa: lobby, sala de espera, perfiles, leaderboard. Chat e interacción entre usuarios. Responsive, Privacy Policy, Terms of Service.</div>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Persona 4 — Project Manager + Auth/Users</div>
+        <div class="role-desc">GitHub Issues, milestones, reuniones. Auth (registro, login, JWT). Perfiles, avatares, amigos. Estadísticas, historial, gamificación.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FASES -->
+  <section class="full-width">
+    <div class="section-title">// Fases de desarrollo</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+      <div class="phase">
+        <div class="phase-num">1</div>
+        <div class="phase-content">
+          <div class="phase-title">Infraestructura base</div>
+          <div class="phase-desc">Docker Compose con frontend, backend y postgres comunicándose. Base para que todo el equipo trabaje en local. (2-3 días)</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">2</div>
+        <div class="phase-content">
+          <div class="phase-title">Auth + usuarios</div>
+          <div class="phase-desc">Registro, login, JWT, contraseñas hasheadas. Todo lo demás depende de esto. (1 semana)</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">3</div>
+        <div class="phase-content">
+          <div class="phase-title">Motor del juego ⚠️</div>
+          <div class="phase-desc">Bomberman en canvas + Socket.io. Movimiento, bombas, explosiones, colisiones. Mayor riesgo técnico — atacarlo pronto. (2-3 semanas)</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">4</div>
+        <div class="phase-content">
+          <div class="phase-title">Lobby y sala de espera</div>
+          <div class="phase-desc">Crear partida, unirse, lista de jugadores. Usa Socket.io ya montado. (1 semana)</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">5</div>
+        <div class="phase-content">
+          <div class="phase-title">Módulos sociales</div>
+          <div class="phase-desc">Chat, amigos, perfiles, avatares, OAuth, 2FA. Relativamente sencillo con auth y WebSockets listos. (1 semana)</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">6</div>
+        <div class="phase-content">
+          <div class="phase-title">Módulos gaming + bonus</div>
+          <div class="phase-desc">Torneos, personalización, estadísticas, gamificación, espectador, IA Opponent. (1-2 semanas)</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">7</div>
+        <div class="phase-content">
+          <div class="phase-title">Pulido final + README</div>
+          <div class="phase-desc">Tests, Privacy Policy, Terms of Service, README completo con todos los apartados requeridos. Sin esto el proyecto es rechazado. (1 semana)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="total-label">PUNTUACIÓN<br>FINAL</div>
+  <div class="total-breakdown">
+    <div class="total-item">
+      <div class="t-label">Obligatorio</div>
+      <div class="t-value yellow">14</div>
+    </div>
+    <div class="plus-sign">+</div>
+    <div class="total-item">
+      <div class="t-label">Bonus efectivo</div>
+      <div class="t-value orange">5</div>
+    </div>
+    <div class="eq-sign">=</div>
+    <div class="total-item">
+      <div class="t-label">Total máximo</div>
+      <div class="t-value green">19</div>
+    </div>
+    <div style="width:1px; height:40px; background: var(--border); margin: 0 8px;"></div>
+    <div class="total-item">
+      <div class="t-label">Colchón bonus</div>
+      <div class="t-value" style="color: var(--muted); font-size: 16px;">+3</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
