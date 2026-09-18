@@ -38,3 +38,10 @@ backend/prisma/migrations/dev.db
 .agents/
 .devin/
 prisma.config.ts
+
+# Prisma AI tools
+backend/.agents/
+backend/.claude/
+backend/.cursor/
+backend/.devin/
+backend/prisma.config.ts
