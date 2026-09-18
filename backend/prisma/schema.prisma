@@ -1,5 +1,3 @@
-// backend/prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,13 +7,162 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── USUARIOS ───────────────────────────────────────────────
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  xp        Int      @default(0)
-  createdAt DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  username       String   @unique
+  email          String   @unique
+  password       String?  // null si usa OAuth
+  xp             Int      @default(0)
+  isOnline       Boolean  @default(false)
+  twoFaSecret    String?
+  twoFaEnabled   Boolean  @default(false)
+  oauthProvider  String?  // "42", "github", etc.
+  oauthId        String?
+  createdAt      DateTime @default(now())
+
+  // relaciones
+  matchPlayers      MatchPlayer[]
+  sentFriendships   Friendship[]  @relation("requester")
+  receivedFriendships Friendship[] @relation("addressee")
+  sentMessages      ChatMessage[] @relation("sender")
+  receivedMessages  ChatMessage[] @relation("receiver")
+  userAchievements  UserAchievement[]
 
   @@map("users")
+}
+
+// ─── PARTIDAS ───────────────────────────────────────────────
+model Match {
+  id          Int         @id @default(autoincrement())
+  status      MatchStatus @default(WAITING)
+  gameMode    GameMode    @default(CLASSIC)
+  maxPlayers  Int         @default(4)
+  mapId       String?
+  createdAt   DateTime    @default(now())
+  finishedAt  DateTime?
+
+  players          MatchPlayer[]
+  tournamentMatch  TournamentMatch?
+
+  @@map("matches")
+}
+
+model MatchPlayer {
+  id        Int     @id @default(autoincrement())
+  matchId   Int
+  userId    Int
+  score     Int     @default(0)
+  kills     Int     @default(0)
+  position  Int?
+  isWinner  Boolean @default(false)
+
+  match  Match @relation(fields: [matchId], references: [id])
+  user   User  @relation(fields: [userId], references: [id])
+
+  @@unique([matchId, userId])
+  @@map("match_players")
+}
+
+// ─── AMIGOS ─────────────────────────────────────────────────
+model Friendship {
+  id           Int              @id @default(autoincrement())
+  requesterId  Int
+  addresseeId  Int
+  status       FriendshipStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+
+  requester  User @relation("requester", fields: [requesterId], references: [id])
+  addressee  User @relation("addressee", fields: [addresseeId], references: [id])
+
+  @@unique([requesterId, addresseeId])
+  @@map("friendships")
+}
+
+// ─── TORNEOS ────────────────────────────────────────────────
+model Tournament {
+  id        Int              @id @default(autoincrement())
+  name      String
+  status    TournamentStatus @default(OPEN)
+  createdAt DateTime         @default(now())
+
+  matches  TournamentMatch[]
+
+  @@map("tournaments")
+}
+
+model TournamentMatch {
+  id           Int @id @default(autoincrement())
+  tournamentId Int
+  matchId      Int @unique
+  round        Int
+
+  tournament  Tournament @relation(fields: [tournamentId], references: [id])
+  match       Match      @relation(fields: [matchId], references: [id])
+
+  @@map("tournament_matches")
+}
+
+// ─── GAMIFICACIÓN ───────────────────────────────────────────
+model Achievement {
+  id          Int    @id @default(autoincrement())
+  key         String @unique  // "first_blood", "survivor", etc.
+  name        String
+  description String
+  xpReward    Int    @default(0)
+
+  userAchievements  UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  achievementId Int
+  earnedAt      DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+// ─── CHAT ───────────────────────────────────────────────────
+model ChatMessage {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  content    String
+  createdAt  DateTime @default(now())
+
+  sender    User @relation("sender",   fields: [senderId],   references: [id])
+  receiver  User @relation("receiver", fields: [receiverId], references: [id])
+
+  @@map("chat_messages")
+}
+
+// ─── ENUMS ──────────────────────────────────────────────────
+enum MatchStatus {
+  WAITING
+  IN_PROGRESS
+  FINISHED
+}
+
+enum GameMode {
+  CLASSIC
+  TOURNAMENT
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+enum TournamentStatus {
+  OPEN
+  IN_PROGRESS
+  FINISHED
 }
