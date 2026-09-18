@@ -20,24 +20,16 @@ all:
 down:
 	@docker compose down
 
-re: down
+re:
+	@docker compose down -v
 	@docker compose build --no-cache
 	@$(MAKE) all
 
-fclean: down
+fclean:
+	@docker compose down -v
 	@docker system prune -af
 	@docker volume prune -f
 	@rm -f certs/cert.pem certs/key.pem
-
-
-migrate-dev:
-	@docker exec -it transcendence_backend npx prisma migrate dev --schema=prisma/schema.prisma
-
-migrate-name:
-	@docker exec -it transcendence_backend npx prisma migrate dev --name $(name) --schema=prisma/schema.prisma
-
-migrate-reset:
-	@docker exec -it transcendence_backend npx prisma migrate reset
 
 studio:
 	@docker exec -it transcendence_backend npx prisma studio --port 5555 --browser none
@@ -47,16 +39,13 @@ help:
 	@echo "Comandos disponibles:"
 	@echo ""
 	@echo "  make                        - Detecta IP, genera certs y levanta todos los contenedores"
-	@echo "  make down                   - Para y elimina todos los contenedores (datos conservados)"
-	@echo "  make re                     - Baja, reconstruye desde cero y vuelve a levantar"
-	@echo "  make fclean                 - Limpieza total: contenedores, imágenes, volúmenes y certs"
+	@echo "  make down                  - Para los contenedores (datos de BD conservados)"
+	@echo "  make re                    - Reinicia desde cero y reconstruye la BD"
+	@echo "  make fclean                - Limpieza total: contenedores, imágenes, volúmenes y certs"
 	@echo ""
-	@echo "  make migrate-dev            - Crea una migración nueva interactiva (pide nombre)"
-	@echo "  make migrate-name name=xxx  - Crea una migración con nombre específico"
-	@echo "  make migrate-reset          - Reset completo de la BD (⚠️  borra todos los datos)"
-	@echo "  make studio                 - Abre Prisma Studio en http://localhost:5555"
+	@echo "  make studio                - Abre Prisma Studio en http://localhost:5555"
 	@echo ""
-	@echo "  make help                   - Muestra este mensaje"
+	@echo "  make help                 - Muestra este mensaje"
 	@echo ""
 
-.PHONY: all down re fclean migrate-dev migrate-name migrate-reset studio help
+.PHONY: all down re fclean studio help
