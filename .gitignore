@@ -32,3 +32,9 @@ Thumbs.db
 
 # Prisma
 backend/prisma/migrations/dev.db
+# Prisma
+.claude/
+.cursor/
+.agents/
+.devin/
+prisma.config.ts
