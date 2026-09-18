@@ -1,19 +1,21 @@
 # ---- Build ----
 FROM node:20-alpine AS builder
 
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY . .
-RUN npx prisma@5.22.0 generate --schema=./prisma/schema.prisma
+RUN npx prisma generate
 RUN npm run build
 
 # ---- Production ----
 FROM node:20-alpine
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl openssl
 
 WORKDIR /app
 
