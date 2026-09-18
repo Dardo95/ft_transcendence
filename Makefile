@@ -27,4 +27,23 @@ fclean: down
 	@docker volume prune -f
 	@rm -f certs/cert.pem certs/key.pem
 
-.PHONY: all down re fclean
+migrate:
+	@cd backend && npx prisma migrate deploy
+
+migrate-dev:
+	@docker exec -it transcendence_backend npx prisma migrate dev --schema=prisma/schema.prisma
+
+help:
+	@echo ""
+	@echo "Comandos disponibles:"
+	@echo ""
+	@echo "  make              - Detecta IP, genera certs y levanta todos los contenedores"
+	@echo "  make down         - Para y elimina todos los contenedores (datos conservados)"
+	@echo "  make re           - Baja y vuelve a levantar todo (útil tras cambios de código)"
+	@echo "  make migrate      - Aplica migraciones pendientes sin confirmación"
+	@echo "  make migrate-dev  - Crea una migración nueva interactiva (pide nombre)"
+	@echo "  make fclean       - Limpieza total: contenedores, imágenes, volúmenes y certs"
+	@echo "  make help         - Muestra este mensaje"
+	@echo ""
+
+.PHONY: all down re fclean migrate migrate-dev help
