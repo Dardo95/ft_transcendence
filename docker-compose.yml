@@ -23,6 +23,8 @@ services:
     container_name: transcendence_backend
     restart: unless-stopped
     env_file: .env
+    ports:
+      - "5555:5555"
     networks:
       - internal
     depends_on:
