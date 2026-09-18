@@ -1,3 +1,5 @@
+// backend/prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,8 +13,9 @@ model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
   email     String   @unique
-  password  String?
-  avatar    String?
+  password  String
+  xp        Int      @default(0)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@map("users")
 }
