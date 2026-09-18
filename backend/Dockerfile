@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY . .
-RUN npx prisma generate
+RUN npx prisma@5.22.0 generate --schema=./prisma/schema.prisma
 RUN npm run build
 
 # ---- Production ----
