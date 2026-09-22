@@ -7,12 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── USUARIOS ───────────────────────────────────────────────
+// ─── USERS ──────────────────────────────────────────────────
 model User {
   id             Int      @id @default(autoincrement())
   username       String   @unique
   email          String   @unique
-  password       String?  // null si usa OAuth
+  password       String?  // null when the user logs in via OAuth
   xp             Int      @default(0)
   isOnline       Boolean  @default(false)
   twoFaSecret    String?
@@ -21,7 +21,7 @@ model User {
   oauthId        String?
   createdAt      DateTime @default(now())
 
-  // relaciones
+  // relations
   matchPlayers      MatchPlayer[]
   sentFriendships   Friendship[]  @relation("requester")
   receivedFriendships Friendship[] @relation("addressee")
@@ -32,7 +32,7 @@ model User {
   @@map("users")
 }
 
-// ─── PARTIDAS ───────────────────────────────────────────────
+// ─── MATCHES ────────────────────────────────────────────────
 model Match {
   id          Int         @id @default(autoincrement())
   status      MatchStatus @default(WAITING)
@@ -64,7 +64,7 @@ model MatchPlayer {
   @@map("match_players")
 }
 
-// ─── AMIGOS ─────────────────────────────────────────────────
+// ─── FRIENDSHIPS ────────────────────────────────────────────
 model Friendship {
   id           Int              @id @default(autoincrement())
   requesterId  Int
@@ -79,7 +79,7 @@ model Friendship {
   @@map("friendships")
 }
 
-// ─── TORNEOS ────────────────────────────────────────────────
+// ─── TOURNAMENTS ────────────────────────────────────────────
 model Tournament {
   id        Int              @id @default(autoincrement())
   name      String
@@ -103,7 +103,7 @@ model TournamentMatch {
   @@map("tournament_matches")
 }
 
-// ─── GAMIFICACIÓN ───────────────────────────────────────────
+// ─── GAMIFICATION ───────────────────────────────────────────
 model Achievement {
   id          Int    @id @default(autoincrement())
   key         String @unique  // "first_blood", "survivor", etc.
