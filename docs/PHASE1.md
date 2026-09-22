@@ -26,19 +26,11 @@
 - HTTPS is exposed externally on port `8443`, not directly on port `443`.
 - The frontend Dockerfile builds a static production bundle. It does not proxy to a Vite development server.
 - Nginx is prepared for WebSockets, but there is no WebSocket gateway in the backend yet.
-- The backend healthcheck uses `/health`, while the roadmap requires `/api/health`.
 
 ### Still to do
 
 - Decide whether to rename `postgres` to `database` or update the roadmap.
-- Align the healthcheck with `/api/health`.
-- Verify the complete stack with:
-
-```bash
-docker compose up --build
-```
-
-- Verify HTTPS, API routing, and WebSocket routing from a browser.
+- Verify WebSocket routing from a browser once the backend gateway exists.
 
 ---
 
@@ -55,7 +47,7 @@ docker compose up --build
 - A basic health controller exists at:
 
 ```text
-GET /health
+GET /api/health
 ```
 
 - Backend build, lint, unit test, and e2e test scripts are configured.
@@ -63,7 +55,6 @@ GET /health
 ### Partially done
 
 - NestJS uses the standard `src` directory, but the planned `src/modules` structure does not exist yet.
-- The health endpoint exists, but it is not exposed at `/api/health`.
 - The backend currently returns the default NestJS `"Hello World!"` response.
 
 ### Still to do
@@ -103,7 +94,7 @@ class-transformer
   - `Achievement`
   - `UserAchievement`
   - `ChatMessage`
-- Prisma generation and database synchronization are included in the backend Dockerfile.
+- Prisma generation is included in the backend Dockerfile.
 
 ### Partially done
 
@@ -120,7 +111,7 @@ The `User` model exists, but it does not exactly match the roadmap:
 | `updatedAt`    | Missing                              |
 
 - Prisma is connected conceptually to PostgreSQL, but there is no `prisma/migrations` directory.
-- The Dockerfile currently uses `prisma db push`, not a migration workflow.
+- The Dockerfile still needs to be switched to a migration workflow.
 
 ### Still to do
 
@@ -155,7 +146,7 @@ The `User` model exists, but it does not exactly match the roadmap:
 - The frontend can be built with:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 - The frontend currently renders the default Vite starter screen.
@@ -185,9 +176,9 @@ The current [App.tsx](.`App.tsx`) is still mainly the Vite starter template.
 
 | Area                    | Status             |
 | ----------------------- | ------------------ |
-| Docker services         | Partially complete |
+| Docker services         | Complete           |
 | HTTPS and Nginx         | Mostly complete    |
-| API proxying            | Partially complete |
+| API proxying            | Mostly complete    |
 | NestJS scaffold         | Complete           |
 | Backend modules         | Not started        |
 | Validation pipes        | Not started        |
@@ -213,9 +204,9 @@ The project currently has the initial infrastructure and framework scaffolding. 
 
 To consider Phase 1 truly finished and allow everyone to move safely to their individual modules, the repository must pass all criteria below:
 
-- [ ] **Single-Command Boot:** Running `docker compose up --build` launches `frontend`, `backend`, `database`, and `nginx` without manual intervention or crashing containers.
-- [ ] **Secure Gateway Access:** Opening `https://localhost:8443` loads the app over HTTPS without mixed-content or security protocol warnings.
-- [ ] **Unified Health Check:** Calling `GET https://localhost:8443/api/health` returns `{ "status": "ok" }` with an HTTP 200 status.
+- [x] **Single-Command Boot:** A fresh clone launches the four services with `make` and all containers become healthy.
+- [x] **Secure Gateway Access:** `https://localhost:8443` loads the app over HTTPS.
+- [x] **Unified Health Check:** `GET https://localhost:8443/api/health` returns `{ "status": "ok" }` with HTTP 200.
 - [ ] **Schema Migrations:** The database initializes via a proper migration command (`prisma migrate deploy` or `dev`), generating an initial migration folder in git instead of using destructive runtime syncs (`db push`).
 - [ ] **End-to-End Authentication:** A user can register via `POST /api/auth/register`, log in via `POST /api/auth/login`, receive an HTTP-only SameSite cookie containing a signed JWT, and authenticate their state via `GET /api/auth/me`.
 - [ ] **Real-Time WebSocket Handshake:** An authenticated browser client establishes a connection to `wss://localhost:8443/socket.io/`, successfully exchanges a `ping` / `pong` payload, and shows an active online status on the UI.
@@ -242,22 +233,9 @@ To consider Phase 1 truly finished and allow everyone to move safely to their in
 
 _Goal: Remove discrepancies between Docker services, configuration, and internal network routes._
 
-1. **Docker Compose Alignment:**
-
-- Keep the compose service name as `database` (or alias it) to ensure consistency across backend connection strings.
-- Adjust external port bindings: keep `8443:443` for non-root local privileges or map `443:443` depending on host requirements. Document this clearly in `.env.example`.
-
-2. **Reverse Proxy Health Route:**
-
-- Update `nginx.conf` and compose healthcheck definitions so the backend check hits `/api/health` instead of `/health`.
-
-3. **WebSocket Proxy Validation:**
+1. **WebSocket Proxy Validation:**
 
 - Verify that Nginx correctly proxies WebSocket upgrade requests (`proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection "upgrade";`) to the NestJS upstream server without premature 60-second timeouts.
-
-4. **End-to-End Build Test:**
-
-- Run a clean-room test (`docker compose down -v && docker compose up --build`) and verify that all 4 containers reach `healthy` status.
 
 ### Dev 2: Backend Architecture & WebSocket Gateway
 
@@ -283,8 +261,6 @@ src/
 
 - Install `class-validator` and `class-transformer`.
 - Register a global `ValidationPipe` in `main.ts` with `whitelist: true` and `forbidNonWhitelisted: true`.
-- Prefix all controller routes with `/api` using `app.setGlobalPrefix('api')`. Move the health controller to `/api/health`.
-
 3. **Authenticated Events Gateway:**
 
 - Set up `@WebSocketGateway({ cors: { origin: true, credentials: true }, namespace: '/' })`.
@@ -360,7 +336,7 @@ _Goal: Replace the default Vite screen with Tailwind layouts, session handling, 
 
 | Assignee  | Step 1                                         | Step 2                                  | Handoff Checkpoint                     |
 | --------- | ---------------------------------------------- | --------------------------------------- | -------------------------------------- |
-| **Dev 1** | Align Nginx routes and prefix to `/api/health` | Validate WebSocket proxy headers        | Docker boots all containers cleanly    |
+| **Dev 1** | Validate WebSocket proxy headers            | Verify browser WebSocket routing       | Authenticated gateway routes correctly |
 | **Dev 2** | Add `src/modules` and `class-validator`        | Implement `EventsGateway` (`ping/pong`) | Sockets authenticate via cookies       |
 | **Dev 3** | Fix schema & create `prisma/migrations`        | Implement `register`, `login`, and `me` | Auth cookies issue & verify properly   |
 | **Dev 4** | Setup Tailwind & Zustand auth state            | Build `<GameViewport/>` with Pixi.js    | Canvas renders at 60 FPS without leaks |
