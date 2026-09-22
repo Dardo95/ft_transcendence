@@ -12,16 +12,9 @@ LOG_FLAGS = $(strip $(if $(filter f,$(MAKECMDGOALS)),-f) $(if $(t),--tail=$(t)))
 # Command run by exec-<svc>: make exec-backend CMD="npx prisma version"
 CMD ?= sh
 
-# `f` reaches make parsed as a target, so it needs a rule to be accepted
-f:
-	@echo "tip: 'f' is a log flag. Example: make logs f"
-
-# Pattern targets are never files, so always run them even if a file with the
-# same name exists in the repo (this used to break `make logs-backend`).
-FORCE:
-
-# do not let make delete the check-<service> prerequisites after running
-.SECONDARY:
+# `make` with no arguments must always start the whole project, no matter
+# which target ends up being the first one in this file
+.DEFAULT_GOAL := all
 
 all: prep
 	@docker compose up --build -d
@@ -68,6 +61,11 @@ ps:
 logs:
 	@docker compose logs $(LOG_FLAGS)
 
+# `f` is parsed by make as a target, so it needs a rule of its own to be
+# accepted. It does nothing but print a tip: LOG_FLAGS is what reads it.
+f:
+	@echo "tip: 'f' is a log flag. Example: make logs f"
+
 config:
 	@docker compose config
 
@@ -85,6 +83,13 @@ stats:
 
 # ─── Per service: make <command>-<service> ──────────────────
 # Examples: make up-backend · make logs-frontend f t=100
+
+# Pattern targets are never files, so always run them even if a file with the
+# same name exists in the repo (this used to break `make logs-backend`).
+FORCE:
+
+# do not let make delete the check-<service> prerequisites after running
+.SECONDARY:
 
 check-%: FORCE
 	@printf '%s\n' $(SERVICES) | grep -qx "$*" || { \
