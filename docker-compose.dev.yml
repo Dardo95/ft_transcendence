@@ -1,0 +1,29 @@
+services:
+
+  backend:
+    build:
+      target: builder
+    command: sh -c "npx prisma db push && npx prisma generate && pnpm run start:dev"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - TSC_WATCHFILE=DynamicPriorityPolling
+      - TSC_WATCHDIRECTORY=DynamicPriorityPolling
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      start_period: 60s
+
+  frontend:
+    build:
+      target: builder
+    command: pnpm dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5173 || exit 1"]

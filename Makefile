@@ -23,6 +23,10 @@ all: prep
 	@echo "🌐 Open your browser at: https://$(HOST_IP):8443"
 	@echo ""
 
+# Development mode: hot reload, code mounted from the host, no nginx
+dev: prep
+	@docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend
+
 # Prepare the local environment: .env, nginx IP and HTTPS certificates
 prep:
 	@echo "Detected IP: $(HOST_IP)"
@@ -163,8 +167,9 @@ help:
 	@echo "  make images-<svc>   - Images of that service"
 	@echo "  make exec-<svc>     - Shell inside that service"
 	@echo "                       (CMD=\"...\" to run another command)"
+	@echo "  make dev            - Dev mode: hot reload at http://localhost:5173 (Ctrl+C to stop)"
 	@echo ""
 	@echo "  make help           - Show this message"
 	@echo ""
 
-.PHONY: all prep down re fclean studio help ps logs config volumes images stats f FORCE
+.PHONY: all prep down re fclean studio help ps logs config volumes images stats f FORCE dev
