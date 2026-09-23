@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     env_file: .env
     ports:
-      - "5555:5555"
+      - "127.0.0.1:5555:5555"
     networks:
       - internal
     depends_on:
@@ -41,6 +41,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_WS_URL: ${VITE_WS_URL}
     container_name: transcendence_frontend
     restart: unless-stopped
     networks:

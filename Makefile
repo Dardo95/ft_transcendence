@@ -1,4 +1,6 @@
 HOST_IP := $(shell ip addr show | grep "inet " | grep -v "127.0.0.1" | grep -v "172\." | grep -v "192.168.122" | awk '{print $$2}' | cut -d'/' -f1 | head -1)
+CERT_IP := $(if $(HOST_IP),$(HOST_IP),127.0.0.1)
+ACCESS_HOST := $(if $(HOST_IP),$(HOST_IP),localhost)
 
 # Services defined in docker-compose.yml, used to validate make <command>-<service>
 SERVICES := postgres backend frontend nginx
@@ -20,23 +22,31 @@ all: prep
 	@docker compose up --build -d
 	@echo ""
 	@echo "✅ Project is up!"
-	@echo "🌐 Open your browser at: https://$(HOST_IP):8443"
+	@echo "🌐 Open your browser at: https://$(ACCESS_HOST):8443"
 	@echo ""
 
 # Development mode: hot reload, code mounted from the host, no nginx
-dev: prep
+dev: prep-env
+	@docker compose rm -sf nginx 2>/dev/null || true
 	@docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend
 
-# Prepare the local environment: .env, nginx IP and HTTPS certificates
-prep:
-	@echo "Detected IP: $(HOST_IP)"
+# Prepare the local environment: .env and HTTPS certificates
+prep: prep-env prep-tls
+
+prep-env:
 	@cp -n .env.example .env 2>/dev/null || true
-	@sed -i "s|server_name .*;|server_name localhost $(HOST_IP);|" nginx/nginx.conf
+	@chmod 600 .env
+
+prep-tls:
+	@echo "Detected IP: $(ACCESS_HOST)"
 	@mkdir -p certs
-	@if [ ! -f certs/cert.pem ]; then \
+	@if [ ! -f certs/cert.pem ] || [ ! -f certs/key.pem ] || \
+		! openssl x509 -in certs/cert.pem -noout -ext subjectAltName 2>/dev/null | grep -Fq "IP Address:$(CERT_IP)" || \
+		! openssl x509 -in certs/cert.pem -checkend 2592000 >/dev/null 2>&1; then \
 		openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 			-keyout certs/key.pem -out certs/cert.pem \
-			-subj "/C=ES/ST=Madrid/L=Madrid/O=42Madrid/CN=$(HOST_IP)" 2>/dev/null; \
+			-subj "/C=ES/ST=Madrid/L=Madrid/O=42Madrid/CN=$(CERT_IP)" \
+			-addext "subjectAltName=DNS:localhost,IP:$(CERT_IP)" 2>/dev/null; \
 		echo "Certificates generated"; \
 	fi
 
@@ -49,9 +59,7 @@ re:
 	@$(MAKE) all
 
 fclean:
-	@docker compose down -v
-	@docker system prune -af
-	@docker volume prune -f
+	@docker compose down --volumes --remove-orphans
 	@rm -f certs/cert.pem certs/key.pem
 
 studio:
@@ -136,10 +144,10 @@ help:
 	@echo "Available commands:"
 	@echo ""
 	@echo "  make / make all     - Detect IP, generate certs and start everything (--build)"
-	@echo "  make prep           - Prepare the local environment only (.env, nginx IP, certs)"
+	@echo "  make prep           - Prepare the local environment only (.env and HTTPS certs)"
 	@echo "  make down           - Stop all containers (database data is kept)"
 	@echo "  make re             - Start from scratch and rebuild the database"
-	@echo "  make fclean         - Full cleanup: containers, images, volumes and certs"
+	@echo "  make fclean         - Remove this project's containers, database volume and certs"
 	@echo ""
 	@echo "  make studio         - Open Prisma Studio at http://localhost:5555"
 	@echo ""
@@ -172,4 +180,4 @@ help:
 	@echo "  make help           - Show this message"
 	@echo ""
 
-.PHONY: all prep down re fclean studio help ps logs config volumes images stats f FORCE dev
+.PHONY: all prep prep-env prep-tls down re fclean studio help ps logs config volumes images stats f FORCE dev
