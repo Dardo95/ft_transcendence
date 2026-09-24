@@ -51,5 +51,5 @@ backend/.devin/
 backend/prisma.config.ts
 
 # Wiki
-.wiki/
-.Wiki/
+wiki/
+Wiki/
