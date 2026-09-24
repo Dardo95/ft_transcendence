@@ -46,3 +46,10 @@
   // Stops containers when closing the VS Code window
   "shutdownAction": "stopCompose"
 }
+
+// How to use this Dev Container:
+// 1. Install the "Dev Containers" extension in VS Code.
+// 2. Open this project in VS Code.
+// 3. Press F1 or Ctrl+Shift+P and select "Dev Containers: Rebuild and Reopen in Container".
+// 4. Wait for the container to be built and the project to be opened in the container.
+// 5. You can now work on the project with all dependencies and tools pre-installed inside the container.
