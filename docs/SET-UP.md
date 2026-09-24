@@ -8,10 +8,10 @@ _Every member is a Developer; assign the 3 mandatory organizational roles across
 
 | Role                               | Assigned Member (Login) | Core Responsibilities                                        |
 | :--------------------------------- | :---------------------- | :----------------------------------------------------------- |
-| **Product Owner (PO)**             | `login_1`               | Backlog priorities, scope validation, subject alignment      |
-| **Project Manager / Scrum Master** | `login_2`               | Daily coordination, tracking blockers, GitHub project boards |
-| **Technical Lead / Architect**     | `login_3`               | Architecture design, technical stack, PR reviews             |
-| **Full Stack Developer**           | `login_4`               | Implementation, testing, feature documentation               |
+| **Product Owner (PO)**             | `brivera`               | Backlog priorities, scope validation, subject alignment      |
+| **Project Manager / Scrum Master** | `ozamora-`              | Daily coordination, tracking blockers, GitHub project boards |
+| **Technical Lead / Architect**     | `enogueir`              | Architecture design, technical stack, PR reviews             |
+| **Full Stack Developer**           | `raperez-`              | Implementation, testing, feature documentation               |
 
 - **Product Owner (PO):** Defines the product vision, prioritizes features, and ensures the project meets user needs.
   - Maintains the product backlog.
@@ -120,82 +120,27 @@ _Modules that add excessive architectural friction, are disproportionate to a ga
 
 ### Frontend
 
-- **Framework:** `[React / Next.js / Vue / Svelte]`
-- **Styling Engine:** `[Tailwind CSS / Bootstrap / Styled Components]` _(Mandatory requirement)_
-- **Game Rendering Engine:** `[HTML5 Canvas / Pixi.js / Phaser.js / Babylon.js]`
-
-### Backend & Real-Time
-
-- **Backend Framework:** `[NestJS / Express / Django / Fastify]`
-- **WebSocket Protocol:** `[Socket.io / ws / native WebSockets]`
-- **Game Loop Architecture:** Server-authoritative game loop _(Server validates movement, bomb ticks, explosions)_
-
-### Database & Security
-
-- **Database:** `[PostgreSQL / MySQL]`
-- **ORM:** `[Prisma / TypeORM / Drizzle / Django ORM]`
-- **Authentication & Security:**
-  - Passwords: `Argon2id` or `Bcrypt`
-  - Session/Token: `HTTP-only SameSite Cookies (JWT / Sessions)`
-  - Transport: Mandatory HTTPS across all external endpoints
-
-### DevOps & Infrastructure
-
-- **Container Solution:** Docker + Docker Compose _(Single command startup required)_
-- **Reverse Proxy:** `[Nginx / Caddy / Traefik]` (Handles SSL termination & HTTPS routing)
-
-## Recommended Stack
-
-### 1. Frontend
-
 - **UI Framework:** React (Vite template for fast builds)
 - **Styling Solution:** TailwindCSS
 - **Game Canvas Renderer:** Pixi.js (Alternative: Phaser.js)
 - **State Management:** Zustand or React Context (for lobby/chat state)
 
-### 2. Backend
+### Backend
 
 - **Runtime & Language:** Node.js (v20+) with TypeScript
 - **Framework:** NestJS
 - **Transport Layer:** WebSockets via `@nestjs/websockets` (Socket.io engine)
 - **Architecture Pattern:** Monolithic server-authoritative loop (server calculates tile collisions, bomb blasts, and ticks)
 
-### 3. Database & Data Layer
+### Database & Data Layer
 
 - **Database Engine:** PostgreSQL 16
 - **ORM Layer:** Prisma ORM
 - **Migration Workflow:** `prisma migrate dev`
 
-### 4. Infrastructure & Security
+###  Infrastructure & Security
 
 - **Container Orchestration:** Docker Compose
 - **Reverse Proxy:** Nginx (acting as SSL termination for HTTPS and WebSocket reverse proxy)
 - **Authentication Flow:** JWT stored in HTTP-only, SameSite Cookies
 - **Password Encryption:** Argon2id or Bcrypt
-
----
-
-## 4. Bomberman Game Architecture Decisions
-
-- **Game Engine Logic:**
-  - Server-authoritative tick rate: `[e.g., 20 ticks/sec or 30 ticks/sec]`
-  - Client interpolation: `[Predictive movement vs. state reconcilation]`
-- **Grid Specifications:**
-  - Tile dimensions: `[e.g., 15 x 13 grid]`
-  - Obstacles: Fixed indestructible blocks, destructible soft blocks, dynamic power-up drops
-- **Matchmaking & Room Management:**
-  - Lobby mechanism: Room codes vs. automated queue
-  - Min/Max players per room: 2 to 4 players
-
----
-
-## 5. Mandatory Deliverables Checklist
-
-- [ ] Repository initialized with `README.md` containing the mandatory header:  
-       `*This project has been created as part of the 42 curriculum by <login1>, <login2>, <login3>, <login4>.*`
-- [ ] Dedicated `/privacy-policy` and `/terms-of-service` pages implemented with real content
-- [ ] Multi-user concurrent session support with conflict handling
-- [ ] `.env.example` committed; actual credentials stored strictly in ignored `.env`
-- [ ] Frontend and backend dual validation on all inputs
-- [ ] Containerized launch via a single command (e.g., `docker compose up --build`)
-- [ ] Zero runtime console errors/warnings on latest Google Chrome

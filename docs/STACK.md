@@ -1,5 +1,60 @@
 # Technical Stack Options
 
+### Frontend
+
+- **Framework:** `[React / Next.js / Vue / Svelte]`
+- **Styling Engine:** `[Tailwind CSS / Bootstrap / Styled Components]` _(Mandatory requirement)_
+- **Game Rendering Engine:** `[HTML5 Canvas / Pixi.js / Phaser.js / Babylon.js]`
+
+### Backend & Real-Time
+
+- **Backend Framework:** `[NestJS / Express / Django / Fastify]`
+- **WebSocket Protocol:** `[Socket.io / ws / native WebSockets]`
+- **Game Loop Architecture:** Server-authoritative game loop _(Server validates movement, bomb ticks, explosions)_
+
+### Database & Security
+
+- **Database:** `[PostgreSQL / MySQL]`
+- **ORM:** `[Prisma / TypeORM / Drizzle / Django ORM]`
+- **Authentication & Security:**
+  - Passwords: `Argon2id` or `Bcrypt`
+  - Session/Token: `HTTP-only SameSite Cookies (JWT / Sessions)`
+  - Transport: Mandatory HTTPS across all external endpoints
+
+### DevOps & Infrastructure
+
+- **Container Solution:** Docker + Docker Compose _(Single command startup required)_
+- **Reverse Proxy:** `[Nginx / Caddy / Traefik]` (Handles SSL termination & HTTPS routing)
+
+## Recommended Stack
+
+### 1. Frontend
+
+- **UI Framework:** React (Vite template for fast builds)
+- **Styling Solution:** TailwindCSS
+- **Game Canvas Renderer:** Pixi.js (Alternative: Phaser.js)
+- **State Management:** Zustand or React Context (for lobby/chat state)
+
+### 2. Backend
+
+- **Runtime & Language:** Node.js (v20+) with TypeScript
+- **Framework:** NestJS
+- **Transport Layer:** WebSockets via `@nestjs/websockets` (Socket.io engine)
+- **Architecture Pattern:** Monolithic server-authoritative loop (server calculates tile collisions, bomb blasts, and ticks)
+
+### 3. Database & Data Layer
+
+- **Database Engine:** PostgreSQL 16
+- **ORM Layer:** Prisma ORM
+- **Migration Workflow:** `prisma migrate dev`
+
+### 4. Infrastructure & Security
+
+- **Container Orchestration:** Docker Compose
+- **Reverse Proxy:** Nginx (acting as SSL termination for HTTPS and WebSocket reverse proxy)
+- **Authentication Flow:** JWT stored in HTTP-only, SameSite Cookies
+- **Password Encryption:** Argon2id or Bcrypt
+
 ## Technical Stack Decisions
 
 ### Frontend
