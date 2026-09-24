@@ -1,14 +1,14 @@
 services:
 
   postgres:
+    container_name: ft_postgres
     image: postgres:16-alpine
-    container_name: transcendence_postgres
     restart: unless-stopped
     env_file: .env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ft_postgres_data:/var/lib/postgresql/data
     networks:
-      - internal
+      - ft_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -17,16 +17,17 @@ services:
       start_period: 10s
 
   backend:
+    container_name: ft_backend
+    image: backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: transcendence_backend
     restart: unless-stopped
     env_file: .env
     ports:
       - "127.0.0.1:5555:5555"
     networks:
-      - internal
+      - ft_network
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,16 +39,17 @@ services:
       start_period: 15s
 
   frontend:
+    container_name: ft_frontend
+    image: frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL}
         VITE_WS_URL: ${VITE_WS_URL}
-    container_name: transcendence_frontend
     restart: unless-stopped
     networks:
-      - internal
+      - ft_network
     depends_on:
       backend:
         condition: service_healthy
@@ -59,8 +61,8 @@ services:
       start_period: 15s
 
   nginx:
+    container_name: ft_nginx
     image: nginx:alpine
-    container_name: transcendence_nginx
     restart: unless-stopped
     ports:
       - "8443:443"
@@ -68,7 +70,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
     networks:
-      - internal
+      - ft_network
     depends_on:
       frontend:
         condition: service_healthy
@@ -76,8 +78,10 @@ services:
         condition: service_healthy
 
 networks:
-  internal:
+  ft_network:
+    name: ft_network
     driver: bridge
 
 volumes:
-  postgres_data:
+  ft_postgres_data:
+    name: ft_postgres_data
