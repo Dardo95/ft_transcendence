@@ -1,0 +1,48 @@
+{
+  "name": "ft_transcendence (Fullstack Dev)",
+
+  // Loads both docker-compose files in order (Production base + Development overrides)
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "../docker-compose.dev.yml"
+  ],
+
+  // Default service VS Code connects to when launched.
+  // Change to "frontend" if you are working primarily on the Web interface.
+  "service": "backend",
+
+  // Working directory mapped inside the container volume
+  "workspaceFolder": "/app",
+
+  // Ensures Dev Containers runs the commands defined in your docker-compose.dev.yml
+  "overrideCommand": false,
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Directs VS Code to use TypeScript/Node installed inside the container node_modules
+        "typescript.tsdk": "node_modules/typescript/lib"
+      },
+      "extensions": [
+        // GENERAL TOOLS AND LINTERS
+        "dbaeumer.vscode-eslint",         // JS/TS code validation and linting
+        "esbenp.prettier-vscode",        // Automatic code formatter
+
+        // FRONTEND EXTENSIONS (React, Vite, CSS)
+        "dsznajder.es7-react-js-snippets", // Snippets and shortcuts for React / JSX / TSX
+        "bradlc.vscode-tailwindcss",       // Autocomplete and helpers for Tailwind CSS
+        "ecmel.vscode-html-css",           // HTML/CSS link support
+        "formulahendry.auto-close-tag",   // Auto close JSX/HTML tags
+        "formulahendry.auto-rename-tag",  // Auto rename paired JSX/HTML tags
+
+        // BACKEND EXTENSIONS (Prisma, DB, APIs)
+        "Prisma.prisma",                   // Autocomplete, highlighting, and validation for schema.prisma
+        "cweijan.vscode-database-client2", // Graphical PostgreSQL client inside VS Code
+        "humao.rest-client"                // Test API endpoints directly from .http/.rest files
+      ]
+    }
+  },
+
+  // Stops containers when closing the VS Code window
+  "shutdownAction": "stopCompose"
+}
