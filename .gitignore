@@ -49,3 +49,7 @@ backend/.claude/
 backend/.cursor/
 backend/.devin/
 backend/prisma.config.ts
+
+# Wiki
+.wiki/
+.Wiki/
