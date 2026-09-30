@@ -28,7 +28,7 @@ all: prep
 # Development mode: hot reload, code mounted from the host, no nginx
 dev: prep-env
 	@docker compose rm -sf nginx 2>/dev/null || true
-	@docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend
+	@docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend -d
 
 # Prepare the local environment: .env and HTTPS certificates
 prep: prep-env prep-tls

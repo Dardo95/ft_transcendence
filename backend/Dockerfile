@@ -1,7 +1,7 @@
 # ---- Build ----
 FROM node:20-alpine AS builder
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl python3 make g++
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN pnpm run build
 # ---- Production dependencies ----
 FROM node:20-alpine AS production-dependencies
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl python3 make g++ libstdc++
 
 WORKDIR /app
 
@@ -30,7 +30,7 @@ RUN pnpm install --prod --frozen-lockfile && npx prisma generate
 # ---- Production ----
 FROM node:20-alpine
 
-RUN apk add --no-cache curl openssl
+RUN apk add --no-cache curl openssl libstdc++
 
 ENV NODE_ENV=production
 
