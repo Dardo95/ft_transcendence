@@ -1,3 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-arena-950: #080a12;
+  --color-arena-900: #101426;
+  --color-arena-800: #19213a;
+  --color-neon-cyan: #70e5e3;
+  --color-neon-pink: #eb8fca;
+  --color-neon-lime: #d7f171;
+  --font-display: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
