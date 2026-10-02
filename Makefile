@@ -63,7 +63,7 @@ fclean:
 	@rm -f certs/cert.pem certs/key.pem
 
 studio:
-	@docker exec -it transcendence_backend npx prisma studio --port 5555 --browser none
+	@docker exec -it ft_backend npx prisma studio --port 5555 --browser none
 
 # ─── Inspection ─────────────────────────────────────────────
 
