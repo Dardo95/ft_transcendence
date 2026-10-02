@@ -54,3 +54,5 @@ backend/prisma.config.ts
 wiki/
 Wiki/
 ft_transcendence.wiki/
+
+task.sh
