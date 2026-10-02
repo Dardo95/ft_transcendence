@@ -10,7 +10,6 @@ export class UsersService {
       select: {
         id: true,
         username: true,
-        email: true,
         xp: true,
         createdAt: true,
       },
