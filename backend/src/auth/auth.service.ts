@@ -2,13 +2,16 @@ import {
   ConflictException, Injectable,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
+import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService) {}
 
   async register(data: RegisterDto) {
     const email = data.email.trim().toLowerCase();
@@ -28,7 +31,7 @@ export class AuthService {
     const passwordHash = await argon2.hash(data.password);
 
     try {
-      return await this.prisma.user.create({
+      const user =  await this.prisma.user.create({
         data: {
           email,
           username,
@@ -42,6 +45,16 @@ export class AuthService {
           createdAt: true,
         },
       });
+
+      const payload = {
+        sub: user.id,
+        username: user.username,
+      };
+
+      const token = this.jwtService.sign(payload);
+
+      return token;
+
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -52,4 +65,5 @@ export class AuthService {
       throw error;
     }
   }
+
 }
