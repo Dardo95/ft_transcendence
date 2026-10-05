@@ -7,22 +7,22 @@ import { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card } from "../../components/ui/Card";
-import { useLanguage } from "../../languages";
+import { useLanguage } from "../../locales";
 
 export function LoginForm() {
-	const [username, setUsername] = useState("");
+	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { t } = useLanguage();
 
-	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		setIsSubmitting(true);
 
 		// Simulate API call
 		setTimeout(() => {
 			setIsSubmitting(false);
-			alert(`Login attempt for: ${username}`);
+			alert(`Login attempt for: ${email}`);
 		}, 1000);
 	}
 
@@ -33,11 +33,11 @@ export function LoginForm() {
 			</h2>
 			<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 				<Input
-					label={t("auth.login.username")}
+					label={t("auth.login.email")}
 					type="text"
-					value={username}
-					onChange={(e) => setUsername(e.target.value)}
-					placeholder={t("auth.login.placeholder")}
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					placeholder={t("auth.login.emailPlaceholder")}
 					required
 				/>
 				<Input
@@ -45,7 +45,7 @@ export function LoginForm() {
 					type="password"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
-					placeholder={t("auth.register.passwordPlaceholder")}
+					placeholder={t("auth.login.passwordPlaceholder")}
 					required
 				/>
 

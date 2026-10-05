@@ -1,22 +1,22 @@
 export const authEs = {
 	login: {
 		title: "Iniciar Sesión",
-		placeholder: "Introduce tu usuario",
 		connecting: "Conectando...",
 		playNow: "Jugar ahora",
-        username: "Usuario",
+        email: "Correo electrónico",
+		emailPlaceholder: "Introduce tu correo electrónico",
         password: "Contraseña",
-		passwordPlaceholder: "••••••••", 
+		passwordPlaceholder: "********", 
         
 	},
 
 	register: {
 		title: "Nuevo usuario",
-		placeholder: "Introduce tu usuario",
 		connecting: "Registrando...",
 		playNow: "Registrarse",
-		username: "Usuario",
+		email: "Correo electrónico",
+		emailPlaceholder: "Introduce tu correo electrónico",
 		password: "Contraseña",
-		passwordPlaceholder: "••••••••", 
+		passwordPlaceholder: "********", 
 	},
 } as const;

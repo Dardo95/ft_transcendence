@@ -59,7 +59,7 @@ re:
 	@$(MAKE) all
 
 fclean:
-	@docker compose down --volumes --remove-orphans
+	@docker compose down --volumes --remove-orphans --rmi all
 	@rm -f certs/cert.pem certs/key.pem
 
 studio:

@@ -1,20 +1,20 @@
 export const authEn = {
 	login: {
 		title: "Log In",
-		placeholder: "Enter your username",
 		connecting: "Connecting...",
 		playNow: "Play Now",
-		username: "Username",
+		email: "Email",
+		emailPlaceholder: "Enter your email",
 		password: "Password",
-		passwordPlaceholder: "••••••••", 
+		passwordPlaceholder: "********", 
 	},
 	register: {
 		title: "New User",
-		placeholder: "Enter your username",
 		connecting: "Registering...",
 		playNow: "Register",
-		username: "Username",
+		email: "Email",
+		emailPlaceholder: "Enter your email",
 		password: "Password",
-		passwordPlaceholder: "••••••••", 
+		passwordPlaceholder: "********", 
 	},
 };

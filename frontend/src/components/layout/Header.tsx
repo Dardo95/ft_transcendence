@@ -3,7 +3,7 @@
  * Description: Top navigation bar indicating connection status and game title.
  */
 
-import { useLanguage } from "../../languages"
+import { useLanguage } from "../../locales"
 
 export function Header() {
 	const { setLanguage } = useLanguage();

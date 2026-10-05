@@ -2,23 +2,34 @@ import { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card } from "../../components/ui/Card";
-import { useLanguage } from "../../languages";
+import { useLanguage } from "../../locales";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export function RegisterForm() {
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { t } = useLanguage();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const { t } = useLanguage();
+    const register = useAuthStore((state) => state.register); // Método de Zustand
+
+    async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
         setIsSubmitting(true);
+        setErrorMessage(null);
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // Ejecutamos la acción del store
+            await register({ email: email, password });
+            setEmail("");
+            setPassword("");
+            // Opcional: Redirigir al dashboard/inicio
+        } catch (error: any) {
+            setErrorMessage(error.message || "Error al registrar la cuenta.");
+        } finally {
             setIsSubmitting(false);
-            alert(`Register attempt for: ${username}`);
-        }, 1000);
+        }
     }
 
     return (
@@ -26,13 +37,20 @@ export function RegisterForm() {
             <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
                 {t("auth.register.title")}
             </h2>
+
+            {errorMessage && (
+                <div className="mb-4 p-2 text-sm text-red-600 bg-red-100 rounded text-center">
+                    {errorMessage}
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <Input
-                    label={t("auth.register.username")}
+                    label={t("auth.register.email")}
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder={t("auth.register.placeholder")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t("auth.register.emailPlaceholder")}
                     required
                 />
                 <Input

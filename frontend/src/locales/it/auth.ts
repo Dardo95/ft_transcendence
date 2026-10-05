@@ -1,21 +1,21 @@
 export const authIt = {
 	login: {
 		title: "Accedi",
-		placeholder: "Inserisci il tuo nome utente",
 		connecting: "Connessione...",
 		playNow: "Gioca ora",
-        username: "Nome utente",
+        email: "Email",
+		emailPlaceholder: "Inserisci il tuo indirizzo email",
         password: "Password",
-		passwordPlaceholder: "••••••••", 
+		passwordPlaceholder: "********", 
 	},
 
 	register: {
 		title: "Nuovo utente",
-		placeholder: "Inserisci il tuo nome utente",
 		connecting: "Registrando...",
 		playNow: "Registrarsi",
-		username: "Nome utente",
+		email: "Email",
+		emailPlaceholder: "Inserisci il tuo indirizzo email",
 		password: "Password",
-		passwordPlaceholder: "••••••••",
+		passwordPlaceholder: "********",
 	},
 };
