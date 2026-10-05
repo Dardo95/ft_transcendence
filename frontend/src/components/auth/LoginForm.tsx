@@ -7,11 +7,13 @@ import { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card } from "../../components/ui/Card";
+import { useLanguage } from "../../languages";
 
 export function LoginForm() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const { t } = useLanguage();
 
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -27,27 +29,30 @@ export function LoginForm() {
 	return (
 		<Card className="w-full max-w-sm mx-auto mt-12">
 			<h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-				Sign In
+				{t("auth.login.title")}
 			</h2>
 			<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 				<Input
-					label="Username"
+					label={t("auth.login.username")}
 					type="text"
 					value={username}
 					onChange={(e) => setUsername(e.target.value)}
-					placeholder="Enter your login"
+					placeholder={t("auth.login.placeholder")}
 					required
 				/>
 				<Input
-					label="Password"
+					label={t("auth.login.password")}
 					type="password"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
-					placeholder="••••••••"
+					placeholder={t("auth.register.passwordPlaceholder")}
 					required
 				/>
+
 				<Button type="submit" disabled={isSubmitting} className="mt-2">
-					{isSubmitting ? "Connecting..." : "Play Now"}
+					{isSubmitting
+						? t("auth.login.connecting")
+						: t("auth.login.playNow")}
 				</Button>
 			</form>
 		</Card>
