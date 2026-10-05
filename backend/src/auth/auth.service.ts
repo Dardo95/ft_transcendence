@@ -1,11 +1,13 @@
 import {
   ConflictException, Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service.js';
 import { RegisterDto } from './dto/register.dto.js';
+import { LoginDto } from './dto/login.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +33,7 @@ export class AuthService {
     const passwordHash = await argon2.hash(data.password);
 
     try {
-      const user =  await this.prisma.user.create({
+      const user = await this.prisma.user.create({
         data: {
           email,
           username,
@@ -40,20 +42,13 @@ export class AuthService {
         select: {
           id: true,
           username: true,
+          password: true,
           email: true,
           xp: true,
           createdAt: true,
         },
       });
-
-      const payload = {
-        sub: user.id,
-        username: user.username,
-      };
-
-      const token = this.jwtService.sign(payload);
-
-      return token;
+      return this.login( {email: email, password: data.password} );
 
     } catch (error) {
       if (
@@ -64,6 +59,40 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  async login(data: LoginDto) {
+    const email = data.email.trim().toLowerCase();
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user)
+      throw new UnauthorizedException('Invalid credentials');
+
+    if (!user.password)
+      throw new UnauthorizedException('Invalid credentials');
+
+    const isPasswordValid = await argon2.verify(user.password, data.password);
+    if (!isPasswordValid)
+      throw new UnauthorizedException('Invalid credentials');
+
+    // JWT
+    const payload = {
+      sub: user.id,
+      username: user.username,
+    };
+
+    const token = this.jwtService.sign(payload);
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+      },
+    };
   }
 
 }
