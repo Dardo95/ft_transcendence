@@ -37,7 +37,7 @@ export function LoginForm() {
 					type="text"
 					value={username}
 					onChange={(e) => setUsername(e.target.value)}
-					placeholder="Enter your login"
+					placeholder={t("auth.login.placeholder")}
 					required
 				/>
 				<Input
@@ -48,13 +48,6 @@ export function LoginForm() {
 					placeholder="*****"
 					required
 				/>
-				
-				{/* Mover a header */}
-				<div className="flex gap-2 mb-4">
-					<button onClick={() => setLanguage("es")}>ES</button>
-					<button onClick={() => setLanguage("en")}>EN</button>
-					<button onClick={() => setLanguage("it")}>IT</button>
-				</div>
 
 				<Button type="submit" disabled={isSubmitting} className="mt-2">
 					{isSubmitting

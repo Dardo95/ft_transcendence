@@ -1,7 +1,7 @@
 export const authEs = {
 	login: {
 		title: "Iniciar Sesión",
-		submit: "Entrar",
+		placeholder: "Introduce tu usuario",
 		connecting: "Conectando...",
 		playNow: "Jugar ahora",
         username: "Usuario",

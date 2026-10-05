@@ -1,7 +1,7 @@
 export const authEn = {
 	login: {
 		title: "Log In",
-		submit: "Submit",
+		placeholder: "Enter your username",
 		connecting: "Connecting...",
 		playNow: "Play Now",
 		username: "Username",
