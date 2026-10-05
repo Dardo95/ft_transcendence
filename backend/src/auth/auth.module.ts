@@ -6,13 +6,12 @@ import { AuthService } from './auth.service.js';
 
 @Module({
   imports:[
-    PrismaModule, 
+    PrismaModule,
     JwtModule.register({
-        secret: process.env.JWT_SECRET,
-        signOptions: {
-          expiresIn: '7d',
-        },
-      }),
+      global: true,
+      secret: process.env.JWT_SECRET || 'dev_only_change_me',
+      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any },
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService],

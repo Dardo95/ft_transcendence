@@ -78,21 +78,15 @@ export class AuthService {
     if (!isPasswordValid)
       throw new UnauthorizedException('Invalid credentials');
 
-    // JWT
+    return this.sign({ id: user.id, username: user.username })
+  }
+
+  private sign(user: { id: number; username: string; }) {
     const payload = {
       sub: user.id,
-      username: user.username,
+      username: user.username
     };
-
-    const token = this.jwtService.sign(payload);
-
-    return {
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-      },
-    };
+    return this.jwtService.sign(payload);
   }
 
 }
