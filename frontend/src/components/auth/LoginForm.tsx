@@ -13,7 +13,7 @@ export function LoginForm() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const { t, setLanguage } = useLanguage();
+	const { t } = useLanguage();
 
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -45,7 +45,7 @@ export function LoginForm() {
 					type="password"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
-					placeholder="*****"
+					placeholder={t("auth.register.passwordPlaceholder")}
 					required
 				/>
 

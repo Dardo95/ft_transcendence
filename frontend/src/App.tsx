@@ -4,12 +4,15 @@
  */
 import { AppLayout } from "./components/layout/AppLayout";
 import { LoginForm } from "./components/auth/LoginForm";
+import { RegisterForm } from "./components/auth/RegisterForm";
 
 function App() {
 	return (
 		<AppLayout>
 			<LoginForm />
+			<RegisterForm />
 		</AppLayout>
+
 	);
 }
 

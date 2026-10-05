@@ -6,6 +6,17 @@ export const authEs = {
 		playNow: "Jugar ahora",
         username: "Usuario",
         password: "Contraseña",
+		passwordPlaceholder: "••••••••", 
         
+	},
+
+	register: {
+		title: "Nuevo usuario",
+		placeholder: "Introduce tu usuario",
+		connecting: "Registrando...",
+		playNow: "Registrarse",
+		username: "Usuario",
+		password: "Contraseña",
+		passwordPlaceholder: "••••••••", 
 	},
 } as const;

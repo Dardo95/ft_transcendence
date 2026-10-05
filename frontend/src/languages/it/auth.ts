@@ -6,5 +6,16 @@ export const authIt = {
 		playNow: "Gioca ora",
         username: "Nome utente",
         password: "Password",
+		passwordPlaceholder: "••••••••", 
+	},
+
+	register: {
+		title: "Nuovo utente",
+		placeholder: "Inserisci il tuo nome utente",
+		connecting: "Registrando...",
+		playNow: "Registrarsi",
+		username: "Nome utente",
+		password: "Password",
+		passwordPlaceholder: "••••••••",
 	},
 };

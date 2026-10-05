@@ -6,5 +6,15 @@ export const authEn = {
 		playNow: "Play Now",
 		username: "Username",
 		password: "Password",
+		passwordPlaceholder: "••••••••", 
+	},
+	register: {
+		title: "New User",
+		placeholder: "Enter your username",
+		connecting: "Registering...",
+		playNow: "Register",
+		username: "Username",
+		password: "Password",
+		passwordPlaceholder: "••••••••", 
 	},
 };
