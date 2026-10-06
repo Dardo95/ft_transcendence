@@ -19,4 +19,10 @@ export const authEn = {
 		password: "Password",
 		passwordPlaceholder: "********", 
 	},
+	status: {
+		loggedIn: "Logged in",
+		notLoggedIn: "Not logged in",
+		logout: "Log out",
+		loggingOut: "Logging out...",
+	},
 };

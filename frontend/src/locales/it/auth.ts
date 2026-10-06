@@ -20,4 +20,10 @@ export const authIt = {
 		password: "Password",
 		passwordPlaceholder: "********",
 	},
+	status: {
+		loggedIn: "Accesso effettuato",
+		notLoggedIn: "Accesso non effettuato",
+		logout: "Esci",
+		loggingOut: "Disconnessione...",
+	},
 };

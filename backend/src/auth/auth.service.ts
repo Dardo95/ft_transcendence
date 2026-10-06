@@ -48,7 +48,7 @@ export class AuthService {
           createdAt: true,
         },
       });
-      return this.login( {email: email, password: data.password} );
+      return this.login({ email, password: data.password });
 
     } catch (error) {
       if (
@@ -78,7 +78,14 @@ export class AuthService {
     if (!isPasswordValid)
       throw new UnauthorizedException('Invalid credentials');
 
-    return this.sign({ id: user.id, username: user.username })
+    return {
+      token: this.sign({ id: user.id, username: user.username }),
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+    };
   }
 
   private sign(user: { id: number; username: string; }) {

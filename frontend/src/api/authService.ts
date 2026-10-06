@@ -8,11 +8,10 @@ export interface AuthCredentials {
 
 export interface AuthResponse {
     message?: string;
-    token?: string;
     user?: {
-        id: string;
+        id: number;
         email: string;
-        username?: string;
+        username: string;
     };
 }
 
@@ -33,5 +32,11 @@ export async function loginUser(credentials: AuthCredentials): Promise<AuthRespo
     return apiFetch<AuthResponse>("/auth/login", {
         method: "POST",
         body: credentials,
+    });
+}
+
+export async function logoutUser(): Promise<void> {
+    await apiFetch<{ message: string }>("/auth/logout", {
+        method: "POST",
     });
 }

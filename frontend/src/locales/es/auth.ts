@@ -21,4 +21,10 @@ export const authEs = {
 		password: "Contraseña",
 		passwordPlaceholder: "********", 
 	},
+	status: {
+		loggedIn: "Sesión iniciada",
+		notLoggedIn: "Sesión no iniciada",
+		logout: "Cerrar sesión",
+		loggingOut: "Cerrando sesión...",
+	},
 } as const;

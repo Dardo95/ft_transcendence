@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { registerUser, loginUser} from "../api/authService";
+import { loginUser, logoutUser, registerUser} from "../api/authService";
 import type { AuthCredentials, AuthResponse } from "../api/authService";
 
 // 1. Tipos de datos del estado
 export interface User {
-    id: string;
+    id: number;
     username: string;
     email: string;
     avatarUrl?: string;
@@ -32,7 +32,7 @@ interface AuthState {
     // Acciones
     register: (credentials: AuthCredentials) => Promise<void>;
     login: (credentials: AuthCredentials) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
     setAuth: (user: User, token: string) => void;
 }
 
@@ -48,35 +48,26 @@ export const useAuthStore = create<AuthState>()(
             // Acción de Registro
             register: async (credentials) => {
                 const data = await registerUser(credentials);
-                
-                // Guardar token en localStorage para apiFetch si fuera necesario
-                if (data.token) {
-                    localStorage.setItem("authToken", data.token);
-                    set({
-                        user: normalizeUser(data.user),
-                        token: data.token,
-                        isAuthenticated: true,
-                    });
-                }
+                set({
+                    user: normalizeUser(data.user),
+                    token: null,
+                    isAuthenticated: Boolean(data.user),
+                });
             },
 
             // Acción de Login
             login: async (credentials) => {
                 const data = await loginUser(credentials);
-
-                if (data.token) {
-                    localStorage.setItem("authToken", data.token);
-                    set({
-                        user: normalizeUser(data.user),
-                        token: data.token,
-                        isAuthenticated: true,
-                    });
-                }
+                set({
+                    user: normalizeUser(data.user),
+                    token: null,
+                    isAuthenticated: Boolean(data.user),
+                });
             },
 
             // Acción de Logout
-            logout: () => {
-                localStorage.removeItem("authToken");
+            logout: async () => {
+                await logoutUser();
                 set({
                     user: null,
                     token: null,
@@ -86,7 +77,6 @@ export const useAuthStore = create<AuthState>()(
 
             // Permite actualizar el estado directamente (ej. tras OAuth 42 o revalidación de token)
             setAuth: (user, token) => {
-                localStorage.setItem("authToken", token);
                 set({
                     user: user,
                     token,

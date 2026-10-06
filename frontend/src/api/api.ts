@@ -1,6 +1,6 @@
 const API_BASE_URL = "/api";
 
-interface FetchOptions extends RequestInit {
+interface FetchOptions extends Omit<RequestInit, "body"> {
     body?: unknown;
 }
 
@@ -9,15 +9,14 @@ export async function apiFetch<T>(
     options: FetchOptions = {},
 ): Promise<T> {
     const { body, ...customConfig } = options;
-    const token = localStorage.getItem("authToken");
     const headers: HeadersInit = {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
     };
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: options.method || "GET",
+        credentials: "include",
         ...customConfig,
         headers,
         body: body === undefined ? undefined : JSON.stringify(body),
