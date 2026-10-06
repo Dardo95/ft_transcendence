@@ -23,19 +23,6 @@ function normalizeUser(user: AuthResponse["user"]): User | null {
     };
 }
 
-function buildUsernameFromEmail(email: string): string {
-    const normalizedEmail = email.trim().toLowerCase();
-    const localPart = normalizedEmail.split("@")[0]?.replace(/[^a-z0-9_]/g, "") ?? "";
-    const baseName = localPart.length >= 3 ? localPart : "player";
-    const hash = Array.from(normalizedEmail)
-        .reduce((accumulator, character) => ((accumulator * 31) + character.charCodeAt(0)) >>> 0, 7)
-        .toString(36)
-        .slice(0, 4);
-    const maxBaseLength = 20 - hash.length - 1;
-
-    return `${baseName.slice(0, maxBaseLength)}-${hash}`;
-}
-
 interface AuthState {
     // Estado
     user: User | null;
@@ -60,10 +47,7 @@ export const useAuthStore = create<AuthState>()(
 
             // Acción de Registro
             register: async (credentials) => {
-                const data = await registerUser({
-                    ...credentials,
-                    username: buildUsernameFromEmail(credentials.email),
-                });
+                const data = await registerUser(credentials);
                 
                 // Guardar token en localStorage para apiFetch si fuera necesario
                 if (data.token) {

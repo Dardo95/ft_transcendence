@@ -6,6 +6,7 @@ import { useLanguage } from "../../locales";
 import { useAuthStore } from "../../store/useAuthStore";
 
 export function RegisterForm() {
+    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,11 +21,10 @@ export function RegisterForm() {
         setErrorMessage(null);
 
         try {
-            // Ejecutamos la acción del store
-            await register({ email: email, password });
+            await register({ username, email, password });
+            setUsername("");
             setEmail("");
             setPassword("");
-            // Opcional: Redirigir al dashboard/inicio
         } catch (error: any) {
             setErrorMessage(error.message || "Error al registrar la cuenta.");
         } finally {
@@ -46,8 +46,16 @@ export function RegisterForm() {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <Input
-                    label={t("auth.register.email")}
+                    label={t("auth.register.newUser")}
                     type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder={t("auth.register.userPlaceholder")}
+                    required
+                />
+                <Input
+                    label={t("auth.register.email")}
+                    type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t("auth.register.emailPlaceholder")}

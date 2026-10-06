@@ -14,6 +14,8 @@ export const authEn = {
 		playNow: "Register",
 		email: "Email",
 		emailPlaceholder: "Enter your email",
+		newUser: "User",
+		userPlaceholder: "Enter your user",
 		password: "Password",
 		passwordPlaceholder: "********", 
 	},

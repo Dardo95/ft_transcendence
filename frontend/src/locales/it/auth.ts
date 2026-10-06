@@ -15,6 +15,8 @@ export const authIt = {
 		playNow: "Registrarsi",
 		email: "Email",
 		emailPlaceholder: "Inserisci il tuo indirizzo email",
+		newUser: "Utente",
+		userPlaceholder: "Inserisci il utente",
 		password: "Password",
 		passwordPlaceholder: "********",
 	},

@@ -8,22 +8,34 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card } from "../../components/ui/Card";
 import { useLanguage } from "../../locales";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export function LoginForm() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const { t } = useLanguage();
+	const login = useAuthStore((state) => state.login);
 
-	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+	async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		setIsSubmitting(true);
+		setErrorMessage(null);
 
-		// Simulate API call
-		setTimeout(() => {
+		try {
+			await login({ email, password });
+			setEmail("");
+			setPassword("");
+		} catch (error) {
+			setErrorMessage(
+				error instanceof Error
+					? error.message
+					: "Error al iniciar sesión.",
+			);
+		} finally {
 			setIsSubmitting(false);
-			alert(`Login attempt for: ${email}`);
-		}, 1000);
+		}
 	}
 
 	return (
@@ -31,10 +43,15 @@ export function LoginForm() {
 			<h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
 				{t("auth.login.title")}
 			</h2>
+			{errorMessage && (
+				<div className="mb-4 p-2 text-sm text-red-600 bg-red-100 rounded text-center">
+					{errorMessage}
+				</div>
+			)}
 			<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 				<Input
 					label={t("auth.login.email")}
-					type="text"
+					type="email"
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
 					placeholder={t("auth.login.emailPlaceholder")}
