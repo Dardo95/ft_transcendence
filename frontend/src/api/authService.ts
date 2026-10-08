@@ -1,19 +1,5 @@
 import { apiFetch } from "./api";
-
-export interface AuthCredentials {
-	email: string;
-	password: string;
-	username?: string;
-}
-
-export interface AuthResponse {
-	message?: string;
-	user?: {
-		id: number;
-		email: string;
-		username: string;
-	};
-}
+import type { AuthCredentials, AuthResponse } from "../types/auth";
 
 // Envía la petición de registro de un nuevo usuario.
 export async function registerUser(

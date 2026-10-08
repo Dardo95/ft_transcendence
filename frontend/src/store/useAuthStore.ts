@@ -1,15 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { loginUser, logoutUser, registerUser } from "../api/authService";
-import type { AuthCredentials, AuthResponse } from "../api/authService";
-
-// 1. Tipos de datos del estado
-export interface User {
-	id: number;
-	username: string;
-	email: string;
-	avatarUrl?: string;
-}
+import type { AuthCredentials, AuthResponse } from "../types/auth";
+import type { User } from "../types/user";
 
 function normalizeUser(user: AuthResponse["user"]): User | null {
 	if (!user) {
