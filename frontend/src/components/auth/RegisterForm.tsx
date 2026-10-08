@@ -1,3 +1,19 @@
+/**
+ * User registration form.
+ * Category: Feature Component
+ *
+ * Responsible for:
+ * - Collecting registration information.
+ * - Validating user input.
+ * - Triggering the registration flow.
+ * - Displaying registration errors to the user.
+ *
+ * Does not:
+ * - Perform HTTP requests directly.
+ * - Implement authentication business logic.
+ * - Manage global authentication state.
+ */
+
 import { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -13,7 +29,7 @@ export function RegisterForm() {
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	const { t } = useLanguage();
-	const register = useAuthStore((state) => state.register); // Método de Zustand
+	const register = useAuthStore((state) => state.register); // Zustand method
 
 	async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -29,7 +45,7 @@ export function RegisterForm() {
 			setErrorMessage(
 				error instanceof Error
 					? error.message
-					: "Error al registrar la cuenta.",
+					: t("auth.errors.register"),
 			);
 		} finally {
 			setIsSubmitting(false);

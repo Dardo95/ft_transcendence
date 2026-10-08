@@ -1,6 +1,17 @@
 /**
- * File: frontend/src/components/ui/Button.tsx
- * Purpose: A reusable button component for the design system.
+ * Reusable button component.
+ * Category: Design System
+ *
+ * Part of the application's custom design system.
+ *
+ * Responsible for:
+ * - Rendering consistent button styles.
+ * - Supporting common button variants and states.
+ * - Providing a reusable button interface.
+ *
+ * Does not:
+ * - Contain feature-specific logic.
+ * - Perform API requests.
  */
 import React from "react";
 

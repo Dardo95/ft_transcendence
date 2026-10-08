@@ -1,3 +1,17 @@
+/**
+ * Localization provider.
+ * Category: Provider
+ *
+ * Responsible for:
+ * - Providing the current language to the application.
+ * - Managing language selection.
+ * - Providing translation functionality through React context.
+ *
+ * Does not:
+ * - Contain feature-specific UI logic.
+ * - Perform API requests.
+ */
+
 import { useState, type ReactNode } from "react";
 import { LanguageContext } from "./LanguageContext";
 import { translations, type SupportedLanguage } from "./translations";

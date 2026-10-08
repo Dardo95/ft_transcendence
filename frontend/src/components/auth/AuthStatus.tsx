@@ -1,3 +1,18 @@
+/**
+ * Authentication status component.
+ * Category: Feature Component
+ *
+ * Responsible for:
+ * - Displaying the current authentication state.
+ * - Displaying authenticated user information.
+ * - Providing authentication-related UI actions.
+ *
+ * Does not:
+ * - Perform authentication requests directly.
+ * - Implement authentication logic.
+ * - Manage API communication.
+ */
+
 import { useState } from "react";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
@@ -22,7 +37,7 @@ export function AuthStatus() {
 			setErrorMessage(
 				error instanceof Error
 					? error.message
-					: "Error al cerrar sesión.",
+					: t("auth.errors.logout"),
 			);
 		} finally {
 			setIsLoggingOut(false);
@@ -31,7 +46,6 @@ export function AuthStatus() {
 
 	return (
 		<Card className="w-full max-w-sm mx-auto mt-6 text-center">
-			{/* Muestra si existe una sesión log in y el usuario. */}
 			<p className="text-lg font-semibold">
 				{isAuthenticated
 					? t("auth.status.loggedIn")
@@ -39,7 +53,7 @@ export function AuthStatus() {
 			</p>
 			{isAuthenticated && user && (
 				<p className="mt-2 text-sm text-gray-600">
-					Usuario: {user.username}
+					{t("auth.status.userLabel")}: {user.username}
 				</p>
 			)}
 			{errorMessage && (
@@ -53,7 +67,6 @@ export function AuthStatus() {
 					onClick={handleLogout}
 					disabled={isLoggingOut}
 				>
-					{/* Prueba el logout del backend y elimina la cookie de sesión. */}
 					{isLoggingOut
 						? t("auth.status.loggingOut")
 						: t("auth.status.logout")}

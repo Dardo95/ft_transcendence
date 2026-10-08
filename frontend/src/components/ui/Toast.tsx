@@ -1,7 +1,17 @@
 /**
- * File: src/components/ui/Toast.tsx
- * Purpose: A small, non-blocking notification popup.
- * Usage: Used to display temporary success/error messages (e.g., "Login successful") without interrupting the user.
+ * Reusable toast notification component.
+ * Category: Design System
+ *
+ * Part of the application's custom design system.
+ *
+ * Responsible for:
+ * - Displaying temporary user notifications.
+ * - Supporting different notification types.
+ * - Providing consistent notification styling.
+ *
+ * Does not:
+ * - Decide when a notification should be displayed.
+ * - Contain feature-specific business logic.
  */
 import React from "react";
 

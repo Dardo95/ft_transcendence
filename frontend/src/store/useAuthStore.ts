@@ -1,3 +1,18 @@
+/**
+ * Authentication state store.
+ * Category: State Management
+ *
+ * Responsible for:
+ * - Storing the current authenticated user.
+ * - Tracking authentication state.
+ * - Providing authentication state actions.
+ *
+ * Does not:
+ * - Render UI.
+ * - Contain React components.
+ * - Perform API requests directly.
+ */
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { loginUser, logoutUser, registerUser } from "../api/authService";
@@ -17,28 +32,28 @@ function normalizeUser(user: AuthResponse["user"]): User | null {
 }
 
 interface AuthState {
-	// Estado
+	// State
 	user: User | null;
 	token: string | null;
 	isAuthenticated: boolean;
 
-	// Acciones
+	// Actions
 	register: (credentials: AuthCredentials) => Promise<void>;
 	login: (credentials: AuthCredentials) => Promise<void>;
 	logout: () => Promise<void>;
 	setAuth: (user: User, token: string) => void;
 }
 
-// 2. Creación del store con persistencia en localStorage
+// Creation of the store with persistence in localStorage
 export const useAuthStore = create<AuthState>()(
 	persist(
 		(set) => ({
-			// Estado inicial
+			// Initial state
 			user: null,
 			token: null,
 			isAuthenticated: false,
 
-			// Acción de Registro
+			// Register action
 			register: async (credentials) => {
 				const data = await registerUser(credentials);
 				set({
@@ -48,7 +63,7 @@ export const useAuthStore = create<AuthState>()(
 				});
 			},
 
-			// Acción de Login
+			// Login action
 			login: async (credentials) => {
 				const data = await loginUser(credentials);
 				set({
@@ -58,7 +73,7 @@ export const useAuthStore = create<AuthState>()(
 				});
 			},
 
-			// Acción de Logout
+			// Logout action
 			logout: async () => {
 				await logoutUser();
 				set({
@@ -68,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
 				});
 			},
 
-			// Permite actualizar el estado directamente (ej. tras OAuth 42 o revalidación de token)
+			// Allows direct state update (e.g., after OAuth 42 or token revalidation)
 			setAuth: (user, token) => {
 				set({
 					user: user,
@@ -78,7 +93,7 @@ export const useAuthStore = create<AuthState>()(
 			},
 		}),
 		{
-			name: "auth-storage", // Clave con la que se guarda en el localStorage
+			name: "auth-storage", // Key used to store in localStorage
 		},
 	),
 );

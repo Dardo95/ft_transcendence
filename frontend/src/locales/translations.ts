@@ -1,11 +1,28 @@
+/**
+ * Translation registry.
+ * Category: Localization
+ *
+ * Responsible for:
+ * - Registering available application translations.
+ * - Mapping language codes to translation resources.
+ *
+ * Does not:
+ * - Manage the current language.
+ * - Render UI.
+ * - Contain application logic.
+ */
+
 import { authEs } from "./es/auth";
 import { authEn } from "./en/auth";
 import { authIt } from "./it/auth";
+import { appEs } from "./es/app";
+import { appEn } from "./en/app";
+import { appIt } from "./it/app";
 
 export const translations = {
-	es: { auth: authEs },
-	en: { auth: authEn },
-	it: { auth: authIt },
+	es: { app: appEs, auth: authEs },
+	en: { app: appEn, auth: authEn },
+	it: { app: appIt, auth: authIt },
 } as const;
 
 export type SupportedLanguage = keyof typeof translations;

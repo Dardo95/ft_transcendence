@@ -1,8 +1,19 @@
 /**
- * File: src/features/auth/LoginForm.tsx
- * Purpose: Handles user authentication input and submission.
- * Usage: Rendered inside the main layout when the user is not authenticated.
+ * User login form.
+ * Category: Feature Component
+ *
+ * Responsible for:
+ * - Collecting login credentials.
+ * - Validating user input.
+ * - Triggering the authentication flow.
+ * - Displaying authentication errors to the user.
+ *
+ * Does not:
+ * - Perform HTTP requests directly.
+ * - Implement authentication business logic.
+ * - Store authentication state directly.
  */
+
 import { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -31,7 +42,7 @@ export function LoginForm() {
 			setErrorMessage(
 				error instanceof Error
 					? error.message
-					: "Error al iniciar sesión.",
+					: t("auth.errors.login"),
 			);
 		} finally {
 			setIsSubmitting(false);

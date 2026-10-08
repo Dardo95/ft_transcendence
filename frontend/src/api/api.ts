@@ -1,3 +1,19 @@
+/**
+ * HTTP API client.
+ * Category: API Client
+ *
+ * Responsible for:
+ * - Sending HTTP requests to the backend.
+ * - Configuring common request options.
+ * - Handling common HTTP responses and errors.
+ * - Providing a typed interface for API requests.
+ *
+ * Does not:
+ * - Contain feature-specific business logic.
+ * - Manage React state.
+ * - Render UI.
+ */
+
 const API_BASE_URL = "/api";
 
 interface FetchOptions extends Omit<RequestInit, "body"> {
@@ -31,8 +47,7 @@ export async function apiFetch<T>(
 
 	if (!response.ok) {
 		throw new Error(
-			data.message ||
-				`Error ${response.status}: Ocurrió un problema en la petición.`,
+			data.message || `Request failed with status ${response.status}.`,
 		);
 	}
 

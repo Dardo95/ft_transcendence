@@ -1,6 +1,18 @@
+/**
+ * Global application styles.
+ * Category: Global Styles
+ *
+ * Responsible for:
+ * - TailwindCSS configuration/imports.
+ * - Global CSS rules.
+ * - CSS variables.
+ * - Base styles and resets.
+ *
+ * Component-specific styles should not be placed here.
+ */
+
 @import "tailwindcss";
 
-/* Global styles for the app */
 :root {
 	--color-arena-950: #080a12;
 	--color-arena-900: #101426;
