@@ -3,13 +3,11 @@ export const authEs = {
 		title: "Iniciar Sesión",
 		connecting: "Conectando...",
 		playNow: "Jugar ahora",
-        email: "Correo electrónico",
+		email: "Correo electrónico",
 		emailPlaceholder: "Introduce tu correo electrónico",
-        password: "Contraseña",
-		passwordPlaceholder: "********", 
-        
+		password: "Contraseña",
+		passwordPlaceholder: "********",
 	},
-
 	register: {
 		title: "Nuevo usuario",
 		connecting: "Registrando...",
@@ -17,9 +15,9 @@ export const authEs = {
 		email: "Correo electrónico",
 		emailPlaceholder: "Introduce tu correo electrónico",
 		newUser: "Usuario",
-		userPlaceholder: "Introduce tu usuario",
+		userPlaceholder: "Introduce tu nombre de usuario",
 		password: "Contraseña",
-		passwordPlaceholder: "********", 
+		passwordPlaceholder: "********",
 	},
 	status: {
 		loggedIn: "Sesión iniciada",

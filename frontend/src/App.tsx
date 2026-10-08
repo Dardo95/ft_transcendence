@@ -14,7 +14,6 @@ function App() {
 			<RegisterForm />
 			<AuthStatus />
 		</AppLayout>
-
 	);
 }
 
