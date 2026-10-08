@@ -14,10 +14,10 @@
  */
 
 import { useState } from "react";
-import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
-import { useLanguage } from "../../locales/useLanguage";
-import { useAuthStore } from "../../store/useAuthStore";
+import { Card } from "../../../components/ui/Card";
+import { Button } from "../../../components/ui/Button";
+import { useLanguage } from "../../../locales/useLanguage";
+import { useAuthStore } from "../store/useAuthStore";
 
 export function AuthStatus() {
 	const { t } = useLanguage();

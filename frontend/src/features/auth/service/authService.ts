@@ -16,7 +16,7 @@
  * - Contain user-facing translations.
  */
 
-import { apiFetch } from "./api";
+import { apiFetch } from "../../../api/api";
 import type { AuthCredentials, AuthResponse } from "../types/auth";
 
 // Sends the registration HTTP request for a new user.

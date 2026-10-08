@@ -11,7 +11,7 @@
  * This file must contain type definitions only.
  */
 
-import type { User } from "./user";
+import type { User } from "../../../types/user";
 
 export interface AuthCredentials {
 	email: string;

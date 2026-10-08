@@ -15,11 +15,11 @@
  */
 
 import { useState } from "react";
-import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
-import { Card } from "../../components/ui/Card";
-import { useLanguage } from "../../locales/useLanguage";
-import { useAuthStore } from "../../store/useAuthStore";
+import { Button } from "../../../components/ui/Button";
+import { Input } from "../../../components/ui/Input";
+import { Card } from "../../../components/ui/Card";
+import { useLanguage } from "../../../locales/useLanguage";
+import { useAuthStore } from "../store/useAuthStore";
 
 export function RegisterForm() {
 	const [username, setUsername] = useState("");

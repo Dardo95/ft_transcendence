@@ -14,9 +14,9 @@
  */
 
 import { AppLayout } from "./components/layout/AppLayout";
-import { AuthStatus } from "./components/auth/AuthStatus";
-import { LoginForm } from "./components/auth/LoginForm";
-import { RegisterForm } from "./components/auth/RegisterForm";
+import { AuthStatus } from "./features/auth/components/AuthStatus";
+import { LoginForm } from "./features/auth/components/LoginForm";
+import { RegisterForm } from "./features/auth/components/RegisterForm";
 
 function App() {
 	return (

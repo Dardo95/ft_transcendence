@@ -15,9 +15,9 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { loginUser, logoutUser, registerUser } from "../api/authService";
+import { loginUser, logoutUser, registerUser } from "../service/authService";
 import type { AuthCredentials, AuthResponse } from "../types/auth";
-import type { User } from "../types/user";
+import type { User } from "../../../types/user";
 
 function normalizeUser(user: AuthResponse["user"]): User | null {
 	if (!user) {
