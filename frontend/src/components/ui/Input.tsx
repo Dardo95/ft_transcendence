@@ -1,7 +1,17 @@
 /**
- * File: frontend/src/components/ui/Input.tsx
- * Purpose: A standardized text input component for forms (login, chat, settings).
- * Usage: Wraps the native <input> with consistent borders, focus rings, and an optional label.
+ * Reusable input component.
+ * Category: Design System
+ *
+ * Part of the application's custom design system.
+ *
+ * Responsible for:
+ * - Rendering styled form inputs.
+ * - Supporting common input states.
+ * - Providing a consistent form control interface.
+ *
+ * Does not:
+ * - Perform validation business logic.
+ * - Manage form submission.
  */
 import React from "react";
 

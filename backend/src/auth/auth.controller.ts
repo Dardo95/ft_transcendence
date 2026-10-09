@@ -24,17 +24,18 @@ export class AuthController {
 		@Body() data: RegisterDto,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		const token = await this.authService.register(data);
+		const { token, user } = await this.authService.register(data);
 
 		res.cookie('access_token', token, {
-			httpOnly: false,
-			secure: false,
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
 			sameSite: 'strict',
 			maxAge: 24 * 60 * 60 * 1000 //d m s ms
 		});
 
 		return {
 			message: 'Registration successful',
+			user,
 		};
 	}
 
@@ -44,17 +45,18 @@ export class AuthController {
 		@Body() data: LoginDto,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		const token = await this.authService.login(data);
+		const { token, user } = await this.authService.login(data);
 
 		res.cookie('access_token', token, {
-			httpOnly: false,
-			secure: false,
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
 			sameSite: 'strict',
 			maxAge: 24 * 60 * 60 * 1000 //h m s ms
 		});
 
 		return {
 			message: 'Login successful',
+			user,
 		};
 	}
 
