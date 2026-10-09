@@ -17,7 +17,7 @@ model User {
   isOnline       Boolean  @default(false)
   twoFaSecret    String?
   twoFaEnabled   Boolean  @default(false)
-  oauthProvider  String?  // "42", "github", etc.
+  oauthProvider  String?  // "google", "42", etc.
   oauthId        String?
   createdAt      DateTime @default(now())
 
