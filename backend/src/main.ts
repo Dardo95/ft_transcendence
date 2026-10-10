@@ -2,9 +2,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import cookieParser from 'cookie-parser';
+import { PrismaService } from './database/prisma.service.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const prisma = app.get(PrismaService);
+  await prisma.enableShutdownHooks(app);
+  app.enableShutdownHooks();
   app.setGlobalPrefix('api');
 
   app.use(cookieParser());
