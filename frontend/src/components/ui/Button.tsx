@@ -26,12 +26,14 @@ export function Button({
 	...props
 }: ButtonProps) {
 	const baseStyles =
-		"px-4 py-2 font-bold rounded transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
+		"w-full py-2.5 px-4 font-bold text-sm rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed";
 
 	const variants = {
-		primary: "bg-purple-600 hover:bg-purple-700 text-white",
-		secondary: "bg-gray-200 hover:bg-gray-300 text-gray-900",
-		danger: "bg-red-600 hover:bg-red-700 text-white",
+		primary:
+			"bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-lg shadow-orange-600/20",
+		secondary:
+			"bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-600",
+		danger: "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20",
 	};
 
 	return (
