@@ -14,42 +14,39 @@
  * - Render UI.
  */
 
-const API_BASE_URL = "/api";
-
-interface FetchOptions extends Omit<RequestInit, "body"> {
-	body?: unknown;
-}
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 export async function apiFetch<T>(
 	endpoint: string,
-	options: FetchOptions = {},
+	options: RequestInit = {},
 ): Promise<T> {
-	const { body, ...customConfig } = options;
-	const headers: HeadersInit = {
-		"Content-Type": "application/json",
-		...options.headers,
+	const config: RequestInit = {
+		...options,
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
 	};
 
-	const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-		method: options.method || "GET",
-		credentials: "include",
-		...customConfig,
-		headers,
-		body: body === undefined ? undefined : JSON.stringify(body),
-	});
+	// Ensure the endpoint starts with a slash and construct the full URL
+	const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+	const url = API_BASE_URL.endsWith("/")
+		? `${API_BASE_URL.slice(0, -1)}${cleanEndpoint}`
+		: `${API_BASE_URL}${cleanEndpoint}`;
 
-	let data: { message?: string } = {};
-	try {
-		data = await response.json();
-	} catch {
-		// Some successful endpoints do not return a response body.
-	}
+	const response = await fetch(url, config);
 
 	if (!response.ok) {
-		throw new Error(
-			data.message || `Request failed with status ${response.status}.`,
-		);
+		const errorBody = await response.json().catch(() => ({}));
+		const message = errorBody.message || `Server error: ${response.status}`;
+		throw new Error(message);
 	}
 
-	return data as T;
+	// Handle 204 No Content responses gracefully
+	if (response.status === 204) {
+		return {} as T;
+	}
+
+	return response.json() as Promise<T>;
 }

@@ -22,26 +22,30 @@ import type { AuthCredentials, AuthResponse } from "../types/auth";
 // Sends the registration HTTP request for a new user.
 export async function registerUser(
 	credentials: AuthCredentials,
-): Promise<AuthResponse> {
-	return apiFetch<AuthResponse>("/auth/register", {
+): Promise<void> {
+	await apiFetch<void>("/auth/register", {
 		method: "POST",
-		body: credentials,
+		body: JSON.stringify(credentials),
 	});
 }
 
 // Sends the login HTTP request for an existing user.
-export async function loginUser(
-	credentials: AuthCredentials,
-): Promise<AuthResponse> {
-	return apiFetch<AuthResponse>("/auth/login", {
+export async function loginUser(credentials: AuthCredentials): Promise<void> {
+	await apiFetch<void>("/auth/login", {
 		method: "POST",
-		body: credentials,
+		body: JSON.stringify(credentials),
 	});
 }
 
 // Sends the logout HTTP request to terminate the user session.
 export async function logoutUser(): Promise<void> {
-	await apiFetch<{ message: string }>("/auth/logout", {
+	await apiFetch<void>("/auth/logout", {
 		method: "POST",
+	});
+}
+
+export async function getMe(): Promise<AuthResponse> {
+	return await apiFetch<AuthResponse>("/users/me", {
+		method: "GET",
 	});
 }

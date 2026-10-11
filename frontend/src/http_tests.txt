@@ -55,3 +55,40 @@ await fetch('https://localhost:8443/api/auth/register', {
   .then(res => res.json())
   .then(data => console.log(data))
   .catch(err => console.error(err));
+
+await fetch('https://localhost:8443/api/users/me', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'include'
+})
+  .then(res => res.json())
+  .then(data => console.log('Usuario autenticado:', data))
+  .catch(err => console.error('Error Users Me:', err));
+
+await fetch('https://localhost:8443/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'include',
+  body: JSON.stringify({
+    email: 'brivera@ok.ar',
+    password: 'mipassword123'
+  })
+})
+  .then(res => res.json())
+  .then(data => console.log('Respuesta Login:', data))
+  .catch(err => console.error('Error Login:', err));
+
+  await fetch('https://localhost:8443/api/auth/logout', {
+	method: 'POST',
+	headers: {
+	  'Content-Type': 'application/json'
+	},
+	credentials: 'include'
+  })
+	.then(res => res.json())
+	.then(data => console.log('Respuesta Logout:', data))
+	.catch(err => console.error('Error Logout:', err));
