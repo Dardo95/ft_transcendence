@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service.js';
+import { UserPublicDto } from './dto/user-public.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +24,23 @@ export class UsersService {
         id: true,
         username: true,
         email: true,
+        xp: true,
+        isOnline: true,
+        createdAt: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async findByUsername(username: string): Promise<UserPublicDto> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        username: true,
         xp: true,
         isOnline: true,
         createdAt: true,
