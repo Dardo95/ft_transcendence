@@ -39,7 +39,7 @@ export class AuthService {
 		const passwordHash = await argon2.hash(data.password);
 
 		try {
-			const user = await this.prisma.user.create({
+			await this.prisma.user.create({
 				data: {
 					email,
 					username,
@@ -48,7 +48,6 @@ export class AuthService {
 				select: {
 					id: true,
 					username: true,
-					password: true,
 					email: true,
 					xp: true,
 					createdAt: true,
