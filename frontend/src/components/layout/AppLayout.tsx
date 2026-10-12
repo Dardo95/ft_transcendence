@@ -16,18 +16,32 @@
  * - Contain feature-specific business logic.
  */
 
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import { SideDrawer } from "./SideDrawer";
 
-interface AppLayoutProps {
-	children: React.ReactNode;
-}
+export function AppLayout() {
+	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-export function AppLayout({ children }: AppLayoutProps) {
 	return (
-		<div className="min-h-screen flex flex-col bg-gray-50 text-gray-900 font-sans">
-			<Header />
-			<main className="grow p-4 md:p-8">{children}</main>
+		<div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 font-sans">
+			{/* Top navigation bar */}
+			<Header onOpenDrawer={() => setIsDrawerOpen(true)} />
+
+			{/* Collapsible left navigation drawer */}
+			<SideDrawer
+				isOpen={isDrawerOpen}
+				onClose={() => setIsDrawerOpen(false)}
+			/>
+
+			{/* Main view container rendered by React Router */}
+			<main className="flex-grow w-full p-4 md:p-8 flex flex-col items-center">
+				<Outlet />
+			</main>
+
+			{/* Application footer */}
 			<Footer />
 		</div>
 	);

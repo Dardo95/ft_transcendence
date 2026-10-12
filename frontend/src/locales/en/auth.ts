@@ -12,21 +12,23 @@
 
 export const authEn = {
 	login: {
-		title: "Log In",
+		title: "Chef Credentials",
 		connecting: "Connecting...",
-		playNow: "Play Now",
+		playNow: "Start Service",
 		email: "Email",
 		emailPlaceholder: "Enter your email",
 		password: "Password",
 		passwordPlaceholder: "********", 
+		orContinueWith: "Or continue with",
+		continueGoogle: "Continue with Google",
 	},
 	register: {
-		title: "New User",
+		title: "New Chef Registration",
 		connecting: "Registering...",
 		playNow: "Register",
 		email: "Email",
 		emailPlaceholder: "Enter your email",
-		newUser: "User",
+		newUser: "New User",
 		userPlaceholder: "Enter your user",
 		password: "Password",
 		passwordPlaceholder: "********", 

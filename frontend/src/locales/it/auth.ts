@@ -12,21 +12,23 @@
 
 export const authIt = {
 	login: {
-		title: "Accedi",
+		title: "Credenziali del Chef",
 		connecting: "Connessione...",
-		playNow: "Gioca ora",
+		playNow: "Inizia il Servizio",
 		email: "Email",
 		emailPlaceholder: "Inserisci il tuo indirizzo email",
 		password: "Password",
 		passwordPlaceholder: "********",
+		orContinueWith: "Oppure continua con",
+		continueGoogle: "Continua con Google",
 	},
 	register: {
-		title: "Nuovo utente",
+		title: "Registro del nuovo Chef",
 		connecting: "Registrando...",
 		playNow: "Registrarsi",
 		email: "Email",
 		emailPlaceholder: "Inserisci il tuo indirizzo email",
-		newUser: "Utente",
+		newUser: "Nuovo Utente",
 		userPlaceholder: "Inserisci il nome utente",
 		password: "Password",
 		passwordPlaceholder: "********",

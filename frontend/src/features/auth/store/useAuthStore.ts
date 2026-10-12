@@ -14,8 +14,12 @@
  */
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { loginUser, logoutUser, registerUser } from "../service/authService";
+import {
+	loginUser,
+	logoutUser,
+	registerUser,
+	getMe,
+} from "../service/authService";
 import type { AuthCredentials, AuthResponse } from "../types/auth";
 import type { User } from "../../../types/user";
 
@@ -25,75 +29,98 @@ function normalizeUser(user: AuthResponse["user"]): User | null {
 	}
 
 	return {
-		id: user.id,
+		id: typeof user.id === "number" ? user.id : Number(user.id),
 		email: user.email,
 		username: user.username ?? "",
+		avatarUrl: user.avatarUrl,
 	};
 }
 
 interface AuthState {
 	// State
 	user: User | null;
-	token: string | null;
 	isAuthenticated: boolean;
+	isLoading: boolean;
 
 	// Actions
-	register: (credentials: AuthCredentials) => Promise<void>;
+	checkAuth: () => Promise<void>;
 	login: (credentials: AuthCredentials) => Promise<void>;
+	register: (credentials: AuthCredentials) => Promise<void>;
 	logout: () => Promise<void>;
-	setAuth: (user: User, token: string) => void;
 }
 
 // Creation of the store with persistence in localStorage
-export const useAuthStore = create<AuthState>()(
-	persist(
-		(set) => ({
-			// Initial state
-			user: null,
-			token: null,
-			isAuthenticated: false,
+export const useAuthStore = create<AuthState>((set) => ({
+	user: null,
+	isAuthenticated: false,
+	isLoading: true,
 
-			// Register action
-			register: async (credentials) => {
-				const data = await registerUser(credentials);
-				set({
-					user: normalizeUser(data.user),
-					token: null,
-					isAuthenticated: Boolean(data.user),
-				});
-			},
+	checkAuth: async () => {
+		set({ isLoading: true });
+		try {
+			const userData = await getMe();
+			set({
+				user: normalizeUser(userData.user),
+				isAuthenticated: true,
+				isLoading: false,
+			});
+		} catch {
+			set({
+				user: null,
+				isAuthenticated: false,
+				isLoading: false,
+			});
+		} finally {
+			set({ isLoading: false });
+		}
+	},
 
-			// Login action
-			login: async (credentials) => {
-				const data = await loginUser(credentials);
-				set({
-					user: normalizeUser(data.user),
-					token: null,
-					isAuthenticated: Boolean(data.user),
-				});
-			},
+	login: async (credentials: AuthCredentials) => {
+		set({ isLoading: true });
+		try {
+			await loginUser(credentials);
 
-			// Logout action
-			logout: async () => {
-				await logoutUser();
-				set({
-					user: null,
-					token: null,
-					isAuthenticated: false,
-				});
-			},
+			// After successful login, fetch the authenticated user's data
+			const userData = await getMe();
+			set({
+				user: normalizeUser(userData.user),
+				isAuthenticated: true,
+				isLoading: false,
+			});
+		} catch (error) {
+			set({ isLoading: false });
+			throw error;
+		} finally {
+			set({ isLoading: false });
+		}
+	},
 
-			// Allows direct state update (e.g., after OAuth 42 or token revalidation)
-			setAuth: (user, token) => {
-				set({
-					user: user,
-					token,
-					isAuthenticated: true,
-				});
-			},
-		}),
-		{
-			name: "auth-storage", // Key used to store in localStorage
-		},
-	),
-);
+	register: async (credentials: AuthCredentials) => {
+		set({ isLoading: true });
+		try {
+			await registerUser(credentials);
+			await loginUser({
+				email: credentials.email,
+				password: credentials.password,
+			});
+		} catch (error) {
+			set({ isLoading: false });
+			throw error;
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+
+	logout: async () => {
+		set({ isLoading: true });
+		try {
+			await logoutUser();
+		} finally {
+			set({
+				user: null,
+				isAuthenticated: false,
+				isLoading: false,
+			});
+		}
+	},
+}));

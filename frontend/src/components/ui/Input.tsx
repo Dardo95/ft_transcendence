@@ -21,14 +21,14 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export function Input({ label, className = "", ...props }: InputProps) {
 	return (
-		<div className="flex flex-col gap-1 w-full">
+		<div className="flex flex-col gap-1.5 w-full text-left">
 			{label && (
-				<label className="text-sm font-medium text-gray-700">
+				<label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
 					{label}
 				</label>
 			)}
 			<input
-				className={`px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${className}`}
+				className={`w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-orange-500/80 focus:border-transparent transition-all ${className}`}
 				{...props}
 			/>
 		</div>

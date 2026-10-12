@@ -14,18 +14,21 @@
  * - Store authentication state directly.
  */
 
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Button } from "../../../components/ui/Button";
-import { Input } from "../../../components/ui/Input";
-import { Card } from "../../../components/ui/Card";
 import { useLanguage } from "../../../locales/useLanguage";
 import { useAuthStore } from "../store/useAuthStore";
+import { Card } from "../../../components/ui/Card";
+import { Input } from "../../../components/ui/Input";
+import { Button } from "../../../components/ui/Button";
 
 export function LoginForm() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const navigate = useNavigate();
+
 	const { t } = useLanguage();
 	const login = useAuthStore((state) => state.login);
 
@@ -36,13 +39,12 @@ export function LoginForm() {
 
 		try {
 			await login({ email, password });
-			setEmail("");
-			setPassword("");
+			navigate("/lobby", { replace: true });
 		} catch (error) {
 			setErrorMessage(
 				error instanceof Error
 					? error.message
-					: t("auth.errors.login"),
+					: t("auth.errors.login") || "Error at login",
 			);
 		} finally {
 			setIsSubmitting(false);
@@ -50,37 +52,44 @@ export function LoginForm() {
 	}
 
 	return (
-		<Card className="w-full max-w-sm mx-auto mt-12">
-			<h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-				{t("auth.login.title")}
+		<Card className="w-full max-w-sm mx-auto">
+			<h2 className="text-xl font-bold mb-4 text-center text-orange-400">
+				{t("auth.login.title") || "Chef Credentials"}
 			</h2>
+
 			{errorMessage && (
-				<div className="mb-4 p-2 text-sm text-red-600 bg-red-100 rounded text-center">
-					{errorMessage}
+				<div className="mb-4 p-2.5 text-xs text-red-300 bg-red-950/70 border border-red-700/80 rounded-xl text-center flex items-center justify-center gap-1.5">
+					<span>⚠️</span>
+					<span>{errorMessage}</span>
 				</div>
 			)}
-			<form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+			<form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
 				<Input
-					label={t("auth.login.email")}
+					label={t("auth.login.email") || "Email"}
 					type="email"
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
-					placeholder={t("auth.login.emailPlaceholder")}
+					placeholder={
+						t("auth.login.emailPlaceholder") || "Enter your email"
+					}
 					required
 				/>
 				<Input
-					label={t("auth.login.password")}
+					label={t("auth.login.password") || "Password"}
 					type="password"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
-					placeholder={t("auth.login.passwordPlaceholder")}
+					placeholder={
+						t("auth.login.passwordPlaceholder") || "********"
+					}
 					required
 				/>
 
 				<Button type="submit" disabled={isSubmitting} className="mt-2">
 					{isSubmitting
-						? t("auth.login.connecting")
-						: t("auth.login.playNow")}
+						? t("auth.login.connecting") || "Connecting..."
+						: t("auth.login.playNow") || "Play Now"}
 				</Button>
 			</form>
 		</Card>

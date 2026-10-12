@@ -11,8 +11,6 @@
  * This file must contain type definitions only.
  */
 
-import type { User } from "../../../types/user";
-
 export interface AuthCredentials {
 	email: string;
 	password: string;
@@ -20,6 +18,10 @@ export interface AuthCredentials {
 }
 
 export interface AuthResponse {
-	message?: string;
-	user?: User;
+	user: {
+		id: string;
+		email: string;
+		username: string;
+		avatarUrl?: string;
+	};
 }

@@ -12,21 +12,23 @@
 
 export const authEs = {
 	login: {
-		title: "Iniciar Sesión",
+		title: "Credenciales del Chef",
 		connecting: "Conectando...",
-		playNow: "Jugar ahora",
+		playNow: "Empezar Servicio",
 		email: "Correo electrónico",
 		emailPlaceholder: "Introduce tu correo electrónico",
 		password: "Contraseña",
 		passwordPlaceholder: "********",
+		orContinueWith: "O continuar con",
+		continueGoogle: "Continuar con Google",
 	},
 	register: {
-		title: "Nuevo usuario",
+		title: "Registro del nuevo Chef",
 		connecting: "Registrando...",
 		playNow: "Registrarse",
 		email: "Correo electrónico",
 		emailPlaceholder: "Introduce tu correo electrónico",
-		newUser: "Usuario",
+		newUser: "Nuevo Usuario",
 		userPlaceholder: "Introduce tu nombre de usuario",
 		password: "Contraseña",
 		passwordPlaceholder: "********",

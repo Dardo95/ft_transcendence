@@ -1,5 +1,3 @@
-import { useLanguage } from "../../locales/useLanguage";
-
 /**
  * Application footer.
  * Category: Layout Component
@@ -12,22 +10,37 @@ import { useLanguage } from "../../locales/useLanguage";
  * - Contain application business logic.
  */
 
+import { Link } from "react-router-dom";
+import { useLanguage } from "../../locales/useLanguage";
+
 export function Footer() {
 	const { t } = useLanguage();
 
 	return (
-		<footer className="mt-auto p-6 bg-gray-100 text-center text-gray-500 text-sm border-t border-gray-200">
-			<p>
-				{" "}
-				2026 ft_transcendence |{" "}
-				<a href="/terms" className="hover:underline">
-					{t("app.termsOfService")}
-				</a>{" "}
-				|{" "}
-				<a href="/privacy" className="hover:underline">
-					{t("app.privacyPolicy")}
-				</a>
-			</p>
+		<footer className="w-full py-4 text-center text-xs text-zinc-500 border-t border-zinc-800/80 bg-slate-950/80 backdrop-blur-sm z-10">
+			<div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
+				{/* Year and Application Title */}
+				<span>© 2026 {t("app.title") || "Kitchen Mayhem"}</span>
+				
+				<span>•</span>
+
+				{/* Links to legal pages */}
+				<Link
+					to="/terms"
+					className="hover:text-zinc-300 transition-colors"
+				>
+					{t("app.termsOfService") || "Terms of Service"}
+				</Link>
+
+				<span>•</span>
+
+				<Link
+					to="/privacy"
+					className="hover:text-zinc-300 transition-colors"
+				>
+					{t("app.privacyPolicy") || "Privacy Policy"}
+				</Link>
+			</div>
 		</footer>
 	);
 }
