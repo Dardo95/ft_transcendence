@@ -12,19 +12,19 @@
  * - Contain feature-specific business logic.
  */
 
-import React from "react";
+import React from 'react';
 
 interface CardProps {
-	children: React.ReactNode;
-	className?: string;
+  children: React.ReactNode;
+  className?: string;
 }
 
-export function Card({ children, className = "" }: CardProps) {
-	return (
-		<div
-			className={`bg-zinc-800/90 border border-zinc-700/80 rounded-2xl shadow-xl shadow-black/40 p-6 backdrop-blur-sm ${className}`}
-		>
-			{children}
-		</div>
-	);
+export function Card({ children, className = '' }: CardProps) {
+  return (
+    <div
+      className={`rounded-2xl border border-zinc-700/80 bg-zinc-800/90 p-6 shadow-xl shadow-black/40 backdrop-blur-sm ${className}`}
+    >
+      {children}
+    </div>
+  );
 }

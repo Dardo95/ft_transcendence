@@ -11,16 +11,16 @@
  * - Perform any API requests.
  */
 
-import { useAuthStore } from "../../features/auth/store/useAuthStore";
-import { AppLayout } from "./AppLayout";
-import { AppLayoutPublic } from "./AppLayoutPublic";
+import { useAuthStore } from '../../features/auth/store/useAuthStore';
+import { AppLayout } from './AppLayout';
+import { AppLayoutPublic } from './AppLayoutPublic';
 
 export function DynamicLayout() {
-	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-	if (isAuthenticated) {
-		return <AppLayout />;
-	}
+  if (isAuthenticated) {
+    return <AppLayout />;
+  }
 
-	return <AppLayoutPublic />;
+  return <AppLayoutPublic />;
 }

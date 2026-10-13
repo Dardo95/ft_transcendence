@@ -13,24 +13,24 @@
  * - Perform validation business logic.
  * - Manage form submission.
  */
-import React from "react";
+import React from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-	label?: string;
+  label?: string;
 }
 
-export function Input({ label, className = "", ...props }: InputProps) {
-	return (
-		<div className="flex flex-col gap-1.5 w-full text-left">
-			{label && (
-				<label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-					{label}
-				</label>
-			)}
-			<input
-				className={`w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-orange-500/80 focus:border-transparent transition-all ${className}`}
-				{...props}
-			/>
-		</div>
-	);
+export function Input({ label, className = '', ...props }: InputProps) {
+  return (
+    <div className="flex w-full flex-col gap-1.5 text-left">
+      {label && (
+        <label className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+          {label}
+        </label>
+      )}
+      <input
+        className={`w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 transition-all focus:border-transparent focus:ring-2 focus:ring-orange-500/80 focus:outline-none ${className}`}
+        {...props}
+      />
+    </div>
+  );
 }

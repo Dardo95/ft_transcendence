@@ -14,39 +14,36 @@
  * - Render UI.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-export async function apiFetch<T>(
-	endpoint: string,
-	options: RequestInit = {},
-): Promise<T> {
-	const config: RequestInit = {
-		...options,
-		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
-			...options.headers,
-		},
-	};
+export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const config: RequestInit = {
+    ...options,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  };
 
-	// Ensure the endpoint starts with a slash and construct the full URL
-	const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-	const url = API_BASE_URL.endsWith("/")
-		? `${API_BASE_URL.slice(0, -1)}${cleanEndpoint}`
-		: `${API_BASE_URL}${cleanEndpoint}`;
+  // Ensure the endpoint starts with a slash and construct the full URL
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = API_BASE_URL.endsWith('/')
+    ? `${API_BASE_URL.slice(0, -1)}${cleanEndpoint}`
+    : `${API_BASE_URL}${cleanEndpoint}`;
 
-	const response = await fetch(url, config);
+  const response = await fetch(url, config);
 
-	if (!response.ok) {
-		const errorBody = await response.json().catch(() => ({}));
-		const message = errorBody.message || `Server error: ${response.status}`;
-		throw new Error(message);
-	}
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    const message = errorBody.message || `Server error: ${response.status}`;
+    throw new Error(message);
+  }
 
-	// Handle 204 No Content responses gracefully
-	if (response.status === 204) {
-		return {} as T;
-	}
+  // Handle 204 No Content responses gracefully
+  if (response.status === 204) {
+    return {} as T;
+  }
 
-	return response.json() as Promise<T>;
+  return response.json() as Promise<T>;
 }
