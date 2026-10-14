@@ -26,8 +26,9 @@ export const translations = {
 } as const;
 
 export type SupportedLanguage = keyof typeof translations;
-type TranslationTree = typeof translations.es;
 
+// Type helpers to infer dotted paths (e.g. "auth.login.title")
+type TranslationTree = typeof translations.es;
 type Leaves<T> = T extends object
   ? {
       [K in keyof T]: T[K] extends object
