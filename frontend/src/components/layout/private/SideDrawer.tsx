@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../locales/useLanguage';
+import { useLanguage } from '../../../locales/useLanguage';
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -64,20 +64,21 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             </Link>
 
             <Link
-              to="/about-us"
-              onClick={onClose}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
-            >
-              <span>👨‍🍳</span>
-              <span>{t('app.aboutUs') || 'About Us'}</span>
-            </Link>
-            <Link
               to="/project"
               onClick={onClose}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
               <span>📦</span>
               <span>{t('app.aboutProject') || 'Project'}</span>
+            </Link>
+
+            <Link
+              to="/about-us"
+              onClick={onClose}
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
+            >
+              <span>👨‍🍳</span>
+              <span>{t('app.aboutUs') || 'About Us'}</span>
             </Link>
           </nav>
         </div>

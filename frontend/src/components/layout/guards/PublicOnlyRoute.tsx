@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuthStore } from '../../features/auth/store/useAuthStore';
+import { useAuthStore } from '../../../features/auth/store/useAuthStore';
 
 export function PublicOnlyRoute() {
   const { isAuthenticated, isLoading } = useAuthStore();

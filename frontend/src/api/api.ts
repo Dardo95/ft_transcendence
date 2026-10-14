@@ -17,25 +17,22 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export class ApiError extends Error {
-	status: number;
-	constructor(message: string, status: number) {
-		super(message);
-		this.status = status;
-	}
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
 }
 
-export async function apiFetch<T>(
-	endpoint: string,
-	options: RequestInit = {},
-): Promise<T> {
-	const config: RequestInit = {
-		...options,
-		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
-			...options.headers,
-		},
-	};
+export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const config: RequestInit = {
+    ...options,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  };
 
   // Ensure the endpoint starts with a slash and construct the full URL
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -45,35 +42,28 @@ export async function apiFetch<T>(
 
   const response = await fetch(url, config);
 
-	const authEndpoints = [
-		"/auth/login",
-		"/auth/logout",
-		"/auth/register",
-		"/auth/google/callback",
-		"/auth/google",
-	];
+  const authEndpoints = [
+    '/auth/login',
+    '/auth/logout',
+    '/auth/register',
+    '/auth/google/callback',
+    '/auth/google',
+  ];
 
-	const isAuthEndpoint = authEndpoints.some((path) =>
-		cleanEndpoint.startsWith(path),
-	);
+  const isAuthEndpoint = authEndpoints.some((path) => cleanEndpoint.startsWith(path));
 
-	if (response.status === 401) {
-		if (
-			!isAuthEndpoint &&
-			typeof window !== "undefined" &&
-			window.location.pathname !== "/login"
-		) {
-			window.location.replace("/login");
-		}
-		throw new ApiError("Unauthorized", 401);
-	}
-	
+  if (response.status === 401) {
+    if (!isAuthEndpoint && typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      window.location.replace('/login');
+    }
+    throw new ApiError('Unauthorized', 401);
+  }
 
-	if (!response.ok) {
-		const errorBody = await response.json().catch(() => ({}));
-		const message = errorBody.message || `Server error: ${response.status}`;
-		throw new ApiError(message, response.status);
-	}
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    const message = errorBody.message || `Server error: ${response.status}`;
+    throw new ApiError(message, response.status);
+  }
 
   // Handle 204 No Content responses gracefully
   if (response.status === 204) {

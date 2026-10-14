@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../locales/useLanguage';
-import { LanguageSwitcher } from './LanguageSwitcher';
+import { useLanguage } from '../../../locales/useLanguage';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 
 export function FooterPublic() {
   const { t } = useLanguage();

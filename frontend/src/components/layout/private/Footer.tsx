@@ -11,7 +11,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../locales/useLanguage';
+import { useLanguage } from '../../../locales/useLanguage';
 
 export function Footer() {
   const { t } = useLanguage();

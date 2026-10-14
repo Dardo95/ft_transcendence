@@ -23,15 +23,15 @@ export function LandingPage() {
   return (
     <div className="relative flex min-h-screen flex-col justify-between overflow-hidden bg-slate-950 text-slate-100 select-none">
       {/* Effect of rising cooking vapor from the background */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-orange-500/10 via-transparent to-transparent blur-2xl" />
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-orange-500/10 via-transparent to-transparent blur-2xl" />
 
       {/* Central Zone */}
-      <main className="z-10 flex flex-grow flex-col items-center justify-center px-4 text-center">
+      <main className="z-10 flex grow flex-col items-center justify-center px-4 text-center">
         <div className="mb-3 flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-semibold tracking-wider text-amber-500 uppercase">
           <span>{t('app.upTitle') || 'Arcade Multiplayer Webgame inspired by Bomberman'}</span>
         </div>
 
-        <h1 className="mb-4 bg-gradient-to-r from-orange-400 via-amber-200 to-orange-500 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md md:text-7xl">
+        <h1 className="mb-4 bg-linear-to-r from-orange-400 via-amber-200 to-orange-500 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md md:text-7xl">
           {t('app.title') || 'Kitchen Mayhem'}
         </h1>
 
@@ -43,7 +43,7 @@ export function LandingPage() {
         {/* Central Button with Pulse Ring Aura */}
         <button
           onClick={() => setIsAuthModalOpen(true)}
-          className="group relative rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-orange-600/30 transition-all duration-300 hover:scale-105 active:scale-95"
+          className="group relative rounded-xl bg-linear-to-r from-orange-600 to-amber-600 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-orange-600/30 transition-all duration-300 hover:scale-105 active:scale-95"
         >
           {/* Pulse Ring Aura */}
           <span className="absolute -inset-1 animate-pulse rounded-xl bg-orange-500/40 blur-md group-hover:bg-orange-500/60" />
@@ -65,7 +65,7 @@ export function LandingPage() {
               ✕
             </button>
 
-            {/* Pestañas: Iniciar Sesión / Registro */}
+            {/* Tabs: Log In / Register */}
             <div className="mb-6 flex border-b border-zinc-700">
               <button
                 onClick={() => setAuthTab('login')}
@@ -89,16 +89,16 @@ export function LandingPage() {
               </button>
             </div>
 
-            {/* Formularios reactivos */}
+            {/* Reactive forms */}
             <div className="mb-6">{authTab === 'login' ? <LoginForm /> : <RegisterForm />}</div>
 
             {/* Separator */}
             <div className="relative mb-4 flex items-center py-2">
-              <div className="flex-grow border-t border-zinc-700" />
-              <span className="mx-4 flex-shrink text-xs text-zinc-500 uppercase">
+              <div className="grow border-t border-zinc-700" />
+              <span className="mx-4 shrink text-xs text-zinc-500 uppercase">
                 {t('auth.login.orContinueWith') || 'Or continue with'}
               </span>
-              <div className="flex-grow border-t border-zinc-700" />
+              <div className="grow border-t border-zinc-700" />
             </div>
 
             {/* Button for Google OAuth */}

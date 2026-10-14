@@ -17,11 +17,12 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './features/auth/store/useAuthStore';
 
-import { AppLayout } from './components/layout/AppLayout';
-import { AppLayoutPublic } from './components/layout/AppLayoutPublic';
 import { DynamicLayout } from './components/layout/DynamicLayout';
-import { ProtectedRoute } from './components/layout/ProtectedRoute';
-import { PublicOnlyRoute } from './components/layout/PublicOnlyRoute';
+import { ProtectedRoute } from './components/layout/guards/ProtectedRoute';
+import { PublicOnlyRoute } from './components/layout/guards/PublicOnlyRoute';
+
+import { AppLayout } from './components/layout/private/AppLayout';
+import { AppLayoutPublic } from './components/layout/public/AppLayoutPublic';
 
 import { LandingPage } from './pages/LandingPage';
 import { LobbyPage } from './pages/LobbyPage';
@@ -34,23 +35,6 @@ import { ProjectPage } from './pages/ProjectPage';
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { NotFoundPage } from './pages/NotFoundPage';
-
-// export default function App() {
-// 	return (
-// 		<BrowserRouter>
-// 			<Routes>
-// 				{/* Ruta principal y pública al Entrypoint */}
-// 				<Route path="/login" element={<LandingPage />} />
-// 				<Route path="/" element={<Navigate to="/login" replace />} />
-
-// 				{/* Rutas con AppLayout (Header + Outlet + Footer) */}
-// 				<Route element={<AppLayout />}>
-// 					{/* Aquí irán /rules, /about-us, /project, /lobby, etc. */}
-// 				</Route>
-// 			</Routes>
-// 		</BrowserRouter>
-// 	);
-// }
 
 export default function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -95,13 +79,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
-// export default function App() {
-// 	return (
-// 		<AppLayout>
-// 			<LoginForm />
-// 			<RegisterForm />
-// 			<AuthStatus />
-// 		</AppLayout>
-// 	);
-// }

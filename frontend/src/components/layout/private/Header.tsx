@@ -14,9 +14,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../features/auth/store/useAuthStore';
-import { useLanguage } from '../../locales/useLanguage';
-import { LanguageSwitcher } from './LanguageSwitcher';
+import { useAuthStore } from '../../../features/auth/store/useAuthStore';
+import { useLanguage } from '../../../locales/useLanguage';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 
 interface HeaderProps {
   onOpenDrawer: () => void;

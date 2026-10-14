@@ -12,8 +12,8 @@
  */
 
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
-import { AppLayout } from './AppLayout';
-import { AppLayoutPublic } from './AppLayoutPublic';
+import { AppLayout } from './private/AppLayout';
+import { AppLayoutPublic } from './public/AppLayoutPublic';
 
 export function DynamicLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
