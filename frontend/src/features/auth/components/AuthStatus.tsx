@@ -34,7 +34,9 @@ export function AuthStatus() {
     try {
       await logout();
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : t('auth.errors.logout'));
+      setErrorMessage(
+        error instanceof Error ? error.message : t('auth.errors.logout')
+      );
     } finally {
       setIsLoggingOut(false);
     }
@@ -43,14 +45,18 @@ export function AuthStatus() {
   return (
     <Card className="mx-auto mt-6 w-full max-w-sm text-center">
       <p className="text-lg font-semibold">
-        {isAuthenticated ? t('auth.status.loggedIn') : t('auth.status.notLoggedIn')}
+        {isAuthenticated
+          ? t('auth.status.loggedIn')
+          : t('auth.status.notLoggedIn')}
       </p>
       {isAuthenticated && user && (
         <p className="mt-2 text-sm text-gray-600">
           {t('auth.status.userLabel')}: {user.username}
         </p>
       )}
-      {errorMessage && <p className="mt-2 text-sm text-red-600">{errorMessage}</p>}
+      {errorMessage && (
+        <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
+      )}
       {isAuthenticated && (
         <Button
           type="button"

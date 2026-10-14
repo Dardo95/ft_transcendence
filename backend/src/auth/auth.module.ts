@@ -5,7 +5,7 @@ import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 
 @Module({
-  imports:[
+  imports: [
     PrismaModule,
     JwtModule.register({
       global: true,

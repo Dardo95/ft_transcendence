@@ -14,10 +14,10 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true,  // Transform json object into a dto
-      whitelist: true,  // delete fields that don't exist in dto
-      forbidNonWhitelisted: true
-    }),
+      transform: true, // Transform json object into a dto
+      whitelist: true, // delete fields that don't exist in dto
+      forbidNonWhitelisted: true,
+    })
   );
 
   await app.listen(process.env.PORT || 3000);

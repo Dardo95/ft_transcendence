@@ -28,7 +28,10 @@ export function LandingPage() {
       {/* Central Zone */}
       <main className="z-10 flex grow flex-col items-center justify-center px-4 text-center">
         <div className="mb-3 flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-semibold tracking-wider text-amber-500 uppercase">
-          <span>{t('app.upTitle') || 'Arcade Multiplayer Webgame inspired by Bomberman'}</span>
+          <span>
+            {t('app.upTitle') ||
+              'Arcade Multiplayer Webgame inspired by Bomberman'}
+          </span>
         </div>
 
         <h1 className="mb-4 bg-linear-to-r from-orange-400 via-amber-200 to-orange-500 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md md:text-7xl">
@@ -90,7 +93,9 @@ export function LandingPage() {
             </div>
 
             {/* Reactive forms */}
-            <div className="mb-6">{authTab === 'login' ? <LoginForm /> : <RegisterForm />}</div>
+            <div className="mb-6">
+              {authTab === 'login' ? <LoginForm /> : <RegisterForm />}
+            </div>
 
             {/* Separator */}
             <div className="relative mb-4 flex items-center py-2">
@@ -125,7 +130,9 @@ export function LandingPage() {
                   d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"
                 />
               </svg>
-              <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>
+              <span>
+                {t('auth.login.continueGoogle') || 'Continue with Google'}
+              </span>
             </button>
           </div>
         </div>

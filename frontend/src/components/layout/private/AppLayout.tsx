@@ -31,7 +31,10 @@ export function AppLayout() {
       <Header onOpenDrawer={() => setIsDrawerOpen(true)} />
 
       {/* Collapsible left navigation drawer */}
-      <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+      <SideDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
 
       {/* Main view container rendered by React Router */}
       <main className="flex w-full grow flex-col items-center p-4 md:p-8">

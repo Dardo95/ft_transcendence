@@ -1,4 +1,9 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service.js';
 
 @Injectable()
@@ -69,8 +74,7 @@ export class FriendshipsService {
 
   async block(meId: number, username: string) {
     const other = await this.getUserOrThrow(username);
-    if (other.id === meId)
-      throw new ConflictException('Cannot block yourself');
+    if (other.id === meId) throw new ConflictException('Cannot block yourself');
     const existing = await this.findBetween(meId, other.id);
     if (existing) {
       return this.prisma.friendship.update({
@@ -112,7 +116,11 @@ export class FriendshipsService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return rows.map((r) => ({ id: r.id, createdAt: r.createdAt, from: r.requester }));
+    return rows.map((r) => ({
+      id: r.id,
+      createdAt: r.createdAt,
+      from: r.requester,
+    }));
   }
 
   async listOutgoing(meId: number) {
@@ -131,7 +139,11 @@ export class FriendshipsService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return rows.map((r) => ({ id: r.id, createdAt: r.createdAt, to: r.addressee }));
+    return rows.map((r) => ({
+      id: r.id,
+      createdAt: r.createdAt,
+      to: r.addressee,
+    }));
   }
 
   async listFriends(meId: number) {
@@ -161,6 +173,8 @@ export class FriendshipsService {
         },
       },
     });
-    return rows.map((r) => (r.requesterId === meId ? r.addressee : r.requester));
+    return rows.map((r) =>
+      r.requesterId === meId ? r.addressee : r.requester
+    );
   }
 }

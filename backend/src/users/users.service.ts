@@ -66,5 +66,4 @@ export class UsersService {
     ]);
     return { data, total, page, limit };
   }
-
 }

@@ -14,7 +14,12 @@
  */
 
 import { create } from 'zustand';
-import { loginUser, logoutUser, registerUser, getMe } from '../service/authService';
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  getMe,
+} from '../service/authService';
 import type { AuthCredentials, AuthResponse } from '../types/auth';
 import type { User } from '../../../types/user';
 

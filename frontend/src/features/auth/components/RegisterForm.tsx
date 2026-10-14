@@ -72,7 +72,9 @@ export function RegisterForm() {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder={t('auth.register.userPlaceholder') || 'Enter your username'}
+          placeholder={
+            t('auth.register.userPlaceholder') || 'Enter your username'
+          }
           required
         />
         <Input
@@ -80,7 +82,9 @@ export function RegisterForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={t('auth.register.emailPlaceholder') || 'Enter your email'}
+          placeholder={
+            t('auth.register.emailPlaceholder') || 'Enter your email'
+          }
           required
         />
         <Input

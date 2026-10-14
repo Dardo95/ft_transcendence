@@ -24,7 +24,10 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+export async function apiFetch<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
   const config: RequestInit = {
     ...options,
     credentials: 'include',
@@ -50,10 +53,16 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     '/auth/google',
   ];
 
-  const isAuthEndpoint = authEndpoints.some((path) => cleanEndpoint.startsWith(path));
+  const isAuthEndpoint = authEndpoints.some((path) =>
+    cleanEndpoint.startsWith(path)
+  );
 
   if (response.status === 401) {
-    if (!isAuthEndpoint && typeof window !== 'undefined' && window.location.pathname !== '/login') {
+    if (
+      !isAuthEndpoint &&
+      typeof window !== 'undefined' &&
+      window.location.pathname !== '/login'
+    ) {
       window.location.replace('/login');
     }
     throw new ApiError('Unauthorized', 401);

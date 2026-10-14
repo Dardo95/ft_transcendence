@@ -20,7 +20,9 @@ import { apiFetch } from '../../../api/api';
 import type { AuthCredentials, AuthResponse } from '../types/auth';
 
 // Sends the registration HTTP request for a new user.
-export async function registerUser(credentials: AuthCredentials): Promise<void> {
+export async function registerUser(
+  credentials: AuthCredentials
+): Promise<void> {
   await apiFetch<void>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(credentials),

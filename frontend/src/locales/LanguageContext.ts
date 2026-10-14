@@ -21,4 +21,6 @@ export interface LanguageContextType {
   t: (path: TranslationKey) => string;
 }
 
-export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+export const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined
+);

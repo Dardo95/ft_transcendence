@@ -1,6 +1,7 @@
 import {
-	ConflictException, Injectable,
-	UnauthorizedException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
@@ -12,194 +13,183 @@ import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class AuthService {
+  private readonly googleClient = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID
+  );
 
-	private readonly googleClient = new OAuth2Client(
-		process.env.GOOGLE_CLIENT_ID,
-	);
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService
+  ) {}
 
-	constructor(
-		private readonly prisma: PrismaService,
-		private readonly jwtService: JwtService) {}
+  async register(data: RegisterDto) {
+    const email = data.email.trim().toLowerCase();
+    const username = data.username.trim();
 
-	async register(data: RegisterDto) {
-		const email = data.email.trim().toLowerCase();
-		const username = data.username.trim();
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { username }],
+      },
+      select: { id: true },
+    });
 
-		const existingUser = await this.prisma.user.findFirst({
-			where: {
-				OR: [{ email }, { username },],
-			},
-			select: { id: true },
-		});
+    if (existingUser) {
+      throw new ConflictException('Email or username already in use');
+    }
 
-		if (existingUser) {
-			throw new ConflictException('Email or username already in use');
-		}
+    const passwordHash = await argon2.hash(data.password);
 
-		const passwordHash = await argon2.hash(data.password);
+    try {
+      await this.prisma.user.create({
+        data: {
+          email,
+          username,
+          password: passwordHash,
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          xp: true,
+          createdAt: true,
+        },
+      });
+      return this.login({ email: email, password: data.password });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Email or username already in use');
+      }
+      throw error;
+    }
+  }
 
-		try {
-			await this.prisma.user.create({
-				data: {
-					email,
-					username,
-					password: passwordHash,
-				},
-				select: {
-					id: true,
-					username: true,
-					email: true,
-					xp: true,
-					createdAt: true,
-				},
-			});
-			return this.login( {email: email, password: data.password} );
+  async login(data: LoginDto) {
+    const email = data.email.trim().toLowerCase();
 
-		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === 'P2002'
-			) {
-				throw new ConflictException('Email or username already in use');
-			}
-			throw error;
-		}
-	}
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
 
-	async login(data: LoginDto) {
-		const email = data.email.trim().toLowerCase();
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-		const user = await this.prisma.user.findUnique({
-			where: { email },
-		});
+    if (!user.password) throw new UnauthorizedException('Invalid credentials');
 
-		if (!user)
-			throw new UnauthorizedException('Invalid credentials');
+    const isPasswordValid = await argon2.verify(user.password, data.password);
+    if (!isPasswordValid)
+      throw new UnauthorizedException('Invalid credentials');
 
-		if (!user.password)
-			throw new UnauthorizedException('Invalid credentials');
+    return this.sign({ id: user.id, username: user.username });
+  }
 
-		const isPasswordValid = await argon2.verify(user.password, data.password);
-		if (!isPasswordValid)
-			throw new UnauthorizedException('Invalid credentials');
+  async googleLogin(code: string) {
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+        redirect_uri: process.env.GOOGLE_CALLBACK_URL!,
+        grant_type: 'authorization_code',
+      }),
+    });
 
-		return this.sign({ id: user.id, username: user.username })
-	}
+    if (!response.ok) {
+      throw new UnauthorizedException('Google token exchange failed');
+    }
 
-	async googleLogin(code: string) {
-		const response = await fetch(
-			'https://oauth2.googleapis.com/token',
-			{
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: new URLSearchParams({
-					code,
-					client_id: process.env.GOOGLE_CLIENT_ID!,
-					client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-					redirect_uri: process.env.GOOGLE_CALLBACK_URL!,
-					grant_type: 'authorization_code',
-				}),
-			},
-		);
+    const tokens = await response.json();
 
-		if (!response.ok) {
-			throw new UnauthorizedException('Google token exchange failed');
-		}
+    const ticket = await this.googleClient.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-		const tokens = await response.json();
+    const payload = ticket.getPayload();
 
-		const ticket = await this.googleClient.verifyIdToken({
-			idToken: tokens.id_token,
-			audience: process.env.GOOGLE_CLIENT_ID,
-		});
+    if (!payload?.sub || !payload.email) {
+      throw new UnauthorizedException('Invalid Google account');
+    }
 
-		const payload = ticket.getPayload();
+    if (!payload.email_verified) {
+      throw new UnauthorizedException('Google email is not verified');
+    }
 
-		if (!payload?.sub || !payload.email) {
-			throw new UnauthorizedException('Invalid Google account');
-		}
+    const googleId = payload.sub;
+    const email = payload.email.toLowerCase();
 
-		if (!payload.email_verified) {
-			throw new UnauthorizedException(
-				'Google email is not verified',
-			);
-		}
+    let user = await this.prisma.user.findFirst({
+      where: {
+        oauthProvider: 'google',
+        oauthId: googleId,
+      },
+    });
 
-		const googleId = payload.sub;
-		const email = payload.email.toLowerCase();
+    if (!user) {
+      user = await this.prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+    }
 
-		let user = await this.prisma.user.findFirst({
-			where: {
-				oauthProvider: 'google',
-				oauthId: googleId,
-			},
-		});
+    if (user) {
+      if (user.oauthId !== googleId) {
+        user = await this.prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            oauthProvider: 'google',
+            oauthId: googleId,
+          },
+        });
+      }
+    }
 
-		if (!user) {
-			user = await this.prisma.user.findUnique({
-				where: {
-					email,
-				},
-			});
-		}
+    if (!user) {
+      let username = payload.name?.trim() || email.split('@')[0];
 
-		if (user) {
-			if (user.oauthId !== googleId) {
-				user = await this.prisma.user.update({
-					where: {
-						id: user.id,
-					},
-					data: {
-						oauthProvider: 'google',
-						oauthId: googleId,
-					},
-				});
-			}
-		}
+      username = username.replace(/\s+/g, '_');
 
-		if (!user) {
-			let username =
-				payload.name?.trim() ||
-				email.split('@')[0];
+      const originalUsername = username;
+      let suffix = 2;
 
-			username = username.replace(/\s+/g, '_');
+      while (
+        await this.prisma.user.findUnique({
+          where: { username },
+        })
+      ) {
+        username = `${originalUsername}_${suffix}`;
+        suffix++;
+      }
 
-			const originalUsername = username;
-			let suffix = 2;
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          username,
+          password: null,
+          oauthProvider: 'google',
+          oauthId: googleId,
+        },
+      });
+    }
 
-			while (
-				await this.prisma.user.findUnique({
-					where: { username },
-				})
-			) {
-				username = `${originalUsername}_${suffix}`;
-				suffix++;
-			}
+    return this.sign({ id: user.id, username: user.username });
+  }
 
-			user = await this.prisma.user.create({
-				data: {
-					email,
-					username,
-					password: null,
-					oauthProvider: 'google',
-					oauthId: googleId,
-				},
-			});
-		}
+  /*----------utils-----------*/
 
-		return this.sign({ id: user.id, username: user.username })
-	}
-
-
-	/*----------utils-----------*/
-
-	private sign(user: { id: number; username: string; }) {
-		const payload = {
-			sub: user.id,
-			username: user.username
-		};
-		return this.jwtService.sign(payload);
-	}
+  private sign(user: { id: number; username: string }) {
+    const payload = {
+      sub: user.id,
+      username: user.username,
+    };
+    return this.jwtService.sign(payload);
+  }
 }

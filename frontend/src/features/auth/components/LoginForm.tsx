@@ -42,7 +42,9 @@ export function LoginForm() {
       navigate('/lobby', { replace: true });
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : t('auth.errors.login') || 'Error at login'
+        error instanceof Error
+          ? error.message
+          : t('auth.errors.login') || 'Error at login'
       );
     } finally {
       setIsSubmitting(false);
