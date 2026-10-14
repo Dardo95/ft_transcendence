@@ -16,33 +16,30 @@
  * - Contain feature-specific business logic.
  */
 
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
-import { Header } from "./Header";
-import { Footer } from "./Footer";
-import { SideDrawer } from "./SideDrawer";
+import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import { Header } from './Header';
+import { Footer } from './Footer';
+import { SideDrawer } from './SideDrawer';
 
 export function AppLayout() {
-	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-	return (
-		<div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 font-sans">
-			{/* Top navigation bar */}
-			<Header onOpenDrawer={() => setIsDrawerOpen(true)} />
+  return (
+    <div className="flex min-h-screen flex-col justify-between bg-slate-950 font-sans text-slate-100">
+      {/* Top navigation bar */}
+      <Header onOpenDrawer={() => setIsDrawerOpen(true)} />
 
-			{/* Collapsible left navigation drawer */}
-			<SideDrawer
-				isOpen={isDrawerOpen}
-				onClose={() => setIsDrawerOpen(false)}
-			/>
+      {/* Collapsible left navigation drawer */}
+      <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
-			{/* Main view container rendered by React Router */}
-			<main className="flex-grow w-full p-4 md:p-8 flex flex-col items-center">
-				<Outlet />
-			</main>
+      {/* Main view container rendered by React Router */}
+      <main className="flex w-full grow flex-col items-center p-4 md:p-8">
+        <Outlet />
+      </main>
 
-			{/* Application footer */}
-			<Footer />
-		</div>
-	);
+      {/* Application footer */}
+      <Footer />
+    </div>
+  );
 }

@@ -16,36 +16,34 @@
  * - Contain user-facing translations.
  */
 
-import { apiFetch } from "../../../api/api";
-import type { AuthCredentials, AuthResponse } from "../types/auth";
+import { apiFetch } from '../../../api/api';
+import type { AuthCredentials, AuthResponse } from '../types/auth';
 
 // Sends the registration HTTP request for a new user.
-export async function registerUser(
-	credentials: AuthCredentials,
-): Promise<void> {
-	await apiFetch<void>("/auth/register", {
-		method: "POST",
-		body: JSON.stringify(credentials),
-	});
+export async function registerUser(credentials: AuthCredentials): Promise<void> {
+  await apiFetch<void>('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  });
 }
 
 // Sends the login HTTP request for an existing user.
 export async function loginUser(credentials: AuthCredentials): Promise<void> {
-	await apiFetch<void>("/auth/login", {
-		method: "POST",
-		body: JSON.stringify(credentials),
-	});
+  await apiFetch<void>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  });
 }
 
 // Sends the logout HTTP request to terminate the user session.
 export async function logoutUser(): Promise<void> {
-	await apiFetch<void>("/auth/logout", {
-		method: "POST",
-	});
+  await apiFetch<void>('/auth/logout', {
+    method: 'POST',
+  });
 }
 
 export async function getMe(): Promise<AuthResponse> {
-	return await apiFetch<AuthResponse>("/users/me", {
-		method: "GET",
-	});
+  return await apiFetch<AuthResponse>('/users/me', {
+    method: 'GET',
+  });
 }

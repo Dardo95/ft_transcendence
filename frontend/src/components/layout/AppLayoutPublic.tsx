@@ -1,16 +1,16 @@
-import { Outlet } from "react-router-dom";
-import { FooterPublic } from "./FooterPublic";
+import { Outlet } from 'react-router-dom';
+import { FooterPublic } from './FooterPublic';
 
 export function AppLayoutPublic() {
-	return (
-		<div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden">
-			<div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-orange-500/5 via-transparent to-transparent blur-3xl" />
+  return (
+    <div className="relative flex min-h-screen flex-col justify-between overflow-x-hidden bg-slate-950 font-sans text-slate-100">
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-orange-500/5 via-transparent to-transparent blur-3xl" />
 
-			<main className="flex-grow w-full flex flex-col items-center justify-center z-10">
-				<Outlet />
-			</main>
+      <main className="z-10 flex w-full grow flex-col items-center justify-center">
+        <Outlet />
+      </main>
 
-			<FooterPublic />
-		</div>
-	);
+      <FooterPublic />
+    </div>
+  );
 }

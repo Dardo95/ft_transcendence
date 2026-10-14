@@ -14,7 +14,7 @@
  * - Render UI.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export class ApiError extends Error {
 	status: number;
@@ -37,13 +37,13 @@ export async function apiFetch<T>(
 		},
 	};
 
-	// Ensure the endpoint starts with a slash and construct the full URL
-	const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-	const url = API_BASE_URL.endsWith("/")
-		? `${API_BASE_URL.slice(0, -1)}${cleanEndpoint}`
-		: `${API_BASE_URL}${cleanEndpoint}`;
+  // Ensure the endpoint starts with a slash and construct the full URL
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = API_BASE_URL.endsWith('/')
+    ? `${API_BASE_URL.slice(0, -1)}${cleanEndpoint}`
+    : `${API_BASE_URL}${cleanEndpoint}`;
 
-	const response = await fetch(url, config);
+  const response = await fetch(url, config);
 
 	const authEndpoints = [
 		"/auth/login",
@@ -75,10 +75,10 @@ export async function apiFetch<T>(
 		throw new ApiError(message, response.status);
 	}
 
-	// Handle 204 No Content responses gracefully
-	if (response.status === 204) {
-		return {} as T;
-	}
+  // Handle 204 No Content responses gracefully
+  if (response.status === 204) {
+    return {} as T;
+  }
 
-	return response.json() as Promise<T>;
+  return response.json() as Promise<T>;
 }

@@ -12,16 +12,16 @@
  */
 
 export interface AuthCredentials {
-	email: string;
-	password: string;
-	username?: string;
+  email: string;
+  password: string;
+  username?: string;
 }
 
 export interface AuthResponse {
-	user: {
-		id: string;
-		email: string;
-		username: string;
-		avatarUrl?: string;
-	};
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    avatarUrl?: string;
+  };
 }

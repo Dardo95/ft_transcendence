@@ -1,14 +1,14 @@
 import { useLanguage } from '../locales/useLanguage';
 
 export function NotFoundPage() {
-	const { t } = useLanguage();
-	
-	return (
-		<div className="w-full max-w-4xl p-6 bg-zinc-900 border border-zinc-700 rounded-xl text-center">
-			<h1 className="text-2xl font-bold text-orange-400 mb-2">
-				{t("app.notFound") || "404 Not Found"}
-			</h1>
-			<p className="text-zinc-400 text-sm">Vista en construcción.</p>
-		</div>
-	);
+  const { t } = useLanguage();
+
+  return (
+    <div className="w-full max-w-4xl rounded-xl border border-zinc-700 bg-zinc-900 p-6 text-center">
+      <h1 className="mb-2 text-2xl font-bold text-orange-400">
+        {t('app.notFound') || '404 Not Found'}
+      </h1>
+      <p className="text-sm text-zinc-400">Vista en construcción.</p>
+    </div>
+  );
 }
