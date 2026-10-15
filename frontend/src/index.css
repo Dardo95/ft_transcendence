@@ -13,8 +13,6 @@
 
 /* Import TailwindCSS and preflight for base styles and resets */
 @import 'tailwindcss';
-/* Apply TailwindCSS utilities like margin, padding, and text styles */
-@tailwind utilities;
 
 html,
 body {

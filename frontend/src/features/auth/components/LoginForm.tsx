@@ -16,6 +16,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import {useRef, useEffect} from 'react';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
 import { Card } from '../../../components/ui/Card';
@@ -50,6 +51,12 @@ export function LoginForm() {
       setIsSubmitting(false);
     }
   }
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (errorMessage && errorRef.current) {
+      errorRef.current.focus();
+    }
+  }, [errorMessage]);
 
   return (
     <Card className="mx-auto w-full max-w-sm">
@@ -58,7 +65,9 @@ export function LoginForm() {
       </h2>
 
       {errorMessage && (
-        <div className="mb-4 flex items-center justify-center gap-1.5 rounded-xl border border-red-700/80 bg-red-950/70 p-2.5 text-center text-xs text-red-300">
+        <div ref={errorRef}
+        tabIndex={-1}
+        className="mb-4 flex items-center justify-center gap-1.5 rounded-xl border border-red-700/80 bg-red-950/70 p-2.5 text-center text-xs text-red-300">
           <span>⚠️</span>
           <span>{errorMessage}</span>
         </div>

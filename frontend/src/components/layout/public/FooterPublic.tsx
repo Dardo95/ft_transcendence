@@ -14,7 +14,7 @@ export function FooterPublic() {
       </div>
 
       {/* Legal and About Links */}
-      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+      <div className="flex flex-wrap items-center justify-center gap-6 gap-y-2">
         <Link to="/about-us" className="transition-colors hover:text-zinc-300">
           {t('app.aboutUs') || 'About Us'}
         </Link>

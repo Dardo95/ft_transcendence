@@ -18,7 +18,7 @@ export function Footer() {
 
   return (
     <footer className="z-10 w-full border-t border-zinc-800/80 bg-slate-950/80 py-4 text-center text-xs text-zinc-500 backdrop-blur-sm">
-      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+      <div className="flex flex-wrap items-center justify-center gap-6 gap-y-2">
         {/* Year and Application Title */}
         <span>© 2026 {t('app.title') || 'Kitchen Mayhem'}</span>
 

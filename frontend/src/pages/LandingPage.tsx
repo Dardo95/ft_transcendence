@@ -10,7 +10,7 @@ export function LandingPage() {
   const { t } = useLanguage();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, error, clearError } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,6 +91,14 @@ export function LandingPage() {
                 {t('app.register') || 'Register'}
               </button>
             </div>
+
+            {/* Auth error banner inside the modal */}
+            {error && (
+              <div className="mb-4 flex items-center justify-center gap-1.5 rounded-xl border border-red-700/80 bg-red-950/70 p-2.5 text-center text-xs text-red-300 cursor-pointer">
+                <span>⚠️</span>
+                <span onClick={() => clearError()}>{error}</span>
+              </div>
+            )}
 
             {/* Reactive forms */}
             <div className="mb-6">

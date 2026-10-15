@@ -41,12 +41,14 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  error: string | null;
 
   // Actions
   checkAuth: () => Promise<void>;
   login: (credentials: AuthCredentials) => Promise<void>;
   register: (credentials: AuthCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  clearError: () => void;
 }
 
 // Creation of the store with persistence in localStorage
@@ -54,21 +56,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  error: null,
 
   checkAuth: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       const userData = await getMe();
       set({
         user: normalizeUser(userData.user),
         isAuthenticated: true,
         isLoading: false,
+        error: null,
       });
     } catch {
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
+        error: null,
       });
     } finally {
       set({ isLoading: false });
@@ -76,7 +81,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   login: async (credentials: AuthCredentials) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       await loginUser(credentials);
 
@@ -86,9 +91,16 @@ export const useAuthStore = create<AuthState>((set) => ({
         user: normalizeUser(userData.user),
         isAuthenticated: true,
         isLoading: false,
+        error: null,
       });
     } catch (error) {
-      set({ isLoading: false });
+      set({
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Login error',
+      });
       throw error;
     } finally {
       set({ isLoading: false });
@@ -96,7 +108,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   register: async (credentials: AuthCredentials) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       await registerUser(credentials);
       await loginUser({
@@ -104,7 +116,13 @@ export const useAuthStore = create<AuthState>((set) => ({
         password: credentials.password,
       });
     } catch (error) {
-      set({ isLoading: false });
+      set({
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Register error',
+      });
       throw error;
     } finally {
       set({ isLoading: false });
@@ -112,7 +130,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       await logoutUser();
     } finally {
@@ -120,7 +138,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         user: null,
         isAuthenticated: false,
         isLoading: false,
+        error: null,
       });
     }
   },
+
+  clearError: () => set({ error: null }),
 }));
