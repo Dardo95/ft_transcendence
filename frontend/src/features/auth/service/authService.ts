@@ -17,7 +17,7 @@
  */
 
 import { apiFetch } from '../../../api/api';
-import type { AuthCredentials, AuthResponse } from '../types/auth';
+import type { AuthCredentials, AuthResponse } from '@transcendence/shared';
 
 // Sends the registration HTTP request for a new user.
 export async function registerUser(

@@ -20,10 +20,13 @@ import {
   registerUser,
   getMe,
 } from '../service/authService';
-import type { AuthCredentials, AuthResponse } from '../types/auth';
-import type { User } from '../../../types/user';
+import type {
+  AuthCredentials,
+  AuthResponse,
+  UserPublic,
+} from '@transcendence/shared';
 
-function normalizeUser(user: AuthResponse['user']): User | null {
+function normalizeUser(user: AuthResponse['user']): UserPublic | null {
   if (!user) {
     return null;
   }
@@ -38,7 +41,7 @@ function normalizeUser(user: AuthResponse['user']): User | null {
 
 interface AuthState {
   // State
-  user: User | null;
+  user: UserPublic | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 

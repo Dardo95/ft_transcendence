@@ -21,7 +21,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path mapping */
+    "paths": {
+      "@transcendence/shared": ["../../shared/src/index.ts"],
+      "@transcendence/shared/*": ["../../shared/src/*"]
+    }
   },
   "include": ["src"]
 }
