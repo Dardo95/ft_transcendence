@@ -63,7 +63,7 @@ fclean:
 	@rm -f certs/cert.pem certs/key.pem
 
 studio:
-	@docker exec -it ft_backend npx prisma studio --port 5555 --browser none
+	@docker exec -it -w /app/backend ft_backend ./node_modules/.bin/prisma studio --port 5555 --browser none
 
 # ─── Inspection ─────────────────────────────────────────────
 
