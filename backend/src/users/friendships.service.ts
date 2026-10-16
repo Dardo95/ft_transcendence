@@ -116,7 +116,7 @@ export class FriendshipsService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return rows.map((r) => ({
+    return rows.map((r: any) => ({
       id: r.id,
       createdAt: r.createdAt,
       from: r.requester,
@@ -139,7 +139,7 @@ export class FriendshipsService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return rows.map((r) => ({
+    return rows.map((r: any) => ({
       id: r.id,
       createdAt: r.createdAt,
       to: r.addressee,
@@ -173,7 +173,7 @@ export class FriendshipsService {
         },
       },
     });
-    return rows.map((r) =>
+    return rows.map((r: any) =>
       r.requesterId === meId ? r.addressee : r.requester
     );
   }
