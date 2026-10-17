@@ -1,44 +1,49 @@
+# **************************************************************************** #
+# VARIABLES
+
+NAME := ft_transcendence
+
 HOST_IP := $(shell ip addr show | grep "inet " | grep -v "127.0.0.1" | grep -v "172\." | grep -v "192.168.122" | awk '{print $$2}' | cut -d'/' -f1 | head -1)
 CERT_IP := $(if $(HOST_IP),$(HOST_IP),127.0.0.1)
 ACCESS_HOST := $(if $(HOST_IP),$(HOST_IP),localhost)
 
-# Services defined in docker-compose.yml, used to validate make <command>-<service>
-SERVICES := postgres backend frontend nginx
+# **************************************************************************** #
+# COLORS AND ASCII ART
 
-# Optional log flags, nothing is applied by default:
-#   make logs f        -> follow the output, live (docker compose logs -f)
-#   make logs t=100    -> print only the last 100 lines
-#   make logs f t=100  -> both at once
-LOG_FLAGS = $(strip $(if $(filter f,$(MAKECMDGOALS)),-f) $(if $(t),--tail=$(t)))
+CYAN   := \033[36m
+GREEN  := \033[32m
+YELLOW := \033[33m
+RED    := \033[31m
+RESET  := \033[0m
 
-# Command run by exec-<svc>: make exec-backend CMD="npx prisma version"
-CMD ?= sh
+define ASCII_ART
 
-# `make` with no arguments must always start the whole project, no matter
-# which target ends up being the first one in this file
+──────────────────────────────────────────────────────────────
+ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+ ░░░░░▀█▀░█▀█░█▀█░█▀▀░█▀▀░█▀▀░█▀█░█▀█░█▀▀░█▀█░█▀▀░█▀▀░░░░░░░░
+ ░░░░░░█░░█▀▄░█▀█░▀▀█░█░░░█▀▀░█░█░█░█░█▀▀░█░█░█░░░█▀▀░░░░░░░░
+ ░░░░░░▀░░▀░▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀░░▀▀▀░▀░▀░▀▀▀░▀▀▀░░░░░░░░
+ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░                      
+──────── by raperez-, ozamora-, brivera and enogueir ─────────
+
+endef
+export ASCII_ART
+
+# **************************************************************************** #
+# RULES
+
 .DEFAULT_GOAL := all
 
-all: prep
-	@docker compose up --build -d
-	@echo ""
-	@echo "✅ Project is up!"
-	@echo "🌐 Open your browser at: https://$(ACCESS_HOST):8443"
-	@echo ""
+all: prep build up
 
-# Development mode: hot reload, code mounted from the host, no nginx
-dev: prep-env
-	@docker compose rm -sf nginx 2>/dev/null || true
-	@docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend -d
-
-# Prepare the local environment: .env and HTTPS certificates
 prep: prep-env prep-tls
 
 prep-env:
 	@cp -n .env.example .env 2>/dev/null || true
 	@chmod 600 .env
+	@echo "$(GREEN)Environment variables initialized.$(RESET)"
 
 prep-tls:
-	@echo "Detected IP: $(ACCESS_HOST)"
 	@mkdir -p certs
 	@if [ ! -f certs/cert.pem ] || [ ! -f certs/key.pem ] || \
 		! openssl x509 -in certs/cert.pem -noout -ext subjectAltName 2>/dev/null | grep -Fq "IP Address:$(CERT_IP)" || \
@@ -47,137 +52,297 @@ prep-tls:
 			-keyout certs/key.pem -out certs/cert.pem \
 			-subj "/C=ES/ST=Madrid/L=Madrid/O=42Madrid/CN=$(CERT_IP)" \
 			-addext "subjectAltName=DNS:localhost,IP:$(CERT_IP)" 2>/dev/null; \
-		echo "Certificates generated"; \
+		echo "$(GREEN)Certificates generated.$(RESET)"; \
 	fi
+	@echo "$(GREEN)Certificates are valid.$(RESET)"
+	@echo "Detected IP: $(CYAN)$(ACCESS_HOST)$(RESET)"
+	@echo ""
+
+build: prep
+	@echo "$(CYAN)Building Docker images...$(RESET)"
+	docker compose build
+	@echo ""
+
+up: prep
+	@echo "$(CYAN)Starting containers...$(RESET)"
+	docker compose up -d
+	@printf "$$ASCII_ART\n"
+	@echo "$(GREEN)Infrastructure is up!$(RESET)"
+	@echo "Access at: $(CYAN)https://$(ACCESS_HOST):8443$(RESET) or $(CYAN)https://localhost:8443$(RESET)"
+	@echo ""
 
 down:
-	@docker compose down
+	@echo "$(CYAN)Taking down containers...$(RESET)"
+	docker compose down
+	@echo ""
 
-re:
-	@docker compose down -v
-	@docker compose build --no-cache
-	@$(MAKE) all
+# **************************************************************************** #
+# CLEAN AND REBUILD
+
+clean:
+	@echo "$(YELLOW)Cleaning containers and volumes...$(RESET)"
+	docker compose down --volumes --remove-orphans
+	@echo ""
 
 fclean:
-	@docker compose down --volumes --remove-orphans --rmi all
-	@rm -f certs/cert.pem certs/key.pem
+	@echo "$(YELLOW)Cleaning containers, images and volumes...$(RESET)"
+	docker compose down --volumes --remove-orphans --rmi all 2>/dev/null || true
+	@echo "$(YELLOW)Removing certs...$(RESET)"
+	rm -f certs/cert.pem certs/key.pem
+	@echo "$(YELLOW)Removing node_modules, dist and caches...$(RESET)"
+	docker run --rm -v "$$(pwd):/app" -w /app alpine sh -c "\
+			rm -rf node_modules backend/node_modules frontend/node_modules shared/node_modules \
+				frontend/dist backend/dist \
+				backend/main.js backend/main.d.ts backend/main.js.map .pnpm-store" 2>/dev/null || true
+	@echo "$(GREEN)Project completely cleaned!$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)[Warning]$(RESET) Local node_modules have been purged."
+	@echo "If your editor shows type errors, run $(CYAN)pnpm install$(RESET) from $(CYAN)root directory$(RESET)."
+	@echo ""
+
+re: clean all
+
+# **************************************************************************** #
+# DEVELOPMENT MODE
+# Hot reload, code mounted from the host, no nginx
+# No certs, no HTTPS, no reverse proxy, no caching
+
+dev: prep-env
+	@echo "$(CYAN)Starting development mode...$(RESET)"
+	@echo ""
+	@echo "$(CYAN)Stopping NGINX container if running...$(RESET)"
+	docker compose rm -sf nginx 2>/dev/null || true
+	@echo "$(CYAN)Building and starting development containers...$(RESET)"
+	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend -d
+	@printf "$$ASCII_ART\n"
+	@echo "$(GREEN)Infrastructure in $(RESET)Development Mode$(GREEN) is up!$(RESET)"
+	@echo "Access at: $(CYAN)http://$(ACCESS_HOST):5173$(RESET) or $(CYAN)http://localhost:5173$(RESET)"
+	@echo ""
 
 studio:
-	@docker exec -it -w /app/backend ft_backend ./node_modules/.bin/prisma studio --port 5555 --browser none
+	@echo "$(CYAN)Opening Prisma Studio...$(RESET)"
+	docker exec -it -w /app/backend ft_backend ./node_modules/.bin/prisma studio --port 5555 --browser none
+	@echo ""
 
-# ─── Inspection ─────────────────────────────────────────────
+# **************************************************************************** #
+# QA AND CODE QUALITY
+
+typecheck:
+	@echo "$(CYAN)Checking TypeScript types in Backend...$(RESET)"
+	docker compose exec -T backend pnpm run typecheck
+	@echo ""
+	@echo "$(CYAN)Checking TypeScript types in Frontend...$(RESET)"
+	docker compose exec -T frontend pnpm run typecheck
+	@echo ""
+
+lint:
+	@echo "$(CYAN)Running linter in Backend...$(RESET)"
+	docker compose exec -T backend pnpm run lint
+	@echo ""
+	@echo "$(CYAN)Running linter in Frontend...$(RESET)"
+	docker compose exec -T frontend pnpm run lint
+	@echo ""
+
+buildcheck:
+	@echo "$(CYAN)Running build check in Backend...$(RESET)"
+	docker compose exec -T backend pnpm run build
+	@echo ""
+	@echo "$(CYAN)Running build check in Frontend...$(RESET)"
+	docker compose exec -T frontend pnpm run build
+	@echo ""
+
+test:
+	@echo "$(CYAN)Running backend tests...$(RESET)"
+	docker compose exec -T backend pnpm run test:e2e
+	@echo ""
+
+check: typecheck lint buildcheck test
+	@echo "$(GREEN)All QA checks passed successfully.$(RESET)"
+	@echo ""
+
+# **************************************************************************** #
+# INSPECTION
 
 ps:
-	@docker compose ps -a
+	@echo "$(CYAN)Status of all containers$(RESET)"
+	docker compose ps -a
+	@echo ""
 
-logs:
-	@docker compose logs $(LOG_FLAGS)
+images:
+	@echo "$(CYAN)Status of all images$(RESET)"
+	docker compose images
+	@echo ""
 
-# `f` is parsed by make as a target, so it needs a rule of its own to be
-# accepted. It does nothing but print a tip: LOG_FLAGS is what reads it.
+status: images ps
+
+stats:
+	@echo "$(CYAN)Live resource usage of all containers$(RESET)"
+	docker stats --all
+	@echo ""
+
+config:
+	@echo "$(CYAN)Resolved docker compose configuration$(RESET)"
+	docker compose config
+	@echo ""
+
+volumes:
+	@echo "$(CYAN)Volumes in the system:$(RESET)"
+	docker volume ls
+	@echo ""
+	@echo "$(CYAN)Volumes declared in docker-compose.yml:$(RESET)"
+	docker compose config --volumes
+	@echo ""
+
+# **************************************************************************** #
+# LOGS
+# Usage Example:
+#     make logs f        -> follow the output, live (docker compose logs -f)
+#     make logs t=100    -> print only the last 100 lines
+#     make logs f t=100  -> both at once
+
+# Dummy target so 'make logs f' doesn't fail; 'f' is read by LOG_FLAGS.
 f:
 	@echo "tip: 'f' is a log flag. Example: make logs f"
 
-config:
-	@docker compose config
+LOG_FLAGS = $(strip $(if $(filter f,$(MAKECMDGOALS)),-f) $(if $(t),--tail=$(t)))
 
-volumes:
-	@docker volume ls
-	@echo ""
-	@echo "Volumes declared in docker-compose.yml:"
-	@docker compose config --volumes
+logs:
+	@echo "$(CYAN)Logs of all containers$(RESET)"
+	docker compose logs $(LOG_FLAGS)
 
-images:
-	@docker compose images
 
-stats:
-	@docker stats --all
+# **************************************************************************** #
+# PER SERVICE COMMANDS
+# Usage Example: 
+#     make <command>-<service>
+#     make up-backend
+#     make logs-frontend f t=100
 
-# ─── Per service: make <command>-<service> ──────────────────
-# Examples: make up-backend · make logs-frontend f t=100
-
-# Pattern targets are never files, so always run them even if a file with the
-# same name exists in the repo (this used to break `make logs-backend`).
+# Forces pattern rules to run even if a file with the same name exists.
 FORCE:
 
-# do not let make delete the check-<service> prerequisites after running
+# Prevents make from auto-deleting intermediate prerequisites (check-%).
 .SECONDARY:
+
+SERVICES := postgres backend frontend nginx
 
 check-%: FORCE
 	@printf '%s\n' $(SERVICES) | grep -qx "$*" || { \
-		echo "❌ Unknown service: '$*'"; \
-		echo "   Valid services: $(SERVICES)"; \
+		echo "$(RED)Error: $(RESET)Unknown service: '$*'"; \
+		echo "$(GREEN)Valid services: $(RESET)$(SERVICES)"; \
+		echo ""; \
 		exit 1; \
 	}
 
 up-%: check-% prep FORCE
-	@docker compose up --build -d $*
+	@echo "$(CYAN)Building and starting $* service...$(RESET)"
+	docker compose up --build -d $*
+	@echo ""
 
 stop-%: check-% FORCE
-	@docker compose stop $*
+	@echo "$(CYAN)Stopping $* service...$(RESET)"
+	docker compose stop $*
+	@echo ""
 
 restart-%: check-% FORCE
-	@docker compose restart $*
+	@echo "$(CYAN)Restarting $* service...$(RESET)"
+	docker compose restart $*
+	@echo ""
 
 rm-%: check-% FORCE
-	@docker compose rm -f $*
+	@echo "$(CYAN)Removing $* service...$(RESET)"
+	docker compose rm -f $*
+	@echo ""
 
 build-%: check-% FORCE
-	@docker compose build $*
+	@echo "$(CYAN)Building $* service...$(RESET)"
+	docker compose build $*
+	@echo ""
 
 logs-%: check-% FORCE
-	@docker compose logs $(LOG_FLAGS) $*
+	@echo "$(CYAN)Logs of $* service$(RESET)"
+	docker compose logs $(LOG_FLAGS)$*
+	@echo ""
 
 ps-%: check-% FORCE
-	@docker compose ps $*
+	@echo "$(CYAN)Status of $* service$(RESET)"
+	docker compose ps $*
+	@echo ""
 
 images-%: check-% FORCE
-	@docker compose images $*
+	@echo "$(CYAN)Images of $* service$(RESET)"
+	docker compose images $*
+	@echo ""
+
+# Default container command used in exec
+# Example usage: make exec-backend CMD="npx prisma version"
+CMD ?= sh
 
 exec-%: check-% FORCE
-	@docker compose exec $* $(CMD)
+	@echo "$(CYAN)Executing command in $* container: $(CMD)$(RESET)"
+	docker compose exec $* $(CMD)
+	@echo ""
 
-# ─── Help ───────────────────────────────────────────────────
+# **************************************************************************** #
+# HELP
 
 help:
 	@echo ""
-	@echo "Available commands:"
+	@echo "$(CYAN)Available commands:$(RESET)"
 	@echo ""
 	@echo "  make / make all     - Detect IP, generate certs and start everything (--build)"
 	@echo "  make prep           - Prepare the local environment only (.env and HTTPS certs)"
+	@echo "  make prep-env       - Prepare the environment file (.env)"
+	@echo "  make prep-tls       - Prepare the local TLS HTTPS certificate"
+	@echo "  make build          - Build all images"
+	@echo "  make up             - Start all containers in the background"
 	@echo "  make down           - Stop all containers (database data is kept)"
-	@echo "  make re             - Start from scratch and rebuild the database"
-	@echo "  make fclean         - Remove this project's containers, database volume and certs"
 	@echo ""
+	@echo "  $(CYAN)Clean and Rebuild:$(RESET)"
+	@echo "  make clean          - Remove containers and anonymous volumes"
+	@echo "  make fclean         - Remove this project's containers, database volume and certs"
+	@echo "  make re             - Start from scratch and rebuild the database"
+	@echo ""
+	@echo "  $(CYAN)Development:$(RESET)"
+	@echo "  make dev            - Dev mode: hot reload at http://localhost:5173"
 	@echo "  make studio         - Open Prisma Studio at http://localhost:5555"
 	@echo ""
-	@echo "  Inspection:"
+	@echo "  $(CYAN)QA & Testing:$(RESET)"
+	@echo "  make typecheck      - Verify TypeScript types in backend and frontend"
+	@echo "  make lint           - Run linters in backend and frontend"
+	@echo "  make test           - Run backend E2E tests"
+	@echo "  make buildcheck     - Run build check in backend and frontend"
+	@echo "  make check          - Run full pipeline: typecheck, lint, and test"
+	@echo ""
+	@echo "  $(CYAN)Inspection:$(RESET)"
 	@echo "  make ps             - Status of every container"
-	@echo "  make logs           - Logs of every service (prints and exits)"
 	@echo "  make config         - Resolved docker compose configuration"
 	@echo "  make volumes        - List of volumes"
 	@echo "  make images         - Project images"
 	@echo "  make stats          - Live resource usage (Ctrl+C to quit)"
+	@echo "  make status         - Images and containers"
 	@echo ""
-	@echo "  Log flags (optional, combine freely):"
-	@echo "  make logs f         - follow the output (live)"
-	@echo "  make logs t=100     - only the last 100 lines"
-	@echo "  make logs f t=100   - both"
+	@echo "  $(CYAN)Logs (with optional flags, combine freely):$(RESET)"
+	@echo "  make logs           - Logs of every service (prints and exits)"
+	@echo "  make logs f         - Logs that follow the output (live)"
+	@echo "  make logs t=5       - Logs with only the last 5 lines for each service"
+	@echo "  make logs f t=100   - Logs with both flags combined"
 	@echo ""
-	@echo "  Per service (<command>-<service>), services: $(SERVICES)"
-	@echo "  make up-<svc>       - Build and start only that service"
-	@echo "  make stop-<svc>     - Stop that service"
-	@echo "  make restart-<svc>  - Restart that service"
-	@echo "  make rm-<svc>       - Remove that service container"
-	@echo "  make build-<svc>    - Build only that service image"
-	@echo "  make logs-<svc>     - Logs of that service (flags: f, t=100)"
-	@echo "  make ps-<svc>       - Status of that service"
-	@echo "  make images-<svc>   - Images of that service"
-	@echo "  make exec-<svc>     - Shell inside that service"
-	@echo "                       (CMD=\"...\" to run another command)"
-	@echo "  make dev            - Dev mode: hot reload at http://localhost:5173 (Ctrl+C to stop)"
-	@echo ""
-	@echo "  make help           - Show this message"
+	@echo "  $(CYAN)Per service commands, services available: $(SERVICES)$(RESET)"
+	@echo "  make up-<srvc>      - Build and start only that service"
+	@echo "  make stop-<srvc>    - Stop that service"
+	@echo "  make restart-<srvc> - Restart that service"
+	@echo "  make rm-<srvc>      - Remove that service container"
+	@echo "  make build-<srvc>   - Build only that service image"
+	@echo "  make logs-<srvc>    - Logs of that service (flags: f, t=100)"
+	@echo "  make ps-<srvc>      - Status of that service"
+	@echo "  make images-<srvc>  - Images of that service"
+	@echo "  make exec-<srvc>    - Shell inside that service, add CMD=\"...\" to run another command"
 	@echo ""
 
-.PHONY: all prep prep-env prep-tls down re fclean studio help ps logs config volumes images stats f FORCE dev
+.PHONY: all prep prep-env prep-tls build up down \
+		re clean fclean \
+		dev studio \
+		typecheck lint buildcheck test check \
+		ps config volumes images stats logs f \
+		help FORCE
