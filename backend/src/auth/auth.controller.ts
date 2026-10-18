@@ -27,11 +27,12 @@ export class AuthController {
     const token = await this.authService.register(data);
 
     res.cookie('access_token', token, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000, //d m s ms
-    });
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000,
+      });
 
     return {
       message: 'Registration successful',
@@ -47,10 +48,11 @@ export class AuthController {
     const token = await this.authService.login(data);
 
     res.cookie('access_token', token, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000, //h m s ms
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     return {
@@ -62,7 +64,9 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token');
+    res.clearCookie('access_token', {
+      path: '/',
+    });
 
     return {
       message: 'Logout successful',
@@ -89,9 +93,10 @@ export class AuthController {
     const token = await this.authService.googleLogin(code);
 
     res.cookie('access_token', token, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'strict',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000,
     });
 

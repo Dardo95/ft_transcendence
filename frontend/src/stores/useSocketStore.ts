@@ -1,82 +1,38 @@
 import { create } from 'zustand';
-import { socket } from '@/lib/socket';
-
-export interface ChatMessage {
-  id: string;
-  sender: string;
-  text: string;
-  timestamp: string;
-}
+import { chatSocket } from '@/lib/socket';
 
 interface SocketState {
   isConnected: boolean;
-  messages: ChatMessage[];
   connect: () => void;
   disconnect: () => void;
-  sendMessage: (sender: string, text: string) => void;
-  addMessage: (msg: ChatMessage) => void;
 }
 
-export const useSocketStore = create<SocketState>((set, get) => {
-  // Configuración de listeners globales de socket.io
-  socket.on('connect', () => {
+export const useSocketStore = create<SocketState>((set) => {
+  chatSocket.on('connect', () => {
     set({ isConnected: true });
   });
 
-  socket.on('disconnect', () => {
+  chatSocket.on('disconnect', () => {
     set({ isConnected: false });
   });
 
-  socket.on('chat:message', (incomingMsg: ChatMessage) => {
-    get().addMessage(incomingMsg);
+  chatSocket.on('connect_error', () => {
+    set({ isConnected: false });
   });
 
   return {
-    isConnected: socket.connected,
-    messages: [
-      {
-        id: 'welcome-1',
-        sender: 'Sistema',
-        text: '¡Bienvenido a la cocina! Canal general listo.',
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-      },
-    ],
+    isConnected: chatSocket.connected,
 
     connect: () => {
-      if (!socket.connected) {
-        socket.connect();
+      if (!chatSocket.connected) {
+        chatSocket.connect();
       }
     },
 
     disconnect: () => {
-      if (socket.connected) {
-        socket.disconnect();
+      if (chatSocket.connected) {
+        chatSocket.disconnect();
       }
-    },
-
-    addMessage: (msg: ChatMessage) => {
-      set((state) => ({ messages: [...state.messages, msg] }));
-    },
-
-    sendMessage: (sender: string, text: string) => {
-      const payload: ChatMessage = {
-        id: crypto.randomUUID(),
-        sender,
-        text,
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-      };
-
-      // Emitir al backend
-      socket.emit('chat:send', payload);
-
-      // Añadir de forma optimista al store local
-      get().addMessage(payload);
     },
   };
 });

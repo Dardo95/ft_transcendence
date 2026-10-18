@@ -5,17 +5,20 @@
 import { useLanguage } from '../locales/useLanguage';
 import { LobbyChat } from '../features/chat/components/LobbyChat';
 import { Card } from '@/components/ui/card';
+import { useEffect } from 'react';
+import { useSocketStore } from '../stores/useSocketStore';
 
 export function LobbyPage() {
-  // const { user } = useAuthStore();
-  // const { connect } = useSocketStore();
   const { t } = useLanguage();
-  // const navigate = useNavigate();
+  const { connect, disconnect } = useSocketStore();
 
-  // Ensures WebSocket connection in the Lobby
-  // useEffect(() => {
-  //   connect();
-  // }, [connect]);
+  useEffect(() => {
+    connect();
+
+    return () => {
+      disconnect();
+    };
+  }, [connect, disconnect]);
 
   return (
     <div className="w-full max-w-4xl rounded-xl border border-zinc-700 bg-zinc-900 p-6 text-center">

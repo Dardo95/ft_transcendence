@@ -1,9 +1,17 @@
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'https://localhost:8443';
+const SOCKET_URL =
+  import.meta.env.VITE_WS_URL || window.location.origin;
 
-export const socket: Socket = io(WS_URL, {
+const options = {
   withCredentials: true,
-  autoConnect: false, // The store will handle the connection when the user is authenticated
-  transports: ['websocket', 'polling'],
-});
+  autoConnect: false,
+  transports: ['websocket', 'polling'] as (
+    | 'websocket'
+    | 'polling'
+  )[],
+};
+
+export const chatSocket = io(`${SOCKET_URL}/chat`, options);
+
+export const gameSocket = io(`${SOCKET_URL}/game`, options);

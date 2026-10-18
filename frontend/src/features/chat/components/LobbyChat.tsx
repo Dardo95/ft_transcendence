@@ -37,7 +37,7 @@ export function LobbyChat() {
     const cleanText = inputValue.trim();
     if (!cleanText) return;
 
-    sendMessage(user?.username || 'User', cleanText);
+    sendMessage(cleanText);
     setInputValue('');
   };
 
@@ -98,8 +98,13 @@ export function LobbyChat() {
                               {msg.sender}
                             </span>
                             <span>•</span>
-                            <span>{msg.timestamp}</span>
-                          </span>
+                            <span>
+                              {new Date(msg.timestamp).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              })}
+                            </span>
+                            </span>
 
                           <Bubble
                             align={isMe ? 'end' : 'start'}
