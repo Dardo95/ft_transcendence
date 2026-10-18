@@ -37,6 +37,9 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+    environment:
+      - NODE_ENV=production
+      - FRONTEND_URL=${FRONTEND_URL} # Exported from Makefile
 
   frontend:
     container_name: ft_frontend
