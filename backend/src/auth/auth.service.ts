@@ -85,9 +85,7 @@ export class AuthService {
     return this.sign({ id: user.id, username: user.username });
   }
 
-  async googleLogin(code: string, callbackUrl?: string) {
-    const redirectUri = callbackUrl || process.env.GOOGLE_CALLBACK_URL!;
-
+  async googleLogin(code: string) {
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
@@ -97,7 +95,7 @@ export class AuthService {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID!,
         client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-        redirect_uri: redirectUri,
+        redirect_uri: process.env.GOOGLE_CALLBACK_URL!,
         grant_type: 'authorization_code',
       }),
     });
@@ -185,6 +183,7 @@ export class AuthService {
 
     return this.sign({ id: user.id, username: user.username });
   }
+
   /*----------utils-----------*/
 
   private sign(user: { id: number; username: string }) {
