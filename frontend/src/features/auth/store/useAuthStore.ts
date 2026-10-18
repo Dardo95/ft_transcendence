@@ -20,24 +20,7 @@ import {
   registerUser,
   getMe,
 } from '../service/authService';
-import type {
-  AuthCredentials,
-  AuthResponse,
-  UserPublic,
-} from '@transcendence/shared';
-
-function normalizeUser(user: AuthResponse['user']): UserPublic | null {
-  if (!user) {
-    return null;
-  }
-
-  return {
-    id: typeof user.id === 'number' ? user.id : Number(user.id),
-    email: user.email,
-    username: user.username ?? '',
-    avatarUrl: user.avatarUrl,
-  };
-}
+import type { AuthCredentials, UserPublic } from '@transcendence/shared';
 
 interface AuthState {
   // State
@@ -61,9 +44,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   checkAuth: async () => {
     set({ isLoading: true });
     try {
-      const userData = await getMe();
+      const response = await getMe();
       set({
-        user: normalizeUser(userData.user),
+        user: 'user' in response ? response.user : response,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -84,9 +67,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       await loginUser(credentials);
 
       // After successful login, fetch the authenticated user's data
-      const userData = await getMe();
+      const response = await getMe();
       set({
-        user: normalizeUser(userData.user),
+        user: 'user' in response ? response.user : response,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -105,6 +88,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       await loginUser({
         email: credentials.email,
         password: credentials.password,
+      });
+      // After successful registration and login, fetch the authenticated user's data
+      const response = await getMe();
+      set({
+        user: 'user' in response ? response.user : response,
+        isAuthenticated: true,
+        isLoading: false,
       });
     } catch (error) {
       set({ isLoading: false });
