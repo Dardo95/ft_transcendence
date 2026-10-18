@@ -1,27 +1,12 @@
-/**
- * User registration form.
- * Category: Feature Component
- *
- * Responsible for:
- * - Collecting registration information.
- * - Validating user input.
- * - Triggering the registration flow.
- * - Displaying registration errors to the user.
- *
- * Does not:
- * - Perform HTTP requests directly.
- * - Implement authentication business logic.
- * - Manage global authentication state.
- */
-
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
 
-import { Card } from '../../../components/ui/Card';
-import { Input } from '../../../components/ui/Input';
-import { Button } from '../../../components/ui/Button';
+import { Button } from '@/components/ui/button';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Icons } from '@/components/ui/icons';
 
 export function RegisterForm() {
   const [username, setUsername] = useState('');
@@ -54,10 +39,18 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-sm">
-      <h2 className="mb-4 text-center text-xl font-bold text-orange-400">
-        {t('auth.register.title') || 'New User'}
-      </h2>
+    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm">
+      {/* Header of the Form */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+          {t('auth.register.heading') ||
+            '¡Únete para disfrutar del juego!'}{' '}
+        </h2>
+        <p className="mt-1 text-xs text-zinc-400">
+          {t('auth.register.subheading') ||
+            'Regístrate para empezar a jugar.'}{' '}
+        </p>
+      </div>
 
       {errorMessage && (
         <div className="mb-4 flex items-center justify-center gap-1.5 rounded-xl border border-red-700/80 bg-red-950/70 p-2.5 text-center text-xs text-red-300">
@@ -66,42 +59,86 @@ export function RegisterForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-        <Input
-          label={t('auth.register.newUser') || 'New User'}
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder={
-            t('auth.register.userPlaceholder') || 'Enter your username'
-          }
-          required
-        />
-        <Input
-          label={t('auth.register.email') || 'Email'}
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={
-            t('auth.register.emailPlaceholder') || 'Enter your email'
-          }
-          required
-        />
-        <Input
-          label={t('auth.register.password') || 'Password'}
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder={t('auth.register.passwordPlaceholder') || '********'}
-          required
-        />
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="register-username">
+            {t('auth.register.newUser') || 'New User'}
+          </FieldLabel>
+          <Input
+            id="register-username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder={
+              t('auth.register.userPlaceholder') || 'Enter your username'
+            }
+            required
+          />
+        </Field>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2">
-          {isSubmitting
-            ? t('auth.register.connecting') || 'Registering...'
-            : t('auth.register.playNow') || 'Registered'}
-        </Button>
-      </form>
-    </Card>
+        <Field>
+          <FieldLabel htmlFor="register-email">
+            {t('auth.register.email') || 'Email'}
+          </FieldLabel>
+          <Input
+            id="register-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={
+              t('auth.register.emailPlaceholder') || 'Enter your email'
+            }
+            required
+          />
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="register-password">
+            {t('auth.register.password') || 'Password'}
+          </FieldLabel>
+          <Input
+            id="register-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={t('auth.register.passwordPlaceholder') || '********'}
+            required
+          />
+        </Field>
+
+        <Field orientation="horizontal" className="mt-2">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-orange-600 hover:bg-orange-800"
+          >
+            {isSubmitting
+              ? t('auth.register.connecting') || 'Registering...'
+              : t('auth.register.playNow') || 'Registered'}
+          </Button>
+        </Field>
+      </FieldGroup>
+
+      {/* Separator */}
+      <div className="relative my-5 flex items-center">
+        <div className="grow border-t border-zinc-800" />
+        <span className="mx-3 shrink text-[11px] tracking-wider text-zinc-500 uppercase">
+          o continúa con
+        </span>
+        <div className="grow border-t border-zinc-800" />
+      </div>
+
+      {/* Google OAuth */}
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = '/api/auth/google';
+        }}
+        className="hover:bg-zinc-750 flex w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99] sm:text-sm"
+      >
+        <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
+        <span>Continuar con Google</span>
+      </button>
+    </form>
   );
 }

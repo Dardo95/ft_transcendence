@@ -18,6 +18,8 @@ import { useAuthStore } from '../../../features/auth/store/useAuthStore';
 import { useLanguage } from '../../../locales/useLanguage';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
+import logoUrl from '@/assets/logo.png';
+
 interface HeaderProps {
   onOpenDrawer: () => void;
 }
@@ -52,7 +54,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 flex w-full items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-4 py-3 backdrop-blur-md md:px-8">
+    <header className="sticky top-0 z-40 flex w-full items-center justify-between border-b border-zinc-800 bg-zinc-950/90 py-3 backdrop-blur-md md:px-4">
       {/* Left section: Drawer toggle button */}
       <button
         type="button"
@@ -63,13 +65,15 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         <span className="text-xl leading-none">☰</span>
       </button>
 
-      {/* Center section: Brand title */}
-      <Link
-        to="/lobby"
-        className="text-lg font-extrabold tracking-wider text-orange-400 md:text-xl"
-      >
-        {t('app.title') || 'Kitchen Mayhem'}
-      </Link>
+      {/* Center section: logo */}
+      <div className="flex gap-2">
+        <img
+          src={logoUrl}
+          alt="ft_bomberman Logo"
+          className="h-12 object-contain"
+          onClick={() => navigate('/lobby')}
+        />
+      </div>
 
       {/* Right section: Language switcher and user profile dropdown */}
       <div className="flex items-center gap-3">
@@ -99,11 +103,11 @@ export function Header({ onOpenDrawer }: HeaderProps) {
           {isDropdownOpen && (
             <div className="animate-in fade-in absolute right-0 z-50 mt-2 w-48 rounded-xl border border-zinc-700 bg-zinc-900 py-1.5 shadow-2xl duration-150">
               <div className="border-b border-zinc-800 px-4 py-2">
-                <p className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+                <p className="text-xs font-semibold text-zinc-400">
                   {t('app.connectedAs') || 'Logged in as'}
                 </p>
-                <p className="justify-center truncate text-sm font-bold text-white">
-                  {user?.username || 'Chef'}
+                <p className="m-2 truncate text-center text-sm font-bold text-white">
+                  {user?.username || 'User'}
                 </p>
               </div>
 

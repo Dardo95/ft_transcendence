@@ -10,10 +10,11 @@ services:
     volumes:
       - ./shared:/app/shared
       - ./backend:/app/backend
-      - /app/node_modules
+      - /app/frontend/node_modules
       - /app/backend/node_modules
     environment:
       - NODE_ENV=development
+      - FRONTEND_URL=http://localhost:5173
       - CHOKIDAR_USEPOLLING=true
       - TSC_WATCHFILE=DynamicPriorityPolling
       - TSC_WATCHDIRECTORY=DynamicPriorityPolling
@@ -34,7 +35,7 @@ services:
     volumes:
       - ./shared:/app/shared
       - ./frontend:/app/frontend
-      - /app/node_modules
+      - /app/frontend/node_modules
       - /app/frontend/node_modules
     ports:
       - "5173:5173"
