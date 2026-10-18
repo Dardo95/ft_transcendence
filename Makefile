@@ -6,13 +6,13 @@ NAME := ft_transcendence
 IS_WSL := $(shell grep -qi microsoft /proc/version 2>/dev/null && echo "yes" || echo "no")
 
 ifeq ($(IS_WSL),yes)
-  HOST_IP     := 127.0.0.1
-  CERT_IP     := 127.0.0.1
   ACCESS_HOST := localhost
+  CERT_IP     := 127.0.0.1
+  HOST_IP     := 127.0.0.1
 else
   HOST_IP     := $(shell hostname -I 2>/dev/null | awk '{print $$1}')
-  CERT_IP     := $(if $(HOST_IP),$(HOST_IP),127.0.0.1)
   ACCESS_HOST := $(if $(HOST_IP),$(HOST_IP),localhost)
+  CERT_IP     := $(if $(HOST_IP),$(HOST_IP),127.0.0.1)
 endif
 
 export HOST_IP
@@ -173,17 +173,15 @@ test:
 	docker compose exec -T backend pnpm run test:e2e
 	@echo ""
 
-allcheck: typecheck lint buildcheck test
+check: typecheck lint buildcheck test
 	@echo "$(GREEN)All QA checks passed successfully.$(RESET)"
 	@echo ""
 
 envcheck:
 	@echo "$(CYAN)Variables in the host environment$(RESET)"
 	@echo "HOST_IP:      $(HOST_IP)"
-	@echo "CERT_IP:      $(CERT_IP)"
 	@echo "ACCESS_HOST:  $(ACCESS_HOST)"
 	@echo "FRONTEND_URL: $(FRONTEND_URL)"
-	@echo "(FRONTEND_URL is default, explicitly changed in dev mode)"
 	@echo ""
 	@echo "$(CYAN)Variables inside the backend container$(RESET)"
 	@docker compose exec backend env | grep -E 'HOST_IP|FRONTEND_URL|NODE_ENV' || true
@@ -342,7 +340,6 @@ help:
 	@echo "  make test           - Run backend E2E tests"
 	@echo "  make buildcheck     - Run build check in backend and frontend"
 	@echo "  make check          - Run full pipeline: typecheck, lint, and test"
-	@echo "  make envcheck       - Check environment variables in host and backend container"
 	@echo ""
 	@echo "  $(CYAN)Inspection:$(RESET)"
 	@echo "  make ps             - Status of every container"
@@ -373,6 +370,6 @@ help:
 .PHONY: all prep prep-env prep-tls build up down \
 		re clean fclean \
 		dev studio \
-		typecheck lint buildcheck test allcheck envcheck \
+		typecheck lint buildcheck test check \
 		ps config volumes images stats logs f \
 		help FORCE
