@@ -3,21 +3,9 @@
 
 NAME := ft_transcendence
 
-IS_WSL := $(shell grep -qi microsoft /proc/version 2>/dev/null && echo "yes" || echo "no")
-
-ifeq ($(IS_WSL),yes)
-  ACCESS_HOST := localhost
-  CERT_IP     := 127.0.0.1
-  HOST_IP     := 127.0.0.1
-else
-  HOST_IP     := $(shell hostname -I 2>/dev/null | awk '{print $$1}')
-  ACCESS_HOST := $(if $(HOST_IP),$(HOST_IP),localhost)
-  CERT_IP     := $(if $(HOST_IP),$(HOST_IP),127.0.0.1)
-endif
-
-export HOST_IP
-export ACCESS_HOST
-export FRONTEND_URL ?= https://$(ACCESS_HOST):8443
+HOST_IP := $(shell ip addr show | grep "inet " | grep -v "127.0.0.1" | grep -v "172\." | grep -v "192.168.122" | awk '{print $$2}' | cut -d'/' -f1 | head -1)
+CERT_IP := $(if $(HOST_IP),$(HOST_IP),127.0.0.1)
+ACCESS_HOST := $(if $(HOST_IP),$(HOST_IP),localhost)
 
 # **************************************************************************** #
 # COLORS AND ASCII ART
@@ -54,22 +42,19 @@ prep-env:
 	@cp -n .env.example .env 2>/dev/null || true
 	@chmod 600 .env
 	@echo "$(GREEN)Environment variables initialized.$(RESET)"
-	@echo ""
 
 prep-tls:
 	@mkdir -p certs
 	@if [ ! -f certs/cert.pem ] || [ ! -f certs/key.pem ] || \
-		! openssl x509 -in certs/cert.pem -noout -text 2>/dev/null | grep -E "IP( Address)?:$(CERT_IP)" >/dev/null 2>&1 || \
+		! openssl x509 -in certs/cert.pem -noout -ext subjectAltName 2>/dev/null | grep -Fq "IP Address:$(CERT_IP)" || \
 		! openssl x509 -in certs/cert.pem -checkend 2592000 >/dev/null 2>&1; then \
-		echo "$(YELLOW)Generating TLS certificates for $(ACCESS_HOST)...$(RESET)"; \
 		openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 			-keyout certs/key.pem -out certs/cert.pem \
-			-subj "/C=ES/ST=Madrid/L=Madrid/O=42Madrid/CN=$(ACCESS_HOST)" \
-			-addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:$(CERT_IP)" 2>/dev/null; \
-		echo "$(GREEN)Certificates generated successfully.$(RESET)"; \
-	else \
-		echo "$(GREEN)Certificates are valid for $(ACCESS_HOST).$(RESET)"; \
+			-subj "/C=ES/ST=Madrid/L=Madrid/O=42Madrid/CN=$(CERT_IP)" \
+			-addext "subjectAltName=DNS:localhost,IP:$(CERT_IP)" 2>/dev/null; \
+		echo "$(GREEN)Certificates generated.$(RESET)"; \
 	fi
+	@echo "$(GREEN)Certificates are valid.$(RESET)"
 	@echo "Detected IP: $(CYAN)$(ACCESS_HOST)$(RESET)"
 	@echo ""
 
@@ -83,7 +68,7 @@ up: prep
 	docker compose up -d
 	@printf "$$ASCII_ART\n"
 	@echo "$(GREEN)Infrastructure is up!$(RESET)"
-	@echo "Access at: $(CYAN)https://$(ACCESS_HOST):8443$(RESET)"
+	@echo "Access at: $(CYAN)https://$(ACCESS_HOST):8443$(RESET) or $(CYAN)https://localhost:8443$(RESET)"
 	@echo ""
 
 down:
@@ -127,13 +112,11 @@ dev: prep-env
 	@echo ""
 	@echo "$(CYAN)Stopping NGINX container if running...$(RESET)"
 	docker compose rm -sf nginx 2>/dev/null || true
-	@echo ""
 	@echo "$(CYAN)Building and starting development containers...$(RESET)"
-	FRONTEND_URL=http://$(ACCESS_HOST):5173 \
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend -d
 	@printf "$$ASCII_ART\n"
 	@echo "$(GREEN)Infrastructure in $(RESET)Development Mode$(GREEN) is up!$(RESET)"
-	@echo "Access at: $(CYAN)http://$(ACCESS_HOST):5173$(RESET)"
+	@echo "Access at: $(CYAN)http://$(ACCESS_HOST):5173$(RESET) or $(CYAN)http://localhost:5173$(RESET)"
 	@echo ""
 
 studio:
@@ -175,16 +158,6 @@ test:
 
 check: typecheck lint buildcheck test
 	@echo "$(GREEN)All QA checks passed successfully.$(RESET)"
-	@echo ""
-
-envcheck:
-	@echo "$(CYAN)Variables in the host environment$(RESET)"
-	@echo "HOST_IP:      $(HOST_IP)"
-	@echo "ACCESS_HOST:  $(ACCESS_HOST)"
-	@echo "FRONTEND_URL: $(FRONTEND_URL)"
-	@echo ""
-	@echo "$(CYAN)Variables inside the backend container$(RESET)"
-	@docker compose exec backend env | grep -E 'HOST_IP|FRONTEND_URL|NODE_ENV' || true
 	@echo ""
 
 # **************************************************************************** #
