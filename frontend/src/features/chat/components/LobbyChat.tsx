@@ -20,6 +20,8 @@ import { useChatStore } from '../store/useChatStore';
 import { useLanguage } from '@/locales/useLanguage';
 import { cn } from '@/lib/utils';
 
+import { useLobbyStore } from '../store/useLobbyStore';
+
 export function LobbyChat() {
   const { user } = useAuthStore();
   const { isConnected } = useSocketStore();
@@ -27,16 +29,33 @@ export function LobbyChat() {
   const [inputValue, setInputValue] = React.useState('');
   const { t } = useLanguage();
 
+  const lobbyId = useLobbyStore((state) => state.lobby?.id);
+  const clearMessages = useChatStore(
+    (state) => state.clearMessages,
+  );
+
   React.useEffect(() => {
+    if (!lobbyId)
+      return;
+    clearMessages();
     const cleanup = initChatListeners();
-    return cleanup;
-  }, [initChatListeners]);
+    return () => {
+      cleanup();
+      clearMessages();
+    };
+  }, [lobbyId, initChatListeners, clearMessages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanText = inputValue.trim();
-    if (!cleanText) return;
-
+    if (
+      !lobbyId ||
+      !isConnected ||
+      !cleanText ||
+      cleanText.length > 500
+    ) {
+      return;
+    }
     sendMessage(cleanText);
     setInputValue('');
   };
@@ -66,7 +85,7 @@ export function LobbyChat() {
             <MessageScrollerViewport>
               <MessageScrollerContent className="flex flex-col gap-3 p-1">
                 {messages.map((msg, index) => {
-                  const isMe = msg.sender === (user?.username || 'Chef');
+                  const isMe = msg.senderId === user?.id;
                   const isSystem = msg.sender === 'Sistema';
                   const isLast = index === messages.length - 1;
 
@@ -136,13 +155,20 @@ export function LobbyChat() {
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Enviar comanda o mensaje..."
+          placeholder="Enviar mensaje a tu lobby..."
+          disabled={!lobbyId || !isConnected}
+          maxLength={500}
           className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500"
         />
         <Button
           type="submit"
           size="sm"
-          disabled={!inputValue.trim()}
+          disabled={
+            !lobbyId ||
+            !isConnected ||
+            !inputValue.trim() ||
+            inputValue.trim().length > 500
+          }
           className="h-8 bg-orange-600 px-3 text-white hover:bg-orange-500"
         >
           <SendIcon className="size-3.5" />
