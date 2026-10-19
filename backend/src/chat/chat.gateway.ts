@@ -136,6 +136,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     client.emit('lobby:error', { message });
   }
 
+
   @SubscribeMessage('lobby:accept')
   async handleAcceptInvitation(
     @ConnectedSocket() client: Socket,
@@ -153,18 +154,28 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
 
       const user = client.data.user as WsUser;
 
-      // El servicio comprueba que la invitación va dirigida a este usuario.
+      // 1. Recordar el lobby anterior antes de modificar el servicio.
+      const previousLobby =
+        this.lobbyService.getLobbyForUser(user.id);
+
+      // 2. Validar la invitación y actualizar los mapas en memoria.
       const lobby = this.lobbyService.acceptInvitation(
         invitationId,
         user,
       );
 
-      // Unir su socket a la sala privada del lobby.
+      // 3. Abandonar la sala anterior si hemos cambiado de lobby.
+      if (previousLobby && previousLobby.id !== lobby.id) {
+        await client.leave(`lobby:${previousLobby.id}`);
+      }
+
+      // 4. Entrar en la sala del lobby de destino.
       await client.join(`lobby:${lobby.id}`);
 
+      // 5. Actualizar el estado del usuario que acepta.
       client.emit('lobby:joined', lobby);
 
-      // Actualizar la lista de miembros para todo el lobby.
+      // 6. Notificar a los miembros del lobby de destino.
       this.server
         .to(`lobby:${lobby.id}`)
         .emit('lobby:updated', lobby);
@@ -172,6 +183,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
       this.emitLobbyError(client, error);
     }
   }
+
 
   @SubscribeMessage('lobby:reject')
   handleRejectInvitation(
@@ -203,25 +215,30 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     }
   }
 
+
   @SubscribeMessage('lobby:sync')
   async handleLobbySync(
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
     const user = client.data.user as WsUser;
 
-    const lobby = this.lobbyService.getLobbyForUser(user.id);
+    // Obtener el lobby actual o crear uno individual.
+    const lobby = this.lobbyService.getOrCreateLobby(user);
+
+    // Asegurar que el socket pertenece a su sala.
+    await client.join(`lobby:${lobby.id}`);
+
+    // Recuperar las invitaciones pendientes.
     const invitations =
       this.lobbyService.getPendingInvitations(user.id);
 
-    if (lobby) {
-      await client.join(`lobby:${lobby.id}`);
-    }
-
+    // Enviar el estado inicial al frontend.
     client.emit('lobby:state', {
       lobby,
       invitations,
     });
   }
+
 
   @SubscribeMessage('lobby:create')
   async handleCreateLobby(
@@ -230,7 +247,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     const user = client.data.user as WsUser;
 
     // 1. Crear el lobby en memoria.
-    const lobby = this.lobbyService.createLobby(user);
+    const lobby = this.lobbyService.getOrCreateLobby(user);
 
     // 2. Unir el socket a la sala de Socket.IO.
     await client.join(`lobby:${lobby.id}`);
@@ -245,27 +262,35 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): Promise<void> {
     const user = client.data.user as WsUser;
 
-    // 1. Eliminar al usuario del estado del lobby.
+    // Recordamos el lobby anterior.
+    const previousLobby =
+      this.lobbyService.getLobbyForUser(user.id);
+
+    // Salimos del grupo actual.
     const result = this.lobbyService.leaveLobby(user.id);
 
-    if (!result) {
-      client.emit('lobby:left', { lobbyId: null });
-      return;
+    // Abandonamos la sala anterior de Socket.IO.
+    if (previousLobby) {
+      await client.leave(`lobby:${previousLobby.id}`);
     }
 
-    const room = `lobby:${result.lobbyId}`;
-
-    // 2. Sacar el socket de la sala.
-    await client.leave(room);
-
-    // 3. Notificar a los miembros que permanecen.
-    if (result.lobby) {
-      this.server.to(room).emit('lobby:updated', result.lobby);
+    // Actualizamos a los antiguos compañeros.
+    if (result?.lobby) {
+      this.server
+        .to(`lobby:${result.lobbyId}`)
+        .emit('lobby:updated', result.lobby);
     }
 
-    // 4. Confirmar la salida al propio usuario.
-    client.emit('lobby:left', {
-      lobbyId: result.lobbyId,
+    // Creamos o recuperamos el lobby individual.
+    const soloLobby = this.lobbyService.getOrCreateLobby(user);
+
+    // Entramos en la nueva sala.
+    await client.join(`lobby:${soloLobby.id}`);
+
+    // Actualizamos la interfaz con el estado definitivo.
+    client.emit('lobby:state', {
+      lobby: soloLobby,
+      invitations: this.lobbyService.getPendingInvitations(user.id),
     });
   }
 

@@ -90,6 +90,16 @@ export class LobbyService {
 	return this.toSnapshot(lobby);
   }
 
+	getOrCreateLobby(user: WsUser): LobbySnapshot {
+		const existingLobby = this.getLobbyForUser(user.id);
+
+		if (existingLobby) {
+			return existingLobby;
+		}
+
+		return this.createLobby(user);
+ 	}
+
   getLobbyForUser(userId: number): LobbySnapshot | null {
 	const lobbyId = this.lobbyIdByUserId.get(userId);
 
@@ -184,9 +194,10 @@ export class LobbyService {
 		throw new WsException('Cannot invite yourself');
 	}
 
-	if (this.lobbyIdByUserId.has(target.id)) {
-		throw new WsException('User is already in a lobby');
-	}
+	const targetLobby = this.getLobbyForUser(target.id);
+
+	if (targetLobby && targetLobby.members.length > 1)
+		throw new WsException('User is already in a lobby with other members')
 
 	if (lobby.members.size >= 4) {
 		throw new WsException('Lobby is full');
@@ -229,6 +240,7 @@ export class LobbyService {
 	}
 
 
+
 	acceptInvitation(
 		invitationId: string,
 		user: WsUser,
@@ -247,34 +259,61 @@ export class LobbyService {
 			throw new WsException('Lobby no longer exists');
 		}
 
-		if (this.lobbyIdByUserId.has(user.id)) {
-			throw new WsException('You are already in a lobby');
+		// Si el usuario ya pertenece al lobby de destino,
+		// hacemos la operación idempotente.
+		if (lobby.members.has(user.id)) {
+			this.invitations.delete(invitationId);
+			return this.toSnapshot(lobby);
 		}
 
+		// Comprobamos el límite ANTES de abandonar su lobby actual.
 		if (lobby.members.size >= 4) {
 			throw new WsException('Lobby is full');
 		}
 
-		const member: LobbyMemberRecord = {
-			userId: user.id,
-			username: user.username,
-			joinedAt: new Date().toISOString(),
-		};
+		const currentLobbyId = this.lobbyIdByUserId.get(user.id);
 
-		lobby.members.set(user.id, member);
-		this.lobbyIdByUserId.set(user.id, lobby.id);
+		if (currentLobbyId && currentLobbyId !== lobby.id) {
+			const currentLobby = this.lobbies.get(currentLobbyId);
 
-		// La invitación deja de estar pendiente.
-		this.invitations.delete(invitationId);
+			// Solo permitimos abandonar automáticamente un lobby individual.
+			if (currentLobby && currentLobby.members.size > 1) {
+			throw new WsException(
+				'Leave your current lobby before accepting this invitation',
+			);
+			}
 
-		// Eliminamos otras invitaciones dirigidas a este usuario.
-		for (const [id, pending] of this.invitations) {
-			if (pending.targetUserId === user.id) {
-			this.invitations.delete(id);
+			if (currentLobby) {
+			currentLobby.members.delete(user.id);
+
+			if (currentLobby.members.size === 0) {
+				this.lobbies.delete(currentLobby.id);
 			}
 		}
 
-		return this.toSnapshot(lobby);
+		this.lobbyIdByUserId.delete(user.id);
+	}
+
+	// Añadimos al usuario al lobby de destino.
+	const member: LobbyMemberRecord = {
+		userId: user.id,
+		username: user.username,
+		joinedAt: new Date().toISOString(),
+	};
+
+	lobby.members.set(user.id, member);
+	this.lobbyIdByUserId.set(user.id, lobby.id);
+
+	// Eliminamos la invitación aceptada y las demás dirigidas al usuario.
+	this.invitations.delete(invitationId);
+
+	for (const [id, pending] of this.invitations) {
+		if (pending.targetUserId === user.id) {
+		this.invitations.delete(id);
+		}
+	}
+
+	return this.toSnapshot(lobby);
 	}
 
 	

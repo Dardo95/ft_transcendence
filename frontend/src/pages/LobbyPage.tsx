@@ -25,7 +25,6 @@ export function LobbyPage() {
   const notice = useLobbyStore((state) => state.notice);
 
   const initListeners = useLobbyStore((state) => state.initListeners);
-  const createLobby = useLobbyStore((state) => state.createLobby);
   const leaveLobby = useLobbyStore((state) => state.leaveLobby);
   const inviteFriend = useLobbyStore((state) => state.inviteFriend);
   const acceptInvitation = useLobbyStore(
@@ -148,35 +147,31 @@ export function LobbyPage() {
                     </div>
                   ))}
                 </div>
-
+              {lobby.members.length > 1 && (
                 <Button
                   type="button"
                   variant="destructive"
                   onClick={leaveLobby}
                 >
-                  Salir del lobby
+                  Abandonar grupo
                 </Button>
+              )}
               </div>
-            ) : (
+            ) : (     
               <div className="flex min-h-56 flex-col items-center justify-center gap-4 text-center">
                 <div>
                   <h2 className="text-lg font-bold text-orange-300">
-                    Todavía no tienes un lobby
+                    Preparando tu grupo...
                   </h2>
 
                   <p className="mt-2 text-sm text-zinc-400">
-                    Crea tu grupo e invita a tus amigos para jugar juntos.
+                    Estamos sincronizando tu lobby con el servidor.
                   </p>
                 </div>
 
-                <Button
-                  type="button"
-                  disabled={!isConnected}
-                  onClick={createLobby}
-                  className="bg-orange-600 text-white hover:bg-orange-500"
-                >
-                  Crear lobby
-                </Button>
+                <span className="animate-pulse text-orange-400">
+                  Conectando...
+                </span>
               </div>
             )}
           </Card>
@@ -244,7 +239,7 @@ export function LobbyPage() {
                       <Button
                         type="button"
                         size="sm"
-                        disabled={!isConnected || Boolean(lobby)}
+                        disabled={ !isConnected || (lobby?.members.length ?? 0) > 1 }
                         onClick={() => acceptInvitation(invitation.id)}
                         className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
                       >
@@ -262,9 +257,9 @@ export function LobbyPage() {
                       </Button>
                     </div>
 
-                    {lobby && (
+                    {(lobby?.members.length ?? 0) > 1 && (
                       <p className="text-xs text-zinc-400">
-                        Sal de tu lobby actual antes de aceptar otra invitación.
+                        Abandona tu grupo actual antes de aceptar otra invitación.
                       </p>
                     )}
                   </div>
