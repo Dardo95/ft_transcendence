@@ -12,18 +12,24 @@
 
 export const authEs = {
   login: {
-    title: 'Credenciales del Chef',
+    tab: 'Iniciar sesión',
+    heading: '¡Bienvenido de nuevo!',
+    subheading: 'Inicia sesión para volver a la partida.',
     connecting: 'Conectando...',
-    playNow: 'Empezar Servicio',
+    playNow: 'Empezar a jugar',
     email: 'Correo electrónico',
     emailPlaceholder: 'Introduce tu correo electrónico',
     password: 'Contraseña',
     passwordPlaceholder: '********',
-    orContinueWith: 'O continuar con',
-    continueGoogle: 'Continuar con Google',
+    orContinueWith: 'o continua con',
+    continueGoogle: 'Google',
+    noAccount: '¿No tienes cuenta?',
+    registerInstead: 'Regístrate',
   },
   register: {
-    title: 'Registro del nuevo Chef',
+    tab: 'Crear cuenta',
+    heading: '¡Únete para disfrutar del juego!',
+    subheading: 'Regístrate para empezar a jugar.',
     connecting: 'Registrando...',
     playNow: 'Registrarse',
     email: 'Correo electrónico',
@@ -32,6 +38,8 @@ export const authEs = {
     userPlaceholder: 'Introduce tu nombre de usuario',
     password: 'Contraseña',
     passwordPlaceholder: '********',
+    alreadyHaveAccount: '¿Ya tienes cuenta? ',
+    loginInstead: ' Inicia sesión',
   },
   status: {
     loggedIn: 'Sesión iniciada',

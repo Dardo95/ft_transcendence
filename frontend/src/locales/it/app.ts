@@ -4,11 +4,10 @@
  */
 
 export const appIt = {
-  title: 'Caos in Cucina',
-  upTitle: 'Gioco web multiplayer ispirato a Bomberman',
+  title: 'ft_bomberman',
+  battlefield: 'LA COCINA È UN CAMPO DI BATAGLIA',
   subTitle:
     'Alta cucina, distruzione, pentole a pressione e vapore scatenato. Registrati o accedi per utilizzare il servizio.',
-  enterButton: 'Entra in Cucina',
   userLabel: 'Utente',
   preparing: 'Preparando la Cucina...',
   connectedAs: 'Connesso come',
@@ -19,9 +18,9 @@ export const appIt = {
   aboutGame: 'Informazioni sul gioco',
   aboutProject: 'Informazioni sul progetto',
   stats: 'Statistiche del gioco',
-  lobby: 'Lobby della cucina',
-  profile: 'Profilo dello chef',
-  game: 'Caos in Cucina',
+  lobby: 'Lobby',
+  profile: 'Profilo dello utente',
+  game: 'Bomberman',
   notFound: '404 Non trovato',
   logout: 'Disconnetti',
   login: 'Accedi',

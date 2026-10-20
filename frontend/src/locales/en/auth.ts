@@ -12,18 +12,24 @@
 
 export const authEn = {
   login: {
-    title: 'Chef Credentials',
+    tab: 'Log In',
+    heading: 'Welcome back!',
+    subheading: 'Log in to continue your game.',
     connecting: 'Connecting...',
-    playNow: 'Start Service',
+    playNow: 'Enter the Game',
     email: 'Email',
     emailPlaceholder: 'Enter your email',
     password: 'Password',
     passwordPlaceholder: '********',
     orContinueWith: 'Or continue with',
-    continueGoogle: 'Continue with Google',
+    continueGoogle: 'Google',
+    noAccount: "Don't have an account?",
+    registerInstead: 'Register',
   },
   register: {
-    title: 'New Chef Registration',
+    tab: 'Create Account',
+    heading: 'Join us to enjoy the game',
+    subheading: 'Register to start playing.',
     connecting: 'Registering...',
     playNow: 'Register',
     email: 'Email',
@@ -32,6 +38,8 @@ export const authEn = {
     userPlaceholder: 'Enter your user',
     password: 'Password',
     passwordPlaceholder: '********',
+    alreadyHaveAccount: 'Already have an account? ',
+    loginInstead: ' Log in',
   },
   status: {
     loggedIn: 'Logged in',

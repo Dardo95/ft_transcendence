@@ -1,35 +1,24 @@
-/**
- * User login form.
- * Category: Feature Component
- *
- * Responsible for:
- * - Collecting login credentials.
- * - Validating user input.
- * - Triggering the authentication flow.
- * - Displaying authentication errors to the user.
- *
- * Does not:
- * - Perform HTTP requests directly.
- * - Implement authentication business logic.
- * - Store authentication state directly.
- */
-
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+<<<<<<< HEAD
 import {useRef, useEffect} from 'react';
+=======
+import { useNavigate } from 'react-router-dom';
+>>>>>>> main
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
-import { Card } from '../../../components/ui/Card';
-import { Input } from '../../../components/ui/Input';
-import { Button } from '../../../components/ui/Button';
+
+import { Button } from '@/components/ui/button';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Icons } from '@/components/ui/icons';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const login = useAuthStore((state) => state.login);
 
@@ -59,10 +48,17 @@ export function LoginForm() {
   }, [errorMessage]);
 
   return (
-    <Card className="mx-auto w-full max-w-sm">
-      <h2 className="mb-4 text-center text-xl font-bold text-orange-400">
-        {t('auth.login.title') || 'Chef Credentials'}
-      </h2>
+    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm">
+      {/* Header of the Form */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+          {t('auth.login.heading') || '¡Bienvenido de nuevo!'}{' '}
+        </h2>
+        <p className="mt-1 text-xs text-zinc-400">
+          {t('auth.login.subheading') ||
+            'Inicia sesión para volver a la partida.'}{' '}
+        </p>
+      </div>
 
       {errorMessage && (
         <div ref={errorRef}
@@ -73,30 +69,68 @@ export function LoginForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-        <Input
-          label={t('auth.login.email') || 'Email'}
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={t('auth.login.emailPlaceholder') || 'Enter your email'}
-          required
-        />
-        <Input
-          label={t('auth.login.password') || 'Password'}
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder={t('auth.login.passwordPlaceholder') || '********'}
-          required
-        />
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="login-email">
+            {t('auth.login.email') || 'Email'}
+          </FieldLabel>
+          <Input
+            id="login-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t('auth.login.emailPlaceholder') || 'Enter your email'}
+            required
+          />
+        </Field>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2">
-          {isSubmitting
-            ? t('auth.login.connecting') || 'Connecting...'
-            : t('auth.login.playNow') || 'Play Now'}
-        </Button>
-      </form>
-    </Card>
+        <Field>
+          <FieldLabel htmlFor="login-password">
+            {t('auth.login.password') || 'Password'}
+          </FieldLabel>
+          <Input
+            id="login-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={t('auth.login.passwordPlaceholder') || '********'}
+            required
+          />
+        </Field>
+
+        <Field orientation="horizontal" className="mt-2">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-orange-600 hover:bg-orange-800"
+          >
+            {isSubmitting
+              ? t('auth.login.connecting') || 'Connecting...'
+              : t('auth.login.playNow') || 'Play Now'}
+          </Button>
+        </Field>
+      </FieldGroup>
+
+      {/* Separator */}
+      <div className="relative my-5 flex items-center">
+        <div className="grow border-t border-zinc-800" />
+        <span className="mx-3 shrink text-[11px] tracking-wider text-zinc-500 uppercase">
+          {t('auth.login.orContinueWith') || 'o continúa con'}
+        </span>
+        <div className="grow border-t border-zinc-800" />
+      </div>
+
+      {/* Google OAuth */}
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = '/api/auth/google';
+        }}
+        className="hover:bg-zinc-750 flex w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99] sm:text-sm"
+      >
+        <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
+        <span>{t('auth.login.continueGoogle') || 'Continuar con Google'}</span>
+      </button>
+    </form>
   );
 }

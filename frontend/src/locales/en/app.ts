@@ -4,13 +4,12 @@
  */
 
 export const appEn = {
-  title: 'Kitchen Mayhem',
-  upTitle: 'Arcade Multiplayer Webgame inspired by Bomberman',
+  title: 'ft_bomberman',
+  battlefield: 'THE KITCHEN IS A BATTLEFIELD',
   subTitle:
     'High cuisine, destruction, pressure cookers and unleashed steam. Register or log in to access the service.',
-  enterButton: 'Enter the Kitchen',
   userLabel: 'User',
-  preparing: 'Preparing the Kitchen...',
+  preparing: 'Preparing the Game Website...',
   connectedAs: 'Logged in as',
 
   termsOfService: 'Terms of Service',
@@ -19,9 +18,9 @@ export const appEn = {
   aboutGame: 'About the Game',
   aboutProject: 'About the Project',
   stats: 'Game Statistics',
-  lobby: 'Kitchen Lobby',
-  profile: "Chef's Profile",
-  game: 'Kitchen Mayhem',
+  lobby: 'Lobby',
+  profile: 'User Profile',
+  game: 'Bomberman',
   notFound: '404 Not Found',
   logout: 'Logout',
   login: 'Login',

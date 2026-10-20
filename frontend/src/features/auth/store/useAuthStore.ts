@@ -20,25 +20,11 @@ import {
   registerUser,
   getMe,
 } from '../service/authService';
-import type { AuthCredentials, AuthResponse } from '../types/auth';
-import type { User } from '../../../types/user';
-
-function normalizeUser(user: AuthResponse['user']): User | null {
-  if (!user) {
-    return null;
-  }
-
-  return {
-    id: typeof user.id === 'number' ? user.id : Number(user.id),
-    email: user.email,
-    username: user.username ?? '',
-    avatarUrl: user.avatarUrl,
-  };
-}
+import type { AuthCredentials, UserPublic } from '@transcendence/shared';
 
 interface AuthState {
   // State
-  user: User | null;
+  user: UserPublic | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -61,9 +47,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   checkAuth: async () => {
     set({ isLoading: true, error: null });
     try {
-      const userData = await getMe();
+      const response = await getMe();
       set({
-        user: normalizeUser(userData.user),
+        user: 'user' in response ? response.user : response,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -86,9 +72,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       await loginUser(credentials);
 
       // After successful login, fetch the authenticated user's data
-      const userData = await getMe();
+      const response = await getMe();
       set({
-        user: normalizeUser(userData.user),
+        user: 'user' in response ? response.user : response,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -114,6 +100,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       await loginUser({
         email: credentials.email,
         password: credentials.password,
+      });
+      // After successful registration and login, fetch the authenticated user's data
+      const response = await getMe();
+      set({
+        user: 'user' in response ? response.user : response,
+        isAuthenticated: true,
+        isLoading: false,
       });
     } catch (error) {
       set({

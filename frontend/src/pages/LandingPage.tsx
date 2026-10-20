@@ -6,92 +6,40 @@ import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { LoginForm } from '../features/auth/components/LoginForm';
 import { RegisterForm } from '../features/auth/components/RegisterForm';
 
+import logoUrl from '../assets/logo.png';
+
 export function LandingPage() {
   const { t } = useLanguage();
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
   const { isAuthenticated, isLoading, error, clearError } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If the session is active and not loading, redirect to the lobby
     if (!isLoading && isAuthenticated) {
       navigate('/lobby', { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]);
 
   return (
-    <div className="relative flex min-h-screen flex-col justify-between overflow-hidden bg-slate-950 text-slate-100 select-none">
-      {/* Effect of rising cooking vapor from the background */}
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-orange-500/10 via-transparent to-transparent blur-2xl" />
+    <div className="relative flex min-h-screen w-full flex-col justify-between overflow-x-hidden bg-slate-950 font-sans text-slate-100 select-none">
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-orange-600/10 via-transparent to-transparent blur-3xl" />
+      <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-orange-500/10 blur-[120px]" />
 
-      {/* Central Zone */}
-      <main className="z-10 flex grow flex-col items-center justify-center px-4 text-center">
-        <div className="mb-3 flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-semibold tracking-wider text-amber-500 uppercase">
-          <span>
-            {t('app.upTitle') ||
-              'Arcade Multiplayer Webgame inspired by Bomberman'}
-          </span>
-        </div>
-
-        <h1 className="mb-4 bg-linear-to-r from-orange-400 via-amber-200 to-orange-500 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md md:text-7xl">
-          {t('app.title') || 'Kitchen Mayhem'}
-        </h1>
-
-        <p className="mb-10 max-w-md text-sm text-zinc-400 md:text-base">
-          {t('app.subTitle') ||
-            'High cuisine, destruction, pressure cookers and unleashed steam. Register or log in to access the service.'}
-        </p>
-
-        {/* Central Button with Pulse Ring Aura */}
-        <button
-          onClick={() => setIsAuthModalOpen(true)}
-          className="group relative rounded-xl bg-linear-to-r from-orange-600 to-amber-600 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-orange-600/30 transition-all duration-300 hover:scale-105 active:scale-95"
-        >
-          {/* Pulse Ring Aura */}
-          <span className="absolute -inset-1 animate-pulse rounded-xl bg-orange-500/40 blur-md group-hover:bg-orange-500/60" />
-          <span className="relative flex items-center gap-3">
-            <span>{t('app.enterButton') || 'Enter the Kitchen'}</span>
-          </span>
-        </button>
-      </main>
-
-      {/* Auth Modal (dialog with backdrop blur) */}
-      {isAuthModalOpen && (
-        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm duration-200">
-          <div className="relative w-full max-w-md rounded-2xl border border-zinc-700 bg-zinc-900 p-6 shadow-2xl">
-            {/* Close modal button */}
-            <button
-              onClick={() => setIsAuthModalOpen(false)}
-              className="absolute top-4 right-4 text-xl font-bold text-zinc-400 hover:text-white"
-            >
-              ✕
-            </button>
-
-            {/* Tabs: Log In / Register */}
-            <div className="mb-6 flex border-b border-zinc-700">
-              <button
-                onClick={() => setAuthTab('login')}
-                className={`flex-1 border-b-2 py-2 text-sm font-semibold transition-colors ${
-                  authTab === 'login'
-                    ? 'border-orange-500 text-orange-400'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                {t('app.login') || 'Log In'}
-              </button>
-              <button
-                onClick={() => setAuthTab('register')}
-                className={`flex-1 border-b-2 py-2 text-sm font-semibold transition-colors ${
-                  authTab === 'register'
-                    ? 'border-orange-500 text-orange-400'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                {t('app.register') || 'Register'}
-              </button>
+      {/* Main content area: Responsive 2-column layout on full screen, stacked on split screen */}
+      <main className="z-10 flex flex-1 items-center justify-center px-4 py-8 md:px-8 lg:px-12">
+        <div className="grid w-full max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-8">
+          {/* Left side: Branding, Logo and Motto */}
+          <div className="flex flex-col items-center text-center lg:col-span-7 lg:items-start lg:text-left">
+            {/* Logo */}
+            <div className="relative mb-4 flex items-center justify-center">
+              <img
+                src={logoUrl}
+                alt="ft_bomberman Logo"
+                className="h-28 w-auto object-contain drop-shadow-[0_10px_20px_rgba(249,115,22,0.3)] sm:h-36 lg:h-44"
+              />
             </div>
 
+<<<<<<< HEAD
             {/* Auth error banner inside the modal */}
             {error && (
               <div className="mb-4 flex items-center justify-center gap-1.5 rounded-xl border border-red-700/80 bg-red-950/70 p-2.5 text-center text-xs text-red-300 cursor-pointer">
@@ -138,13 +86,87 @@ export function LandingPage() {
                   d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"
                 />
               </svg>
+=======
+            {/* Subtitle / Battle Badge */}
+            <div className="mb-3 flex items-center gap-2 text-sm font-black tracking-widest text-orange-400 uppercase sm:text-base">
+              <span className="text-orange-500">❖</span>
+>>>>>>> main
               <span>
-                {t('auth.login.continueGoogle') || 'Continue with Google'}
+                {t('app.battlefield') || 'LA COCINA ES UN CAMPO DE BATALLA'}
               </span>
-            </button>
+              <span className="text-orange-500">❖</span>
+            </div>
+
+            <p className="max-w-md text-xs font-medium text-zinc-400 sm:text-sm">
+              {t('app.subTitle') ||
+                'Alta cocina, destrucción, ollas a presión y vapor desatado. Regístrate o inicia sesión para entrar al servicio.'}
+            </p>
+          </div>
+
+          {/* Right side: Floating card with Tabs and Forms */}
+          <div className="w-full lg:col-span-5">
+            <div className="mx-auto w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 shadow-2xl backdrop-blur-md sm:p-8">
+              <div className="mb-6 flex border-b border-zinc-800 pb-1">
+                <button
+                  type="button"
+                  onClick={() => setAuthTab('login')}
+                  className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${
+                    authTab === 'login'
+                      ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  {t('auth.login.tab') || 'Iniciar sesión'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthTab('register')}
+                  className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${
+                    authTab === 'register'
+                      ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  {t('auth.register.tab') || 'Crear cuenta'}
+                </button>
+              </div>
+
+              {/* Render of Forms */}
+              <div className="w-full">
+                {authTab === 'login' ? <LoginForm /> : <RegisterForm />}
+              </div>
+
+              {/* Inferior Link Switch */}
+              <div className="mt-5 text-center text-xs text-zinc-500">
+                {authTab === 'login' ? (
+                  <>
+                    {t('auth.login.noAccount') || '¿No tienes cuenta?'}{' '}
+                    <button
+                      type="button"
+                      onClick={() => setAuthTab('register')}
+                      className="font-semibold text-orange-400 hover:text-orange-300 hover:underline"
+                    >
+                      {t('auth.login.registerInstead') || 'Regístrate'}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {t('auth.register.alreadyHaveAccount') ||
+                      '¿Ya tienes cuenta?'}
+                    <button
+                      type="button"
+                      onClick={() => setAuthTab('login')}
+                      className="font-semibold text-orange-400 hover:text-orange-300 hover:underline"
+                    >
+                      {t('auth.register.loginInstead') || 'Inicia sesión'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      )}
+      </main>
     </div>
   );
 }

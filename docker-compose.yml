@@ -20,8 +20,8 @@ services:
     container_name: ft_backend
     image: backend:latest
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     restart: unless-stopped
     env_file: .env
     ports:
@@ -42,8 +42,8 @@ services:
     container_name: ft_frontend
     image: frontend:latest
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL}
         VITE_WS_URL: ${VITE_WS_URL}

@@ -7,11 +7,15 @@ WORKDIR /app
 
 RUN npm install -g pnpm@12.5.1
 
-COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY pnpm-workspace.yaml package.json* pnpm-lock.yaml .npmrc* ./
+COPY shared ./shared
+COPY backend ./backend
+
 RUN pnpm install --frozen-lockfile
 
-COPY . .
-RUN npx prisma generate
+WORKDIR /app/backend
+
+RUN ./node_modules/.bin/prisma generate
 RUN pnpm run build
 
 # ---- Production dependencies ----
@@ -23,10 +27,15 @@ WORKDIR /app
 
 RUN npm install -g pnpm@12.5.1
 
-COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-COPY prisma ./prisma
-RUN pnpm install --prod --frozen-lockfile && npx prisma generate
+COPY pnpm-workspace.yaml package.json* pnpm-lock.yaml .npmrc* ./
+COPY shared ./shared
+COPY backend ./backend
 
+RUN pnpm install --prod --no-frozen-lockfile
+
+WORKDIR /app/backend
+
+RUN ./node_modules/.bin/prisma generate
 # ---- Production ----
 FROM node:20-alpine
 
@@ -36,10 +45,13 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --chown=node:node --from=builder /app/dist ./dist
 COPY --chown=node:node --from=production-dependencies /app/node_modules ./node_modules
-COPY --chown=node:node --from=builder /app/package*.json ./
-COPY --chown=node:node --from=builder /app/prisma ./prisma
+COPY --chown=node:node --from=production-dependencies /app/backend/node_modules ./backend/node_modules
+COPY --chown=node:node --from=builder /app/backend/dist ./backend/dist
+COPY --chown=node:node --from=builder /app/backend/package*.json ./backend/
+COPY --chown=node:node --from=builder /app/backend/prisma ./backend/prisma
+
+WORKDIR /app/backend
 
 USER node
 

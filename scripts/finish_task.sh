@@ -85,7 +85,7 @@ if [[ "$CONFIRM" =~ ^[sSyY]$ ]]; then
   echo "🎉 ¡Tarea completada y código integrado en main!"
 else
   echo ""
-  echo "⏳ Recuerda que el evaluador o tu compañero debe aprobar la PR en GitHub antes de hacer merge[cite: 3, 4]."
+  echo "⏳ Recuerda que el evaluador o tu compañero debe aprobar la PR en GitHub antes de hacer merge"
   echo "Cuando esté aprobada, ejecuta en tu terminal:"
   echo "   gh pr merge --squash --delete-branch && git switch main && git pull origin main"
 fi

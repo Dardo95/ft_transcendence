@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from './../src/app.module.js';
+import { describe, it, beforeAll, afterAll, expect } from 'vitest';
+import { AppModule } from '../src/app.module.js';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -16,21 +17,24 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/api (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/api')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
   });
 
+  // Test 1: Verify the real health endpoint
   it('/api/health (GET)', () => {
     return request(app.getHttpServer())
       .get('/api/health')
       .expect(200)
-      .expect({ status: 'ok' });
+      .expect((res) => {
+        expect(res.body.status).toBe('ok');
+        expect(res.body.db).toBe('up');
+        expect(typeof res.body.latencyMs).toBe('number');
+      });
   });
 
-  afterEach(async () => {
-    await app.close();
+  // Test 2: Verify that a non-existent route returns structured 404
+  it('/api/unknown (GET) -> 404', () => {
+    return request(app.getHttpServer()).get('/api/unknown').expect(404);
   });
 });
