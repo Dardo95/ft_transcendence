@@ -1,9 +1,5 @@
 import { useState } from 'react';
-<<<<<<< HEAD
-import {useRef, useEffect} from 'react';
-=======
 import { useNavigate } from 'react-router-dom';
->>>>>>> main
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
 
