@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { parseCookie  } from 'cookie';
+import { parseCookie } from 'cookie';
 import type { Namespace, Socket } from 'socket.io';
 
 export interface WsUser {
@@ -25,7 +25,7 @@ export class WsJwtAuthService {
 
   private async authenticate(
     socket: Socket,
-    next: (err?: Error) => void,
+    next: (err?: Error) => void
   ): Promise<void> {
     try {
       // La cookie llega en la cabecera del handshake.

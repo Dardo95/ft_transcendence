@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { randomUUID } from 'node:crypto';
@@ -62,296 +61,284 @@ export class LobbyService {
   private readonly invitations = new Map<string, LobbyInvitationRecord>();
 
   createLobby(user: WsUser): LobbySnapshot {
-	if (this.lobbyIdByUserId.has(user.id)) {
-	  throw new WsException('You are already in a lobby');
-	}
+    if (this.lobbyIdByUserId.has(user.id)) {
+      throw new WsException('You are already in a lobby');
+    }
 
-	const now = new Date().toISOString();
+    const now = new Date().toISOString();
 
-	const lobby: LobbyRecord = {
-	  id: randomUUID(),
-	  hostUserId: user.id,
-	  members: new Map([
-		[
-		  user.id,
-		  {
-			userId: user.id,
-			username: user.username,
-			joinedAt: now,
-		  },
-		],
-	  ]),
-	  createdAt: now,
-	};
+    const lobby: LobbyRecord = {
+      id: randomUUID(),
+      hostUserId: user.id,
+      members: new Map([
+        [
+          user.id,
+          {
+            userId: user.id,
+            username: user.username,
+            joinedAt: now,
+          },
+        ],
+      ]),
+      createdAt: now,
+    };
 
-	this.lobbies.set(lobby.id, lobby);
-	this.lobbyIdByUserId.set(user.id, lobby.id);
+    this.lobbies.set(lobby.id, lobby);
+    this.lobbyIdByUserId.set(user.id, lobby.id);
 
-	return this.toSnapshot(lobby);
+    return this.toSnapshot(lobby);
   }
 
-	getOrCreateLobby(user: WsUser): LobbySnapshot {
-		const existingLobby = this.getLobbyForUser(user.id);
+  getOrCreateLobby(user: WsUser): LobbySnapshot {
+    const existingLobby = this.getLobbyForUser(user.id);
 
-		if (existingLobby) {
-			return existingLobby;
-		}
+    if (existingLobby) {
+      return existingLobby;
+    }
 
-		return this.createLobby(user);
- 	}
+    return this.createLobby(user);
+  }
 
   getLobbyForUser(userId: number): LobbySnapshot | null {
-	const lobbyId = this.lobbyIdByUserId.get(userId);
+    const lobbyId = this.lobbyIdByUserId.get(userId);
 
-	if (!lobbyId) {
-	  return null;
-	}
+    if (!lobbyId) {
+      return null;
+    }
 
-	const lobby = this.lobbies.get(lobbyId);
+    const lobby = this.lobbies.get(lobbyId);
 
-	if (!lobby) {
-	  this.lobbyIdByUserId.delete(userId);
-	  return null;
-	}
+    if (!lobby) {
+      this.lobbyIdByUserId.delete(userId);
+      return null;
+    }
 
-	return this.toSnapshot(lobby);
+    return this.toSnapshot(lobby);
   }
 
   getLobbyById(lobbyId: string): LobbySnapshot | null {
-	const lobby = this.lobbies.get(lobbyId);
+    const lobby = this.lobbies.get(lobbyId);
 
-	return lobby ? this.toSnapshot(lobby) : null;
+    return lobby ? this.toSnapshot(lobby) : null;
   }
 
   leaveLobby(userId: number): LeaveLobbyResult | null {
-	const lobbyId = this.lobbyIdByUserId.get(userId);
+    const lobbyId = this.lobbyIdByUserId.get(userId);
 
-	if (!lobbyId) {
-	  return null;
-	}
+    if (!lobbyId) {
+      return null;
+    }
 
-	const lobby = this.lobbies.get(lobbyId);
+    const lobby = this.lobbies.get(lobbyId);
 
-	this.lobbyIdByUserId.delete(userId);
+    this.lobbyIdByUserId.delete(userId);
 
-	if (!lobby) {
-	  return { lobbyId, lobby: null };
-	}
+    if (!lobby) {
+      return { lobbyId, lobby: null };
+    }
 
-	lobby.members.delete(userId);
+    lobby.members.delete(userId);
 
-	if (lobby.members.size === 0) {
-	  this.lobbies.delete(lobbyId);
+    if (lobby.members.size === 0) {
+      this.lobbies.delete(lobbyId);
 
-	  return { lobbyId, lobby: null };
-	}
+      return { lobbyId, lobby: null };
+    }
 
-	if (lobby.hostUserId === userId) {
-	  const nextMember = lobby.members.values().next().value;
+    if (lobby.hostUserId === userId) {
+      const nextMember = lobby.members.values().next().value;
 
-	  if (nextMember) {
-		lobby.hostUserId = nextMember.userId;
-	  }
-	}
+      if (nextMember) {
+        lobby.hostUserId = nextMember.userId;
+      }
+    }
 
-	return {
-	  lobbyId,
-	  lobby: this.toSnapshot(lobby),
-	};
+    return {
+      lobbyId,
+      lobby: this.toSnapshot(lobby),
+    };
   }
 
   private toSnapshot(lobby: LobbyRecord): LobbySnapshot {
-	return {
-	  id: lobby.id,
-	  hostUserId: lobby.hostUserId,
-	  createdAt: lobby.createdAt,
-	  members: [...lobby.members.values()].map((member) => ({
-		...member,
-		isHost: member.userId === lobby.hostUserId,
-	  })),
-	};
+    return {
+      id: lobby.id,
+      hostUserId: lobby.hostUserId,
+      createdAt: lobby.createdAt,
+      members: [...lobby.members.values()].map((member) => ({
+        ...member,
+        isHost: member.userId === lobby.hostUserId,
+      })),
+    };
   }
 
+  createInvitation(
+    inviter: WsUser,
+    target: { id: number; username: string }
+  ): LobbyInvitationView {
+    this.cleanupExpiredInvitations();
 
-	createInvitation(
-	inviter: WsUser,
-	target: { id: number; username: string },
-	): LobbyInvitationView {
-	this.cleanupExpiredInvitations();
+    const lobbyId = this.lobbyIdByUserId.get(inviter.id);
+    const lobby = lobbyId ? this.lobbies.get(lobbyId) : undefined;
 
-	const lobbyId = this.lobbyIdByUserId.get(inviter.id);
-	const lobby = lobbyId ? this.lobbies.get(lobbyId) : undefined;
+    if (!lobby) {
+      throw new WsException('You are not in a lobby');
+    }
 
-	if (!lobby) {
-		throw new WsException('You are not in a lobby');
-	}
+    if (lobby.hostUserId !== inviter.id) {
+      throw new WsException('Only the host can invite friends');
+    }
 
-	if (lobby.hostUserId !== inviter.id) {
-		throw new WsException('Only the host can invite friends');
-	}
+    if (target.id === inviter.id) {
+      throw new WsException('Cannot invite yourself');
+    }
 
-	if (target.id === inviter.id) {
-		throw new WsException('Cannot invite yourself');
-	}
+    const targetLobby = this.getLobbyForUser(target.id);
 
-	const targetLobby = this.getLobbyForUser(target.id);
+    if (targetLobby && targetLobby.members.length > 1)
+      throw new WsException('User is already in a lobby with other members');
 
-	if (targetLobby && targetLobby.members.length > 1)
-		throw new WsException('User is already in a lobby with other members')
+    if (lobby.members.size >= 4) {
+      throw new WsException('Lobby is full');
+    }
 
-	if (lobby.members.size >= 4) {
-		throw new WsException('Lobby is full');
-	}
+    const alreadyInvited = [...this.invitations.values()].some(
+      (invitation) =>
+        invitation.lobbyId === lobby.id && invitation.targetUserId === target.id
+    );
 
-	const alreadyInvited = [...this.invitations.values()].some(
-		(invitation) =>
-		invitation.lobbyId === lobby.id &&
-		invitation.targetUserId === target.id,
-	);
+    if (alreadyInvited) {
+      throw new WsException('Invitation already exists');
+    }
 
-	if (alreadyInvited) {
-		throw new WsException('Invitation already exists');
-	}
+    const now = Date.now();
 
-	const now = Date.now();
+    const invitation: LobbyInvitationRecord = {
+      id: randomUUID(),
+      lobbyId: lobby.id,
+      inviterUserId: inviter.id,
+      inviterUsername: inviter.username,
+      targetUserId: target.id,
+      createdAt: new Date(now).toISOString(),
+      expiresAt: new Date(now + 5 * 60 * 1000).toISOString(),
+    };
 
-	const invitation: LobbyInvitationRecord = {
-			id: randomUUID(),
-			lobbyId: lobby.id,
-			inviterUserId: inviter.id,
-			inviterUsername: inviter.username,
-			targetUserId: target.id,
-			createdAt: new Date(now).toISOString(),
-			expiresAt: new Date(now + 5 * 60 * 1000).toISOString(),
-		};
+    this.invitations.set(invitation.id, invitation);
 
-		this.invitations.set(invitation.id, invitation);
+    return this.toInvitationView(invitation);
+  }
 
-		return this.toInvitationView(invitation);
-	}
+  getPendingInvitations(userId: number): LobbyInvitationView[] {
+    this.cleanupExpiredInvitations();
 
+    return [...this.invitations.values()]
+      .filter((invitation) => invitation.targetUserId === userId)
+      .map((invitation) => this.toInvitationView(invitation));
+  }
 
-	getPendingInvitations(userId: number): LobbyInvitationView[] {
-		this.cleanupExpiredInvitations();
+  acceptInvitation(invitationId: string, user: WsUser): LobbySnapshot {
+    this.cleanupExpiredInvitations();
 
-		return [...this.invitations.values()]
-			.filter((invitation) => invitation.targetUserId === userId)
-			.map((invitation) => this.toInvitationView(invitation));
-	}
+    const invitation = this.invitations.get(invitationId);
 
+    if (!invitation || invitation.targetUserId !== user.id) {
+      throw new WsException('Invitation not found');
+    }
 
+    const lobby = this.lobbies.get(invitation.lobbyId);
 
-	acceptInvitation(
-		invitationId: string,
-		user: WsUser,
-		): LobbySnapshot {
-		this.cleanupExpiredInvitations();
+    if (!lobby) {
+      throw new WsException('Lobby no longer exists');
+    }
 
-		const invitation = this.invitations.get(invitationId);
+    // Si el usuario ya pertenece al lobby de destino,
+    // hacemos la operación idempotente.
+    if (lobby.members.has(user.id)) {
+      this.invitations.delete(invitationId);
+      return this.toSnapshot(lobby);
+    }
 
-		if (!invitation || invitation.targetUserId !== user.id) {
-			throw new WsException('Invitation not found');
-		}
+    // Comprobamos el límite ANTES de abandonar su lobby actual.
+    if (lobby.members.size >= 4) {
+      throw new WsException('Lobby is full');
+    }
 
-		const lobby = this.lobbies.get(invitation.lobbyId);
+    const currentLobbyId = this.lobbyIdByUserId.get(user.id);
 
-		if (!lobby) {
-			throw new WsException('Lobby no longer exists');
-		}
+    if (currentLobbyId && currentLobbyId !== lobby.id) {
+      const currentLobby = this.lobbies.get(currentLobbyId);
 
-		// Si el usuario ya pertenece al lobby de destino,
-		// hacemos la operación idempotente.
-		if (lobby.members.has(user.id)) {
-			this.invitations.delete(invitationId);
-			return this.toSnapshot(lobby);
-		}
+      // Solo permitimos abandonar automáticamente un lobby individual.
+      if (currentLobby && currentLobby.members.size > 1) {
+        throw new WsException(
+          'Leave your current lobby before accepting this invitation'
+        );
+      }
 
-		// Comprobamos el límite ANTES de abandonar su lobby actual.
-		if (lobby.members.size >= 4) {
-			throw new WsException('Lobby is full');
-		}
+      if (currentLobby) {
+        currentLobby.members.delete(user.id);
 
-		const currentLobbyId = this.lobbyIdByUserId.get(user.id);
+        if (currentLobby.members.size === 0) {
+          this.lobbies.delete(currentLobby.id);
+        }
+      }
 
-		if (currentLobbyId && currentLobbyId !== lobby.id) {
-			const currentLobby = this.lobbies.get(currentLobbyId);
+      this.lobbyIdByUserId.delete(user.id);
+    }
 
-			// Solo permitimos abandonar automáticamente un lobby individual.
-			if (currentLobby && currentLobby.members.size > 1) {
-			throw new WsException(
-				'Leave your current lobby before accepting this invitation',
-			);
-			}
+    // Añadimos al usuario al lobby de destino.
+    const member: LobbyMemberRecord = {
+      userId: user.id,
+      username: user.username,
+      joinedAt: new Date().toISOString(),
+    };
 
-			if (currentLobby) {
-			currentLobby.members.delete(user.id);
+    lobby.members.set(user.id, member);
+    this.lobbyIdByUserId.set(user.id, lobby.id);
 
-			if (currentLobby.members.size === 0) {
-				this.lobbies.delete(currentLobby.id);
-			}
-		}
+    // Eliminamos la invitación aceptada y las demás dirigidas al usuario.
+    this.invitations.delete(invitationId);
 
-		this.lobbyIdByUserId.delete(user.id);
-	}
+    for (const [id, pending] of this.invitations) {
+      if (pending.targetUserId === user.id) {
+        this.invitations.delete(id);
+      }
+    }
 
-	// Añadimos al usuario al lobby de destino.
-	const member: LobbyMemberRecord = {
-		userId: user.id,
-		username: user.username,
-		joinedAt: new Date().toISOString(),
-	};
+    return this.toSnapshot(lobby);
+  }
 
-	lobby.members.set(user.id, member);
-	this.lobbyIdByUserId.set(user.id, lobby.id);
+  rejectInvitation(invitationId: string, userId: number): void {
+    this.cleanupExpiredInvitations();
 
-	// Eliminamos la invitación aceptada y las demás dirigidas al usuario.
-	this.invitations.delete(invitationId);
+    const invitation = this.invitations.get(invitationId);
 
-	for (const [id, pending] of this.invitations) {
-		if (pending.targetUserId === user.id) {
-		this.invitations.delete(id);
-		}
-	}
+    if (!invitation || invitation.targetUserId !== userId) {
+      throw new WsException('Invitation not found');
+    }
 
-	return this.toSnapshot(lobby);
-	}
+    this.invitations.delete(invitationId);
+  }
 
-	
-	rejectInvitation(invitationId: string, userId: number): void {
-		this.cleanupExpiredInvitations();
+  private cleanupExpiredInvitations(): void {
+    const now = Date.now();
 
-		const invitation = this.invitations.get(invitationId);
+    for (const [id, invitation] of this.invitations) {
+      if (Date.parse(invitation.expiresAt) <= now) {
+        this.invitations.delete(id);
+      }
+    }
+  }
 
-		if (!invitation || invitation.targetUserId !== userId) {
-			throw new WsException('Invitation not found');
-		}
-
-		this.invitations.delete(invitationId);
-	}
-
-	private cleanupExpiredInvitations(): void {
-	const now = Date.now();
-
-		for (const [id, invitation] of this.invitations) {
-			if (Date.parse(invitation.expiresAt) <= now) {
-			this.invitations.delete(id);
-			}
-		}
-	}
-
-	private toInvitationView(
-	invitation: LobbyInvitationRecord,
-	): LobbyInvitationView {
-		return {
-			id: invitation.id,
-			lobbyId: invitation.lobbyId,
-			inviterUserId: invitation.inviterUserId,
-			inviterUsername: invitation.inviterUsername,
-			createdAt: invitation.createdAt,
-			expiresAt: invitation.expiresAt,
-		};
-	}
-
-
+  private toInvitationView(
+    invitation: LobbyInvitationRecord
+  ): LobbyInvitationView {
+    return {
+      id: invitation.id,
+      lobbyId: invitation.lobbyId,
+      inviterUserId: invitation.inviterUserId,
+      inviterUsername: invitation.inviterUsername,
+      createdAt: invitation.createdAt,
+      expiresAt: invitation.expiresAt,
+    };
+  }
 }
-

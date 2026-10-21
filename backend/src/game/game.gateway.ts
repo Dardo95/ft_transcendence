@@ -10,10 +10,7 @@ import {
 } from '@nestjs/websockets';
 import type { Namespace, Socket } from 'socket.io';
 
-import {
-  WsJwtAuthService,
-  type WsUser,
-} from '../auth/ws-jwt-auth.service.js';
+import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
 import { PrismaService } from '../database/prisma.service.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
 
@@ -30,15 +27,13 @@ type GameSocketData = {
   namespace: '/game',
   ...websocketOptions,
 })
-export class GameGateway
-  implements OnGatewayInit, OnGatewayDisconnect
-{
+export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Namespace;
 
   constructor(
     private readonly wsAuth: WsJwtAuthService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {}
 
   afterInit(server: Namespace): void {
@@ -48,7 +43,7 @@ export class GameGateway
   @SubscribeMessage('game:join')
   async joinGame(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: unknown,
+    @MessageBody() body: unknown
   ): Promise<void> {
     const matchId =
       typeof body === 'object' &&
@@ -107,7 +102,7 @@ export class GameGateway
   @SubscribeMessage('game:input')
   handleInput(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: unknown,
+    @MessageBody() body: unknown
   ): void {
     const data = client.data as GameSocketData;
     const user = data.user;
@@ -131,12 +126,10 @@ export class GameGateway
     const data = client.data as Partial<GameSocketData>;
 
     if (data.matchId !== undefined && data.user) {
-      this.server
-        .to(`match:${data.matchId}`)
-        .emit('game:playerLeft', {
-          matchId: data.matchId,
-          userId: data.user.id,
-        });
+      this.server.to(`match:${data.matchId}`).emit('game:playerLeft', {
+        matchId: data.matchId,
+        userId: data.user.id,
+      });
     }
   }
 
@@ -149,17 +142,11 @@ export class GameGateway
 
     if (
       input.action === 'move' &&
-      ['up', 'down', 'left', 'right'].includes(
-        input.direction as string,
-      )
+      ['up', 'down', 'left', 'right'].includes(input.direction as string)
     ) {
       return {
         action: 'move',
-        direction: input.direction as
-          | 'up'
-          | 'down'
-          | 'left'
-          | 'right',
+        direction: input.direction as 'up' | 'down' | 'left' | 'right',
       };
     }
 

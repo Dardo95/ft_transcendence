@@ -3,9 +3,7 @@ const defaultOrigins =
     ? 'https://localhost:8443'
     : 'http://localhost:5173,https://localhost:8443';
 
-const allowedOrigins = (
-  process.env.FRONTEND_URL ?? defaultOrigins
-)
+const allowedOrigins = (process.env.FRONTEND_URL ?? defaultOrigins)
   .split(',')
   .map((origin) => origin.trim());
 

@@ -13,10 +13,7 @@ import type { Namespace, Socket } from 'socket.io';
 import { LobbyService } from '../lobby/lobby.service.js';
 import { PrismaService } from '../database/prisma.service.js';
 
-import {
-  WsJwtAuthService,
-  type WsUser,
-} from '../auth/ws-jwt-auth.service.js';
+import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
 
 @WebSocketGateway({
@@ -30,7 +27,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
   constructor(
     private readonly wsAuth: WsJwtAuthService,
     private readonly lobbyService: LobbyService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {}
 
   afterInit(server: Namespace): void {
@@ -40,7 +37,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
   @SubscribeMessage('lobby:invite')
   async handleInvite(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: unknown,
+    @MessageBody() body: unknown
   ): Promise<void> {
     try {
       const username = this.readString(body, 'username').trim();
@@ -93,10 +90,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
       }
 
       // 3. Crear la invitación en memoria.
-      const invitation = this.lobbyService.createInvitation(
-        inviter,
-        invitee,
-      );
+      const invitation = this.lobbyService.createInvitation(inviter, invitee);
 
       // 4. Notificar al destinatario si está conectado.
       for (const socket of this.server.sockets.values()) {
@@ -116,7 +110,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
       this.emitLobbyError(client, error);
     }
   }
-  
+
   private readString(body: unknown, key: string): string {
     if (typeof body !== 'object' || body === null) {
       return '';
@@ -126,21 +120,18 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
 
     return typeof value === 'string' ? value : '';
   }
-  
+
   private emitLobbyError(client: Socket, error: unknown): void {
     const message =
-      error instanceof Error
-        ? error.message
-        : 'Lobby operation failed';
+      error instanceof Error ? error.message : 'Lobby operation failed';
 
     client.emit('lobby:error', { message });
   }
 
-
   @SubscribeMessage('lobby:accept')
   async handleAcceptInvitation(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: unknown,
+    @MessageBody() body: unknown
   ): Promise<void> {
     try {
       const invitationId = this.readString(body, 'invitationId');
@@ -155,14 +146,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
       const user = client.data.user as WsUser;
 
       // 1. Recordar el lobby anterior antes de modificar el servicio.
-      const previousLobby =
-        this.lobbyService.getLobbyForUser(user.id);
+      const previousLobby = this.lobbyService.getLobbyForUser(user.id);
 
       // 2. Validar la invitación y actualizar los mapas en memoria.
-      const lobby = this.lobbyService.acceptInvitation(
-        invitationId,
-        user,
-      );
+      const lobby = this.lobbyService.acceptInvitation(invitationId, user);
 
       // 3. Abandonar la sala anterior si hemos cambiado de lobby.
       if (previousLobby && previousLobby.id !== lobby.id) {
@@ -176,19 +163,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
       client.emit('lobby:joined', lobby);
 
       // 6. Notificar a los miembros del lobby de destino.
-      this.server
-        .to(`lobby:${lobby.id}`)
-        .emit('lobby:updated', lobby);
+      this.server.to(`lobby:${lobby.id}`).emit('lobby:updated', lobby);
     } catch (error) {
       this.emitLobbyError(client, error);
     }
   }
 
-
   @SubscribeMessage('lobby:reject')
   handleRejectInvitation(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: unknown,
+    @MessageBody() body: unknown
   ): void {
     try {
       const invitationId = this.readString(body, 'invitationId');
@@ -202,10 +186,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
 
       const user = client.data.user as WsUser;
 
-      this.lobbyService.rejectInvitation(
-        invitationId,
-        user.id,
-      );
+      this.lobbyService.rejectInvitation(invitationId, user.id);
 
       client.emit('lobby:invitationRejected', {
         invitationId,
@@ -215,11 +196,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     }
   }
 
-
   @SubscribeMessage('lobby:sync')
-  async handleLobbySync(
-    @ConnectedSocket() client: Socket,
-  ): Promise<void> {
+  async handleLobbySync(@ConnectedSocket() client: Socket): Promise<void> {
     const user = client.data.user as WsUser;
 
     // Obtener el lobby actual o crear uno individual.
@@ -229,8 +207,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     await client.join(`lobby:${lobby.id}`);
 
     // Recuperar las invitaciones pendientes.
-    const invitations =
-      this.lobbyService.getPendingInvitations(user.id);
+    const invitations = this.lobbyService.getPendingInvitations(user.id);
 
     // Enviar el estado inicial al frontend.
     client.emit('lobby:state', {
@@ -239,11 +216,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     });
   }
 
-
   @SubscribeMessage('lobby:create')
-  async handleCreateLobby(
-    @ConnectedSocket() client: Socket,
-  ): Promise<void> {
+  async handleCreateLobby(@ConnectedSocket() client: Socket): Promise<void> {
     const user = client.data.user as WsUser;
 
     // 1. Crear el lobby en memoria.
@@ -257,14 +231,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('lobby:leave')
-  async handleLeaveLobby(
-    @ConnectedSocket() client: Socket,
-  ): Promise<void> {
+  async handleLeaveLobby(@ConnectedSocket() client: Socket): Promise<void> {
     const user = client.data.user as WsUser;
 
     // Recordamos el lobby anterior.
-    const previousLobby =
-      this.lobbyService.getLobbyForUser(user.id);
+    const previousLobby = this.lobbyService.getLobbyForUser(user.id);
 
     // Salimos del grupo actual.
     const result = this.lobbyService.leaveLobby(user.id);
@@ -294,11 +265,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     });
   }
 
-
   @SubscribeMessage('chat:send')
   handleSend(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: unknown,
+    @MessageBody() body: unknown
   ): void {
     const user = client.data.user as WsUser;
 
@@ -332,12 +302,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     };
 
     // 4. Enviar el mensaje exclusivamente al lobby del remitente.
-    this.server
-      .to(`lobby:${lobby.id}`)
-      .emit('chat:message', message);
+    this.server.to(`lobby:${lobby.id}`).emit('chat:message', message);
   }
 
-  
   handleDisconnect(client: Socket): void {
     const user = client.data.user as WsUser | undefined;
 
@@ -358,5 +325,4 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
       .to(`lobby:${result.lobbyId}`)
       .emit('lobby:updated', result.lobby);
   }
-
 }
