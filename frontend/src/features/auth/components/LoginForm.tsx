@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
@@ -50,7 +50,7 @@ export function LoginForm() {
         <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
           {t('auth.login.heading') || '¡Bienvenido de nuevo!'}{' '}
         </h2>
-        <p className="mt-1 text-xs text-zinc-400">
+        <p className="mt-1 text-sm text-zinc-400">
           {t('auth.login.subheading') ||
             'Inicia sesión para volver a la partida.'}{' '}
         </p>
@@ -110,7 +110,7 @@ export function LoginForm() {
       {/* Separator */}
       <div className="relative my-5 flex items-center">
         <div className="grow border-t border-zinc-800" />
-        <span className="mx-3 shrink text-[11px] tracking-wider text-zinc-500 uppercase">
+        <span className="mx-3 shrink text-[14px] text-zinc-500 uppercase">
           {t('auth.login.orContinueWith') || 'o continúa con'}
         </span>
         <div className="grow border-t border-zinc-800" />

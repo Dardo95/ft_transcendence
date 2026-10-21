@@ -46,7 +46,7 @@ export function RegisterForm() {
           {t('auth.register.heading') ||
             '¡Únete para disfrutar del juego!'}{' '}
         </h2>
-        <p className="mt-1 text-xs text-zinc-400">
+        <p className="mt-1 text-sm text-zinc-400">
           {t('auth.register.subheading') ||
             'Regístrate para empezar a jugar.'}{' '}
         </p>

@@ -34,7 +34,7 @@ export const authEs = {
     playNow: 'Registrarse',
     email: 'Correo electrónico',
     emailPlaceholder: 'Introduce tu correo electrónico',
-    newUser: 'Nuevo Usuario',
+    newUser: 'Nuevo usuario',
     userPlaceholder: 'Introduce tu nombre de usuario',
     password: 'Contraseña',
     passwordPlaceholder: '********',

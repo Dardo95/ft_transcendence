@@ -13,7 +13,6 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\""
   },
   "dependencies": {
-    "@fontsource-variable/geist": "^5.3.0",
     "@shadcn/react": "^0.3.1",
     "@transcendence/shared": "workspace:*",
     "class-variance-authority": "^0.7.1",
