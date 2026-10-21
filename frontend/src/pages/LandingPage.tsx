@@ -6,7 +6,7 @@ import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { LoginForm } from '../features/auth/components/LoginForm';
 import { RegisterForm } from '../features/auth/components/RegisterForm';
 
-import logoUrl from '../assets/logo.png';
+import logoUrl from '../assets/logo.svg';
 import backgroundImage from '../assets/inicio-login.svg';
 
 export function LandingPage() {
