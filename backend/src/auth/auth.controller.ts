@@ -21,7 +21,12 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   private getFrontendUrl(req: Request): string {
-    // 1. Check if reverse proxy provided the real client host (Nginx / Vite with xfwd)
+    // Check if FRONTEND_URL environment variable is set
+    if (process.env.FRONTEND_URL) {
+      return process.env.FRONTEND_URL;
+    }
+
+    // Check if reverse proxy provided the real client host (Nginx / Vite with xfwd)
     const forwardedHost = req.headers['x-forwarded-host'];
     const hostHeader = req.headers.host;
 
@@ -42,11 +47,6 @@ export class AuthController {
         (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) ||
         defaultProto;
       return `${proto}://${host}`;
-    }
-
-    // 2. Fall back to environment variable passed by Docker/Makefile
-    if (process.env.FRONTEND_URL) {
-      return process.env.FRONTEND_URL;
     }
 
     return process.env.NODE_ENV === 'development'
