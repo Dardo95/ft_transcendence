@@ -16,12 +16,13 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "oxlint --type-aware src/ test/",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest --passWithNoTests",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
-    "typecheck": "tsc --noEmit --incremental false -p tsconfig.json"
+    "typecheck": "tsc --noEmit --incremental false -p tsconfig.json",
+    "dev": "pnpm run start:dev"
   },
   "dependencies": {
     "@transcendence/shared": "workspace:*",
