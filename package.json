@@ -4,6 +4,18 @@
   "scripts": {
     "build": "pnpm --filter frontend build && pnpm --filter backend build",
     "build:frontend": "pnpm --filter frontend build",
-    "build:backend": "pnpm --filter backend build"
+    "build:backend": "pnpm --filter backend build",
+    "test": "pnpm --filter frontend test && pnpm --filter backend test",
+    "test:frontend": "pnpm --filter frontend test",
+    "test:backend": "pnpm --filter backend test",
+    "lint": "pnpm --filter frontend lint && pnpm --filter backend lint",
+    "lint:frontend": "pnpm --filter frontend lint",
+    "lint:backend": "pnpm --filter backend lint",
+    "typecheck": "pnpm --filter frontend typecheck && pnpm --filter backend typecheck",
+    "typecheck:frontend": "pnpm --filter frontend typecheck",
+    "typecheck:backend": "pnpm --filter backend typecheck",
+    "format": "pnpm --filter frontend format && pnpm --filter backend format",
+    "format:frontend": "pnpm --filter frontend format",
+    "format:backend": "pnpm --filter backend format"
   }
 }

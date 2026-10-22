@@ -10,14 +10,18 @@ services:
     volumes:
       - ./shared:/app/shared
       - ./backend:/app/backend
-      - /app/frontend/node_modules
+      - /app/node_modules
       - /app/backend/node_modules
+      - /app/backend/dist
     environment:
       - NODE_ENV=development
-      - FRONTEND_URL=${FRONTEND_URL} # Exported from Makefile when dev
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:5173} # Exported from Makefile when dev
       - CHOKIDAR_USEPOLLING=true
       - TSC_WATCHFILE=DynamicPriorityPolling
       - TSC_WATCHDIRECTORY=DynamicPriorityPolling
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
       interval: 5s
@@ -35,10 +39,14 @@ services:
     volumes:
       - ./shared:/app/shared
       - ./frontend:/app/frontend
+      - /app/node_modules
       - /app/frontend/node_modules
-      - /app/frontend/node_modules
+      - /app/frontend/dist
     ports:
       - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:5173 || exit 1"]
       interval: 5s
