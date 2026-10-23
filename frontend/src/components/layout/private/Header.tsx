@@ -18,7 +18,7 @@ import { useAuthStore } from '../../../features/auth/store/useAuthStore';
 import { useLanguage } from '../../../locales/useLanguage';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
-import logoUrl from '@/assets/logo.png';
+import logoUrl from '@/assets/ui_logo.svg';
 
 interface HeaderProps {
   onOpenDrawer: () => void;
