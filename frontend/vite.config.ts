@@ -25,8 +25,15 @@ export default defineConfig({
     strictPort: true,
     watch: { usePolling: true },
     proxy: {
-      '/api': apiProxyTarget,
-      '/socket.io': { target: apiProxyTarget, ws: true },
+      '/api': {
+        target: apiProxyTarget,
+        xfwd: true, // 👈 Sets X-Forwarded-Host: localhost:5173 (or IP:5173)
+      },
+      '/socket.io': {
+        target: apiProxyTarget,
+        ws: true,
+        xfwd: true,
+      },
     },
   },
 });
