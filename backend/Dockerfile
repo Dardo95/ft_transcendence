@@ -40,7 +40,6 @@ RUN ./node_modules/.bin/prisma generate
 FROM node:20-alpine
 
 RUN apk add --no-cache curl openssl libstdc++
-RUN npm install -g pnpm@12.5.1
 
 ENV NODE_ENV=production
 
