@@ -48,11 +48,11 @@ export function LoginForm() {
       {/* Header of the Form */}
       <div className="mb-6">
         <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-          {t('auth.login.heading') || '¡Bienvenido de nuevo!'}{' '}
+          {t('auth.login.heading') || 'Welcome back!'}{' '}
         </h2>
         <p className="mt-1 text-sm text-zinc-400">
           {t('auth.login.subheading') ||
-            'Inicia sesión para volver a la partida.'}{' '}
+            'Log in to return to the game.'}{' '}
         </p>
       </div>
 
@@ -111,7 +111,7 @@ export function LoginForm() {
       <div className="relative my-5 flex items-center">
         <div className="grow border-t border-zinc-800" />
         <span className="mx-3 shrink text-[14px] text-zinc-500 uppercase">
-          {t('auth.login.orContinueWith') || 'o continúa con'}
+          {t('auth.login.orContinueWith') || 'or continue with'}
         </span>
         <div className="grow border-t border-zinc-800" />
       </div>
@@ -125,7 +125,7 @@ export function LoginForm() {
         className="hover:bg-zinc-750 flex w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99] sm:text-sm"
       >
         <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
-        <span>{t('auth.login.continueGoogle') || 'Continuar con Google'}</span>
+        <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>
       </button>
     </form>
   );

@@ -44,11 +44,11 @@ export function RegisterForm() {
       <div className="mb-6">
         <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
           {t('auth.register.heading') ||
-            '¡Únete para disfrutar del juego!'}{' '}
+            'Join to enjoy the game!'}{' '}
         </h2>
         <p className="mt-1 text-sm text-zinc-400">
           {t('auth.register.subheading') ||
-            'Regístrate para empezar a jugar.'}{' '}
+            'Sign up to start playing.'}{' '}
         </p>
       </div>
 
@@ -123,7 +123,7 @@ export function RegisterForm() {
       <div className="relative my-5 flex items-center">
         <div className="grow border-t border-zinc-800" />
         <span className="mx-3 shrink text-[11px] tracking-wider text-zinc-500 uppercase">
-          o continúa con
+          {t('auth.login.orContinueWith') || 'or continue with'}
         </span>
         <div className="grow border-t border-zinc-800" />
       </div>
@@ -137,7 +137,7 @@ export function RegisterForm() {
         className="hover:bg-zinc-750 flex w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99] sm:text-sm"
       >
         <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
-        <span>Continuar con Google</span>
+        <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>
       </button>
     </form>
   );

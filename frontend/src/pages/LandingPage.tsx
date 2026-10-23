@@ -59,7 +59,7 @@ export function LandingPage() {
 
             <p className="max-w-md text-xs font-medium text-zinc-400 sm:text-sm">
               {t('app.subTitle') ||
-                'Alta cocina, destrucción, ollas a presión y vapor desatado. Regístrate o inicia sesión para entrar al servicio.'}
+                'Fine cuisine, destruction, pressure cookers, and unleashed steam. Sign up or log in to enter the service.'}
             </p>
           </div>
 
@@ -75,7 +75,7 @@ export function LandingPage() {
                     : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                 >
-                  {t('auth.login.tab') || 'Iniciar sesión'}
+                  {t('auth.login.tab') || 'Log in'}
                 </button>
                 <button
                   type="button"
@@ -85,7 +85,7 @@ export function LandingPage() {
                     : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                 >
-                  {t('auth.register.tab') || 'Crear cuenta'}
+                  {t('auth.register.tab') || 'Create account'}
                 </button>
               </div>
 
@@ -98,25 +98,25 @@ export function LandingPage() {
               <div className="mt-5 text-center text-xs text-zinc-500">
                 {authTab === 'login' ? (
                   <>
-                    {t('auth.login.noAccount') || '¿No tienes cuenta?'}{' '}
+                    {t('auth.login.noAccount') || "Don't have an account?"}{' '}
                     <button
                       type="button"
                       onClick={() => setAuthTab('register')}
                       className="font-semibold text-orange-400 hover:text-orange-300 hover:underline"
                     >
-                      {t('auth.login.registerInstead') || 'Regístrate'}
+                      {t('auth.login.registerInstead') || 'Sign up'}
                     </button>
                   </>
                 ) : (
                   <>
                     {t('auth.register.alreadyHaveAccount') ||
-                      '¿Ya tienes cuenta?'}
+                      'Already have an account?'}
                     <button
                       type="button"
                       onClick={() => setAuthTab('login')}
                       className="font-semibold text-orange-400 hover:text-orange-300 hover:underline"
                     >
-                      {t('auth.register.loginInstead') || 'Inicia sesión'}
+                      {t('auth.register.loginInstead') || 'Log in'}
                     </button>
                   </>
                 )}
