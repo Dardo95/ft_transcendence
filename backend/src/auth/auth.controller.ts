@@ -21,33 +21,33 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   private getFrontendUrl(req: Request): string {
-    // Check if FRONTEND_URL environment variable is set
-    if (process.env.FRONTEND_URL) {
-      return process.env.FRONTEND_URL;
-    }
+    // // Check if FRONTEND_URL environment variable is set
+    // if (process.env.FRONTEND_URL) {
+    //   return process.env.FRONTEND_URL;
+    // }
 
-    // Check if reverse proxy provided the real client host (Nginx / Vite with xfwd)
-    const forwardedHost = req.headers['x-forwarded-host'];
-    const hostHeader = req.headers.host;
+    // // Check if reverse proxy provided the real client host (Nginx / Vite with xfwd)
+    // const forwardedHost = req.headers['x-forwarded-host'];
+    // const hostHeader = req.headers.host;
 
-    let host = Array.isArray(forwardedHost)
-      ? forwardedHost[0]
-      : forwardedHost || hostHeader;
+    // let host = Array.isArray(forwardedHost)
+    //   ? forwardedHost[0]
+    //   : forwardedHost || hostHeader;
 
-    // Reject internal Docker network hosts
-    if (host && (host.includes('backend') || host.includes(':3000'))) {
-      host = undefined;
-    }
+    // // Reject internal Docker network hosts
+    // if (host && (host.includes('backend') || host.includes(':3000'))) {
+    //   host = undefined;
+    // }
 
-    if (host) {
-      const forwardedProto = req.headers['x-forwarded-proto'];
-      const defaultProto =
-        process.env.NODE_ENV === 'production' ? 'https' : 'http';
-      const proto =
-        (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) ||
-        defaultProto;
-      return `${proto}://${host}`;
-    }
+    // if (host) {
+    //   const forwardedProto = req.headers['x-forwarded-proto'];
+    //   const defaultProto =
+    //     process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    //   const proto =
+    //     (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) ||
+    //     defaultProto;
+    //   return `${proto}://${host}`;
+    // }
 
     return process.env.NODE_ENV === 'development'
       ? 'http://localhost:5173'
