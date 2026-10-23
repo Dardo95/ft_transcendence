@@ -12,7 +12,6 @@ services:
       - ./backend:/app/backend
       - /app/node_modules
       - /app/backend/node_modules
-      - /app/backend/dist
     environment:
       - NODE_ENV=development
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:5173} # Exported from Makefile when dev
@@ -41,7 +40,6 @@ services:
       - ./frontend:/app/frontend
       - /app/node_modules
       - /app/frontend/node_modules
-      - /app/frontend/dist
     ports:
       - "5173:5173"
     depends_on:
