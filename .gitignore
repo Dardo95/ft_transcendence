@@ -55,3 +55,7 @@ backend/prisma.config.ts
 wiki/
 Wiki/
 ft_transcendence.wiki/
+
+# Test coverage
+coverage/
+*/coverage/
