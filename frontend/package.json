@@ -14,6 +14,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@radix-ui/react-dropdown-menu": "^2.2.1",
     "@shadcn/react": "^0.3.1",
     "@transcendence/shared": "workspace:*",
     "class-variance-authority": "^0.7.1",
