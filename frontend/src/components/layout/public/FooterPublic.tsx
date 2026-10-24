@@ -6,7 +6,7 @@ export function FooterPublic() {
   const { t } = useLanguage();
 
   return (
-    <footer className="z-10 w-full border-t border-zinc-800/80 bg-slate-950/80 py-4 text-center text-xs text-zinc-500 backdrop-blur-sm">
+    <footer className="z-10 w-full border-t border-zinc-800/80 bg-slate-950/80 py-4 text-center text-sm text-white backdrop-blur-sm">
       {/* Language Switcher */}
       <div className="mb-3 flex items-center justify-center gap-2">
         <span className="text-xs text-zinc-500"></span>
