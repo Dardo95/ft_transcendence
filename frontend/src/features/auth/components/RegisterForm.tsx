@@ -66,6 +66,7 @@ export function RegisterForm() {
           </FieldLabel>
           <Input
             id="register-username"
+            className="h-10"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -82,6 +83,7 @@ export function RegisterForm() {
           </FieldLabel>
           <Input
             id="register-email"
+            className="h-10"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -98,6 +100,7 @@ export function RegisterForm() {
           </FieldLabel>
           <Input
             id="register-password"
+            className="h-10"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -110,7 +113,7 @@ export function RegisterForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-orange-600 hover:bg-orange-800"
+            className="h-10 w-full bg-orange-600 hover:bg-orange-800"
           >
             {isSubmitting
               ? t('auth.register.connecting') || 'Registering...'
@@ -122,7 +125,7 @@ export function RegisterForm() {
       {/* Separator */}
       <div className="relative my-5 flex items-center">
         <div className="grow border-t border-zinc-800" />
-        <span className="mx-3 shrink text-[11px] tracking-wider text-zinc-500 uppercase">
+        <span className="mx-3 shrink text-sm text-zinc-500 uppercase">
           {t('auth.login.orContinueWith') || 'or continue with'}
         </span>
         <div className="grow border-t border-zinc-800" />
@@ -134,7 +137,7 @@ export function RegisterForm() {
         onClick={() => {
           window.location.href = '/api/auth/google';
         }}
-        className="hover:bg-zinc-750 flex w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99] sm:text-sm"
+        className="hover:bg-zinc-750 flex h-10 w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-0 text-sm font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99]"
       >
         <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
         <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>

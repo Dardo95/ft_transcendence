@@ -66,7 +66,7 @@ export function LandingPage() {
           {/* Right side: Floating card with Tabs and Forms */}
           <div className="w-full lg:col-span-5">
             <div className="mx-auto w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 shadow-2xl backdrop-blur-md sm:p-8">
-              <div className="mb-6 flex border-b border-zinc-800 pb-1">
+              <div className="mb-6 flex  pb-1">
                 <button
                   type="button"
                   onClick={() => setAuthTab('login')}
@@ -95,7 +95,7 @@ export function LandingPage() {
               </div>
 
               {/* Inferior Link Switch */}
-              <div className="mt-5 text-center text-xs text-zinc-500">
+              <div className="mt-5 text-center text-sm text-zinc-500">
                 {authTab === 'login' ? (
                   <>
                     {t('auth.login.noAccount') || "Don't have an account?"}{' '}
