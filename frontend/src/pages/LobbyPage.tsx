@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 
 import { useLanguage } from '../locales/useLanguage';
@@ -27,12 +26,8 @@ export function LobbyPage() {
   const initListeners = useLobbyStore((state) => state.initListeners);
   const leaveLobby = useLobbyStore((state) => state.leaveLobby);
   const inviteFriend = useLobbyStore((state) => state.inviteFriend);
-  const acceptInvitation = useLobbyStore(
-    (state) => state.acceptInvitation,
-  );
-  const rejectInvitation = useLobbyStore(
-    (state) => state.rejectInvitation,
-  );
+  const acceptInvitation = useLobbyStore((state) => state.acceptInvitation);
+  const rejectInvitation = useLobbyStore((state) => state.rejectInvitation);
 
   const [friendUsername, setFriendUsername] = useState('');
 
@@ -109,7 +104,7 @@ export function LobbyPage() {
                     Tu lobby
                   </h2>
 
-                  <p className="mt-1 break-all text-xs text-zinc-400">
+                  <p className="mt-1 text-xs break-all text-zinc-400">
                     ID: {lobby.id}
                   </p>
                 </div>
@@ -147,17 +142,17 @@ export function LobbyPage() {
                     </div>
                   ))}
                 </div>
-              {lobby.members.length > 1 && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={leaveLobby}
-                >
-                  Abandonar grupo
-                </Button>
-              )}
+                {lobby.members.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={leaveLobby}
+                  >
+                    Abandonar grupo
+                  </Button>
+                )}
               </div>
-            ) : (     
+            ) : (
               <div className="flex min-h-56 flex-col items-center justify-center gap-4 text-center">
                 <div>
                   <h2 className="text-lg font-bold text-orange-300">
@@ -184,9 +179,7 @@ export function LobbyPage() {
               <form onSubmit={handleInvite} className="flex gap-2">
                 <Input
                   value={friendUsername}
-                  onChange={(event) =>
-                    setFriendUsername(event.target.value)
-                  }
+                  onChange={(event) => setFriendUsername(event.target.value)}
                   placeholder="Nombre de usuario"
                   disabled={!isConnected || isFull}
                   maxLength={32}
@@ -194,9 +187,7 @@ export function LobbyPage() {
 
                 <Button
                   type="submit"
-                  disabled={
-                    !isConnected || isFull || !friendUsername.trim()
-                  }
+                  disabled={!isConnected || isFull || !friendUsername.trim()}
                   className="bg-orange-600 text-white hover:bg-orange-500"
                 >
                   Invitar
@@ -231,15 +222,17 @@ export function LobbyPage() {
                     className="space-y-2 rounded-lg border border-zinc-700 p-3"
                   >
                     <p className="text-sm">
-                      <strong>{invitation.inviterUsername}</strong> te invita
-                      a su lobby.
+                      <strong>{invitation.inviterUsername}</strong> te invita a
+                      su lobby.
                     </p>
 
                     <div className="flex gap-2">
                       <Button
                         type="button"
                         size="sm"
-                        disabled={ !isConnected || (lobby?.members.length ?? 0) > 1 }
+                        disabled={
+                          !isConnected || (lobby?.members.length ?? 0) > 1
+                        }
                         onClick={() => acceptInvitation(invitation.id)}
                         className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
                       >
@@ -259,7 +252,8 @@ export function LobbyPage() {
 
                     {(lobby?.members.length ?? 0) > 1 && (
                       <p className="text-xs text-zinc-400">
-                        Abandona tu grupo actual antes de aceptar otra invitación.
+                        Abandona tu grupo actual antes de aceptar otra
+                        invitación.
                       </p>
                     )}
                   </div>

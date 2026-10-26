@@ -7,7 +7,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
+  // WsException,
 } from '@nestjs/websockets';
 import type { Namespace, Socket } from 'socket.io';
 import { LobbyService } from '../lobby/lobby.service.js';

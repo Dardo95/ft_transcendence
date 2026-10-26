@@ -20,35 +20,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  private getFrontendUrl(req: Request): string {
-    // // Check if FRONTEND_URL environment variable is set
-    // if (process.env.FRONTEND_URL) {
-    //   return process.env.FRONTEND_URL;
-    // }
-
-    // // Check if reverse proxy provided the real client host (Nginx / Vite with xfwd)
-    // const forwardedHost = req.headers['x-forwarded-host'];
-    // const hostHeader = req.headers.host;
-
-    // let host = Array.isArray(forwardedHost)
-    //   ? forwardedHost[0]
-    //   : forwardedHost || hostHeader;
-
-    // // Reject internal Docker network hosts
-    // if (host && (host.includes('backend') || host.includes(':3000'))) {
-    //   host = undefined;
-    // }
-
-    // if (host) {
-    //   const forwardedProto = req.headers['x-forwarded-proto'];
-    //   const defaultProto =
-    //     process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    //   const proto =
-    //     (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) ||
-    //     defaultProto;
-    //   return `${proto}://${host}`;
-    // }
-
+  private getFrontendUrl(): string {
     return process.env.NODE_ENV === 'development'
       ? 'http://localhost:5173'
       : 'https://localhost:8443';
@@ -110,7 +82,7 @@ export class AuthController {
 
   @Get('google')
   googleLogin(@Req() req: Request, @Res() res: Response) {
-    const frontendUrl = this.getFrontendUrl(req);
+    const frontendUrl = this.getFrontendUrl();
     const callbackUrl = `${frontendUrl}/api/auth/google/callback`;
 
     const params = new URLSearchParams({
@@ -132,7 +104,7 @@ export class AuthController {
     @Req() req: Request,
     @Res() res: Response
   ) {
-    const frontendUrl = this.getFrontendUrl(req);
+    const frontendUrl = this.getFrontendUrl();
     const callbackUrl = `${frontendUrl}/api/auth/google/callback`;
 
     const token = await this.authService.googleLogin(code, callbackUrl);
