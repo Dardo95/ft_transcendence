@@ -12,14 +12,17 @@ import backgroundImage from '../assets/ui_login_bg.svg';
 export function LandingPage() {
   const { t } = useLanguage();
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
+  const authErrorKey = useAuthStore((state) => state.authErrorKey);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    if (authErrorKey) return;
+    if (isAuthChecked && isAuthenticated) {
       navigate('/lobby', { replace: true });
     }
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [isAuthenticated, isAuthChecked, navigate, authErrorKey]);
 
 
   return (
@@ -69,7 +72,10 @@ export function LandingPage() {
               <div className="mb-6 flex  pb-1">
                 <button
                   type="button"
-                  onClick={() => setAuthTab('login')}
+                  onClick={() => {
+                    setAuthTab('login');
+                    useAuthStore.getState().clearError();
+                  }}
                   className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${authTab === 'login'
                     ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
                     : 'text-zinc-500 hover:text-zinc-300'
@@ -79,7 +85,10 @@ export function LandingPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAuthTab('register')}
+                  onClick={() => {
+                    setAuthTab('register');
+                    useAuthStore.getState().clearError();
+                  }}
                   className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${authTab === 'register'
                     ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
                     : 'text-zinc-500 hover:text-zinc-300'
@@ -91,7 +100,11 @@ export function LandingPage() {
 
               {/* Render of Forms */}
               <div className="w-full">
-                {authTab === 'login' ? <LoginForm /> : <RegisterForm />}
+                {authTab === 'login' ? (
+                  <LoginForm key="login" />
+                ) : (
+                  <RegisterForm key="register" />
+                )}
               </div>
 
               {/* Inferior Link Switch */}
@@ -101,7 +114,10 @@ export function LandingPage() {
                     {t('auth.login.noAccount') || "Don't have an account?"}{' '}
                     <button
                       type="button"
-                      onClick={() => setAuthTab('register')}
+                      onClick={() => {
+                        setAuthTab('register');
+                        useAuthStore.getState().clearError();
+                      }}
                       className="font-semibold text-orange-400 hover:text-orange-300 hover:underline"
                     >
                       {t('auth.login.registerInstead') || 'Sign up'}
@@ -113,7 +129,10 @@ export function LandingPage() {
                       'Already have an account?'}
                     <button
                       type="button"
-                      onClick={() => setAuthTab('login')}
+                      onClick={() => {
+                        setAuthTab('login');
+                        useAuthStore.getState().clearError();
+                      }}
                       className="font-semibold text-orange-400 hover:text-orange-300 hover:underline"
                     >
                       {t('auth.register.loginInstead') || 'Log in'}

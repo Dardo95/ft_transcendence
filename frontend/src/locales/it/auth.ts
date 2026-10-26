@@ -52,5 +52,9 @@ export const authIt = {
     login: "Impossibile effettuare l'accesso.",
     register: "Impossibile registrare l'account.",
     logout: 'Impossibile effettuare la disconnessione.',
+    emailTaken: 'Questa email o questo nome utente è già in uso.',
+    invalidCredentials: 'Email o password non corretti.',
+    validation: 'Controlla i dati del modulo.',
+    network: 'Impossibile connettersi al server.',
   },
 };

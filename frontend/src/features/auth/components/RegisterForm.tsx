@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
@@ -13,30 +13,35 @@ export function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const authErrorKey = useAuthStore((state) => state.authErrorKey);
+  const clearError = useAuthStore((state) => state.clearError);
 
   const { t } = useLanguage();
   const register = useAuthStore((state) => state.register);
   const navigate = useNavigate();
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setErrorMessage(null);
+    clearError();
 
     try {
       setIsSubmitting(true);
       await register({ username, email, password });
-      navigate('/lobby', { replace: true });
-    } catch (error: unknown) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : t('auth.errors.register') || 'Error at registration'
-      );
+      const state = useAuthStore.getState();
+      if (!state.authErrorKey && state.isAuthenticated) {
+        navigate('/lobby', { replace: true });
+      }
     } finally {
       setIsSubmitting(false);
     }
   }
+
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (authErrorKey && errorRef.current) {
+      errorRef.current.focus();
+    }
+  }, [authErrorKey]);
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm">
@@ -52,10 +57,15 @@ export function RegisterForm() {
         </p>
       </div>
 
-      {errorMessage && (
-        <div className="mb-4 flex items-center justify-center gap-1.5 rounded-xl border border-red-700/80 bg-red-950/70 p-2.5 text-center text-xs text-red-300">
-          <span>⚠️</span>
-          <span>{errorMessage}</span>
+      {authErrorKey && (
+        <div
+          ref={errorRef}
+          tabIndex={-1}
+          role="alert"
+          aria-live="polite"
+          className="mb-4 flex items-center justify-center rounded-xl bg-white p-2.5 text-center text-xs font-semibold text-orange-500"
+        >
+          <span>{t(authErrorKey as any)}</span>
         </div>
       )}
 
@@ -68,6 +78,7 @@ export function RegisterForm() {
             id="register-username"
             className="h-10"
             type="text"
+            autoComplete="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder={
@@ -85,6 +96,7 @@ export function RegisterForm() {
             id="register-email"
             className="h-10"
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={
@@ -102,6 +114,7 @@ export function RegisterForm() {
             id="register-password"
             className="h-10"
             type="password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t('auth.register.passwordPlaceholder') || '********'}

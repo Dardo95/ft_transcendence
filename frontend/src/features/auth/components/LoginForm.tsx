@@ -12,36 +12,34 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const authErrorKey = useAuthStore((state) => state.authErrorKey);
+  const clearError = useAuthStore((state) => state.clearError);
 
   const navigate = useNavigate();
   const { t } = useLanguage();
   const login = useAuthStore((state) => state.login);
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    setErrorMessage(null);
+    clearError();
 
     try {
       await login({ email, password });
-      navigate('/lobby', { replace: true });
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : t('auth.errors.login') || 'Error at login'
-      );
+      const state = useAuthStore.getState();
+      if (!state.authErrorKey && state.isAuthenticated) {
+        navigate('/lobby', { replace: true });
+      }
     } finally {
       setIsSubmitting(false);
     }
   }
   const errorRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (errorMessage && errorRef.current) {
+    if (authErrorKey && errorRef.current) {
       errorRef.current.focus();
     }
-  }, [errorMessage]);
+  }, [authErrorKey]);
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm">
@@ -56,12 +54,15 @@ export function LoginForm() {
         </p>
       </div>
 
-      {errorMessage && (
-        <div ref={errorRef}
-        tabIndex={-1}
-        className="mb-4 flex items-center justify-center gap-1.5 rounded-xl border border-red-700/80 bg-red-950/70 p-2.5 text-center text-xs text-red-300">
-          <span>⚠️</span>
-          <span>{errorMessage}</span>
+      {authErrorKey && (
+        <div
+          ref={errorRef}
+          tabIndex={-1}
+          role="alert"
+          aria-live="polite"
+          className="mb-4 flex items-center justify-center rounded-xl bg-white p-2.5 text-center text-xs font-semibold text-orange-500"
+        >
+          <span>{t(authErrorKey as any)}</span>
         </div>
       )}
 
@@ -74,6 +75,7 @@ export function LoginForm() {
             id="login-email"
             className="h-10"
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t('auth.login.emailPlaceholder') || 'Enter your email'}
@@ -89,6 +91,7 @@ export function LoginForm() {
             id="login-password"
             className="h-10"
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t('auth.login.passwordPlaceholder') || '********'}

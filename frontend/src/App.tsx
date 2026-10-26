@@ -13,7 +13,7 @@
  * - Manage feature-specific state.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './features/auth/store/useAuthStore';
 
@@ -38,10 +38,15 @@ import { NotFoundPage } from './pages/NotFoundPage';
 
 export default function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    checkAuth();
+    void checkAuth().finally(() => setReady(true));
   }, [checkAuth]);
+
+  if (!ready) {
+    return <div className="fixed inset-0 bg-slate-950" />;
+  }
 
   return (
     <BrowserRouter>

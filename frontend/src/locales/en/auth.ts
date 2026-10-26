@@ -52,5 +52,9 @@ export const authEn = {
     login: 'Unable to log in.',
     register: 'Unable to register the account.',
     logout: 'Unable to log out.',
+    emailTaken: 'This email or username is already in use.',
+    invalidCredentials: 'Incorrect email or password.',
+    validation: 'Please review the form data.',
+    network: 'Could not connect to the server.',
   },
 };

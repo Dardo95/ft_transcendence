@@ -174,7 +174,7 @@
   }
 
   html {
-    @apply font-sans;
+    @apply bg-slate-950 font-sans;
     overflow-x: hidden;
     /* Standards-compliant scrollbar for Firefox and modern engines */
     scrollbar-width: thin;
@@ -182,7 +182,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-slate-950 text-foreground;
     min-height: 100vh;
     margin: 0;
     padding: 0;

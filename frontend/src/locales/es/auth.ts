@@ -52,5 +52,9 @@ export const authEs = {
     login: 'No se ha podido iniciar sesión.',
     register: 'No se ha podido registrar la cuenta.',
     logout: 'No se ha podido cerrar sesión.',
+    emailTaken: 'Ese correo o nombre de usuario ya está en uso.',
+    invalidCredentials: 'Correo o contraseña incorrectos.',
+    validation: 'Revisa los datos del formulario.',
+    network: 'No se pudo conectar con el servidor.',
   },
 } as const;
