@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
   OnGatewayInit,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -20,7 +21,9 @@ import { websocketOptions } from '../realtime/websocket-options.js';
   namespace: '/chat',
   ...websocketOptions,
 })
-export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection
+{
   @WebSocketServer()
   server!: Namespace;
 
@@ -29,6 +32,37 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
     private readonly lobbyService: LobbyService,
     private readonly prisma: PrismaService
   ) {}
+
+  async handleConnection(client: Socket): Promise<void> {
+    const user = client.data.user as WsUser | undefined;
+    if (!user?.id) return;
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { isOnline: true },
+    });
+  }
+
+  handleDisconnect(client: Socket): void {
+    const user = client.data.user as WsUser | undefined;
+    if (!user?.id) return;
+
+    this.prisma.user
+      .update({ where: { id: user.id }, data: { isOnline: false } })
+      .catch(() => undefined);
+
+    // Eliminar al usuario del lobby.
+    const result = this.lobbyService.leaveLobby(user.id);
+
+    if (!result || !result.lobby) {
+      return;
+    }
+
+    // Actualizar el estado visible para los miembros restantes.
+    this.server
+      .to(`lobby:${result.lobbyId}`)
+      .emit('lobby:updated', result.lobby);
+  }
 
   afterInit(server: Namespace): void {
     this.wsAuth.attach(server);
@@ -303,26 +337,5 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
 
     // 4. Enviar el mensaje exclusivamente al lobby del remitente.
     this.server.to(`lobby:${lobby.id}`).emit('chat:message', message);
-  }
-
-  handleDisconnect(client: Socket): void {
-    const user = client.data.user as WsUser | undefined;
-
-    // Puede que la conexión se haya rechazado antes de autenticar.
-    if (!user) {
-      return;
-    }
-
-    // Eliminar al usuario del lobby.
-    const result = this.lobbyService.leaveLobby(user.id);
-
-    if (!result || !result.lobby) {
-      return;
-    }
-
-    // Actualizar el estado visible para los miembros restantes.
-    this.server
-      .to(`lobby:${result.lobbyId}`)
-      .emit('lobby:updated', result.lobby);
   }
 }
