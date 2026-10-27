@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { useLanguage } from '../locales/useLanguage';
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
 
+import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
+import { LobbyInvitationsCard } from '../features/lobby/components/LobbyInvitationsCard';
+import { InviteFriendToLobbyForm } from '../features/friends/components/InviteFriendToLobbyForm';
 import { LobbyChat } from '../features/chat/components/LobbyChat';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 export function LobbyPage() {
   const { t } = useLanguage();
@@ -19,17 +20,10 @@ export function LobbyPage() {
   const disconnect = useSocketStore((state) => state.disconnect);
 
   const lobby = useLobbyStore((state) => state.lobby);
-  const invitations = useLobbyStore((state) => state.invitations);
   const error = useLobbyStore((state) => state.error);
   const notice = useLobbyStore((state) => state.notice);
 
   const initListeners = useLobbyStore((state) => state.initListeners);
-  const leaveLobby = useLobbyStore((state) => state.leaveLobby);
-  const inviteFriend = useLobbyStore((state) => state.inviteFriend);
-  const acceptInvitation = useLobbyStore((state) => state.acceptInvitation);
-  const rejectInvitation = useLobbyStore((state) => state.rejectInvitation);
-
-  const [friendUsername, setFriendUsername] = useState('');
 
   // Registrar los listeners antes de conectar el socket.
   useEffect(() => {
@@ -44,18 +38,6 @@ export function LobbyPage() {
   }, [initListeners, connect, disconnect]);
 
   const isHost = lobby?.hostUserId === user?.id;
-  const isFull = (lobby?.members.length ?? 0) >= 4;
-
-  const handleInvite = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const username = friendUsername.trim();
-
-    if (!username) return;
-
-    inviteFriend(username);
-    setFriendUsername('');
-  };
 
   return (
     <div className="w-full max-w-5xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
@@ -96,171 +78,15 @@ export function LobbyPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Columna principal: estado del lobby */}
         <div className="space-y-4 lg:col-span-2">
-          <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
-            {lobby ? (
-              <div className="space-y-5">
-                <div>
-                  <h2 className="text-lg font-bold text-orange-300">
-                    Tu lobby
-                  </h2>
-
-                  <p className="mt-1 text-xs break-all text-zinc-400">
-                    ID: {lobby.id}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">
-                    Jugadores ({lobby.members.length}/4)
-                  </h3>
-
-                  {isHost && (
-                    <span className="rounded-full bg-orange-500/15 px-3 py-1 text-xs text-orange-300">
-                      Anfitrión
-                    </span>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  {lobby.members.map((member) => (
-                    <div
-                      key={member.userId}
-                      className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900/70 p-3"
-                    >
-                      <div>
-                        <p className="font-medium">
-                          {member.username}
-                          {member.userId === user?.id ? ' (Tú)' : ''}
-                        </p>
-
-                        <p className="text-xs text-zinc-500">
-                          {member.isHost ? 'Anfitrión' : 'Invitado'}
-                        </p>
-                      </div>
-
-                      <span className="text-emerald-400">●</span>
-                    </div>
-                  ))}
-                </div>
-                {lobby.members.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={leaveLobby}
-                  >
-                    Abandonar grupo
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="flex min-h-56 flex-col items-center justify-center gap-4 text-center">
-                <div>
-                  <h2 className="text-lg font-bold text-orange-300">
-                    Preparando tu grupo...
-                  </h2>
-
-                  <p className="mt-2 text-sm text-zinc-400">
-                    Estamos sincronizando tu lobby con el servidor.
-                  </p>
-                </div>
-
-                <span className="animate-pulse text-orange-400">
-                  Conectando...
-                </span>
-              </div>
-            )}
-          </Card>
+          <LobbyStatusCard />
 
           {/* Invitar amigos: solamente el anfitrión */}
-          {lobby && isHost && (
-            <Card className="space-y-3 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
-              <h2 className="font-bold">Invitar a un amigo</h2>
-
-              <form onSubmit={handleInvite} className="flex gap-2">
-                <Input
-                  value={friendUsername}
-                  onChange={(event) => setFriendUsername(event.target.value)}
-                  placeholder="Nombre de usuario"
-                  disabled={!isConnected || isFull}
-                  maxLength={32}
-                />
-
-                <Button
-                  type="submit"
-                  disabled={!isConnected || isFull || !friendUsername.trim()}
-                  className="bg-orange-600 text-white hover:bg-orange-500"
-                >
-                  Invitar
-                </Button>
-              </form>
-
-              <p className="text-xs text-zinc-400">
-                {isFull
-                  ? 'El lobby está completo.'
-                  : 'Solo puedes invitar a amigos con una amistad aceptada.'}
-              </p>
-            </Card>
-          )}
+          {lobby && isHost && <InviteFriendToLobbyForm />}
         </div>
 
         {/* Columna lateral: invitaciones y chat */}
         <div className="space-y-4">
-          <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-zinc-100 shadow-xl">
-            <h2 className="mb-3 font-bold text-orange-300">
-              Invitaciones pendientes
-            </h2>
-
-            {invitations.length === 0 ? (
-              <p className="text-sm text-zinc-400">
-                No tienes invitaciones pendientes.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {invitations.map((invitation) => (
-                  <div
-                    key={invitation.id}
-                    className="space-y-2 rounded-lg border border-zinc-700 p-3"
-                  >
-                    <p className="text-sm">
-                      <strong>{invitation.inviterUsername}</strong> te invita a
-                      su lobby.
-                    </p>
-
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        disabled={
-                          !isConnected || (lobby?.members.length ?? 0) > 1
-                        }
-                        onClick={() => acceptInvitation(invitation.id)}
-                        className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
-                      >
-                        Aceptar
-                      </Button>
-
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={!isConnected}
-                        onClick={() => rejectInvitation(invitation.id)}
-                      >
-                        Rechazar
-                      </Button>
-                    </div>
-
-                    {(lobby?.members.length ?? 0) > 1 && (
-                      <p className="text-xs text-zinc-400">
-                        Abandona tu grupo actual antes de aceptar otra
-                        invitación.
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+          <LobbyInvitationsCard />
 
           {lobby ? (
             <LobbyChat />
