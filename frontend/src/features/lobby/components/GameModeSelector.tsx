@@ -1,3 +1,4 @@
+import { useLanguage } from '@/locales/useLanguage';
 import type { GameMode } from '../types';
 
 interface Props {
@@ -6,29 +7,35 @@ interface Props {
   disabled?: boolean;
 }
 
-const MODES: Array<{
-  id: GameMode;
-  title: string;
-  subtitle: string;
-}> = [
-  { id: 'practice', title: 'Práctica', subtitle: '1 vs Bot' },
-  {
-    id: 'private',
-    title: 'Partida Privada',
-    subtitle: 'Solo miembros de la sala',
-  },
-  {
-    id: 'public',
-    title: 'Partida Pública',
-    subtitle: 'Matchmaking abierto',
-  },
-];
-
 export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
+  const { t } = useLanguage();
+
+  const MODES: Array<{
+    id: GameMode;
+    title: string;
+    subtitle: string;
+  }> = [
+    {
+      id: 'practice',
+      title: t('app.lobby.modePracticeTitle') || 'Práctica',
+      subtitle: t('app.lobby.modePracticeSub') || '1 vs Bot',
+    },
+    {
+      id: 'private',
+      title: t('app.lobby.modePrivateTitle') || 'Partida Privada',
+      subtitle: t('app.lobby.modePrivateSub') || 'Solo miembros de la sala',
+    },
+    {
+      id: 'public',
+      title: t('app.lobby.modePublicTitle') || 'Partida Pública',
+      subtitle: t('app.lobby.modePublicSub') || 'Matchmaking abierto',
+    },
+  ];
+
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4 shadow-2xl backdrop-blur-md">
       <span className="mb-2 block text-xs font-bold tracking-wider text-orange-400 uppercase">
-        Modo de Juego
+        {t('app.lobby.modeLabel') || 'Modo de Juego'}
       </span>
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         {MODES.map((mode) => {

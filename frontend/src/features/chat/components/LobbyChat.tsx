@@ -58,7 +58,7 @@ export function LobbyChat() {
       <div className="mb-2 flex items-center justify-between border-b border-zinc-800 pb-2">
         <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-zinc-300 uppercase">
           <span>💬</span>
-          <span>{t('app.lobbyChat') || 'Lobby Chat'}</span>
+          <span>{t('app.lobby.lobbyChat') || 'Lobby Chat'}</span>
         </h4>
         <span
           className={`h-2 w-2 rounded-full ${
@@ -68,8 +68,8 @@ export function LobbyChat() {
           }`}
           title={
             isConnected
-              ? t('app.connected') || 'Conectado'
-              : t('app.connecting') || 'Desconectado'
+              ? t('app.general.connected') || 'Conectado'
+              : t('app.general.connecting') || 'Desconectado'
           }
         />
       </div>
@@ -152,7 +152,8 @@ export function LobbyChat() {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={
-            t('app.sendMessagePlaceholder') || 'Enviar mensaje a tu lobby...'
+            t('app.lobby.sendMessagePlaceholder') ||
+            'Enviar mensaje a tu lobby...'
           }
           disabled={!lobbyId || !isConnected}
           maxLength={500}
@@ -170,7 +171,9 @@ export function LobbyChat() {
           className="h-8 bg-orange-600 px-3 text-white hover:bg-orange-500"
         >
           <SendIcon className="size-3.5" />
-          <span className="sr-only">{t('app.sendButton') || 'Enviar'}</span>
+          <span className="sr-only">
+            {t('app.lobby.sendButton') || 'Enviar'}
+          </span>
         </Button>
       </form>
     </Card>

@@ -65,8 +65,10 @@ export function FriendListItem({
           </p>
           <p className="text-[10px] text-zinc-400 capitalize">
             {isPlaying
-              ? t('app.inGameStatus') || 'En partida'
-              : friend.status || t('app.offlineStatus') || 'Desconectado'}
+              ? t('app.friends.inGameStatus') || 'En partida'
+              : friend.status ||
+                t('app.friends.offlineStatus') ||
+                'Desconectado'}
           </p>
         </div>
       </div>
@@ -80,7 +82,7 @@ export function FriendListItem({
             variant="outline"
             className="h-7 w-7 border-zinc-700 bg-zinc-900 p-0 text-xs text-amber-400 hover:bg-amber-950/40"
             onClick={() => onSpectate?.(friend.currentGameId!)}
-            title={t('app.spectateTitle') || 'Espectar partida'}
+            title={t('app.friends.spectateTitle') || 'Espectar partida'}
           >
             👁
           </Button>
@@ -94,7 +96,7 @@ export function FriendListItem({
             variant="outline"
             className="h-7 w-7 border-zinc-700 bg-zinc-900 p-0 text-xs font-bold text-zinc-200 hover:bg-orange-600 hover:text-white"
             onClick={() => onInviteToLobby(friend)}
-            title={t('app.inviteToLobby') || 'Invitar a lobby'}
+            title={t('app.friends.inviteToLobby') || 'Invitar a lobby'}
           >
             +
           </Button>
@@ -109,7 +111,7 @@ export function FriendListItem({
                 size="sm"
                 variant="ghost"
                 className="h-7 w-7 p-0 text-xs text-zinc-500 hover:text-red-400"
-                title={t('app.deleteFriendTitle') || 'Eliminar amigo'}
+                title={t('app.friends.deleteFriendTitle') || 'Eliminar amigo'}
               >
                 ✕
               </Button>
@@ -117,18 +119,19 @@ export function FriendListItem({
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>
-                  {t('app.deleteFriendTitle') || 'Eliminar amigo'}
+                  {t('app.friends.deleteFriendTitle') || 'Eliminar amigo'}
                 </AlertDialogTitle>
               </AlertDialogHeader>
               <AlertDialogDescription className="mt-1">
-                {t('app.deleteFriendConfirm') ||
+                {t('app.friends.deleteFriendConfirm') ||
                   '¿Estás seguro de que deseas eliminar a'}{' '}
                 {friend.username}{' '}
-                {t('app.deleteFriendConfirm2') || 'de tu lista de amigos?'}
+                {t('app.friends.deleteFriendConfirm2') ||
+                  'de tu lista de amigos?'}
               </AlertDialogDescription>
               <AlertDialogFooter className="flex items-center justify-end gap-2">
                 <AlertDialogCancel>
-                  {t('app.cancelButton') || 'Cancelar'}
+                  {t('app.friends.cancelButton') || 'Cancelar'}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
@@ -136,7 +139,7 @@ export function FriendListItem({
                     setIsDeleteOpen(false);
                   }}
                 >
-                  {t('app.removeButton') || 'Eliminar'}
+                  {t('app.friends.removeButton') || 'Eliminar'}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

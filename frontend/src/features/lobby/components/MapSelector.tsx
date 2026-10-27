@@ -1,3 +1,4 @@
+import { useLanguage } from '@/locales/useLanguage';
 import type { MapId } from '../types';
 
 interface Props {
@@ -6,29 +7,31 @@ interface Props {
   disabled?: boolean;
 }
 
-const MAPS: Array<{ id: MapId; name: string; gradient: string }> = [
-  {
-    id: 'red_map',
-    name: 'Red Map',
-    gradient: 'from-red-900 via-red-950 to-zinc-900',
-  },
-  {
-    id: 'orange_map',
-    name: 'Orange Map',
-    gradient: 'from-orange-900 via-orange-950 to-zinc-900',
-  },
-  {
-    id: 'yellow_map',
-    name: 'Yellow Map',
-    gradient: 'from-yellow-900 via-yellow-950 to-zinc-900',
-  },
-];
-
 export function MapSelector({ selectedMap, onChange, disabled }: Props) {
+  const { t } = useLanguage();
+
+  const MAPS: Array<{ id: MapId; name: string; gradient: string }> = [
+    {
+      id: 'red_map',
+      name: t('app.lobby.mapRedName') || 'Red Map',
+      gradient: 'from-red-900 via-red-950 to-zinc-900',
+    },
+    {
+      id: 'orange_map',
+      name: t('app.lobby.mapOrangeName') || 'Orange Map',
+      gradient: 'from-orange-900 via-orange-950 to-zinc-900',
+    },
+    {
+      id: 'yellow_map',
+      name: t('app.lobby.mapYellowName') || 'Yellow Map',
+      gradient: 'from-yellow-900 via-yellow-950 to-zinc-900',
+    },
+  ];
+
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4 shadow-2xl backdrop-blur-md">
       <span className="mb-2 block text-xs font-bold tracking-wider text-orange-400 uppercase">
-        Mapa Seleccionado
+        {t('app.lobby.mapLabel') || 'Mapa Seleccionado'}
       </span>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {MAPS.map((map) => {
@@ -50,7 +53,7 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
               </span>
               {isSelected && (
                 <span className="absolute top-2 right-2 rounded bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  Activo
+                  {t('app.lobby.activeLabel') || 'Activo'}
                 </span>
               )}
             </button>

@@ -34,14 +34,16 @@ export function InviteFriendToLobbyForm() {
   return (
     <Card className="space-y-3 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
       <h2 className="font-bold">
-        {t('app.inviteLobbyTitle') || 'Invitar amigo a lobby'}
+        {t('app.friends.inviteLobbyTitle') || 'Invitar amigo a lobby'}
       </h2>
 
       <form onSubmit={handleInvite} className="flex gap-2">
         <Input
           value={friendUsername}
           onChange={(event) => setFriendUsername(event.target.value)}
-          placeholder={t('app.inviteLobbyPlaceholder') || 'Nombre de usuario'}
+          placeholder={
+            t('app.friends.inviteLobbyPlaceholder') || 'Nombre de usuario'
+          }
           disabled={!isConnected || isFull || !isHost}
           maxLength={32}
         />
@@ -51,14 +53,14 @@ export function InviteFriendToLobbyForm() {
           disabled={!isConnected || isFull || !isHost || !friendUsername.trim()}
           className="bg-orange-600 text-white hover:bg-orange-500"
         >
-          {t('app.inviteLobbyButton') || 'Invitar'}
+          {t('app.friends.inviteLobbyButton') || 'Invitar'}
         </Button>
       </form>
 
       <p className="text-xs text-zinc-400">
         {isFull
-          ? t('app.lobbyFull') || 'El lobby está completo.'
-          : t('app.inviteOnlyFriends') ||
+          ? t('app.friends.lobbyFull') || 'El lobby está completo.'
+          : t('app.friends.inviteOnlyFriends') ||
             'Solo puedes invitar a amigos con una amistad aceptada.'}
       </p>
     </Card>

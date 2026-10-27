@@ -9,27 +9,27 @@ export function FooterPublic() {
       {/* Legal and About Links */}
       <div className="flex flex-wrap items-center justify-center gap-6 gap-y-2">
         {/* Year and Application Title */}
-        <span>© 2026 {t('app.title') || 'ft_boomberman'}</span>
+        <span>© 2026 {t('app.general.title') || 'ft_boomberman'}</span>
         <span>✦</span>
 
         <Link to="/about-us" className="transition-colors hover:text-zinc-300">
-          {t('app.aboutUs') || 'About Us'}
+          {t('app.general.aboutUs') || 'About Us'}
         </Link>
         <span>✦</span>
         <Link to="/rules" className="transition-colors hover:text-zinc-300">
-          {t('app.aboutGame') || 'About the Game'}
+          {t('app.general.aboutGame') || 'About the Game'}
         </Link>
         <span>✦</span>
         <Link to="/project" className="transition-colors hover:text-zinc-300">
-          {t('app.aboutProject') || 'About the Project'}
+          {t('app.general.aboutProject') || 'About the Project'}
         </Link>
         <span>✦</span>
         <Link to="/terms" className="transition-colors hover:text-zinc-300">
-          {t('app.termsOfService') || 'Terms of Service'}
+          {t('app.general.termsOfService') || 'Terms of Service'}
         </Link>
         <span>✦</span>
         <Link to="/privacy" className="transition-colors hover:text-zinc-300">
-          {t('app.privacyPolicy') || 'Privacy Policy'}
+          {t('app.general.privacyPolicy') || 'Privacy Policy'}
         </Link>
       </div>
     </footer>

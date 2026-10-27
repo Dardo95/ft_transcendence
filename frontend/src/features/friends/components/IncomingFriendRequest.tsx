@@ -21,7 +21,7 @@ export function IncomingFriendRequest() {
           >
             <p className="text-center text-sm">
               <strong>{req.from?.username || 'Alguien'}</strong>{' '}
-              {t('app.friendRequestText') ||
+              {t('app.friends.friendRequestText') ||
                 'te envió una solicitud de amistad.'}
             </p>
 
@@ -31,7 +31,7 @@ export function IncomingFriendRequest() {
                 className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
                 onClick={() => acceptFriendRequest(req.id)}
               >
-                {t('app.sendButton') || 'Aceptar'}
+                {t('app.lobby.sendButton') || 'Aceptar'}
               </Button>
 
               <Button
@@ -39,7 +39,7 @@ export function IncomingFriendRequest() {
                 variant="secondary"
                 onClick={() => rejectFriendRequest(req.id)}
               >
-                {t('app.cancelButton') || 'Rechazar'}
+                {t('app.friends.cancelButton') || 'Rechazar'}
               </Button>
             </div>
           </div>

@@ -29,7 +29,7 @@ export function IncomingLobbyRequest() {
           >
             <p className="text-center text-sm">
               <strong>{invitation.inviterUsername}</strong>{' '}
-              {t('app.invitesYou') || 'te invita a su lobby.'}
+              {t('app.lobby.invitesYou') || 'te invita a su lobby.'}
             </p>
 
             <div className="flex gap-2">
@@ -39,7 +39,7 @@ export function IncomingLobbyRequest() {
                 className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
                 onClick={() => acceptLobbyInvitation(invitation.id)}
               >
-                {t('app.sendButton') || 'Aceptar'}
+                {t('app.lobby.sendButton') || 'Aceptar'}
               </Button>
 
               <Button
@@ -48,13 +48,13 @@ export function IncomingLobbyRequest() {
                 disabled={!isConnected}
                 onClick={() => rejectLobbyInvitation(invitation.id)}
               >
-                {t('app.cancelButton') || 'Rechazar'}
+                {t('app.friends.cancelButton') || 'Rechazar'}
               </Button>
             </div>
 
             {(lobby?.members.length ?? 0) > 1 && (
               <p className="text-xs text-zinc-400">
-                {t('app.leaveBeforeAccept') ||
+                {t('app.lobby.leaveBeforeAccept') ||
                   'Abandona tu grupo actual antes de aceptar otra invitación.'}
               </p>
             )}

@@ -104,7 +104,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
             <div className="animate-in fade-in absolute right-0 z-50 mt-2 w-48 rounded-xl border border-zinc-700 bg-zinc-900 py-1.5 shadow-2xl duration-150">
               <div className="border-b border-zinc-800 px-4 py-2">
                 <p className="text-xs font-semibold text-zinc-400">
-                  {t('app.connectedAs') || 'Logged in as'}
+                  {t('app.general.connectedAs') || 'Logged in as'}
                 </p>
                 <p className="m-2 truncate text-center text-sm font-bold text-white">
                   {user?.username || 'User'}
@@ -118,7 +118,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
                 className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
               >
                 <span>👤</span>
-                <span>{t('app.profile') || 'Profile'}</span>
+                <span>{t('app.general.profile') || 'Profile'}</span>
               </Link>
 
               {/* Logout action */}
@@ -128,7 +128,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
                 className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-400 transition-colors hover:bg-red-950/40 hover:text-red-300"
               >
                 <span>🚪</span>
-                <span>{t('app.logout') || 'Logout'}</span>
+                <span>{t('app.general.logout') || 'Logout'}</span>
               </button>
             </div>
           )}

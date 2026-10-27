@@ -1,3 +1,4 @@
+import { useLanguage } from '@/locales/useLanguage';
 import type { GameSettings } from '../types';
 
 interface Props {
@@ -13,6 +14,7 @@ export function GameSettingsCard({
   isHost,
   isPublicMode,
 }: Props) {
+  const { t } = useLanguage();
   const isDisabled = isPublicMode || !isHost;
 
   return (
@@ -23,15 +25,15 @@ export function GameSettingsCard({
     >
       <div className="mb-3 flex items-center justify-between">
         <span className="mb-2 block text-xs font-bold tracking-wider text-orange-400 uppercase">
-          Ajustes
+          {t('app.lobby.settingsLabel') || 'Ajustes'}
         </span>
         {isPublicMode ? (
           <span className="text-[10px] font-semibold text-zinc-500 uppercase">
-            Valores fijos en público
+            {t('app.lobby.fixedPublicLabel') || 'Valores fijos en público'}
           </span>
         ) : !isHost ? (
           <span className="text-[10px] font-semibold text-zinc-500 uppercase">
-            Solo anfitrión
+            {t('app.lobby.hostOnlyLabel') || 'Solo anfitrión'}
           </span>
         ) : null}
       </div>
@@ -39,7 +41,8 @@ export function GameSettingsCard({
       <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-3">
         <div>
           <label className="mb-1 block text-zinc-400">
-            Bombas iniciales: {settings.initialBombs}
+            {t('app.lobby.initialBombsLabel') || 'Bombas iniciales'}:{' '}
+            {settings.initialBombs}
           </label>
           <input
             type="range"
@@ -56,7 +59,8 @@ export function GameSettingsCard({
 
         <div>
           <label className="mb-1 block text-zinc-400">
-            Velocidad base: {settings.initialSpeed}
+            {t('app.lobby.initialSpeedLabel') || 'Velocidad base'}:{' '}
+            {settings.initialSpeed}
           </label>
           <input
             type="range"
@@ -73,7 +77,7 @@ export function GameSettingsCard({
 
         <div>
           <label className="mb-1 block text-zinc-400">
-            Mecha: {settings.fuseTime}s
+            {t('app.lobby.fuseTimeLabel') || 'Mecha'}: {settings.fuseTime}s
           </label>
           <input
             type="range"

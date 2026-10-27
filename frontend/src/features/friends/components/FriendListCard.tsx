@@ -33,12 +33,13 @@ export function FriendsListCard({
         <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-zinc-300 uppercase">
           <span>👥</span>
           <span>
-            {t('app.friendList') || 'Lista de Amigos'} ({friends.length})
+            {t('app.friends.friendList') || 'Lista de Amigos'} ({friends.length}
+            )
           </span>
         </h4>
         {isLoading && (
           <span className="animate-pulse text-[10px] text-zinc-500">
-            {t('app.connecting') || 'Cargando...'}
+            {t('app.general.connecting') || 'Cargando...'}
           </span>
         )}
       </div>
@@ -53,7 +54,7 @@ export function FriendsListCard({
       <div className="flex max-h-64 flex-col gap-2 overflow-y-auto pr-1">
         {friends.length === 0 && !isLoading ? (
           <p className="py-4 text-center text-xs text-zinc-500">
-            {t('app.noFriendsYet') || 'No tienes amigos añadidos aún.'}
+            {t('app.friends.noFriendsYet') || 'No tienes amigos añadidos aún.'}
           </p>
         ) : (
           friends.map((friend) => (

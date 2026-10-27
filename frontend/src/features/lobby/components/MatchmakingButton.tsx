@@ -1,3 +1,4 @@
+import { useLanguage } from '@/locales/useLanguage';
 import type { GameMode, MatchmakingPayload } from '../types';
 
 interface Props {
@@ -21,6 +22,7 @@ export function MatchmakingButton({
   onStart,
   onCancelSearch,
 }: Props) {
+  const { t } = useLanguage();
   const canStartPrivate = isHost && playersCount > 1;
   const canStartPractice = true;
   const canStartPublic = true;
@@ -42,13 +44,16 @@ export function MatchmakingButton({
         >
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
           <span>
-            Buscando jugadores... {countdown !== null && `(${countdown}s)`}
+            {t('app.lobby.searchingText') || 'Buscando jugadores...'}
+            {countdown !== null && ` (${countdown}s)`}
           </span>
-          <span className="ml-2 text-xs text-red-400">[Cancelar]</span>
+          <span className="ml-2 text-xs text-red-400">
+            [{t('app.lobby.cancelText') || 'Cancelar'}]
+          </span>
         </button>
         <span className="text-[11px] text-zinc-500">
-          Esperando jugadores públicos (arranque automático con 4 jugadores o al
-          agotar el tiempo si hay al menos 2 jugadores).
+          {t('app.lobby.searchInfoText') ||
+            'Esperando jugadores públicos (arranque automático con 4 jugadores o al agotar el tiempo si hay al menos 2 jugadores).'}
         </span>
       </div>
     );
@@ -62,16 +67,35 @@ export function MatchmakingButton({
         onClick={() => onStart(payload)}
         className="w-full rounded-xl bg-orange-600 px-6 py-4 text-sm font-black tracking-wider text-white uppercase shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-500 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {mode === 'practice' && 'Comenzar Práctica (1 vs Bot)'}
-        {mode === 'private' &&
-          (isHost ? 'Empezar Partida Privada' : 'Esperando al anfitrión...')}
-        {mode === 'public' && 'Empezar Servicio (Buscar Jugadores)'}
+        {mode === 'practice'
+          ? t('app.lobby.matchmakingPracticeText') ||
+            'Comenzar Práctica (1 vs Bot)'
+          : mode === 'private'
+            ? isHost
+              ? t('app.lobby.matchmakingPrivateHostText') ||
+                'Empezar Partida Privada'
+              : t('app.lobby.matchmakingPrivateGuestText') ||
+                'Esperando al anfitrión...'
+            : t('app.lobby.matchmakingPublicText') ||
+              'Empezar Servicio (Buscar Jugadores)'}
       </button>
 
       {mode === 'private' && !canStartPrivate && isHost && (
         <span className="text-center text-[11px] text-zinc-500">
-          Se necesita al menos 2 jugadores en la sala para empezar en modo
-          privado.
+          {t('app.lobby.needPrivateText') ||
+            'Se necesita al menos 2 jugadores en la sala para empezar en modo privado.'}
+        </span>
+      )}
+      {mode === 'public' && (
+        <span className="text-center text-[11px] text-zinc-500">
+          {t('app.lobby.needPublicText') ||
+            'Se necesita al menos 2 jugadores en la sala para empezar en modo público.'}
+        </span>
+      )}
+      {mode === 'practice' && (
+        <span className="text-center text-[11px] text-zinc-500">
+          {t('app.lobby.practiceInfoText') ||
+            'Se puede empezar la práctica en cualquier momento, ya que es un modo de juego individual contra un bot.'}
         </span>
       )}
     </div>

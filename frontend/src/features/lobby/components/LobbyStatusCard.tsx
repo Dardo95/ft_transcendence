@@ -18,7 +18,7 @@ export function LobbyStatusCard() {
         <div className="space-y-5">
           <div>
             <span className="text-xs font-bold tracking-wider text-orange-400 uppercase">
-              {t('app.yourLobby') || 'Tu lobby'}
+              {t('app.lobby.yourLobby') || 'Tu lobby'}
             </span>
 
             <span className="ml-2 text-xs break-all text-zinc-400">
@@ -28,12 +28,12 @@ export function LobbyStatusCard() {
 
           <div className="flex items-center justify-between">
             <h4 className="font-semibold">
-              {t('app.players') || 'Jugadores'} ({lobby.members.length}/4)
+              {t('app.lobby.players') || 'Jugadores'} ({lobby.members.length}/4)
             </h4>
 
             {isHost && (
               <span className="rounded-full bg-orange-500/15 px-3 py-1 text-xs text-orange-300">
-                {t('app.host') || 'Anfitrión'}
+                {t('app.lobby.host') || 'Anfitrión'}
               </span>
             )}
           </div>
@@ -48,14 +48,14 @@ export function LobbyStatusCard() {
                   <p className="font-medium">
                     {member.username}
                     {member.userId === user?.id
-                      ? ` ${t('app.youLabel') || '(Tú)'}`
+                      ? ` ${t('app.friends.youLabel') || '(Tú)'}`
                       : ''}
                   </p>
 
                   <p className="text-xs text-zinc-500">
                     {member.isHost
-                      ? t('app.host') || 'Anfitrión'
-                      : t('app.guest') || 'Invitado'}
+                      ? t('app.lobby.host') || 'Anfitrión'
+                      : t('app.lobby.guest') || 'Invitado'}
                   </p>
                 </div>
 
@@ -65,7 +65,7 @@ export function LobbyStatusCard() {
           </div>
           {lobby.members.length > 1 && (
             <Button type="button" variant="destructive" onClick={leaveLobby}>
-              {t('app.leaveGroup') || 'Abandonar grupo'}
+              {t('app.lobby.leaveGroup') || 'Abandonar grupo'}
             </Button>
           )}
         </div>
@@ -73,17 +73,17 @@ export function LobbyStatusCard() {
         <div className="flex min-h-56 flex-col items-center justify-center gap-4 text-center">
           <div>
             <h2 className="text-lg font-bold text-orange-300">
-              {t('app.preparingGroup') || 'Preparando tu grupo...'}
+              {t('app.lobby.preparingGroup') || 'Preparando tu grupo...'}
             </h2>
 
             <p className="mt-2 text-sm text-zinc-400">
-              {t('app.syncingLobby') ||
+              {t('app.lobby.syncingLobby') ||
                 'Estamos sincronizando tu lobby con el servidor.'}
             </p>
           </div>
 
           <span className="animate-pulse text-orange-400">
-            {t('app.connectingStatus') || 'Conectando...'}
+            {t('app.general.connectingStatus') || 'Conectando...'}
           </span>
         </div>
       )}

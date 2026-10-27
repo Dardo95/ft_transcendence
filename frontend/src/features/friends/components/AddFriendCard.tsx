@@ -25,7 +25,7 @@ export function AddFriendCard() {
     try {
       await sendRequest(targetUsername.trim());
       setFeedback({
-        text: `${t('app.friendRequestSent') || 'Solicitud enviada a'} ${targetUsername}`,
+        text: `${t('app.friends.friendRequestSent') || 'Solicitud enviada a'} ${targetUsername}`,
         isError: false,
       });
       setTargetUsername('');
@@ -34,7 +34,7 @@ export function AddFriendCard() {
         text:
           err instanceof Error
             ? err.message
-            : t('app.requestSendError') || 'Error al enviar solicitud',
+            : t('app.friends.requestSendError') || 'Error al enviar solicitud',
         isError: true,
       });
     } finally {
@@ -51,7 +51,7 @@ export function AddFriendCard() {
           value={targetUsername}
           onChange={(e) => setTargetUsername(e.target.value)}
           placeholder={
-            t('app.addFriendPlaceholder') ||
+            t('app.friends.addFriendPlaceholder') ||
             'Añadir amigo: Introducir nombre de usuario exacto'
           }
           className="border-zinc-700 bg-zinc-950 text-xs text-white"
@@ -62,7 +62,7 @@ export function AddFriendCard() {
           disabled={isSubmitting || !targetUsername.trim()}
           className="bg-orange-600 px-4 text-xs font-semibold hover:bg-orange-500"
         >
-          {isSubmitting ? '...' : t('app.addFriendButton') || 'Enviar'}
+          {isSubmitting ? '...' : t('app.friends.addFriendButton') || 'Enviar'}
         </Button>
       </form>
 

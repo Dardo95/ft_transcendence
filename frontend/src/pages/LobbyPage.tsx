@@ -88,10 +88,8 @@ export function LobbyPage() {
 
   const handleStartMatchmaking = (payload: MatchmakingPayload) => {
     if (payload.mode === 'practice') {
-      // Directo a partida con bot inerte
       socket?.emit('game:practice_start', payload);
-      // Fallback local en caso de resolución directa por frontend:
-      // navigate('/game/practice-session');
+      navigate('/game/practice-session');
       return;
     }
 
@@ -143,14 +141,14 @@ export function LobbyPage() {
   return (
     <div className="w-full max-w-7xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
       <h1 className="mb-6 text-center text-2xl font-bold text-orange-400">
-        {t('app.Lobby') || 'Lobby'}
+        {t('app.lobby.lobbyTitle') || 'Lobby'}
       </h1>
 
       <div className="mb-4 flex items-center justify-between gap-3">
         <span className="text-sm text-zinc-400">
           {isConnected
-            ? t('app.connected') || 'Conectado al servidor'
-            : t('app.connecting') || 'Conectando...'}
+            ? t('app.general.connected') || 'Conectado al servidor'
+            : t('app.general.connecting') || 'Conectando...'}
         </span>
 
         <span
@@ -227,7 +225,7 @@ export function LobbyPage() {
             <LobbyChat />
           ) : (
             <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
-              {t('app.joinLobbyToChat') ||
+              {t('app.lobby.joinLobbyToChat') ||
                 'Entra en un lobby para utilizar el chat privado con sus miembros.'}
             </Card>
           )}
