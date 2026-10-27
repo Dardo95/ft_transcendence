@@ -21,9 +21,6 @@ export function IncomingLobbyRequest() {
 
   return (
     <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-zinc-100 shadow-xl">
-      <h2 className="mb-3 font-bold text-orange-300">
-        {t('app.lobbyInvitations') || 'Invitaciones a Lobby'}
-      </h2>
       <div className="space-y-3">
         {invitations.map((invitation) => (
           <div
@@ -47,7 +44,7 @@ export function IncomingLobbyRequest() {
 
               <Button
                 size="sm"
-                variant="outline"
+                variant="secondary"
                 disabled={!isConnected}
                 onClick={() => rejectLobbyInvitation(invitation.id)}
               >

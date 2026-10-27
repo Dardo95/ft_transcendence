@@ -13,9 +13,6 @@ export function IncomingFriendRequest() {
 
   return (
     <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-zinc-100 shadow-xl">
-      <h2 className="mb-3 font-bold text-orange-300">
-        {t('app.friendRequestsTitle') || 'Solicitudes de amistad'}
-      </h2>
       <div className="space-y-3">
         {incomingFriendRequests.map((req) => (
           <div
@@ -39,7 +36,7 @@ export function IncomingFriendRequest() {
 
               <Button
                 size="sm"
-                variant="outline"
+                variant="secondary"
                 onClick={() => rejectFriendRequest(req.id)}
               >
                 {t('app.cancelButton') || 'Rechazar'}

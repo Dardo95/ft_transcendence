@@ -72,7 +72,8 @@ export function FriendListItem({
       </div>
 
       <div className="flex items-center gap-1.5">
-        {/* Botón Espectador (Futuro: solo visible si está en partida) */}
+
+        {/* Botón Espectador */}
         {isPlaying && friend.currentGameId && (
           <Button
             type="button"
@@ -87,7 +88,7 @@ export function FriendListItem({
         )}
 
         {/* Botón Invitar a Lobby (+) */}
-        {onInviteToLobby && (
+        {onInviteToLobby && isOnline && (
           <Button
             type="button"
             size="sm"
@@ -100,7 +101,7 @@ export function FriendListItem({
           </Button>
         )}
 
-        {/* Acción extra opcional: Eliminar amigo */}
+        {/* Boton Eliminar amigo */}
         {onRemove && (
           <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
             <AlertDialogTrigger asChild>
