@@ -160,6 +160,11 @@ export class FriendshipsService {
             xp: true,
             isOnline: true,
             createdAt: true,
+            matchPlayers: {
+              where: { match: { status: 'IN_PROGRESS' } },
+              include: { match: { select: { id: true } } },
+              take: 1,
+            },
           },
         },
         addressee: {
@@ -169,12 +174,24 @@ export class FriendshipsService {
             xp: true,
             isOnline: true,
             createdAt: true,
+            matchPlayers: {
+              where: { match: { status: 'IN_PROGRESS' } },
+              include: { match: { select: { id: true } } },
+              take: 1,
+            },
           },
         },
       },
     });
-    return rows.map((r: any) =>
-      r.requesterId === meId ? r.addressee : r.requester
-    );
+    return rows.map((r: any) => {
+      const user = r.requesterId === meId ? r.addressee : r.requester;
+      const playing = user.matchPlayers?.length > 0;
+      const status = playing ? 'in_game' : user.isOnline ? 'online' : 'offline';
+      return {
+        ...user,
+        status,
+        currentGameId: playing ? String(user.matchPlayers[0].match.id) : null,
+      };
+    });
   }
 }
