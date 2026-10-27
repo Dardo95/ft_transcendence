@@ -24,7 +24,6 @@ export function LandingPage() {
     }
   }, [isAuthenticated, isAuthChecked, navigate, authErrorKey]);
 
-
   return (
     <div
       className="relative flex min-h-screen w-full flex-col justify-between overflow-x-hidden font-sans text-slate-100 select-none"
@@ -69,17 +68,18 @@ export function LandingPage() {
           {/* Right side: Floating card with Tabs and Forms */}
           <div className="w-full lg:col-span-5">
             <div className="mx-auto w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 shadow-2xl backdrop-blur-md sm:p-8">
-              <div className="mb-6 flex  pb-1">
+              <div className="mb-6 flex pb-1">
                 <button
                   type="button"
                   onClick={() => {
                     setAuthTab('login');
                     useAuthStore.getState().clearError();
                   }}
-                  className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${authTab === 'login'
-                    ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
-                    : 'text-zinc-500 hover:text-zinc-300'
-                    }`}
+                  className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${
+                    authTab === 'login'
+                      ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
                 >
                   {t('auth.login.tab') || 'Log in'}
                 </button>
@@ -89,10 +89,11 @@ export function LandingPage() {
                     setAuthTab('register');
                     useAuthStore.getState().clearError();
                   }}
-                  className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${authTab === 'register'
-                    ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
-                    : 'text-zinc-500 hover:text-zinc-300'
-                    }`}
+                  className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${
+                    authTab === 'register'
+                      ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
                 >
                   {t('auth.register.tab') || 'Create account'}
                 </button>
@@ -144,6 +145,6 @@ export function LandingPage() {
           </div>
         </div>
       </main>
-    </div >
+    </div>
   );
 }

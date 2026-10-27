@@ -48,12 +48,10 @@ export function RegisterForm() {
       {/* Header of the Form */}
       <div className="mb-6">
         <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-          {t('auth.register.heading') ||
-            'Join to enjoy the game!'}{' '}
+          {t('auth.register.heading') || 'Join to enjoy the game!'}{' '}
         </h2>
         <p className="mt-1 text-sm text-zinc-400">
-          {t('auth.register.subheading') ||
-            'Sign up to start playing.'}{' '}
+          {t('auth.register.subheading') || 'Sign up to start playing.'}{' '}
         </p>
       </div>
 
@@ -65,7 +63,7 @@ export function RegisterForm() {
           aria-live="polite"
           className="mb-4 flex items-center justify-center rounded-xl bg-white p-2.5 text-center text-xs font-semibold text-orange-500"
         >
-          <span>{t(authErrorKey as any)}</span>
+          <span>{t(authErrorKey)}</span>
         </div>
       )}
 

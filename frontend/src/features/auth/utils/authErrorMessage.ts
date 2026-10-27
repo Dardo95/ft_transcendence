@@ -1,8 +1,12 @@
 import { ApiError } from '@/api/api';
+import type { TranslationKey } from '@/locales/translations';
 
 type AuthMode = 'login' | 'register';
 
-export function resolveAuthErrorKey(error: unknown, mode: AuthMode): string {
+export function resolveAuthErrorKey(
+  error: unknown,
+  mode: AuthMode
+): TranslationKey {
   if (error instanceof ApiError) {
     if (error.status === 409) {
       return 'auth.errors.emailTaken';

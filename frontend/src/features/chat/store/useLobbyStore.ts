@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { chatSocket } from '@/lib/socket';
 
@@ -92,30 +91,24 @@ export const useLobbyStore = create<LobbyState>((set) => ({
 
     const handleInvitation = (invitation: LobbyInvitation) => {
       set((state) => ({
-        invitations: state.invitations.some(
-          (item) => item.id === invitation.id,
-        )
+        invitations: state.invitations.some((item) => item.id === invitation.id)
           ? state.invitations
           : [...state.invitations, invitation],
         error: null,
       }));
     };
 
-    const handleInvitationSent = (data: {
-      username: string;
-    }) => {
+    const handleInvitationSent = (data: { username: string }) => {
       set({
         error: null,
         notice: `Invitación enviada a ${data.username}`,
       });
     };
 
-    const handleInvitationRejected = (data: {
-      invitationId: string;
-    }) => {
+    const handleInvitationRejected = (data: { invitationId: string }) => {
       set((state) => ({
         invitations: state.invitations.filter(
-          (item) => item.id !== data.invitationId,
+          (item) => item.id !== data.invitationId
         ),
       }));
     };
@@ -132,10 +125,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     chatSocket.on('lobby:left', handleLeft);
     chatSocket.on('lobby:invitation', handleInvitation);
     chatSocket.on('lobby:invitationSent', handleInvitationSent);
-    chatSocket.on(
-      'lobby:invitationRejected',
-      handleInvitationRejected,
-    );
+    chatSocket.on('lobby:invitationRejected', handleInvitationRejected);
     chatSocket.on('lobby:error', handleError);
 
     // También cubre el caso en que ya estamos conectados.
@@ -151,14 +141,8 @@ export const useLobbyStore = create<LobbyState>((set) => ({
       chatSocket.off('lobby:updated', handleUpdated);
       chatSocket.off('lobby:left', handleLeft);
       chatSocket.off('lobby:invitation', handleInvitation);
-      chatSocket.off(
-        'lobby:invitationSent',
-        handleInvitationSent,
-      );
-      chatSocket.off(
-        'lobby:invitationRejected',
-        handleInvitationRejected,
-      );
+      chatSocket.off('lobby:invitationSent', handleInvitationSent);
+      chatSocket.off('lobby:invitationRejected', handleInvitationRejected);
       chatSocket.off('lobby:error', handleError);
     };
   },

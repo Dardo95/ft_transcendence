@@ -182,7 +182,7 @@
   }
 
   body {
-    @apply bg-slate-950 text-foreground;
+    @apply text-foreground bg-slate-950;
     min-height: 100vh;
     margin: 0;
     padding: 0;

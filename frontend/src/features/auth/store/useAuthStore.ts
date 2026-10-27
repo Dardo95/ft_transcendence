@@ -22,6 +22,7 @@ import {
 } from '../service/authService';
 import type { AuthCredentials, UserPublic } from '@transcendence/shared';
 import { resolveAuthErrorKey } from '../utils/authErrorMessage';
+import type { TranslationKey } from '@/locales/translations';
 
 export interface AuthState {
   // State
@@ -29,7 +30,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isAuthChecked: boolean;
   error: string | null;
-  authErrorKey: string | null;
+  authErrorKey: TranslationKey | null;
 
   // Actions
   checkAuth: () => Promise<void>;
@@ -37,7 +38,7 @@ export interface AuthState {
   register: (credentials: AuthCredentials) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
-  setAuthErrorKey: (key: string | null) => void;
+  setAuthErrorKey: (key: TranslationKey | null) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -136,5 +137,5 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearError: () => set({ error: null, authErrorKey: null }),
-  setAuthErrorKey: (key: string | null) => set({ authErrorKey: key }),
+  setAuthErrorKey: (key: TranslationKey | null) => set({ authErrorKey: key }),
 }));

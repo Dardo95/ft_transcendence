@@ -49,8 +49,7 @@ export function LoginForm() {
           {t('auth.login.heading') || 'Welcome back!'}{' '}
         </h2>
         <p className="mt-1 text-sm text-zinc-400">
-          {t('auth.login.subheading') ||
-            'Log in to return to the game.'}{' '}
+          {t('auth.login.subheading') || 'Log in to return to the game.'}{' '}
         </p>
       </div>
 
@@ -62,7 +61,7 @@ export function LoginForm() {
           aria-live="polite"
           className="mb-4 flex items-center justify-center rounded-xl bg-white p-2.5 text-center text-xs font-semibold text-orange-500"
         >
-          <span>{t(authErrorKey as any)}</span>
+          <span>{t(authErrorKey)}</span>
         </div>
       )}
 
