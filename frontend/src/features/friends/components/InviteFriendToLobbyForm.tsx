@@ -30,7 +30,7 @@ export function InviteFriendToLobbyForm() {
 
   return (
     <Card className="space-y-3 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
-      <h2 className="font-bold">Invitar a un amigo</h2>
+      <h2 className="font-bold">Invitar amigo a lobby</h2>
 
       <form onSubmit={handleInvite} className="flex gap-2">
         <Input

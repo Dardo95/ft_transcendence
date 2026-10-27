@@ -5,11 +5,16 @@ import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
 
+import { Card } from '@/components/ui/card';
+
 import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
 import { LobbyInvitationsCard } from '../features/lobby/components/LobbyInvitationsCard';
-import { InviteFriendToLobbyForm } from '../features/friends/components/InviteFriendToLobbyForm';
 import { LobbyChat } from '../features/chat/components/LobbyChat';
-import { Card } from '@/components/ui/card';
+
+import { InviteFriendToLobbyForm } from '@/features/friends/components/InviteFriendToLobbyForm';
+import { FriendsListCard } from '@/features/friends/components/FriendListCard';
+import { AddFriendCard } from '@/features/friends/components/AddFriendCard';
+import type { FriendUser } from '@/features/friends/service/friendsService';
 
 export function LobbyPage() {
   const { t } = useLanguage();
@@ -38,6 +43,16 @@ export function LobbyPage() {
   }, [initListeners, connect, disconnect]);
 
   const isHost = lobby?.hostUserId === user?.id;
+
+  const inviteFriend = useLobbyStore((state) => state.inviteFriend);
+  const handleInviteToLobby = async (friend: FriendUser) => {
+    try {
+      await inviteFriend(friend.username);
+      console.log(`Invitación enviada a ${friend.username}`);
+    } catch (error) {
+      console.error('Error al invitar al lobby:', error);
+    }
+  };
 
   return (
     <div className="w-full max-w-5xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
@@ -87,6 +102,16 @@ export function LobbyPage() {
         {/* Columna lateral: invitaciones y chat */}
         <div className="space-y-4">
           <LobbyInvitationsCard />
+
+          <AddFriendCard />
+
+          <FriendsListCard
+            onInviteToLobby={handleInviteToLobby}
+            onSpectate={(gameId) => {
+              // navigate(`/game/${gameId}?mode=spectator`);
+              console.log('Espectar partida:', gameId);
+            }}
+          />
 
           {lobby ? (
             <LobbyChat />

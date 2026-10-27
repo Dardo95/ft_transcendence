@@ -12,13 +12,11 @@ export function LobbyInvitationsCard() {
 
   return (
     <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-zinc-100 shadow-xl">
-      <h2 className="mb-3 font-bold text-orange-300">
-        Invitaciones pendientes
-      </h2>
+      <h2 className="mb-3 font-bold text-orange-300">Invitaciones a Lobby</h2>
 
       {invitations.length === 0 ? (
         <p className="text-sm text-zinc-400">
-          No tienes invitaciones pendientes.
+          No tienes invitaciones a Lobby pendientes.
         </p>
       ) : (
         <div className="space-y-3">
