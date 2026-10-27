@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
@@ -13,49 +13,57 @@ export function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const authErrorKey = useAuthStore((state) => state.authErrorKey);
+  const clearError = useAuthStore((state) => state.clearError);
 
   const { t } = useLanguage();
   const register = useAuthStore((state) => state.register);
   const navigate = useNavigate();
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setErrorMessage(null);
+    clearError();
 
     try {
       setIsSubmitting(true);
       await register({ username, email, password });
-      navigate('/lobby', { replace: true });
-    } catch (error: unknown) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : t('auth.errors.register') || 'Error at registration'
-      );
+      const state = useAuthStore.getState();
+      if (!state.authErrorKey && state.isAuthenticated) {
+        navigate('/lobby', { replace: true });
+      }
     } finally {
       setIsSubmitting(false);
     }
   }
+
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (authErrorKey && errorRef.current) {
+      errorRef.current.focus();
+    }
+  }, [authErrorKey]);
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm">
       {/* Header of the Form */}
       <div className="mb-6">
         <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-          {t('auth.register.heading') ||
-            '¡Únete para disfrutar del juego!'}{' '}
+          {t('auth.register.heading') || 'Join to enjoy the game!'}{' '}
         </h2>
-        <p className="mt-1 text-xs text-zinc-400">
-          {t('auth.register.subheading') ||
-            'Regístrate para empezar a jugar.'}{' '}
+        <p className="mt-1 text-sm text-zinc-400">
+          {t('auth.register.subheading') || 'Sign up to start playing.'}{' '}
         </p>
       </div>
 
-      {errorMessage && (
-        <div className="mb-4 flex items-center justify-center gap-1.5 rounded-xl border border-red-700/80 bg-red-950/70 p-2.5 text-center text-xs text-red-300">
-          <span>⚠️</span>
-          <span>{errorMessage}</span>
+      {authErrorKey && (
+        <div
+          ref={errorRef}
+          tabIndex={-1}
+          role="alert"
+          aria-live="polite"
+          className="mb-4 flex items-center justify-center rounded-xl bg-white p-2.5 text-center text-xs font-semibold text-orange-500"
+        >
+          <span>{t(authErrorKey)}</span>
         </div>
       )}
 
@@ -66,7 +74,9 @@ export function RegisterForm() {
           </FieldLabel>
           <Input
             id="register-username"
+            className="h-10"
             type="text"
+            autoComplete="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder={
@@ -82,7 +92,9 @@ export function RegisterForm() {
           </FieldLabel>
           <Input
             id="register-email"
+            className="h-10"
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={
@@ -98,7 +110,9 @@ export function RegisterForm() {
           </FieldLabel>
           <Input
             id="register-password"
+            className="h-10"
             type="password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t('auth.register.passwordPlaceholder') || '********'}
@@ -110,7 +124,7 @@ export function RegisterForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-orange-600 hover:bg-orange-800"
+            className="h-10 w-full bg-orange-600 hover:bg-orange-800"
           >
             {isSubmitting
               ? t('auth.register.connecting') || 'Registering...'
@@ -122,8 +136,8 @@ export function RegisterForm() {
       {/* Separator */}
       <div className="relative my-5 flex items-center">
         <div className="grow border-t border-zinc-800" />
-        <span className="mx-3 shrink text-[11px] tracking-wider text-zinc-500 uppercase">
-          o continúa con
+        <span className="mx-3 shrink text-sm text-zinc-500 uppercase">
+          {t('auth.login.orContinueWith') || 'or continue with'}
         </span>
         <div className="grow border-t border-zinc-800" />
       </div>
@@ -134,10 +148,10 @@ export function RegisterForm() {
         onClick={() => {
           window.location.href = '/api/auth/google';
         }}
-        className="hover:bg-zinc-750 flex w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99] sm:text-sm"
+        className="hover:bg-zinc-750 flex h-10 w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-0 text-sm font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99]"
       >
         <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
-        <span>Continuar con Google</span>
+        <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>
       </button>
     </form>
   );

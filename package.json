@@ -16,6 +16,7 @@
     "typecheck:backend": "pnpm --filter backend typecheck",
     "format": "pnpm --filter frontend format && pnpm --filter backend format",
     "format:frontend": "pnpm --filter frontend format",
-    "format:backend": "pnpm --filter backend format"
+    "format:backend": "pnpm --filter backend format",
+    "format:check": "pnpm --filter frontend format:check && pnpm --filter backend format:check"
   }
 }

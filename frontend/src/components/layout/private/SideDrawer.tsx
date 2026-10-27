@@ -25,7 +25,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
             <h2 className="text-lg font-bold tracking-wider text-orange-400">
-              {t('app.title') || 'Kitchen Mayhem'}
+              {t('app.title') || 'ft_boomberman'}
             </h2>
             <button
               onClick={onClose}
