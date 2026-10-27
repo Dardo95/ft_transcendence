@@ -168,12 +168,20 @@ buildcheck:
 	docker compose exec -T frontend pnpm run build
 	@echo ""
 
+formatcheck:
+	@echo "$(CYAN)Checking code formatting in Backend...$(RESET)"
+	docker compose exec -T backend pnpm run format:check
+	@echo ""
+	@echo "$(CYAN)Checking code formatting in Frontend...$(RESET)"
+	docker compose exec -T frontend pnpm run format:check
+	@echo ""
+
 test:
 	@echo "$(CYAN)Running backend tests...$(RESET)"
 	docker compose exec -T backend pnpm run test:e2e
 	@echo ""
 
-allcheck: typecheck lint buildcheck test
+allcheck: typecheck lint buildcheck formatcheck test
 	@echo "$(GREEN)All QA checks passed successfully.$(RESET)"
 	@echo ""
 
