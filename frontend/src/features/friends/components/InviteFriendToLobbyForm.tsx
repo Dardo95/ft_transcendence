@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
+import { useLanguage } from '@/locales/useLanguage';
+
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export function InviteFriendToLobbyForm() {
+  const { t } = useLanguage();
   const user = useAuthStore((state) => state.user);
   const lobby = useLobbyStore((state) => state.lobby);
   const inviteFriend = useLobbyStore((state) => state.inviteFriendToLobby);
@@ -30,13 +33,15 @@ export function InviteFriendToLobbyForm() {
 
   return (
     <Card className="space-y-3 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
-      <h2 className="font-bold">Invitar amigo a lobby</h2>
+      <h2 className="font-bold">
+        {t('app.inviteLobbyTitle') || 'Invitar amigo a lobby'}
+      </h2>
 
       <form onSubmit={handleInvite} className="flex gap-2">
         <Input
           value={friendUsername}
           onChange={(event) => setFriendUsername(event.target.value)}
-          placeholder="Nombre de usuario"
+          placeholder={t('app.inviteLobbyPlaceholder') || 'Nombre de usuario'}
           disabled={!isConnected || isFull || !isHost}
           maxLength={32}
         />
@@ -46,14 +51,15 @@ export function InviteFriendToLobbyForm() {
           disabled={!isConnected || isFull || !isHost || !friendUsername.trim()}
           className="bg-orange-600 text-white hover:bg-orange-500"
         >
-          Invitar
+          {t('app.inviteLobbyButton') || 'Invitar'}
         </Button>
       </form>
 
       <p className="text-xs text-zinc-400">
         {isFull
-          ? 'El lobby está completo.'
-          : 'Solo puedes invitar a amigos con una amistad aceptada.'}
+          ? t('app.lobbyFull') || 'El lobby está completo.'
+          : t('app.inviteOnlyFriends') ||
+            'Solo puedes invitar a amigos con una amistad aceptada.'}
       </p>
     </Card>
   );

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useLanguage } from '@/locales/useLanguage';
+
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -26,6 +28,7 @@ export function FriendListItem({
   onSpectate,
   onRemove,
 }: FriendListItemProps) {
+  const { t } = useLanguage();
   const isPlaying = friend.status?.toLowerCase() === 'in_game';
   const isOnline = friend.status?.toLowerCase() === 'online';
 
@@ -61,7 +64,9 @@ export function FriendListItem({
             {friend.username}
           </p>
           <p className="text-[10px] text-zinc-400 capitalize">
-            {isPlaying ? 'En partida' : friend.status || 'Desconectado'}
+            {isPlaying
+              ? t('app.inGameStatus') || 'En partida'
+              : friend.status || t('app.offlineStatus') || 'Desconectado'}
           </p>
         </div>
       </div>
@@ -75,7 +80,7 @@ export function FriendListItem({
             variant="outline"
             className="h-7 w-7 border-zinc-700 bg-zinc-900 p-0 text-xs text-amber-400 hover:bg-amber-950/40"
             onClick={() => onSpectate?.(friend.currentGameId!)}
-            title="Espectar partida"
+            title={t('app.spectateTitle') || 'Espectar partida'}
           >
             👁
           </Button>
@@ -89,7 +94,7 @@ export function FriendListItem({
             variant="outline"
             className="h-7 w-7 border-zinc-700 bg-zinc-900 p-0 text-xs font-bold text-zinc-200 hover:bg-orange-600 hover:text-white"
             onClick={() => onInviteToLobby(friend)}
-            title="Invitar a lobby"
+            title={t('app.inviteToLobby') || 'Invitar a lobby'}
           >
             +
           </Button>
@@ -104,28 +109,34 @@ export function FriendListItem({
                 size="sm"
                 variant="ghost"
                 className="h-7 w-7 p-0 text-xs text-zinc-500 hover:text-red-400"
-                title="Eliminar amigo"
+                title={t('app.deleteFriendTitle') || 'Eliminar amigo'}
               >
                 ✕
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Eliminar amigo</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t('app.deleteFriendTitle') || 'Eliminar amigo'}
+                </AlertDialogTitle>
               </AlertDialogHeader>
               <AlertDialogDescription className="mt-1">
-                ¿Estás seguro de que deseas eliminar a {friend.username} de tu
-                lista de amigos?
+                {t('app.deleteFriendConfirm') ||
+                  '¿Estás seguro de que deseas eliminar a'}{' '}
+                {friend.username}{' '}
+                {t('app.deleteFriendConfirm2') || 'de tu lista de amigos?'}
               </AlertDialogDescription>
               <AlertDialogFooter className="flex items-center justify-end gap-2">
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogCancel>
+                  {t('app.cancelButton') || 'Cancelar'}
+                </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
                     onRemove?.(friend.username);
                     setIsDeleteOpen(false);
                   }}
                 >
-                  Eliminar
+                  {t('app.removeButton') || 'Eliminar'}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useLanguage } from '../locales/useLanguage';
-import { useAuthStore } from '../features/auth/store/useAuthStore';
+// import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
 
@@ -58,7 +58,9 @@ export function LobbyPage() {
 
       <div className="mb-4 flex items-center justify-between gap-3">
         <span className="text-sm text-zinc-400">
-          {isConnected ? 'Conectado al servidor' : 'Conectando...'}
+          {isConnected
+            ? t('app.connected') || 'Conectado al servidor'
+            : t('app.connecting') || 'Conectando...'}
         </span>
 
         <span
@@ -94,12 +96,14 @@ export function LobbyPage() {
 
         {/* Columna lateral: invitaciones y chat */}
         <div className="space-y-4">
-
           <FriendsListCard
             onInviteToLobby={handleInviteToLobby}
             onSpectate={(gameId) => {
               // navigate(`/game/${gameId}?mode=spectator`);
-              console.log('Espectar partida:', gameId);
+              console.log(
+                t('app.spectateTitle') || 'Espectar partida:',
+                gameId
+              );
             }}
           />
 
@@ -107,7 +111,8 @@ export function LobbyPage() {
             <LobbyChat />
           ) : (
             <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
-              Entra en un lobby para utilizar el chat privado con sus miembros.
+              {t('app.joinLobbyToChat') ||
+                'Entra en un lobby para utilizar el chat privado con sus miembros.'}
             </Card>
           )}
         </div>

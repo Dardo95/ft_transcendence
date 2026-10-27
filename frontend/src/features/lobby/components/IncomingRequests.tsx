@@ -4,8 +4,10 @@ import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
 
 export function IncomingRequests() {
-  const lobbyInvitations = useLobbyStore((state) => state.invitations);
-  const friendRequests = useFriendsStore((state) => state.incomingFriendRequests);
+  const lobbyInvitations = useLobbyStore((state) => state.lobbyInvitations);
+  const friendRequests = useFriendsStore(
+    (state) => state.incomingFriendRequests
+  );
 
   const hasLobbyInvitations = lobbyInvitations.length > 0;
   const hasFriendRequests = friendRequests.length > 0;

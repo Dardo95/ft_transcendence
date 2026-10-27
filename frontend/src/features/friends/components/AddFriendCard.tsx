@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useFriendsStore } from '../store/useFriendsStore';
 
+import { useLanguage } from '@/locales/useLanguage';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export function AddFriendCard() {
+  const { t } = useLanguage();
   const [targetUsername, setTargetUsername] = useState('');
   const [feedback, setFeedback] = useState<{
     text: string;
@@ -23,13 +25,16 @@ export function AddFriendCard() {
     try {
       await sendRequest(targetUsername.trim());
       setFeedback({
-        text: `Solicitud enviada a ${targetUsername}`,
+        text: `${t('app.friendRequestSent') || 'Solicitud enviada a'} ${targetUsername}`,
         isError: false,
       });
       setTargetUsername('');
     } catch (err: unknown) {
       setFeedback({
-        text: err instanceof Error ? err.message : 'Error al enviar solicitud',
+        text:
+          err instanceof Error
+            ? err.message
+            : t('app.requestSendError') || 'Error al enviar solicitud',
         isError: true,
       });
     } finally {
@@ -45,7 +50,10 @@ export function AddFriendCard() {
           type="text"
           value={targetUsername}
           onChange={(e) => setTargetUsername(e.target.value)}
-          placeholder="Añadir amigo: Introducir nombre de usuario exacto"
+          placeholder={
+            t('app.addFriendPlaceholder') ||
+            'Añadir amigo: Introducir nombre de usuario exacto'
+          }
           className="border-zinc-700 bg-zinc-950 text-xs text-white"
           disabled={isSubmitting}
         />
@@ -54,7 +62,7 @@ export function AddFriendCard() {
           disabled={isSubmitting || !targetUsername.trim()}
           className="bg-orange-600 px-4 text-xs font-semibold hover:bg-orange-500"
         >
-          {isSubmitting ? '...' : 'Enviar'}
+          {isSubmitting ? '...' : t('app.addFriendButton') || 'Enviar'}
         </Button>
       </form>
 
@@ -67,7 +75,7 @@ export function AddFriendCard() {
           {feedback.text}
         </p>
       )}
-    {/* </Card> */}
+      {/* </Card> */}
     </div>
   );
 }

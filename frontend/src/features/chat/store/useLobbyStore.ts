@@ -26,7 +26,7 @@ export interface LobbyInvitation {
 
 interface LobbyState {
   lobby: LobbySnapshot | null;
-  invitations: LobbyInvitation[];
+  lobbyInvitations: LobbyInvitation[];
   error: string | null;
   notice: string | null;
 
@@ -41,7 +41,7 @@ interface LobbyState {
 
 export const useLobbyStore = create<LobbyState>((set) => ({
   lobby: null,
-  invitations: [],
+  lobbyInvitations: [],
   error: null,
   notice: null,
 
@@ -56,7 +56,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     }) => {
       set({
         lobby: data.lobby,
-        invitations: data.invitations,
+        lobbyInvitations: data.invitations,
       });
     };
 
@@ -71,7 +71,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     const handleJoined = (lobby: LobbySnapshot) => {
       set({
         lobby,
-        invitations: [],
+        lobbyInvitations: [],
         error: null,
         notice: 'Te has unido al lobby',
       });
@@ -91,9 +91,11 @@ export const useLobbyStore = create<LobbyState>((set) => ({
 
     const handleInvitation = (invitation: LobbyInvitation) => {
       set((state) => ({
-        invitations: state.invitations.some((item) => item.id === invitation.id)
-          ? state.invitations
-          : [...state.invitations, invitation],
+        lobbyInvitations: state.lobbyInvitations.some(
+          (item) => item.id === invitation.id
+        )
+          ? state.lobbyInvitations
+          : [...state.lobbyInvitations, invitation],
         error: null,
       }));
     };
@@ -107,7 +109,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
 
     const handleInvitationRejected = (data: { invitationId: string }) => {
       set((state) => ({
-        invitations: state.invitations.filter(
+        lobbyInvitations: state.lobbyInvitations.filter(
           (item) => item.id !== data.invitationId
         ),
       }));
