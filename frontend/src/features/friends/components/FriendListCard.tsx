@@ -1,8 +1,12 @@
 import { useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { useFriendsStore } from '../store/useFriendsStore';
+
+import { Card } from '@/components/ui/card';
+
 import { FriendListItem } from './FriendListItem';
+import { AddFriendCard } from './AddFriendCard';
+import { IncomingRequests } from '@/features/lobby/components/IncomingRequests';
+
 import type { FriendUser } from '../service/friendsService';
 
 interface FriendsListCardProps {
@@ -16,11 +20,8 @@ export function FriendsListCard({
 }: FriendsListCardProps) {
   const {
     friends,
-    incomingRequests,
     isLoading,
     loadFriendsData,
-    acceptRequest,
-    rejectRequest,
     deleteFriend,
   } = useFriendsStore();
 
@@ -42,41 +43,11 @@ export function FriendsListCard({
         )}
       </div>
 
-      {/* Solicitudes de amistad entrantes pendientes */}
-      {incomingRequests.length > 0 && (
-        <div className="flex flex-col gap-1.5 rounded-xl border border-orange-500/30 bg-orange-950/20 p-2">
-          <p className="text-[10px] font-bold tracking-wide text-orange-400 uppercase">
-            Solicitudes pendientes ({incomingRequests.length})
-          </p>
-          {incomingRequests.map((req) => (
-            <div
-              key={req.id}
-              className="flex items-center justify-between py-1 text-xs"
-            >
-              <span className="font-semibold text-zinc-200">
-                {req.from?.username || 'Chef'}
-              </span>
-              <div className="flex gap-1">
-                <Button
-                  size="sm"
-                  className="h-6 bg-emerald-600 px-2 text-[10px] hover:bg-emerald-500"
-                  onClick={() => acceptRequest(req.id)}
-                >
-                  Aceptar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-6 px-2 text-[10px] text-zinc-400 hover:text-red-400"
-                  onClick={() => rejectRequest(req.id)}
-                >
-                  Rechazar
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Invitaciones y solicitudes entrantes pendientes (estilo unificado) */}
+      < IncomingRequests />
+
+      {/* Agregar amigos */}
+      <AddFriendCard />
 
       {/* Lista de amigos confirmados */}
       <div className="flex max-h-64 flex-col gap-2 overflow-y-auto pr-1">
@@ -96,6 +67,7 @@ export function FriendsListCard({
           ))
         )}
       </div>
+
     </Card>
   );
 }

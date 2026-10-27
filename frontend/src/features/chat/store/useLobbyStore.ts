@@ -33,9 +33,9 @@ interface LobbyState {
   initListeners: () => () => void;
   createLobby: () => void;
   leaveLobby: () => void;
-  inviteFriend: (username: string) => void;
-  acceptInvitation: (invitationId: string) => void;
-  rejectInvitation: (invitationId: string) => void;
+  inviteFriendToLobby: (username: string) => void;
+  acceptLobbyInvitation: (invitationId: string) => void;
+  rejectLobbyInvitation: (invitationId: string) => void;
   clearFeedback: () => void;
 }
 
@@ -166,7 +166,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     }
   },
 
-  inviteFriend: (username) => {
+  inviteFriendToLobby: (username) => {
     const cleanUsername = username.trim();
 
     if (!cleanUsername) {
@@ -185,7 +185,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     });
   },
 
-  acceptInvitation: (invitationId) => {
+  acceptLobbyInvitation: (invitationId) => {
     set({ error: null, notice: null });
 
     if (chatSocket.connected) {
@@ -193,7 +193,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     }
   },
 
-  rejectInvitation: (invitationId) => {
+  rejectLobbyInvitation: (invitationId) => {
     set({ error: null });
 
     if (chatSocket.connected) {

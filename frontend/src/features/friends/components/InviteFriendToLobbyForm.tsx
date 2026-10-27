@@ -9,7 +9,7 @@ import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 export function InviteFriendToLobbyForm() {
   const user = useAuthStore((state) => state.user);
   const lobby = useLobbyStore((state) => state.lobby);
-  const inviteFriend = useLobbyStore((state) => state.inviteFriend);
+  const inviteFriend = useLobbyStore((state) => state.inviteFriendToLobby);
   const isConnected = useSocketStore((state) => state.isConnected);
 
   const [friendUsername, setFriendUsername] = useState('');

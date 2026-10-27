@@ -12,20 +12,20 @@ import {
 
 interface FriendsState {
   friends: FriendUser[];
-  incomingRequests: FriendRequestItem[];
+  incomingFriendRequests: FriendRequestItem[];
   isLoading: boolean;
   error: string | null;
 
   loadFriendsData: () => Promise<void>;
-  sendRequest: (username: string) => Promise<void>;
-  acceptRequest: (requestId: number) => Promise<void>;
-  rejectRequest: (requestId: number) => Promise<void>;
+  sendFriendRequest: (username: string) => Promise<void>;
+  acceptFriendRequest: (requestId: number) => Promise<void>;
+  rejectFriendRequest: (requestId: number) => Promise<void>;
   deleteFriend: (username: string) => Promise<void>;
 }
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
   friends: [],
-  incomingRequests: [],
+  incomingFriendRequests: [],
   isLoading: false,
   error: null,
 
@@ -38,7 +38,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       ]);
       set({
         friends: friendsList,
-        incomingRequests: requests,
+        incomingFriendRequests: requests,
         isLoading: false,
       });
     } catch (err: unknown) {
@@ -49,18 +49,18 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     }
   },
 
-  sendRequest: async (username: string) => {
+  sendFriendRequest: async (username: string) => {
     set({ error: null });
     await sendFriendRequest(username);
     await get().loadFriendsData();
   },
 
-  acceptRequest: async (requestId: number) => {
+  acceptFriendRequest: async (requestId: number) => {
     await acceptFriendRequest(requestId);
     await get().loadFriendsData();
   },
 
-  rejectRequest: async (requestId: number) => {
+  rejectFriendRequest: async (requestId: number) => {
     await rejectFriendRequest(requestId);
     await get().loadFriendsData();
   },

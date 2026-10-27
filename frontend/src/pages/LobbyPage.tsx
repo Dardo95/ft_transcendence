@@ -8,17 +8,13 @@ import { useLobbyStore } from '../features/chat/store/useLobbyStore';
 import { Card } from '@/components/ui/card';
 
 import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
-import { LobbyInvitationsCard } from '../features/lobby/components/LobbyInvitationsCard';
 import { LobbyChat } from '../features/chat/components/LobbyChat';
-
-import { InviteFriendToLobbyForm } from '@/features/friends/components/InviteFriendToLobbyForm';
 import { FriendsListCard } from '@/features/friends/components/FriendListCard';
-import { AddFriendCard } from '@/features/friends/components/AddFriendCard';
 import type { FriendUser } from '@/features/friends/service/friendsService';
 
 export function LobbyPage() {
   const { t } = useLanguage();
-  const user = useAuthStore((state) => state.user);
+  // const user = useAuthStore((state) => state.user);
 
   const isConnected = useSocketStore((state) => state.isConnected);
   const connect = useSocketStore((state) => state.connect);
@@ -42,9 +38,9 @@ export function LobbyPage() {
     };
   }, [initListeners, connect, disconnect]);
 
-  const isHost = lobby?.hostUserId === user?.id;
+  // const isHost = lobby?.hostUserId === user?.id;
 
-  const inviteFriend = useLobbyStore((state) => state.inviteFriend);
+  const inviteFriend = useLobbyStore((state) => state.inviteFriendToLobby);
   const handleInviteToLobby = async (friend: FriendUser) => {
     try {
       await inviteFriend(friend.username);
@@ -55,7 +51,7 @@ export function LobbyPage() {
   };
 
   return (
-    <div className="w-full max-w-5xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
+    <div className="w-full max-w-7xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
       <h1 className="mb-6 text-center text-2xl font-bold text-orange-400">
         {t('app.Lobby') || 'Lobby'}
       </h1>
@@ -94,16 +90,10 @@ export function LobbyPage() {
         {/* Columna principal: estado del lobby */}
         <div className="space-y-4 lg:col-span-2">
           <LobbyStatusCard />
-
-          {/* Invitar amigos: solamente el anfitrión */}
-          {lobby && isHost && <InviteFriendToLobbyForm />}
         </div>
 
         {/* Columna lateral: invitaciones y chat */}
         <div className="space-y-4">
-          <LobbyInvitationsCard />
-
-          <AddFriendCard />
 
           <FriendsListCard
             onInviteToLobby={handleInviteToLobby}

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { useFriendsStore } from '../store/useFriendsStore';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useFriendsStore } from '../store/useFriendsStore';
 
 export function AddFriendCard() {
   const [targetUsername, setTargetUsername] = useState('');
@@ -11,7 +11,7 @@ export function AddFriendCard() {
     isError: boolean;
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const sendRequest = useFriendsStore((state) => state.sendRequest);
+  const sendRequest = useFriendsStore((state) => state.sendFriendRequest);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,23 +38,15 @@ export function AddFriendCard() {
   }
 
   return (
-    <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 shadow-xl">
-      <div className="mb-3">
-        <h3 className="text-sm font-bold tracking-wide text-white">
-          Solcitud de amistad
-        </h3>
-        <p className="mt-0.5 text-[11px] text-zinc-400">
-          Envía una solicitud de amistad por nombre de usuario.
-        </p>
-      </div>
-
+    // <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 shadow-xl">
+    <div className="flex flex-col gap-2 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 shadow-xl">
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
           type="text"
           value={targetUsername}
           onChange={(e) => setTargetUsername(e.target.value)}
-          placeholder="Nombre de usuario exacto..."
-          className="border-zinc-700 bg-zinc-950 text-xs"
+          placeholder="Añadir amigo: Introducir nombre de usuario exacto"
+          className="border-zinc-700 bg-zinc-950 text-xs text-white"
           disabled={isSubmitting}
         />
         <Button
@@ -75,6 +67,7 @@ export function AddFriendCard() {
           {feedback.text}
         </p>
       )}
-    </Card>
+    {/* </Card> */}
+    </div>
   );
 }
