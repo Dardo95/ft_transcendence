@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import { chatSocket } from '@/lib/socket';
+import type { Socket } from 'socket.io-client';
 
 interface SocketState {
   isConnected: boolean;
+  socket: Socket;
   connect: () => void;
   disconnect: () => void;
 }
@@ -22,6 +24,7 @@ export const useSocketStore = create<SocketState>((set) => {
 
   return {
     isConnected: chatSocket.connected,
+    socket: chatSocket,
 
     connect: () => {
       if (!chatSocket.connected) {
