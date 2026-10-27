@@ -13,21 +13,21 @@ const MAPS: Array<{ id: MapId; name: string; gradient: string }> = [
     gradient: 'from-red-900 via-red-950 to-zinc-900',
   },
   {
-    id: 'blue_map',
-    name: 'Blue Map',
-    gradient: 'from-blue-900 via-blue-950 to-zinc-900',
+    id: 'orange_map',
+    name: 'Orange Map',
+    gradient: 'from-orange-900 via-orange-950 to-zinc-900',
   },
   {
-    id: 'green_map',
-    name: 'Green Map',
-    gradient: 'from-green-900 via-green-950 to-zinc-900',
+    id: 'yellow_map',
+    name: 'Yellow Map',
+    gradient: 'from-yellow-900 via-yellow-950 to-zinc-900',
   },
 ];
 
 export function MapSelector({ selectedMap, onChange, disabled }: Props) {
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-xs font-bold tracking-wider text-zinc-400 uppercase">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4 shadow-2xl backdrop-blur-md">
+      <span className="mb-2 block text-xs font-bold tracking-wider text-orange-400 uppercase">
         Mapa Seleccionado
       </span>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

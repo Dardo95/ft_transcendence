@@ -22,7 +22,7 @@ export function GameSettingsCard({
       }`}
     >
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-bold tracking-wider text-zinc-400 uppercase">
+        <span className="mb-2 block text-xs font-bold tracking-wider text-orange-400 uppercase">
           Ajustes
         </span>
         {isPublicMode ? (

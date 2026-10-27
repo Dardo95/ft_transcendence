@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
@@ -14,23 +13,23 @@ export function LobbyStatusCard() {
   const isHost = lobby?.hostUserId === user?.id;
 
   return (
-    <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5 text-slate-100 shadow-2xl backdrop-blur-md">
       {lobby ? (
         <div className="space-y-5">
           <div>
-            <h2 className="text-lg font-bold text-orange-300">
+            <span className="text-xs font-bold tracking-wider text-orange-400 uppercase">
               {t('app.yourLobby') || 'Tu lobby'}
-            </h2>
+            </span>
 
-            <p className="mt-1 text-xs break-all text-zinc-400">
-              ID: {lobby.id}
-            </p>
+            <span className="ml-2 text-xs break-all text-zinc-400">
+              | ID: {lobby.id}
+            </span>
           </div>
 
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">
+            <h4 className="font-semibold">
               {t('app.players') || 'Jugadores'} ({lobby.members.length}/4)
-            </h3>
+            </h4>
 
             {isHost && (
               <span className="rounded-full bg-orange-500/15 px-3 py-1 text-xs text-orange-300">
@@ -88,6 +87,6 @@ export function LobbyStatusCard() {
           </span>
         </div>
       )}
-    </Card>
+    </div>
   );
 }

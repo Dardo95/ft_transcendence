@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../locales/useLanguage';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
+import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { Card } from '@/components/ui/card';
 
 import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
@@ -53,7 +54,9 @@ export function LobbyPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Host y número de jugadores en el lobby
-  const isHost = lobby?.hostUserId === socket?.id;
+  const user = useAuthStore((state) => state.user);
+  const isHost =
+    !!lobby?.hostUserId && !!user?.id && lobby.hostUserId === user.id;
   const playersCount = lobby?.members?.length ?? 1;
 
   useEffect(() => {
@@ -178,8 +181,6 @@ export function LobbyPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Columna principal: estado de sala + configuración y play */}
         <div className="space-y-4 lg:col-span-2">
-          <LobbyStatusCard />
-
           <GameModeSelector
             selectedMode={selectedMode}
             onChange={setSelectedMode}
@@ -198,6 +199,8 @@ export function LobbyPage() {
             isHost={isHost}
             isPublicMode={selectedMode === 'public'}
           />
+
+          <LobbyStatusCard />
 
           <MatchmakingButton
             mode={selectedMode}
