@@ -13,7 +13,7 @@ export function LobbyStatusCard() {
   const isHost = lobby?.hostUserId === user?.id;
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5 text-slate-100 shadow-2xl backdrop-blur-md">
+    <div className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-slate-100 shadow-2xl backdrop-blur-md">
       {lobby ? (
         <div className="space-y-5">
           <div>

@@ -4,6 +4,7 @@ import { useLanguage } from '../locales/useLanguage';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
+
 import { Card } from '@/components/ui/card';
 
 import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
@@ -41,7 +42,7 @@ export function LobbyPage() {
 
   // Estados de configuración de partida
   const [selectedMode, setSelectedMode] = useState<GameMode>('practice');
-  const [selectedMap, setSelectedMap] = useState<MapId>('red_map');
+  const [selectedMap, setSelectedMap] = useState<MapId>('map1');
   const [settings, setSettings] = useState<GameSettings>({
     initialBombs: 1,
     initialSpeed: 1,

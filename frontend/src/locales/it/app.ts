@@ -48,6 +48,7 @@ export const appIt = {
     lobbyChat: 'Chat del Lobby',
     sendMessagePlaceholder: 'Invia un messaggio al tuo lobby...',
     sendButton: 'Invia',
+    acceptButton: 'Accetta',
     joinLobbyToChat:
       'Entra in un lobby per utilizzare la chat privata con i suoi membri.',
 
@@ -72,10 +73,10 @@ export const appIt = {
     fixedPublicLabel: 'Valori fissi in pubblico',
     hostOnlyLabel: 'Solo host',
 
-    matchmakingPracticeText: 'Inizia Pratica (1 vs Bot)',
+    matchmakingPracticeText: 'Inizia Partita di Pratica',
     matchmakingPrivateHostText: 'Inizia Partita Privata',
     matchmakingPrivateGuestText: "In attesa dell'host...",
-    matchmakingPublicText: 'Inizia Servizio (Cerca Giocatori)',
+    matchmakingPublicText: 'Cerca giocatori per iniziare la partita',
     searchingText: 'Ricerca giocatori...',
     cancelText: 'Annulla',
     searchInfoText:

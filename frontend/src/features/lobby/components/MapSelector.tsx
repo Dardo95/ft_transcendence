@@ -31,7 +31,7 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
   ];
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4 shadow-2xl backdrop-blur-md">
+    <div className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 shadow-2xl backdrop-blur-md">
       <span className="mb-2 block text-xs font-bold tracking-wider text-orange-400 uppercase">
         {t('app.lobby.mapLabel') || 'Mapa Seleccionado'}
       </span>

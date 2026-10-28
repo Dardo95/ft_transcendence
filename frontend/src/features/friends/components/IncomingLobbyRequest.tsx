@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 import { useSocketStore } from '@/stores/useSocketStore';
@@ -20,12 +19,11 @@ export function IncomingLobbyRequest() {
   if (invitations.length === 0) return null;
 
   return (
-    <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-zinc-100 shadow-xl">
       <div className="space-y-3">
         {invitations.map((invitation) => (
           <div
             key={invitation.id}
-            className="space-y-2 rounded-lg border border-zinc-700 p-3"
+            className="space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl"
           >
             <p className="text-center text-sm">
               <strong>{invitation.inviterUsername}</strong>{' '}
@@ -39,7 +37,7 @@ export function IncomingLobbyRequest() {
                 className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
                 onClick={() => acceptLobbyInvitation(invitation.id)}
               >
-                {t('app.lobby.sendButton') || 'Aceptar'}
+                {t('app.lobby.acceptButton') || 'Aceptar'}
               </Button>
 
               <Button
@@ -61,6 +59,6 @@ export function IncomingLobbyRequest() {
           </div>
         ))}
       </div>
-    </Card>
+    // </Card>
   );
 }

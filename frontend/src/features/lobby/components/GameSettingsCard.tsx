@@ -19,7 +19,7 @@ export function GameSettingsCard({
 
   return (
     <div
-      className={`rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 transition-opacity ${
+      className={`rounded-xl border border-zinc-700 bg-zinc-800/80 p-4 transition-opacity ${
         isDisabled ? 'opacity-40 select-none' : 'opacity-100'
       }`}
     >

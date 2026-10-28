@@ -1,5 +1,6 @@
-import { IncomingLobbyRequest } from '@/features/lobby/components/IncomingLobbyRequest';
-import { IncomingFriendRequest } from '@/features/friends/components/IncomingFriendRequest';
+import { IncomingLobbyRequest } from './IncomingLobbyRequest';
+import { IncomingFriendRequest } from './IncomingFriendRequest';
+
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
 

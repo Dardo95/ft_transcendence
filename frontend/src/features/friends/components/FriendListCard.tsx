@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 
 import { FriendListItem } from './FriendListItem';
 import { AddFriendCard } from './AddFriendCard';
-import { IncomingRequests } from '@/features/lobby/components/IncomingRequests';
+import { IncomingRequests } from './IncomingRequests';
 
 import type { FriendUser } from '../service/friendsService';
 

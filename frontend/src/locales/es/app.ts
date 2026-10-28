@@ -48,6 +48,7 @@ export const appEs = {
     lobbyChat: 'Chat del Lobby',
     sendMessagePlaceholder: 'Enviar mensaje a tu lobby...',
     sendButton: 'Enviar',
+    acceptButton: 'Aceptar',
     joinLobbyToChat:
       'Entra en un lobby para utilizar el chat privado con sus miembros.',
 
@@ -72,10 +73,10 @@ export const appEs = {
     fixedPublicLabel: 'Valores fijos en público',
     hostOnlyLabel: 'Solo anfitrión',
 
-    matchmakingPracticeText: 'Comenzar Práctica (1 vs Bot)',
+    matchmakingPracticeText: 'Empezar Partida dePráctica',
     matchmakingPrivateHostText: 'Empezar Partida Privada',
     matchmakingPrivateGuestText: 'Esperando al anfitrión...',
-    matchmakingPublicText: 'Empezar Servicio (Buscar Jugadores)',
+    matchmakingPublicText: 'Buscar jugadores para empezar partida',
     searchingText: 'Buscando jugadores...',
     cancelText: 'Cancelar',
     searchInfoText:

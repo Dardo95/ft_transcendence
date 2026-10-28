@@ -43,8 +43,7 @@ export function AddFriendCard() {
   }
 
   return (
-    // <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 shadow-xl">
-    <div className="flex flex-col gap-2 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 shadow-xl">
+    <div>
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
           type="text"
@@ -75,7 +74,6 @@ export function AddFriendCard() {
           {feedback.text}
         </p>
       )}
-      {/* </Card> */}
     </div>
   );
 }

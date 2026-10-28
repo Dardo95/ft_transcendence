@@ -43,6 +43,7 @@ export const appEn = {
     lobbyChat: 'Lobby Chat',
     sendMessagePlaceholder: 'Send a message to your lobby...',
     sendButton: 'Send',
+    acceptButton: 'Accept',
     joinLobbyToChat: 'Enter a lobby to use the private chat with its members.',
 
     // Mode selector
@@ -70,10 +71,10 @@ export const appEn = {
     hostOnlyLabel: 'Host only',
 
     // Matchmaking button
-    matchmakingPracticeText: 'Start Practice (1 vs Bot)',
+    matchmakingPracticeText: 'Start Practice Match',
     matchmakingPrivateHostText: 'Start Private Match',
     matchmakingPrivateGuestText: 'Waiting for host...',
-    matchmakingPublicText: 'Start Service (Search Players)',
+    matchmakingPublicText: 'Search Players for Match Start',
     searchingText: 'Searching players...',
     cancelText: 'Cancel',
     searchInfoText:

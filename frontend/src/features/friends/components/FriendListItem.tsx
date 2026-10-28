@@ -35,7 +35,7 @@ export function FriendListItem({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-zinc-800/60 bg-zinc-950/40 p-2.5 transition-colors hover:bg-zinc-800/40">
+    <div className="flex items-center justify-between rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 transition-colors hover:bg-zinc-800/40">
       <div className="flex items-center gap-2.5">
         <div className="relative">
           {friend.avatarUrl ? (
