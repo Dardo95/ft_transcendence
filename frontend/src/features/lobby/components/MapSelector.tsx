@@ -1,6 +1,8 @@
 import { useLanguage } from '@/locales/useLanguage';
 import type { MapId } from '../types';
 
+import mapUrl from '@/assets/map1_lobby.png';
+
 interface Props {
   selectedMap: MapId;
   onChange: (map: MapId) => void;
@@ -10,21 +12,21 @@ interface Props {
 export function MapSelector({ selectedMap, onChange, disabled }: Props) {
   const { t } = useLanguage();
 
-  const MAPS: Array<{ id: MapId; name: string; gradient: string }> = [
+  const MAPS: Array<{ id: MapId; name: string; asset: string }> = [
     {
-      id: 'red_map',
-      name: t('app.lobby.mapRedName') || 'Red Map',
-      gradient: 'from-red-900 via-red-950 to-zinc-900',
+      id: 'map1',
+      name: t('app.lobby.map1Name') || 'Red Map',
+      asset: mapUrl,
     },
     {
-      id: 'orange_map',
-      name: t('app.lobby.mapOrangeName') || 'Orange Map',
-      gradient: 'from-orange-900 via-orange-950 to-zinc-900',
+      id: 'map2',
+      name: t('app.lobby.map2Name') || 'Orange Map',
+      asset: mapUrl,
     },
     {
-      id: 'yellow_map',
-      name: t('app.lobby.mapYellowName') || 'Yellow Map',
-      gradient: 'from-yellow-900 via-yellow-950 to-zinc-900',
+      id: 'map3',
+      name: t('app.lobby.map3Name') || 'Yellow Map',
+      asset: mapUrl,
     },
   ];
 
@@ -42,12 +44,17 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
               type="button"
               disabled={disabled}
               onClick={() => onChange(map.id)}
-              className={`relative flex h-24 flex-col justify-end overflow-hidden rounded-xl border bg-gradient-to-br p-3 text-left ${map.gradient} transition-all ${
+              className={`relative flex h-24 flex-col justify-end overflow-hidden rounded-xl border p-3 text-left transition-all ${
                 isSelected
                   ? 'border-orange-500 shadow-lg ring-2 shadow-orange-500/20 ring-orange-500/50'
                   : 'border-zinc-800 opacity-70 hover:border-zinc-700 hover:opacity-100'
               } ${disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
             >
+              <img
+                src={map.asset}
+                alt={map.name}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
               <span className="relative z-10 text-xs font-bold text-white drop-shadow">
                 {map.name}
               </span>

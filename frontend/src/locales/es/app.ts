@@ -60,9 +60,9 @@ export const appEs = {
     modePublicSub: 'Matchmaking abierto',
 
     mapLabel: 'Mapa Seleccionado',
-    mapRedName: 'Red Map',
-    mapOrangeName: 'Orange Map',
-    mapYellowName: 'Yellow Map',
+    map1Name: 'Red Map',
+    map2Name: 'Orange Map',
+    map3Name: 'Yellow Map',
     activeLabel: 'Activo',
 
     settingsLabel: 'Ajustes',

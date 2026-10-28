@@ -56,9 +56,9 @@ export const appEn = {
 
     // Map selector
     mapLabel: 'Selected Map',
-    mapRedName: 'Red Map',
-    mapOrangeName: 'Orange Map',
-    mapYellowName: 'Yellow Map',
+    map1Name: 'Red Map',
+    map2Name: 'Orange Map',
+    map3Name: 'Yellow Map',
     activeLabel: 'Active',
 
     // Settings card

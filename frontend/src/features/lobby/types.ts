@@ -1,6 +1,6 @@
 export type GameMode = 'practice' | 'private' | 'public';
 
-export type MapId = 'red_map' | 'orange_map' | 'yellow_map';
+export type MapId = 'map1' | 'map2' | 'map3';
 
 export interface GameSettings {
   initialBombs: number;
