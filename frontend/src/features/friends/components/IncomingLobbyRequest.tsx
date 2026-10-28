@@ -19,46 +19,46 @@ export function IncomingLobbyRequest() {
   if (invitations.length === 0) return null;
 
   return (
-      <div className="space-y-3">
-        {invitations.map((invitation) => (
-          <div
-            key={invitation.id}
-            className="space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl"
-          >
-            <p className="text-center text-sm">
-              <strong>{invitation.inviterUsername}</strong>{' '}
-              {t('app.lobby.invitesYou') || 'te invita a su lobby.'}
-            </p>
+    <div className="space-y-3">
+      {invitations.map((invitation) => (
+        <div
+          key={invitation.id}
+          className="space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl"
+        >
+          <p className="text-center text-sm">
+            <strong>{invitation.inviterUsername}</strong>{' '}
+            {t('app.lobby.invitesYou') || 'te invita a su lobby.'}
+          </p>
 
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                disabled={!isConnected || (lobby?.members.length ?? 0) > 1}
-                className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
-                onClick={() => acceptLobbyInvitation(invitation.id)}
-              >
-                {t('app.lobby.acceptButton') || 'Aceptar'}
-              </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              disabled={!isConnected || (lobby?.members.length ?? 0) > 1}
+              className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
+              onClick={() => acceptLobbyInvitation(invitation.id)}
+            >
+              {t('app.lobby.acceptButton') || 'Aceptar'}
+            </Button>
 
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={!isConnected}
-                onClick={() => rejectLobbyInvitation(invitation.id)}
-              >
-                {t('app.friends.cancelButton') || 'Rechazar'}
-              </Button>
-            </div>
-
-            {(lobby?.members.length ?? 0) > 1 && (
-              <p className="text-xs text-zinc-400">
-                {t('app.lobby.leaveBeforeAccept') ||
-                  'Abandona tu grupo actual antes de aceptar otra invitación.'}
-              </p>
-            )}
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={!isConnected}
+              onClick={() => rejectLobbyInvitation(invitation.id)}
+            >
+              {t('app.friends.cancelButton') || 'Rechazar'}
+            </Button>
           </div>
-        ))}
-      </div>
+
+          {(lobby?.members.length ?? 0) > 1 && (
+            <p className="text-xs text-zinc-400">
+              {t('app.lobby.leaveBeforeAccept') ||
+                'Abandona tu grupo actual antes de aceptar otra invitación.'}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
     // </Card>
   );
 }
