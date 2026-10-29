@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { chatSocket } from '@/lib/socket';
 import {
   type FriendUser,
   type FriendRequestItem,
@@ -16,6 +17,7 @@ interface FriendsState {
   isLoading: boolean;
   error: string | null;
 
+  initListeners: () => () => void;
   loadFriendsData: () => Promise<void>;
   sendFriendRequest: (username: string) => Promise<void>;
   acceptFriendRequest: (requestId: number) => Promise<void>;
@@ -28,6 +30,22 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   incomingFriendRequests: [],
   isLoading: false,
   error: null,
+
+  initListeners: () => {
+    const reload = () => get().loadFriendsData();
+    chatSocket.on('friend:incoming_request', reload);
+    chatSocket.on('friend:accepted', reload);
+    chatSocket.on('friend:rejected', reload);
+    chatSocket.on('friend:removed', reload);
+    chatSocket.on('friend:status', reload);
+    return () => {
+      chatSocket.off('friend:incoming_request', reload);
+      chatSocket.off('friend:accepted', reload);
+      chatSocket.off('friend:rejected', reload);
+      chatSocket.off('friend:removed', reload);
+      chatSocket.off('friend:status', reload);
+    };
+  },
 
   loadFriendsData: async () => {
     set({ isLoading: true, error: null });

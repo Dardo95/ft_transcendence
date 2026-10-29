@@ -18,7 +18,9 @@ import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { useChatStore } from '../store/useChatStore';
 import { useLanguage } from '@/locales/useLanguage';
+
 import { cn } from '@/lib/utils';
+import { chatSocket } from '@/lib/socket';
 
 import { useLobbyStore } from '../store/useLobbyStore';
 
@@ -30,7 +32,10 @@ export function LobbyChat() {
   const { t } = useLanguage();
 
   const lobbyId = useLobbyStore((state) => state.lobby?.id);
+  const lobby = useLobbyStore((state) => state.lobby);
+  const addSystemMessage = useChatStore((state) => state.addSystemMessage);
   const clearMessages = useChatStore((state) => state.clearMessages);
+  const prevMembersRef = React.useRef<string[]>([]);
 
   React.useEffect(() => {
     if (!lobbyId) return;
@@ -41,6 +46,37 @@ export function LobbyChat() {
       clearMessages();
     };
   }, [lobbyId, initChatListeners, clearMessages]);
+
+  React.useEffect(() => {
+    if (!lobby || !lobby.members) {
+      prevMembersRef.current = [];
+      return;
+    }
+    const currentIds = lobby.members.map((m) => String(m.userId));
+    const prevIds = prevMembersRef.current;
+    const newIds = currentIds.filter((id) => !prevIds.includes(id));
+    for (const id of newIds) {
+      const member = lobby.members.find((m) => String(m.userId) === id);
+      if (member) {
+        addSystemMessage(
+          `${member.username} ${t('app.lobby.userEnteredLobby') || 'ha entrado al Lobby'}`
+        );
+      }
+    }
+    prevMembersRef.current = currentIds;
+  }, [lobby, addSystemMessage, t]);
+
+  React.useEffect(() => {
+    const handleLeft = (data: { username: string }) => {
+      addSystemMessage(
+        `${data.username} ${t('app.lobby.userLeftLobby') || 'ha salido del Lobby'}`
+      );
+    };
+    chatSocket.on('user:left_lobby', handleLeft);
+    return () => {
+      chatSocket.off('user:left_lobby', handleLeft);
+    };
+  }, [addSystemMessage, t]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,10 +115,10 @@ export function LobbyChat() {
         <MessageScrollerProvider autoScroll>
           <MessageScroller>
             <MessageScrollerViewport>
-              <MessageScrollerContent className="flex flex-col gap-3 p-1">
+              <MessageScrollerContent className="flex flex-col gap-2 p-1">
                 {messages.map((msg, index) => {
                   const isMe = msg.senderId === user?.id;
-                  const isSystem = msg.sender === 'Sistema';
+                  const isSystem = msg.sender === 'System';
                   const isLast = index === messages.length - 1;
 
                   return (
@@ -93,15 +129,17 @@ export function LobbyChat() {
                     >
                       <Message align={isMe ? 'end' : 'start'}>
                         <MessageContent
-                          className={isMe ? 'items-end' : 'items-start'}
+                          className={isSystem ? 'items-center' : isMe ? 'items-end' : 'items-start'}
                         >
                           {/* User info and time aligned to the right if it's mine */}
                           <span
                             className={cn(
                               'mb-1 flex items-center gap-1.5 text-[10px] text-zinc-400',
-                              isMe
-                                ? 'justify-end text-right'
-                                : 'justify-start text-left'
+                              isSystem
+                                ? 'justify-center text-center'
+                                : isMe
+                                  ? 'justify-end text-right'
+                                  : 'justify-start text-left'
                             )}
                           >
                             <span
@@ -122,7 +160,7 @@ export function LobbyChat() {
                           </span>
 
                           <Bubble
-                            align={isMe ? 'end' : 'start'}
+                            align={isSystem ? 'center' : isMe ? 'end' : 'start'}
                             variant={
                               isSystem
                                 ? 'system'

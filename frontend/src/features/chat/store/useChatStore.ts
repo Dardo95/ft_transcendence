@@ -14,12 +14,27 @@ interface ChatState {
   sendMessage: (text: string) => void;
   initChatListeners: () => () => void;
   clearMessages: () => void;
+  addSystemMessage: (text: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
 
   clearMessages: () => set({ messages: [] }),
+
+  addSystemMessage: (text: string) => {
+    set((state) => ({
+      messages: [
+        ...state.messages,
+        {
+          id: Math.random().toString(36).substring(2),
+          sender: 'System',
+          text,
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    }));
+  },
 
   sendMessage: (text) => {
     const cleanText = text.trim();

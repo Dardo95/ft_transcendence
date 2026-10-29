@@ -4,6 +4,7 @@ import { useLanguage } from '../locales/useLanguage';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
+import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
 
 import { Card } from '@/components/ui/card';
 
@@ -37,8 +38,10 @@ export function LobbyPage() {
   const lobby = useLobbyStore((state) => state.lobby);
   const error = useLobbyStore((state) => state.error);
   const notice = useLobbyStore((state) => state.notice);
-  const initListeners = useLobbyStore((state) => state.initListeners);
+
   const inviteFriend = useLobbyStore((state) => state.inviteFriendToLobby);
+  const lobbyListeners = useLobbyStore((state) => state.initListeners);
+  const friendsListeners = useFriendsStore((state) => state.initListeners);
 
   // Estados de configuración de partida
   const [selectedMode, setSelectedMode] = useState<GameMode>('practice');
@@ -61,15 +64,17 @@ export function LobbyPage() {
   const playersCount = lobby?.members?.length ?? 1;
 
   useEffect(() => {
-    const cleanupListeners = initListeners();
+    const cleanupLobbyListeners = lobbyListeners();
+    const cleanupFriendsListeners = friendsListeners();
     connect();
 
     return () => {
-      cleanupListeners();
+      cleanupLobbyListeners();
+      cleanupFriendsListeners();
       disconnect();
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [initListeners, connect, disconnect]);
+  }, [lobbyListeners, friendsListeners, connect, disconnect]);
 
   // Listener del socket para recibir el id de partida desde backend
   useEffect(() => {

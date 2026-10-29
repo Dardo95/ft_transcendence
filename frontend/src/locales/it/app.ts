@@ -46,6 +46,8 @@ export const appIt = {
     leaveBeforeAccept:
       'Abbandona il tuo gruppo attuale prima di accettare un altro invito.',
     lobbyChat: 'Chat del Lobby',
+    userEnteredLobby: 'è entrato nel Lobby',
+    userLeftLobby: 'è uscito dal Lobby',
     sendMessagePlaceholder: 'Invia un messaggio al tuo lobby...',
     sendButton: 'Invia',
     acceptButton: 'Accetta',

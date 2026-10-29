@@ -41,6 +41,8 @@ export const appEn = {
     leaveBeforeAccept:
       'Leave your current group before accepting another invitation.',
     lobbyChat: 'Lobby Chat',
+    userEnteredLobby: 'has entered the Lobby',
+    userLeftLobby: 'has left the Lobby',
     sendMessagePlaceholder: 'Send a message to your lobby...',
     sendButton: 'Send',
     acceptButton: 'Accept',

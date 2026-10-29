@@ -46,6 +46,8 @@ export const appEs = {
     leaveBeforeAccept:
       'Abandona tu grupo actual antes de aceptar otra invitación.',
     lobbyChat: 'Chat del Lobby',
+    userEnteredLobby: 'ha entrado al Lobby',
+    userLeftLobby: 'ha salido del Lobby',
     sendMessagePlaceholder: 'Enviar mensaje a tu lobby...',
     sendButton: 'Enviar',
     acceptButton: 'Aceptar',
