@@ -6,6 +6,17 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
-    "build": "true"
+    "build": "pnpm exec tsc -b",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "typecheck": "pnpm exec tsc --noEmit --incremental false -p tsconfig.json",
+    "lint": "oxlint --type-aware src/",
+    "test": "echo 'No tests configured for shared package'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "^6.0.2",
+    "oxlint": "^1.58.0"
   }
 }

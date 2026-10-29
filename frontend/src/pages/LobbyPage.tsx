@@ -1,71 +1,160 @@
-import { useEffect, useState } from 'react';
-
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../locales/useLanguage';
-import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { useSocketStore } from '../stores/useSocketStore';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
+import { useAuthStore } from '@/features/auth/store/useAuthStore';
+import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
 
-import { LobbyChat } from '../features/chat/components/LobbyChat';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
+import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
+import { LobbyChat } from '../features/chat/components/LobbyChat';
+import { FriendsListCard } from '@/features/friends/components/FriendListCard';
+import { GameModeSelector } from '../features/lobby/components/GameModeSelector';
+import { MapSelector } from '../features/lobby/components/MapSelector';
+import { GameSettingsCard } from '../features/lobby/components/GameSettingsCard';
+import { MatchmakingButton } from '../features/lobby/components/MatchmakingButton';
+
+import type { FriendUser } from '@/features/friends/service/friendsService';
+import type {
+  GameMode,
+  MapId,
+  GameSettings,
+  MatchmakingPayload,
+} from '../features/lobby/types';
 
 export function LobbyPage() {
   const { t } = useLanguage();
-  const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
+  // Estado de conexión del socket
   const isConnected = useSocketStore((state) => state.isConnected);
   const connect = useSocketStore((state) => state.connect);
   const disconnect = useSocketStore((state) => state.disconnect);
+  const socket = useSocketStore((state) => state.socket);
 
+  // Estado del lobby
   const lobby = useLobbyStore((state) => state.lobby);
-  const invitations = useLobbyStore((state) => state.invitations);
   const error = useLobbyStore((state) => state.error);
   const notice = useLobbyStore((state) => state.notice);
 
-  const initListeners = useLobbyStore((state) => state.initListeners);
-  const leaveLobby = useLobbyStore((state) => state.leaveLobby);
-  const inviteFriend = useLobbyStore((state) => state.inviteFriend);
-  const acceptInvitation = useLobbyStore((state) => state.acceptInvitation);
-  const rejectInvitation = useLobbyStore((state) => state.rejectInvitation);
+  const inviteFriend = useLobbyStore((state) => state.inviteFriendToLobby);
+  const lobbyListeners = useLobbyStore((state) => state.initListeners);
+  const friendsListeners = useFriendsStore((state) => state.initListeners);
 
-  const [friendUsername, setFriendUsername] = useState('');
+  // Estados de configuración de partida
+  const [selectedMode, setSelectedMode] = useState<GameMode>('practice');
+  const [selectedMap, setSelectedMap] = useState<MapId>('map1');
+  const [settings, setSettings] = useState<GameSettings>({
+    initialBombs: 1,
+    initialSpeed: 1,
+    fuseTime: 3,
+  });
 
-  // Registrar los listeners antes de conectar el socket.
+  // Estados de búsqueda
+  const [isSearching, setIsSearching] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Host y número de jugadores en el lobby
+  const user = useAuthStore((state) => state.user);
+  const isHost =
+    !!lobby?.hostUserId && !!user?.id && lobby.hostUserId === user.id;
+  const playersCount = lobby?.members?.length ?? 1;
+
   useEffect(() => {
-    const cleanupListeners = initListeners();
-
+    const cleanupLobbyListeners = lobbyListeners();
+    const cleanupFriendsListeners = friendsListeners();
     connect();
 
     return () => {
-      cleanupListeners();
+      cleanupLobbyListeners();
+      cleanupFriendsListeners();
       disconnect();
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [initListeners, connect, disconnect]);
+  }, [lobbyListeners, friendsListeners, connect, disconnect]);
 
-  const isHost = lobby?.hostUserId === user?.id;
-  const isFull = (lobby?.members.length ?? 0) >= 4;
+  // Listener del socket para recibir el id de partida desde backend
+  useEffect(() => {
+    if (!socket) return;
 
-  const handleInvite = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    const handleGameStart = (data: { gameId: string }) => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      setIsSearching(false);
+      navigate(`/game/${data.gameId}`);
+    };
 
-    const username = friendUsername.trim();
+    socket.on('match:ready', handleGameStart);
+    return () => {
+      socket.off('match:ready', handleGameStart);
+    };
+  }, [socket, navigate]);
 
-    if (!username) return;
+  const handleStartMatchmaking = (payload: MatchmakingPayload) => {
+    if (payload.mode === 'practice') {
+      socket?.emit('game:practice_start', payload);
+      navigate('/game/practice-session');
+      return;
+    }
 
-    inviteFriend(username);
-    setFriendUsername('');
+    if (payload.mode === 'private') {
+      socket?.emit('game:private_start', payload);
+      return;
+    }
+
+    if (payload.mode === 'public') {
+      setIsSearching(true);
+      setCountdown(10);
+      socket?.emit('matchmaking:queue_join', payload);
+
+      // Temporizador de 10 segundos para rellenar
+      timerRef.current = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev !== null && prev <= 1) {
+            clearInterval(timerRef.current!);
+            socket?.emit('matchmaking:force_start');
+            return 0;
+          }
+          return prev !== null ? prev - 1 : null;
+        });
+      }, 1000);
+    }
+  };
+
+  const handleCancelSearch = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setIsSearching(false);
+    setCountdown(null);
+    socket?.emit('matchmaking:queue_leave');
+  };
+
+  const handleInviteToLobby = async (friend: FriendUser) => {
+    try {
+      await inviteFriend(friend.username);
+    } catch (err) {
+      console.error('Error al invitar al lobby:', err);
+    }
+  };
+
+  const currentPayload: MatchmakingPayload = {
+    mode: selectedMode,
+    mapId: selectedMap,
+    settings,
   };
 
   return (
-    <div className="w-full max-w-5xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
+    <div className="w-full max-w-7xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
       <h1 className="mb-6 text-center text-2xl font-bold text-orange-400">
-        {t('app.Lobby') || 'Lobby'}
+        {t('app.lobby.lobbyTitle') || 'Lobby'}
       </h1>
 
       <div className="mb-4 flex items-center justify-between gap-3">
         <span className="text-sm text-zinc-400">
-          {isConnected ? 'Conectado al servidor' : 'Conectando...'}
+          {isConnected
+            ? t('app.general.connected') || 'Conectado al servidor'
+            : t('app.general.connecting') || 'Conectando...'}
         </span>
 
         <span
@@ -94,179 +183,56 @@ export function LobbyPage() {
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Columna principal: estado del lobby */}
+        {/* Columna principal: estado de sala + configuración y play */}
         <div className="space-y-4 lg:col-span-2">
-          <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
-            {lobby ? (
-              <div className="space-y-5">
-                <div>
-                  <h2 className="text-lg font-bold text-orange-300">
-                    Tu lobby
-                  </h2>
+          <GameModeSelector
+            selectedMode={selectedMode}
+            onChange={setSelectedMode}
+            disabled={isSearching}
+          />
 
-                  <p className="mt-1 text-xs break-all text-zinc-400">
-                    ID: {lobby.id}
-                  </p>
-                </div>
+          <MapSelector
+            selectedMap={selectedMap}
+            onChange={setSelectedMap}
+            disabled={isSearching}
+          />
 
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">
-                    Jugadores ({lobby.members.length}/4)
-                  </h3>
+          <GameSettingsCard
+            settings={settings}
+            onChange={setSettings}
+            isHost={isHost}
+            isPublicMode={selectedMode === 'public'}
+          />
 
-                  {isHost && (
-                    <span className="rounded-full bg-orange-500/15 px-3 py-1 text-xs text-orange-300">
-                      Anfitrión
-                    </span>
-                  )}
-                </div>
+          <LobbyStatusCard />
 
-                <div className="space-y-2">
-                  {lobby.members.map((member) => (
-                    <div
-                      key={member.userId}
-                      className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900/70 p-3"
-                    >
-                      <div>
-                        <p className="font-medium">
-                          {member.username}
-                          {member.userId === user?.id ? ' (Tú)' : ''}
-                        </p>
-
-                        <p className="text-xs text-zinc-500">
-                          {member.isHost ? 'Anfitrión' : 'Invitado'}
-                        </p>
-                      </div>
-
-                      <span className="text-emerald-400">●</span>
-                    </div>
-                  ))}
-                </div>
-                {lobby.members.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={leaveLobby}
-                  >
-                    Abandonar grupo
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="flex min-h-56 flex-col items-center justify-center gap-4 text-center">
-                <div>
-                  <h2 className="text-lg font-bold text-orange-300">
-                    Preparando tu grupo...
-                  </h2>
-
-                  <p className="mt-2 text-sm text-zinc-400">
-                    Estamos sincronizando tu lobby con el servidor.
-                  </p>
-                </div>
-
-                <span className="animate-pulse text-orange-400">
-                  Conectando...
-                </span>
-              </div>
-            )}
-          </Card>
-
-          {/* Invitar amigos: solamente el anfitrión */}
-          {lobby && isHost && (
-            <Card className="space-y-3 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
-              <h2 className="font-bold">Invitar a un amigo</h2>
-
-              <form onSubmit={handleInvite} className="flex gap-2">
-                <Input
-                  value={friendUsername}
-                  onChange={(event) => setFriendUsername(event.target.value)}
-                  placeholder="Nombre de usuario"
-                  disabled={!isConnected || isFull}
-                  maxLength={32}
-                />
-
-                <Button
-                  type="submit"
-                  disabled={!isConnected || isFull || !friendUsername.trim()}
-                  className="bg-orange-600 text-white hover:bg-orange-500"
-                >
-                  Invitar
-                </Button>
-              </form>
-
-              <p className="text-xs text-zinc-400">
-                {isFull
-                  ? 'El lobby está completo.'
-                  : 'Solo puedes invitar a amigos con una amistad aceptada.'}
-              </p>
-            </Card>
-          )}
+          <MatchmakingButton
+            mode={selectedMode}
+            payload={currentPayload}
+            playersCount={playersCount}
+            isHost={isHost}
+            isSearching={isSearching}
+            countdown={countdown}
+            onStart={handleStartMatchmaking}
+            onCancelSearch={handleCancelSearch}
+          />
         </div>
 
-        {/* Columna lateral: invitaciones y chat */}
+        {/* Columna lateral: amigos y chat */}
         <div className="space-y-4">
-          <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-zinc-100 shadow-xl">
-            <h2 className="mb-3 font-bold text-orange-300">
-              Invitaciones pendientes
-            </h2>
-
-            {invitations.length === 0 ? (
-              <p className="text-sm text-zinc-400">
-                No tienes invitaciones pendientes.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {invitations.map((invitation) => (
-                  <div
-                    key={invitation.id}
-                    className="space-y-2 rounded-lg border border-zinc-700 p-3"
-                  >
-                    <p className="text-sm">
-                      <strong>{invitation.inviterUsername}</strong> te invita a
-                      su lobby.
-                    </p>
-
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        disabled={
-                          !isConnected || (lobby?.members.length ?? 0) > 1
-                        }
-                        onClick={() => acceptInvitation(invitation.id)}
-                        className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
-                      >
-                        Aceptar
-                      </Button>
-
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={!isConnected}
-                        onClick={() => rejectInvitation(invitation.id)}
-                      >
-                        Rechazar
-                      </Button>
-                    </div>
-
-                    {(lobby?.members.length ?? 0) > 1 && (
-                      <p className="text-xs text-zinc-400">
-                        Abandona tu grupo actual antes de aceptar otra
-                        invitación.
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+          <FriendsListCard
+            onInviteToLobby={handleInviteToLobby}
+            onSpectate={(gameId) => {
+              navigate(`/game/${gameId}?mode=spectator`);
+            }}
+          />
 
           {lobby ? (
             <LobbyChat />
           ) : (
             <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
-              Entra en un lobby para utilizar el chat privado con sus miembros.
+              {t('app.lobby.joinLobbyToChat') ||
+                'Entra en un lobby para utilizar el chat privado con sus miembros.'}
             </Card>
           )}
         </div>
