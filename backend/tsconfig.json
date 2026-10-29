@@ -19,9 +19,5 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "types": ["vitest/globals", "node"],
-    "paths": {
-      "@transcendence/shared": ["../shared/src/index.ts"],
-      "@transcendence/shared/*": ["../shared/src/*"]
-    }
   }
 }

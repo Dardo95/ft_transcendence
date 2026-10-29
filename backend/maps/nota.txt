@@ -1,0 +1,7 @@
+.	Suelo transitable
+#	Muro indestructible
++	Muro destructible
+1	Posición inicial del jugador 1
+2	Posición inicial del jugador 2
+3	Posición inicial del jugador 3
+4	Posición inicial del jugador 4
