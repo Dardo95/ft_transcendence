@@ -28,13 +28,10 @@ export class UsersController {
   ) {}
 
   private emitToUser(userId: number, event: string, data: unknown) {
-    if (!this.chatGateway || !this.chatGateway.server) return;
-    for (const socket of this.chatGateway.server.sockets.values()) {
-      const user = socket.data.user as { id?: number } | undefined;
-      if (user?.id === userId) {
-        socket.emit(event, data);
-      }
-    }
+    const server = this.chatGateway?.server;
+    if (!server) return;
+
+    server.to(`user:${userId}`).emit(event, data);
   }
 
   @Get('me')
