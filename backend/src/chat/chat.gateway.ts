@@ -41,6 +41,9 @@ export class ChatGateway
       where: { id: user.id },
       data: { isOnline: true },
     });
+
+    // Notificar a amigos sobre cambio de estado
+    await this.notifyFriendsStatus(user.id, true);
   }
 
   handleDisconnect(client: Socket): void {
@@ -51,17 +54,62 @@ export class ChatGateway
       .update({ where: { id: user.id }, data: { isOnline: false } })
       .catch(() => undefined);
 
+    // Notificar a amigos sobre cambio de estado
+    this.notifyFriendsStatus(user.id, false).catch(() => undefined);
+
     // Eliminar al usuario del lobby.
     const result = this.lobbyService.leaveLobby(user.id);
-
     if (!result || !result.lobby) {
       return;
     }
 
     // Actualizar el estado visible para los miembros restantes.
     this.server
-      .to(`lobby:${result.lobbyId}`)
+      .to(`lobby:${result.lobby.id}`)
       .emit('lobby:updated', result.lobby);
+
+    // Notificar salida del lobby
+    this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
+      username: user.username,
+    });
+  }
+
+  private async notifyFriendsStatus(userId: number, isOnline: boolean) {
+    try {
+      const friendships = await this.prisma.friendship.findMany({
+        where: {
+          status: 'ACCEPTED',
+          OR: [{ requesterId: userId }, { addresseeId: userId }],
+        },
+        include: {
+          requester: { select: { id: true } },
+          addressee: { select: { id: true } },
+        },
+      });
+      const friendIds = new Set<number>();
+      for (const f of friendships) {
+        const friendId =
+          f.requesterId === userId ? f.addresseeId : f.requesterId;
+        friendIds.add(friendId);
+      }
+      for (const friendId of friendIds) {
+        for (const socket of this.server.sockets.values()) {
+          const sUser = socket.data.user as WsUser | undefined;
+          if (sUser?.id === friendId) {
+            socket.emit('friend:status', { userId, isOnline });
+          }
+        }
+      }
+      // También notificar al propio usuario conectado por si refresca
+      for (const socket of this.server.sockets.values()) {
+        const sUser = socket.data.user as WsUser | undefined;
+        if (sUser?.id === userId) {
+          socket.emit('friend:status', { userId, isOnline });
+        }
+      }
+    } catch {
+      // Silenciar errores de notificación
+    }
   }
 
   afterInit(server: Namespace): void {
@@ -279,8 +327,13 @@ export class ChatGateway
       await client.leave(`lobby:${previousLobby.id}`);
     }
 
-    // Actualizamos a los antiguos compañeros.
+    // Notificar salida del lobby
     if (result?.lobby) {
+      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
+        username: user.username,
+      });
+
+      // Actualizamos a los antiguos compañeros.
       this.server
         .to(`lobby:${result.lobbyId}`)
         .emit('lobby:updated', result.lobby);

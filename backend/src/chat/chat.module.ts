@@ -7,5 +7,6 @@ import { PrismaModule } from '../database/prisma.module.js';
 @Module({
   imports: [AuthModule, LobbyModule, PrismaModule],
   providers: [ChatGateway],
+  exports: [ChatGateway],
 })
 export class ChatModule {}
