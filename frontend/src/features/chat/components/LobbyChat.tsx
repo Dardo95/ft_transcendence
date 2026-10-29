@@ -129,7 +129,13 @@ export function LobbyChat() {
                     >
                       <Message align={isMe ? 'end' : 'start'}>
                         <MessageContent
-                          className={isSystem ? 'items-center' : isMe ? 'items-end' : 'items-start'}
+                          className={
+                            isSystem
+                              ? 'items-center'
+                              : isMe
+                                ? 'items-end'
+                                : 'items-start'
+                          }
                         >
                           {/* User info and time aligned to the right if it's mine */}
                           <span
