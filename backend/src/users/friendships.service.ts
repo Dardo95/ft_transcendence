@@ -60,7 +60,11 @@ export class FriendshipsService {
     if (!fr || fr.addresseeId !== meId || fr.status !== 'PENDING')
       throw new NotFoundException('Request not found');
     await this.prisma.friendship.delete({ where: { id } });
-    return { message: 'Request rejected' };
+    return {
+      message: 'Request rejected',
+      requesterId: fr.requesterId,
+      addresseeId: fr.addresseeId,
+    };
   }
 
   async remove(meId: number, username: string) {
@@ -69,7 +73,11 @@ export class FriendshipsService {
     if (!fr || fr.status !== 'ACCEPTED')
       throw new NotFoundException('Friendship not found');
     await this.prisma.friendship.delete({ where: { id: fr.id } });
-    return { message: 'Friend removed' };
+    return {
+      message: 'Friend removed',
+      requesterId: fr.requesterId,
+      addresseeId: fr.addresseeId,
+    };
   }
 
   async block(meId: number, username: string) {
