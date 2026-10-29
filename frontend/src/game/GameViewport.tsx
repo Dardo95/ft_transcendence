@@ -33,7 +33,10 @@ export function GameViewport() {
         app.renderer.resize(container.clientWidth, container.clientHeight);
         container.appendChild(app.canvas);
       } catch (error) {
-        console.error('[GameViewport] Failed to initialize Pixi Application:', error);
+        console.error(
+          '[GameViewport] Failed to initialize Pixi Application:',
+          error
+        );
       }
     };
 
@@ -61,9 +64,15 @@ export function GameViewport() {
         appRef.current = null;
 
         try {
-          currentApp.destroy({ removeView: true }, { children: true, texture: true });
+          currentApp.destroy(
+            { removeView: true },
+            { children: true, texture: true }
+          );
         } catch (error) {
-          console.warn('[GameViewport] Failed to destroy Pixi Application safely:', error);
+          console.warn(
+            '[GameViewport] Failed to destroy Pixi Application safely:',
+            error
+          );
         }
       }
     };
