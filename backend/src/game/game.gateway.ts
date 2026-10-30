@@ -7,12 +7,14 @@ import {
   WebSocketGateway,
   WebSocketServer,
   WsException,
+  OnGatewayConnection,
 } from '@nestjs/websockets';
 import type { Namespace, Socket } from 'socket.io';
 
 import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
 import { PrismaService } from '../database/prisma.service.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
+import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 
 type GameInput =
   | { action: 'move'; direction: 'up' | 'down' | 'left' | 'right' }
@@ -27,14 +29,24 @@ type GameSocketData = {
   namespace: '/game',
   ...websocketOptions,
 })
-export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
+export class GameGateway
+  implements OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection
+{
   @WebSocketServer()
   server!: Namespace;
 
   constructor(
     private readonly wsAuth: WsJwtAuthService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly registry: SocketRegistryService
   ) {}
+
+  handleConnection(client: Socket): void {
+    const user = client.data.user as WsUser | undefined;
+    if (!user?.id) return;
+
+    this.registry.register('game', user.id, client);
+  }
 
   afterInit(server: Namespace): void {
     this.wsAuth.attach(server);
@@ -125,7 +137,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   handleDisconnect(client: Socket): void {
     const data = client.data as Partial<GameSocketData>;
 
-    if (data.matchId !== undefined && data.user) {
+    if (!data.user) return;
+    if (!this.registry.unregister('game', data.user.id, client.id)) return;
+
+    if (data.matchId !== undefined) {
       this.server.to(`match:${data.matchId}`).emit('game:playerLeft', {
         matchId: data.matchId,
         userId: data.user.id,
