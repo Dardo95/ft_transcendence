@@ -1,9 +1,12 @@
 import { Application } from 'pixi.js';
 import { useEffect, useRef } from 'react';
+import { GameScene } from './scenes/GameScene';
+import { testMap } from './map/TileMap';
 
 export function GameViewport() {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
+  const sceneRef = useRef<GameScene | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -32,11 +35,12 @@ export function GameViewport() {
 
         app.renderer.resize(container.clientWidth, container.clientHeight);
         container.appendChild(app.canvas);
+
+        const scene = new GameScene(testMap);
+        sceneRef.current = scene;
+        app.stage.addChild(scene);
       } catch (error) {
-        console.error(
-          '[GameViewport] Failed to initialize Pixi Application:',
-          error
-        );
+        console.error('[GameViewport] Failed to initialize Pixi Application:', error);
       }
     };
 
@@ -59,20 +63,19 @@ export function GameViewport() {
       destroyed = true;
       resizeObserver.disconnect();
 
+      if (sceneRef.current) {
+        sceneRef.current.destroy({ children: true });
+        sceneRef.current = null;
+      }
+
       if (appRef.current) {
         const currentApp = appRef.current;
         appRef.current = null;
 
         try {
-          currentApp.destroy(
-            { removeView: true },
-            { children: true, texture: true }
-          );
+          currentApp.destroy({ removeView: true }, { children: true, texture: true });
         } catch (error) {
-          console.warn(
-            '[GameViewport] Failed to destroy Pixi Application safely:',
-            error
-          );
+          console.warn('[GameViewport] Failed to destroy Pixi Application safely:', error);
         }
       }
     };
