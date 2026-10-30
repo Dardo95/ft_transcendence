@@ -4,8 +4,9 @@ import sharp from 'sharp';
 
 const RAW_DIR = path.resolve('public/game/raw');
 const OUT_DIR = path.resolve('public/game/atlas');
-const TILE_SIZE = 32;
+const TILE_SIZE = 64;
 const COLS = 8;
+const PADDING = 1;
 
 // Solo tiles/props estáticos para el mapa
 const TILE_KEYS = [
@@ -30,8 +31,9 @@ if (files.length === 0) {
 
 const count = files.length;
 const rows = Math.ceil(count / COLS);
-const width = COLS * TILE_SIZE;
-const height = rows * TILE_SIZE;
+const paddedSize = TILE_SIZE + PADDING * 2;
+const width = COLS * paddedSize;
+const height = rows * paddedSize;
 
 const composites = [];
 const frames = {};
@@ -40,11 +42,10 @@ for (let i = 0; i < files.length; i++) {
   const file = files[i];
   const col = i % COLS;
   const row = Math.floor(i / COLS);
-  const x = col * TILE_SIZE;
-  const y = row * TILE_SIZE;
+  const x = col * paddedSize;
+  const y = row * paddedSize;
 
-  // Normalizar a 32x32 por si vienen con otro tamaño
-  const buffer = await sharp(path.join(RAW_DIR, file))
+  const resized = await sharp(path.join(RAW_DIR, file))
     .resize(TILE_SIZE, TILE_SIZE, {
       fit: 'cover',
       position: 'center',
@@ -52,14 +53,45 @@ for (let i = 0; i < files.length; i++) {
     .png()
     .toBuffer();
 
+  const topRow = await sharp(resized).extract({ left: 0, top: 0, width: TILE_SIZE, height: 1 }).toBuffer();
+  const bottomRow = await sharp(resized).extract({ left: 0, top: TILE_SIZE - 1, width: TILE_SIZE, height: 1 }).toBuffer();
+  const leftCol = await sharp(resized).extract({ left: 0, top: 0, width: 1, height: TILE_SIZE }).toBuffer();
+  const rightCol = await sharp(resized).extract({ left: TILE_SIZE - 1, top: 0, width: 1, height: TILE_SIZE }).toBuffer();
+  const topLeft = await sharp(resized).extract({ left: 0, top: 0, width: 1, height: 1 }).toBuffer();
+  const topRight = await sharp(resized).extract({ left: TILE_SIZE - 1, top: 0, width: 1, height: 1 }).toBuffer();
+  const bottomLeft = await sharp(resized).extract({ left: 0, top: TILE_SIZE - 1, width: 1, height: 1 }).toBuffer();
+  const bottomRight = await sharp(resized).extract({ left: TILE_SIZE - 1, top: TILE_SIZE - 1, width: 1, height: 1 }).toBuffer();
+
+  const extruded = await sharp({
+    create: {
+      width: paddedSize,
+      height: paddedSize,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite([
+      { input: resized, left: PADDING, top: PADDING },
+      { input: topRow, left: PADDING, top: 0 },
+      { input: bottomRow, left: PADDING, top: paddedSize - 1 },
+      { input: leftCol, left: 0, top: PADDING },
+      { input: rightCol, left: paddedSize - 1, top: PADDING },
+      { input: topLeft, left: 0, top: 0 },
+      { input: topRight, left: paddedSize - 1, top: 0 },
+      { input: bottomLeft, left: 0, top: paddedSize - 1 },
+      { input: bottomRight, left: paddedSize - 1, top: paddedSize - 1 },
+    ])
+    .png()
+    .toBuffer();
+
   composites.push({
-    input: buffer,
+    input: extruded,
     left: x,
     top: y,
   });
 
   frames[file] = {
-    frame: { x, y, w: TILE_SIZE, h: TILE_SIZE },
+    frame: { x: x + PADDING, y: y + PADDING, w: TILE_SIZE, h: TILE_SIZE },
     rotated: false,
     trimmed: false,
     spriteSourceSize: { x: 0, y: 0, w: TILE_SIZE, h: TILE_SIZE },
@@ -92,4 +124,4 @@ const json = {
 
 fs.writeFileSync(path.join(OUT_DIR, 'tileset.json'), JSON.stringify(json, null, 2));
 
-console.log(`Generated tileset.png (${width}x${height}) with ${count} tiles for map`);
+console.log(`Generated tileset.png (${width}x${height}) with ${count} tiles for map (extruded)`);

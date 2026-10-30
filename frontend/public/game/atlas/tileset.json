@@ -2,102 +2,102 @@
   "frames": {
     "crate_wood.png": {
       "frame": {
-        "x": 0,
-        "y": 0,
-        "w": 32,
-        "h": 32
+        "x": 1,
+        "y": 1,
+        "w": 64,
+        "h": 64
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       },
       "sourceSize": {
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       }
     },
     "tile_floor.png": {
       "frame": {
-        "x": 32,
-        "y": 0,
-        "w": 32,
-        "h": 32
+        "x": 67,
+        "y": 1,
+        "w": 64,
+        "h": 64
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       },
       "sourceSize": {
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       }
     },
     "tile_floor_dirty.png": {
       "frame": {
-        "x": 64,
-        "y": 0,
-        "w": 32,
-        "h": 32
+        "x": 133,
+        "y": 1,
+        "w": 64,
+        "h": 64
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       },
       "sourceSize": {
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       }
     },
     "tile_table.png": {
       "frame": {
-        "x": 96,
-        "y": 0,
-        "w": 32,
-        "h": 32
+        "x": 199,
+        "y": 1,
+        "w": 64,
+        "h": 64
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       },
       "sourceSize": {
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       }
     },
     "tile_wall.png": {
       "frame": {
-        "x": 128,
-        "y": 0,
-        "w": 32,
-        "h": 32
+        "x": 265,
+        "y": 1,
+        "w": 64,
+        "h": 64
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       },
       "sourceSize": {
-        "w": 32,
-        "h": 32
+        "w": 64,
+        "h": 64
       }
     }
   },
@@ -107,8 +107,8 @@
     "image": "tileset.png",
     "format": "RGBA8888",
     "size": {
-      "w": 256,
-      "h": 32
+      "w": 528,
+      "h": 66
     },
     "scale": "1"
   }

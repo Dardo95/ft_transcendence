@@ -1,7 +1,7 @@
 import { Application } from 'pixi.js';
 import { useEffect, useRef } from 'react';
 import { GameScene } from './scenes/GameScene';
-import { testMap } from './map/TileMap';
+import { testMap, TILE_SIZE } from './map/TileMap';
 
 export function GameViewport() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -19,11 +19,29 @@ export function GameViewport() {
 
     let destroyed = false;
 
+    const fitMap = () => {
+      if (destroyed || !appRef.current || !sceneRef.current) {
+        return;
+      }
+      const mapWidth = testMap[0].length * TILE_SIZE;
+      const mapHeight = testMap.length * TILE_SIZE;
+      const cw = container.clientWidth;
+      const ch = container.clientHeight;
+      if (cw === 0 || ch === 0) {
+        return;
+      }
+      const scale = Math.min(cw / mapWidth, ch / mapHeight);
+      const scene = sceneRef.current;
+      scene.scale.set(scale);
+      scene.x = Math.round((cw - mapWidth * scale) / 2);
+      scene.y = Math.round((ch - mapHeight * scale) / 2);
+    };
+
     const init = async () => {
       try {
         await app.init({
           background: '#0f1026',
-          antialias: true,
+          antialias: false,
           resolution: window.devicePixelRatio || 1,
           autoDensity: true,
         });
@@ -39,6 +57,8 @@ export function GameViewport() {
         const scene = new GameScene(testMap);
         sceneRef.current = scene;
         app.stage.addChild(scene);
+
+        fitMap();
       } catch (error) {
         console.error('[GameViewport] Failed to initialize Pixi Application:', error);
       }
@@ -55,6 +75,7 @@ export function GameViewport() {
         return;
       }
       appRef.current.renderer.resize(clientWidth, clientHeight);
+      fitMap();
     });
 
     resizeObserver.observe(container);
@@ -84,7 +105,8 @@ export function GameViewport() {
   return (
     <div
       ref={containerRef}
-      className="relative h-[70vh] w-full overflow-hidden rounded-xl border border-zinc-700 bg-zinc-950 shadow-lg"
+      className="relative h-[calc(100dvh-80px)] w-full overflow-hidden bg-zinc-950"
+      style={{ imageRendering: 'pixelated' }}
       aria-label="Game viewport"
     />
   );
