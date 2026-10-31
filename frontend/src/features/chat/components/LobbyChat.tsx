@@ -30,13 +30,10 @@ export function LobbyChat() {
   const { t } = useLanguage();
 
   const lobbyId = useLobbyStore((state) => state.lobby?.id);
-  const clearMessages = useChatStore(
-    (state) => state.clearMessages,
-  );
+  const clearMessages = useChatStore((state) => state.clearMessages);
 
   React.useEffect(() => {
-    if (!lobbyId)
-      return;
+    if (!lobbyId) return;
     clearMessages();
     const cleanup = initChatListeners();
     return () => {
@@ -48,12 +45,7 @@ export function LobbyChat() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanText = inputValue.trim();
-    if (
-      !lobbyId ||
-      !isConnected ||
-      !cleanText ||
-      cleanText.length > 500
-    ) {
+    if (!lobbyId || !isConnected || !cleanText || cleanText.length > 500) {
       return;
     }
     sendMessage(cleanText);
@@ -119,11 +111,11 @@ export function LobbyChat() {
                             <span>•</span>
                             <span>
                               {new Date(msg.timestamp).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
                               })}
                             </span>
-                            </span>
+                          </span>
 
                           <Bubble
                             align={isMe ? 'end' : 'start'}

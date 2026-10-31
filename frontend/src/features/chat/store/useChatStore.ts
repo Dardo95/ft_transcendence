@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { chatSocket } from '@/lib/socket';
 
@@ -25,11 +24,7 @@ export const useChatStore = create<ChatState>((set) => ({
   sendMessage: (text) => {
     const cleanText = text.trim();
 
-    if (
-      !cleanText ||
-      cleanText.length > 500 ||
-      !chatSocket.connected
-    ) {
+    if (!cleanText || cleanText.length > 500 || !chatSocket.connected) {
       return;
     }
 

@@ -51,6 +51,7 @@ COPY --chown=node:node --from=production-dependencies /app/backend/node_modules 
 COPY --chown=node:node --from=builder /app/backend/dist ./backend/dist
 COPY --chown=node:node --from=builder /app/backend/package*.json ./backend/
 COPY --chown=node:node --from=builder /app/backend/prisma ./backend/prisma
+COPY --chown=node:node --from=builder /app/backend/maps ./backend/maps
 
 WORKDIR /app/backend
 

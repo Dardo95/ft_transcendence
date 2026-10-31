@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 
 import type { GameMode } from '@transcendence/shared';
 
-import type { LoadedMap } from '../maps/map-loader.js';
+import { MapRegistryService } from '../maps/map-registry.service.js';
 
 import {
   createGameSession,
@@ -19,7 +19,7 @@ import type { GameTickResult } from '../engine/game-engine.js';
 
 export interface CreateManagedGameInput {
   mode: GameMode;
-  map: LoadedMap;
+  mapId: string;
   players: GameSessionPlayerInput[];
 }
 
@@ -36,7 +36,7 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
 
   private readonly gameLoop: GameLoop;
 
-  constructor() {
+  constructor(private readonly mapRegistry: MapRegistryService) {
     this.gameLoop = new GameLoop({
       getSessions: () => this.sessions.values(),
 
@@ -67,9 +67,14 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
   createSession(input: CreateManagedGameInput): GameSession {
     this.assertPlayersAvailable(input.players);
 
+    // Resolver el mapa mediante su identificador.
+    const map = this.mapRegistry.getMap(input.mapId);
+
     const session = createGameSession({
-      ...input,
       id: randomUUID(),
+      mode: input.mode,
+      map,
+      players: input.players,
       nowMs: this.gameLoop.nowMs(),
     });
 
