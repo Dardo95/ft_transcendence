@@ -97,6 +97,31 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
     );
   }
 
+  /**
+   * Indica si un usuario ya participa en una sesión activa.
+   * Acepta IDs numéricos (identidad de Prisma) y cadenas
+   * para mantener compatible el motor con sus identificadores.
+   */
+  hasActiveSessionForUser(userId: number | string): boolean {
+    const targetId = String(userId);
+
+    for (const session of this.sessions.values()) {
+      if (session.status === 'FINISHED') {
+        continue;
+      }
+
+      for (const player of session.players.values()) {
+        const playerIdentity = player.userId ?? player.id;
+
+        if (playerIdentity === targetId) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   getNowMs(): number {
     return this.gameLoop.nowMs();
   }

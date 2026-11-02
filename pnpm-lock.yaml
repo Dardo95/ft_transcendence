@@ -98,6 +98,9 @@ importers:
       prettier:
         specifier: ^3.4.2
         version: 3.9.10
+      socket.io-client:
+        specifier: ^4.8.4
+        version: 4.8.4(supports-color@7.2.0)
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
