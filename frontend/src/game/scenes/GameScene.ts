@@ -1,4 +1,4 @@
-import { Assets, Container, Sprite, Texture, SCALE_MODES } from 'pixi.js';
+import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { getTileTexture, TILE_SIZE } from '../map/TileMap';
 
 export class GameScene extends Container {
@@ -28,7 +28,7 @@ export class GameScene extends Container {
       for (const key in textures) {
         const texture = textures[key];
         if (texture?.source) {
-          texture.source.scaleMode = SCALE_MODES.NEAREST;
+          texture.source.scaleMode = 'nearest';
           texture.source.autoGenerateMipmaps = false;
         }
       }
@@ -54,7 +54,7 @@ export class GameScene extends Container {
         sprite.width = TILE_SIZE;
         sprite.height = TILE_SIZE;
         if (sprite.texture?.source) {
-          sprite.texture.source.scaleMode = SCALE_MODES.NEAREST;
+          sprite.texture.source.scaleMode = 'nearest';
         }
         sprite.x = Math.round(x * TILE_SIZE);
         sprite.y = Math.round(y * TILE_SIZE);
