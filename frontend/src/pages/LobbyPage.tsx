@@ -16,7 +16,6 @@ import { MapSelector } from '../features/lobby/components/MapSelector';
 import { GameSettingsCard } from '../features/lobby/components/GameSettingsCard';
 import { MatchmakingButton } from '../features/lobby/components/MatchmakingButton';
 
-import type { FriendUser } from '@/features/friends/service/friendsService';
 import type {
   GameMode,
   MapId,
@@ -28,22 +27,19 @@ export function LobbyPage() {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  // Estado de conexión del socket
+  // Socket connection state
   const isConnected = useSocketStore((state) => state.isConnected);
-  const connect = useSocketStore((state) => state.connect);
-  const disconnect = useSocketStore((state) => state.disconnect);
   const socket = useSocketStore((state) => state.socket);
 
-  // Estado del lobby
+  // Lobby state
   const lobby = useLobbyStore((state) => state.lobby);
   const error = useLobbyStore((state) => state.error);
   const notice = useLobbyStore((state) => state.notice);
 
-  const inviteFriend = useLobbyStore((state) => state.inviteFriendToLobby);
   const lobbyListeners = useLobbyStore((state) => state.initListeners);
   const friendsListeners = useFriendsStore((state) => state.initListeners);
 
-  // Estados de configuración de partida
+  // Game settings state
   const [selectedMode, setSelectedMode] = useState<GameMode>('practice');
   const [selectedMap, setSelectedMap] = useState<MapId>('map1');
   const [settings, setSettings] = useState<GameSettings>({
@@ -52,14 +48,13 @@ export function LobbyPage() {
     fuseTime: 3,
   });
 
-  // Estados de búsqueda
+  // Search states
   const [isSearching, setIsSearching] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Host y número de jugadores en el lobby
+  // Host and player count in lobby
   const user = useAuthStore((state) => state.user);
-  const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
   const isHost =
     !!lobby?.hostUserId && !!user?.id && lobby.hostUserId === user.id;
   const playersCount = lobby?.members?.length ?? 1;
@@ -67,19 +62,15 @@ export function LobbyPage() {
   useEffect(() => {
     const cleanupLobbyListeners = lobbyListeners();
     const cleanupFriendsListeners = friendsListeners();
-    if (isAuthChecked && user) {
-      connect();
-    }
 
     return () => {
       cleanupLobbyListeners();
       cleanupFriendsListeners();
-      disconnect();
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [lobbyListeners, friendsListeners, connect, disconnect, isAuthChecked, user]);
+  }, [lobbyListeners, friendsListeners]);
 
-  // Listener del socket para recibir el id de partida desde backend
+  // Socket listener to receive match id from backend
   useEffect(() => {
     if (!socket) return;
 
@@ -112,7 +103,7 @@ export function LobbyPage() {
       setCountdown(10);
       socket?.emit('matchmaking:queue_join', payload);
 
-      // Temporizador de 10 segundos para rellenar
+      // 10-second countdown timer
       timerRef.current = setInterval(() => {
         setCountdown((prev) => {
           if (prev !== null && prev <= 1) {
@@ -133,14 +124,6 @@ export function LobbyPage() {
     socket?.emit('matchmaking:queue_leave');
   };
 
-  const handleInviteToLobby = async (friend: FriendUser) => {
-    try {
-      await inviteFriend(friend.username);
-    } catch {
-      // Handled silently
-    }
-  };
-
   const currentPayload: MatchmakingPayload = {
     mode: selectedMode,
     mapId: selectedMap,
@@ -156,8 +139,8 @@ export function LobbyPage() {
       <div className="mb-4 flex items-center justify-between gap-3">
         <span className="text-sm text-zinc-400">
           {isConnected
-            ? t('app.general.connected') || 'Conectado al servidor'
-            : t('app.general.connecting') || 'Conectando...'}
+            ? t('app.general.connected') || 'Connected to server'
+            : t('app.general.connecting') || 'Connecting...'}
         </span>
 
         <span
@@ -224,7 +207,6 @@ export function LobbyPage() {
         {/* Columna lateral: amigos y chat */}
         <div className="space-y-4">
           <FriendsListCard
-            onInviteToLobby={handleInviteToLobby}
             onSpectate={(gameId) => {
               navigate(`/game/${gameId}?mode=spectator`);
             }}
@@ -235,7 +217,7 @@ export function LobbyPage() {
           ) : (
             <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
               {t('app.lobby.joinLobbyToChat') ||
-                'Entra en un lobby para utilizar el chat privado con sus miembros.'}
+                'Join a lobby to use private chat with its members.'}
             </Card>
           )}
         </div>
