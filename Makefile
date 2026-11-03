@@ -376,3 +376,17 @@ help:
 		typecheck lint buildcheck test allcheck envcheck \
 		ps config volumes images stats logs f \
 		help FORCE
+
+assets:
+	@echo "$(CYAN)Syncing sprites to public/game...$(RESET)"
+	docker compose exec -T frontend pnpm assets:sync
+	@echo ""
+
+atlas:
+	@echo "$(CYAN)Generating sprite atlas...$(RESET)"
+	docker compose exec -T frontend pnpm atlas:build
+	@echo ""
+
+game-assets: assets atlas
+	@echo "$(GREEN)Game assets ready.$(RESET)"
+	@echo ""

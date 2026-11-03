@@ -12,7 +12,9 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
     "test": "vitest run --passWithNoTests",
-    "atlas:build": "node scripts/generate-atlas.mjs"
+    "atlas:build": "node scripts/generate-atlas.mjs",
+    "assets:sync": "node scripts/sync-assets.mjs",
+    "assets:build": "pnpm assets:sync && pnpm atlas:build"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.2.1",
