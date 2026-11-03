@@ -375,7 +375,7 @@ help:
 		dev studio \
 		typecheck lint buildcheck test allcheck envcheck \
 		ps config volumes images stats logs f \
-		help FORCE
+		help FORCE assets atlas game-assets
 
 assets:
 	@echo "$(CYAN)Syncing sprites to public/game...$(RESET)"
