@@ -2,13 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 
-const RAW_DIR = path.resolve('public/game/raw');
+const RAW_DIR = path.resolve('src/assets/sprites/');
 const OUT_DIR = path.resolve('public/game/atlas');
 const TILE_SIZE = 64;
 const COLS = 8;
 const PADDING = 1;
 
-// Solo tiles/props estáticos para el mapa
 const TILE_KEYS = [
   'tile_floor.png',
   'tile_floor_dirty.png',

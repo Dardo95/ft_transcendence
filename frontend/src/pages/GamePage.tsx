@@ -2,7 +2,7 @@ import { GameViewport } from '../game';
 
 export function GamePage() {
   return (
-    <div className="w-full h-full">
+    <div className="h-full w-full">
       <GameViewport />
     </div>
   );

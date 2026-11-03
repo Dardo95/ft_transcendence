@@ -30,11 +30,13 @@ export function GameViewport() {
       if (cw === 0 || ch === 0) {
         return;
       }
-      const scale = Math.min(cw / mapWidth, ch / mapHeight);
       const scene = sceneRef.current;
-      scene.scale.set(scale);
-      scene.x = Math.round((cw - mapWidth * scale) / 2);
-      scene.y = Math.round((ch - mapHeight * scale) / 2);
+      const renderWidth = Math.max(cw, mapWidth);
+      const renderHeight = Math.max(ch, mapHeight);
+      app.renderer.resize(renderWidth, renderHeight);
+      scene.scale.set(1);
+      scene.x = Math.round((renderWidth - mapWidth) / 2);
+      scene.y = Math.round((renderHeight - mapHeight) / 2);
     };
 
     const init = async () => {
@@ -60,7 +62,10 @@ export function GameViewport() {
 
         fitMap();
       } catch (error) {
-        console.error('[GameViewport] Failed to initialize Pixi Application:', error);
+        console.error(
+          '[GameViewport] Failed to initialize Pixi Application:',
+          error
+        );
       }
     };
 
@@ -94,9 +99,15 @@ export function GameViewport() {
         appRef.current = null;
 
         try {
-          currentApp.destroy({ removeView: true }, { children: true, texture: true });
+          currentApp.destroy(
+            { removeView: true },
+            { children: true, texture: true }
+          );
         } catch (error) {
-          console.warn('[GameViewport] Failed to destroy Pixi Application safely:', error);
+          console.warn(
+            '[GameViewport] Failed to destroy Pixi Application safely:',
+            error
+          );
         }
       }
     };
@@ -105,7 +116,7 @@ export function GameViewport() {
   return (
     <div
       ref={containerRef}
-      className="relative h-[calc(100dvh-80px)] w-full overflow-hidden bg-zinc-950"
+      className="relative h-[calc(100dvh-80px)] w-full overflow-auto bg-zinc-950"
       style={{ imageRendering: 'pixelated' }}
       aria-label="Game viewport"
     />
