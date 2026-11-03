@@ -31,6 +31,10 @@ export const appEs = {
     connected: 'Conectado al servidor',
     connecting: 'Conectando...',
     connectingStatus: 'Conectando...',
+    openSession: 'Sesión abierta en otra ventana',
+    sessionReplaced:
+      'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.',
+    reloadSession: 'Recuperar sesión',
   },
   lobby: {
     lobbyTitle: 'Lobby',

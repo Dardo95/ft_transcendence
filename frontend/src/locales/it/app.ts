@@ -31,6 +31,10 @@ export const appIt = {
     connected: 'Connesso al server',
     connecting: 'Connessione in corso...',
     connectingStatus: 'Connessione in corso...',
+    openSession: "Sessione aperta in un'altra finestra",
+    sessionReplaced:
+      "Questo account è stato aperto in un'altra scheda o dispositivo. Questa finestra è stata disconnessa.",
+    reloadSession: 'Recupera sessione',
   },
   lobby: {
     lobbyTitle: 'Lobby',

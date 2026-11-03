@@ -21,12 +21,16 @@ import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { SideDrawer } from './SideDrawer';
+import { SessionReplacedOverlay } from './SessionReplacedOverlay';
 
 export function AppLayout() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col justify-between bg-slate-950 font-sans text-slate-100">
+      {/* Overlay for session replacement */}
+      <SessionReplacedOverlay />
+
       {/* Top navigation bar */}
       <Header onOpenDrawer={() => setIsDrawerOpen(true)} />
 

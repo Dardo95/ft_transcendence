@@ -26,6 +26,10 @@ export const appEn = {
     connected: 'Connected to server',
     connecting: 'Connecting...',
     connectingStatus: 'Connecting...',
+    openSession: 'Session opened in another window',
+    sessionReplaced:
+      'This account has been logged in on another tab or device. This window has been disconnected.',
+    reloadSession: 'Recover session',
   },
   lobby: {
     lobbyTitle: 'Lobby',
