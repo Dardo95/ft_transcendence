@@ -93,7 +93,7 @@ export const appEn = {
   },
   friends: {
     friendList: 'Friend List',
-    addFriendPlaceholder: 'Add friend: Enter exact username',
+    addFriendPlaceholder: 'Add friend: enter the username',
     addFriendButton: 'Send',
     friendRequestSent: 'Request sent to',
     requestSendError: 'Error sending request',
@@ -117,5 +117,8 @@ export const appEn = {
     onlineStatus: 'Online',
     inGameStatus: 'In game',
     offlineStatus: 'Offline',
+    sent: 'Sent',
+    add: '+ Add',
+    noResults: 'No results found.',
   },
 } as const;

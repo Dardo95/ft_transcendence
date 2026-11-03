@@ -96,7 +96,7 @@ export const appIt = {
   },
   friends: {
     friendList: 'Lista amici',
-    addFriendPlaceholder: 'Aggiungi amico: Inserisci il nome utente esatto',
+    addFriendPlaceholder: 'Aggiungi amico: inserisci il nome utente',
     addFriendButton: 'Invia',
     friendRequestSent: 'Richiesta inviata a',
     requestSendError: "Errore nell'invio della richiesta",
@@ -119,5 +119,8 @@ export const appIt = {
     onlineStatus: 'Online',
     inGameStatus: 'In partita',
     offlineStatus: 'Offline',
+    sent: 'Inviata',
+    add: '+ Aggiungi',
+    noResults: 'Nessun risultato trovato.',
   },
 } as const;

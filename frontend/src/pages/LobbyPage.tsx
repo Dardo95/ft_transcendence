@@ -59,6 +59,7 @@ export function LobbyPage() {
 
   // Host y número de jugadores en el lobby
   const user = useAuthStore((state) => state.user);
+  const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
   const isHost =
     !!lobby?.hostUserId && !!user?.id && lobby.hostUserId === user.id;
   const playersCount = lobby?.members?.length ?? 1;
@@ -66,7 +67,9 @@ export function LobbyPage() {
   useEffect(() => {
     const cleanupLobbyListeners = lobbyListeners();
     const cleanupFriendsListeners = friendsListeners();
-    connect();
+    if (isAuthChecked && user) {
+      connect();
+    }
 
     return () => {
       cleanupLobbyListeners();
@@ -74,7 +77,7 @@ export function LobbyPage() {
       disconnect();
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [lobbyListeners, friendsListeners, connect, disconnect]);
+  }, [lobbyListeners, friendsListeners, connect, disconnect, isAuthChecked, user]);
 
   // Listener del socket para recibir el id de partida desde backend
   useEffect(() => {
@@ -133,8 +136,8 @@ export function LobbyPage() {
   const handleInviteToLobby = async (friend: FriendUser) => {
     try {
       await inviteFriend(friend.username);
-    } catch (err) {
-      console.error('Error al invitar al lobby:', err);
+    } catch {
+      // Handled silently
     }
   };
 

@@ -14,7 +14,8 @@ export function SessionReplacedOverlay() {
           {t('app.general.openSession') || 'Sesión abierta en otra ventana'}
         </h2>
         <p className="mt-2 text-sm text-zinc-400">
-          { t('app.general.sessionReplaced') || 'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.' }
+          {t('app.general.sessionReplaced') ||
+            'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.'}
         </p>
         <button
           type="button"

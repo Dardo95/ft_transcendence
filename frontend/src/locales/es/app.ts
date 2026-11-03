@@ -96,7 +96,7 @@ export const appEs = {
   },
   friends: {
     friendList: 'Lista de Amigos',
-    addFriendPlaceholder: 'Añadir amigo: Introducir nombre de usuario exacto',
+    addFriendPlaceholder: 'Añadir amigo: introducir nombre de usuario',
     addFriendButton: 'Enviar',
     friendRequestSent: 'Solicitud enviada a',
     requestSendError: 'Error al enviar solicitud',
@@ -119,5 +119,8 @@ export const appEs = {
     onlineStatus: 'En línea',
     inGameStatus: 'En partida',
     offlineStatus: 'Desconectado',
+    sent: 'Enviada',
+    add: '+ Añadir',
+    noResults: 'No se encontraron resultados.',
   },
 } as const;
