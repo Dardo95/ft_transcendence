@@ -27,6 +27,7 @@ export class UsersService {
         email: true,
         xp: true,
         isOnline: true,
+        avatarUrl: true,
         createdAt: true,
       },
     });
@@ -44,6 +45,7 @@ export class UsersService {
         username: true,
         xp: true,
         isOnline: true,
+        avatarUrl: true,
         createdAt: true,
       },
     });
@@ -68,6 +70,7 @@ export class UsersService {
           username: true,
           xp: true,
           isOnline: true,
+          avatarUrl: true,
           createdAt: true,
         },
         orderBy: { username: 'asc' },

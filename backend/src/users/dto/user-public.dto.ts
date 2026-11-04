@@ -3,5 +3,6 @@ export class UserPublicDto {
   username!: string;
   xp!: number;
   isOnline!: boolean;
+  avatarUrl!: string | null;
   createdAt!: Date;
 }
