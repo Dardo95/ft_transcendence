@@ -9,10 +9,11 @@ services:
     working_dir: /app/backend
     command: sh -c "./node_modules/.bin/prisma db push --skip-generate && ./node_modules/.bin/prisma generate && pnpm run start:dev"
     volumes:
-      - ./shared:/app/shared
-      - ./backend:/app/backend
-      - /app/node_modules
-      - /app/backend/node_modules
+      - ./shared/src:/app/shared/src
+      - ./backend/src:/app/backend/src
+      - ./backend/prisma:/app/backend/prisma
+      - ./backend/test:/app/backend/test
+      - ./backend/uploads:/app/backend/uploads
     environment:
       - NODE_ENV=development
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:5173} # Exported from Makefile when dev
@@ -38,10 +39,15 @@ services:
     working_dir: /app/frontend
     command: pnpm run dev --host 0.0.0.0
     volumes:
-      - ./shared:/app/shared
-      - ./frontend:/app/frontend
-      - /app/node_modules
-      - /app/frontend/node_modules
+      - ./shared/src:/app/shared/src
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/public:/app/frontend/public
+      - ./frontend/index.html:/app/frontend/index.html:ro
+      - ./frontend/vite.config.ts:/app/frontend/vite.config.ts:ro
+      - ./frontend/tsconfig.json:/app/frontend/tsconfig.json:ro
+      - ./frontend/tsconfig.app.json:/app/frontend/tsconfig.app.json:ro
+      - ./frontend/tsconfig.node.json:/app/frontend/tsconfig.node.json:ro
+      - ./frontend/postcss.config.mjs:/app/frontend/postcss.config.mjs:ro
     ports:
       - "5173:5173"
     depends_on:
