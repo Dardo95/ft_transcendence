@@ -1,17 +1,22 @@
 import type { GamePlayerSnapshot } from '@transcendence/shared';
-import { Container, Sprite, Text, type Texture } from 'pixi.js';
+import { Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
 
 import { TILE_SIZE } from '../map/TileMap';
 import { exceedsSnapDistance, smoothTowards } from './interpolation';
 import { getPlayerLabel } from './types';
 
 const LABEL_GAP = 4;
+const PLATE_PADDING_X = 6;
+const PLATE_PADDING_Y = 3;
+const PLATE_RADIUS = 4;
 const DEAD_ALPHA = 0.35;
 
 export class PlayerSprite extends Container {
   readonly playerId: string;
 
   private readonly body: Sprite;
+  private readonly nameGroup = new Container();
+  private readonly namePlate = new Graphics();
   private readonly nameTag: Text;
 
   private targetX = 0;
@@ -35,16 +40,17 @@ export class PlayerSprite extends Container {
       text: getPlayerLabel(player),
       style: {
         fontFamily: 'monospace',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
-        fill: 0xffffff,
-        stroke: { color: 0x0f1026, width: 4 },
+        fill: 0xf8fafc,
       },
     });
     this.nameTag.anchor.set(0.5, 1);
-    this.nameTag.position.set(0, -TILE_SIZE / 2 - LABEL_GAP);
 
-    this.addChild(this.body, this.nameTag);
+    this.nameGroup.addChild(this.namePlate, this.nameTag);
+    this.addChild(this.body, this.nameGroup);
+
+    this.layoutNameTag();
     this.setPlayer(player);
   }
 
@@ -53,6 +59,8 @@ export class PlayerSprite extends Container {
     this.targetY = player.position.y * TILE_SIZE;
 
     this.nameTag.text = getPlayerLabel(player);
+    this.layoutNameTag();
+
     this.alpha = player.alive ? 1 : DEAD_ALPHA;
     this.zIndex = this.targetY;
 
@@ -70,7 +78,7 @@ export class PlayerSprite extends Container {
   }
 
   setLabelsVisible(visible: boolean): void {
-    this.nameTag.visible = visible;
+    this.nameGroup.visible = visible;
   }
 
   update(deltaMs: number): void {
@@ -83,6 +91,28 @@ export class PlayerSprite extends Container {
 
     this.position.set(Math.round(this.renderedX), Math.round(this.renderedY));
     this.zIndex = this.renderedY;
+  }
+
+  private layoutNameTag(): void {
+    const textWidth = Math.ceil(this.nameTag.width);
+    const textHeight = Math.ceil(this.nameTag.height);
+    const plateWidth = textWidth + PLATE_PADDING_X * 2;
+    const plateHeight = textHeight + PLATE_PADDING_Y * 2;
+    const plateBottom = -TILE_SIZE / 2 - LABEL_GAP;
+
+    this.nameTag.position.set(0, plateBottom - PLATE_PADDING_Y);
+
+    this.namePlate
+      .clear()
+      .roundRect(
+        -plateWidth / 2,
+        plateBottom - plateHeight,
+        plateWidth,
+        plateHeight,
+        PLATE_RADIUS
+      )
+      .fill({ color: 0x0f1026, alpha: 0.85 })
+      .stroke({ color: 0xffffff, alpha: 0.15, width: 1 });
   }
 
   private snapToTarget(): void {
