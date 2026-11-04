@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useLanguage } from '../locales/useLanguage';
 import { useAuthStore } from '../features/auth/store/useAuthStore';
@@ -13,6 +14,7 @@ import { Input } from '@/components/ui/input';
 export function LobbyPage() {
   const { t } = useLanguage();
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
   const isConnected = useSocketStore((state) => state.isConnected);
   const connect = useSocketStore((state) => state.connect);
@@ -59,9 +61,19 @@ export function LobbyPage() {
 
   return (
     <div className="w-full max-w-5xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
-      <h1 className="mb-6 text-center text-2xl font-bold text-orange-400">
-        {t('app.Lobby') || 'Lobby'}
-      </h1>
+      <div className="mb-6 flex flex-col items-center gap-3">
+        <h1 className="text-center text-2xl font-bold text-orange-400">
+          {t('app.Lobby') || 'Lobby'}
+        </h1>
+
+        <Button
+          type="button"
+          onClick={() => navigate('/game')}
+          className="bg-orange-600 text-white hover:bg-orange-500"
+        >
+          Abrir Game Lab (dev)
+        </Button>
+      </div>
 
       <div className="mb-4 flex items-center justify-between gap-3">
         <span className="text-sm text-zinc-400">

@@ -69,7 +69,7 @@ export default function App() {
             <Route path="/lobby" element={<LobbyPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/stats" element={<StatsPage />} />
-            <Route path="/game/:id" element={<GamePage />} />
+            <Route path="/game/:id?" element={<GamePage />} />
           </Route>
         </Route>
 
