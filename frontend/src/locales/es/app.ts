@@ -85,6 +85,18 @@ export const appEs = {
     matchmakingPublicText: 'Buscar jugadores para empezar partida',
     searchingText: 'Buscando jugadores...',
     cancelText: 'Cancelar',
+
+    // Notices
+    noticeLobbyCreated: 'Lobby creado correctamente',
+    noticeJoinedLobby: 'Te has unido al lobby',
+    noticeLeftLobby: 'Has salido del lobby',
+    noticeInvitationSent: 'Invitación enviada a',
+
+    // Error texts
+    errorNotConnected: 'No estás conectado al servidor',
+    errorEnterUsername: 'Introduce un nombre de usuario',
+
+    // Info texts
     searchInfoText:
       'Esperando jugadores públicos (arranque automático con 4 jugadores o al agotar el tiempo si hay al menos 2 jugadores).',
     needPrivateText:
@@ -119,6 +131,17 @@ export const appEs = {
     onlineStatus: 'En línea',
     inGameStatus: 'En partida',
     offlineStatus: 'Desconectado',
+    add: '+ Añadir',
+    sent: 'Enviada',
+    noResults: 'No se encontraron usuarios.',
+
+    // Info texts
+    friendSearchError: 'Error buscando usuarios',
+    networkError: 'No se pudo conectar con el servidor.',
+    friendRequestSentTo: 'Solicitud enviada a {username}',
+    friendAlreadySent: 'Solicitud ya enviada a {username}',
+    friendNotFound: 'Usuario {username} no encontrado',
+    sendRequestError: 'Error al enviar solicitud',
   },
   aboutUs: {
     title: 'Sobre nosotros',

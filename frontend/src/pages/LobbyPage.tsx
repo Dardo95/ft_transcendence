@@ -35,6 +35,7 @@ export function LobbyPage() {
   const lobby = useLobbyStore((state) => state.lobby);
   const error = useLobbyStore((state) => state.error);
   const notice = useLobbyStore((state) => state.notice);
+  const noticeData = useLobbyStore((state) => state.noticeData);
 
   const lobbyListeners = useLobbyStore((state) => state.initListeners);
   const friendsListeners = useFriendsStore((state) => state.initListeners);
@@ -155,7 +156,7 @@ export function LobbyPage() {
           role="alert"
           className="mb-4 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300"
         >
-          {error}
+          {t(`app.lobby.${error}`) || error}
         </div>
       )}
 
@@ -164,7 +165,10 @@ export function LobbyPage() {
           role="status"
           className="mb-4 rounded-lg border border-emerald-800 bg-emerald-950/40 p-3 text-sm text-emerald-300"
         >
-          {notice}
+          {t(`app.lobby.${notice}`) || notice}
+          {notice === 'noticeInvitationSent' && noticeData && (
+            <span className="ms-2 text-sm">a {noticeData}</span>
+          )}
         </div>
       )}
 

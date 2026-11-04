@@ -1,6 +1,5 @@
 import { useLanguage } from '../locales/useLanguage';
 
-
 export function RulesPage() {
   const { t } = useLanguage();
 
@@ -9,7 +8,10 @@ export function RulesPage() {
       <h1 className="mb-2 text-2xl font-bold text-orange-400">
         {t('app.aboutGame.title') || 'Game Rules'}
       </h1>
-      <p className="text-sm text-zinc-400">{t('app.aboutGame.subtitle') || 'Guía táctica sobre mecánicas de movimiento, colocación de bombas, tipos de bloques y catálogo de mejoras.'}</p>
+      <p className="text-sm text-zinc-400">
+        {t('app.aboutGame.subtitle') ||
+          'Guía táctica sobre mecánicas de movimiento, colocación de bombas, tipos de bloques y catálogo de mejoras.'}
+      </p>
     </div>
   );
 }

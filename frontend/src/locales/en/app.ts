@@ -83,6 +83,18 @@ export const appEn = {
     matchmakingPublicText: 'Search Players for Match Start',
     searchingText: 'Searching players...',
     cancelText: 'Cancel',
+
+    // Notices
+    noticeLobbyCreated: 'Lobby created successfully',
+    noticeJoinedLobby: 'You joined the lobby',
+    noticeLeftLobby: 'You left the lobby',
+    noticeInvitationSent: 'Invitation sent to',
+
+    // Error texts
+    errorNotConnected: 'You are not connected to the server',
+    errorEnterUsername: 'Enter a username',
+
+    // Info texts
     searchInfoText:
       'Waiting for public players (auto start at 4 players or timeout if >=2 players).',
     needPrivateText:
@@ -120,5 +132,13 @@ export const appEn = {
     sent: 'Sent',
     add: '+ Add',
     noResults: 'No results found.',
+
+    // Info texts
+    friendSearchError: 'Error searching users',
+    networkError: 'Could not connect to the server.',
+    friendRequestSentTo: 'Request sent to {username}',
+    friendAlreadySent: 'Friend request already sent to {username}',
+    friendNotFound: 'User {username} not found',
+    sendRequestError: 'Error sending request',
   },
 } as const;

@@ -1,6 +1,5 @@
 import { useLanguage } from '../locales/useLanguage';
 
-
 export function AboutUsPage() {
   const { t } = useLanguage();
 
@@ -9,7 +8,10 @@ export function AboutUsPage() {
       <h1 className="mb-2 text-2xl font-bold text-orange-400">
         {t('app.aboutUs.title') || 'About Us'}
       </h1>
-      <p className="text-sm text-zinc-400">{t('app.aboutUs.subtitle') || 'Cuatro desarrolladores de 42 Madrid creando una experiencia arcade multijugador en tiempo real impulsada por arquitectura de software moderna.'}</p>
+      <p className="text-sm text-zinc-400">
+        {t('app.aboutUs.subtitle') ||
+          'Cuatro desarrolladores de 42 Madrid creando una experiencia arcade multijugador en tiempo real impulsada por arquitectura de software moderna.'}
+      </p>
     </div>
   );
 }

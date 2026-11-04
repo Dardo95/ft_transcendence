@@ -85,6 +85,18 @@ export const appIt = {
     matchmakingPublicText: 'Cerca giocatori per iniziare la partita',
     searchingText: 'Ricerca giocatori...',
     cancelText: 'Annulla',
+
+    // Notices
+    noticeLobbyCreated: 'Lobby creato correttamente',
+    noticeJoinedLobby: 'Ti sei unito al lobby',
+    noticeLeftLobby: 'Hai lasciato il lobby',
+    noticeInvitationSent: 'Invitazione inviata a',
+
+    // Error texts
+    errorNotConnected: 'Non sei connesso al server',
+    errorEnterUsername: 'Inserisci un nome utente',
+
+    // Info texts
     searchInfoText:
       'In attesa di giocatori pubblici (avvio automatico con 4 giocatori o al timeout se >=2 giocatori).',
     needPrivateText:
@@ -119,6 +131,17 @@ export const appIt = {
     onlineStatus: 'Online',
     inGameStatus: 'In partita',
     offlineStatus: 'Offline',
+    add: '+ Aggiungi',
+    sent: 'Inviata',
+    noResults: 'Nessun risultato trovato.',
+
+    // Info texts
+    friendSearchError: 'Errore nella ricerca di utenti',
+    networkError: 'Impossibile connettersi al server.',
+    friendRequestSentTo: 'Richiesta inviata a {username}',
+    friendAlreadySent: 'Richiesta già inviata a {username}',
+    friendNotFound: 'Utente {username} non trovato',
+    sendRequestError: "Errore nell'invio della richiesta",
   },
   aboutUs: {
     title: 'Informazioni su di noi',
@@ -138,8 +161,5 @@ export const appIt = {
     title: 'Regole del Gioco',
     subtitle:
       'Guida tattica su meccaniche di movimento, posizionamento delle bombe, tipi di blocchi e catalogo di potenziamenti.',
-    sent: 'Inviata',
-    add: '+ Aggiungi',
-    noResults: 'Nessun risultato trovato.',
   },
 } as const;

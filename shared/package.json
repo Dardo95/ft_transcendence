@@ -13,10 +13,10 @@
     "lint": "oxlint --type-aware src/",
     "test": "echo 'No tests configured for shared package'"
   },
-  "dependencies": {},
   "devDependencies": {
+    "oxlint": "^1.58.0",
+    "oxlint-tsgolint": "^7.0.2005",
     "prettier": "^3.4.2",
-    "typescript": "^6.0.2",
-    "oxlint": "^1.58.0"
+    "typescript": "^6.0.2"
   }
 }

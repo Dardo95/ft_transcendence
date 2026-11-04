@@ -4,6 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/locales/useLanguage';
 
+type FeedbackState = {
+  text: string;
+  isError: boolean;
+};
+
 interface UserSearchResult {
   id: number;
   username: string;
@@ -28,10 +33,7 @@ export function AddFriendCard() {
   // Estados para el envío de solicitud por usuario
   const [sendingUser, setSendingUser] = useState<string | null>(null);
   const [sentMap, setSentMap] = useState<Record<string, boolean>>({});
-  const [feedback, setFeedback] = useState<{
-    text: string;
-    isError: boolean;
-  } | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackState | null>(null);
 
   // Referencia para cancelar la petición en vuelo
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -75,7 +77,8 @@ export function AddFriendCard() {
         );
 
         if (!res.ok) {
-          throw new Error('Error searching users');
+          setSearchError(t('app.friends.friendSearchError'));
+          return;
         }
 
         const data: ApiResponse = await res.json();
@@ -84,7 +87,7 @@ export function AddFriendCard() {
         if (err instanceof DOMException && err.name === 'AbortError') {
           return; // Cancelada de forma intencional por nueva pulsación
         }
-        setSearchError('Error connecting to server');
+        setSearchError(t('app.friends.networkError'));
       } finally {
         if (abortControllerRef.current === controller) {
           setIsLoading(false);
@@ -95,7 +98,7 @@ export function AddFriendCard() {
     return () => {
       clearTimeout(timer);
     };
-  }, [targetUsername]);
+  }, [targetUsername, t]);
 
   // Enviar solicitud POST /api/users/me/friend-requests
   async function handleSendRequest(username: string) {
@@ -115,7 +118,10 @@ export function AddFriendCard() {
       if (res.status === 409) {
         setSentMap((prev) => ({ ...prev, [username]: true }));
         setFeedback({
-          text: `Solicitud ya enviada a ${username}`,
+          text: t('app.friends.friendAlreadySent').replace(
+            '{username}',
+            username
+          ),
           isError: false,
         });
         return;
@@ -124,7 +130,7 @@ export function AddFriendCard() {
       if (res.status === 404) {
         setSentMap((prev) => ({ ...prev, [username]: false }));
         setFeedback({
-          text: `Usuario ${username} no encontrado`,
+          text: t('app.friends.friendNotFound').replace('{username}', username),
           isError: true,
         });
         return;
@@ -136,7 +142,13 @@ export function AddFriendCard() {
       }
 
       setSentMap((prev) => ({ ...prev, [username]: true }));
-      setFeedback({ text: `Solicitud enviada a ${username}`, isError: false });
+      setFeedback({
+        text: t('app.friends.friendRequestSentTo').replace(
+          '{username}',
+          username
+        ),
+        isError: false,
+      });
     } catch (err: unknown) {
       // Ignore network / abort errors (no console noise)
       if (err instanceof DOMException && err.name === 'AbortError') return;
@@ -147,7 +159,10 @@ export function AddFriendCard() {
       )
         return;
       setFeedback({
-        text: err instanceof Error ? err.message : 'Error al enviar solicitud',
+        text:
+          err instanceof Error && err.message
+            ? err.message
+            : t('app.friends.sendRequestError'),
         isError: true,
       });
     } finally {

@@ -1,6 +1,5 @@
 import { useLanguage } from '../locales/useLanguage';
 
-
 export function ProjectPage() {
   const { t } = useLanguage();
 
@@ -9,7 +8,10 @@ export function ProjectPage() {
       <h1 className="mb-2 text-2xl font-bold text-orange-400">
         {t('app.aboutProject.title') || 'About the Project'}
       </h1>
-      <p className="text-sm text-zinc-400">{t('app.aboutProject.subtitle') || 'Especificación técnica, arquitectura del sistema y desglose de módulos evaluados según la normativa oficial (v21.2).'}</p>
+      <p className="text-sm text-zinc-400">
+        {t('app.aboutProject.subtitle') ||
+          'Especificación técnica, arquitectura del sistema y desglose de módulos evaluados según la normativa oficial (v21.2).'}
+      </p>
     </div>
   );
 }
