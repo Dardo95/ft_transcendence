@@ -26,6 +26,10 @@ export const appEn = {
     connected: 'Connected to server',
     connecting: 'Connecting...',
     connectingStatus: 'Connecting...',
+    openSession: 'Session opened in another window',
+    sessionReplaced:
+      'This account has been logged in on another tab or device. This window has been disconnected.',
+    reloadSession: 'Recover session',
   },
   lobby: {
     lobbyTitle: 'Lobby',
@@ -89,7 +93,7 @@ export const appEn = {
   },
   friends: {
     friendList: 'Friend List',
-    addFriendPlaceholder: 'Add friend: Enter exact username',
+    addFriendPlaceholder: 'Add friend: enter the username',
     addFriendButton: 'Send',
     friendRequestSent: 'Request sent to',
     requestSendError: 'Error sending request',
@@ -113,24 +117,8 @@ export const appEn = {
     onlineStatus: 'Online',
     inGameStatus: 'In game',
     offlineStatus: 'Offline',
-  },
-  aboutUs: {
-    title: 'About Us',
-    subtitle:
-      'Four developers from 42 Madrid creating a real-time multiplayer arcade experience driven by modern software architecture.',
-    manifesto:
-      'In ft_bomberman we tackle the Common Core challenges by combining system engineering, network concurrency and graphics performance. Our goal is to offer a minimally lagging, desync-resistant competitive environment built under strict security and scalability standards.',
-  },
-  aboutProject: {
-    title: 'About the Project',
-    subtitle:
-      'Technical specification, system architecture and module breakdown evaluated according to official regulation (ft_trascendence v21.2).',
-    officialNotice:
-      'This project has been created as part of the 42 curriculum by ozamora-, brivera, enogueir, and raperez-.',
-  },
-  aboutGame: {
-    title: 'Game Manual — Combat Rules',
-    subtitle:
-      'Tactical guide on movement mechanics, bomb placement, block types and power-up catalog.',
+    sent: 'Sent',
+    add: '+ Add',
+    noResults: 'No results found.',
   },
 } as const;

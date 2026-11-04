@@ -25,7 +25,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
             <h2 className="text-lg font-bold tracking-wider text-orange-400">
-              {t('app.title') || 'ft_boomberman'}
+              {t('app.general.title') || 'ft_boomberman'}
             </h2>
             <button
               onClick={onClose}
@@ -52,7 +52,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
               <span>🏆</span>
-              <span>{t('app.stats') || 'Game Statistics'}</span>
+              <span>{t('app.general.stats') || 'Game Statistics'}</span>
             </Link>
             <Link
               to="/rules"
@@ -60,7 +60,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
               <span>📖</span>
-              <span>{t('app.aboutGame') || 'Rules'}</span>
+              <span>{t('app.general.aboutGame') || 'Rules'}</span>
             </Link>
 
             <Link
@@ -69,7 +69,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
               <span>📦</span>
-              <span>{t('app.aboutProject') || 'Project'}</span>
+              <span>{t('app.general.aboutProject') || 'Project'}</span>
             </Link>
 
             <Link
@@ -78,7 +78,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
               <span>👨‍🍳</span>
-              <span>{t('app.aboutUs') || 'About Us'}</span>
+              <span>{t('app.general.aboutUs') || 'About Us'}</span>
             </Link>
           </nav>
         </div>

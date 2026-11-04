@@ -1,6 +1,11 @@
 /**
  * Spanish application translations.
  * Category: Translation Resource
+ *
+ * Contains user-facing strings grouped by domain so they can be found and
+ * maintained easily, similar to how `auth.ts` organizes authentication texts.
+ *
+ * Translation resources must not contain application logic.
  */
 
 export const appEs = {
@@ -26,6 +31,10 @@ export const appEs = {
     connected: 'Conectado al servidor',
     connecting: 'Conectando...',
     connectingStatus: 'Conectando...',
+    openSession: 'Sesión abierta en otra ventana',
+    sessionReplaced:
+      'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.',
+    reloadSession: 'Recuperar sesión',
   },
   lobby: {
     lobbyTitle: 'Lobby',
@@ -87,7 +96,7 @@ export const appEs = {
   },
   friends: {
     friendList: 'Lista de Amigos',
-    addFriendPlaceholder: 'Añadir amigo: Introducir nombre de usuario exacto',
+    addFriendPlaceholder: 'Añadir amigo: introducir nombre de usuario',
     addFriendButton: 'Enviar',
     friendRequestSent: 'Solicitud enviada a',
     requestSendError: 'Error al enviar solicitud',

@@ -24,6 +24,9 @@
     "typecheck": "tsc --noEmit --incremental false -p tsconfig.json",
     "dev": "pnpm run start:dev"
   },
+  "prisma": {
+    "seed": "node prisma/seed.mjs"
+  },
   "dependencies": {
     "@nestjs/common": "^12.1.0",
     "@nestjs/core": "^12.1.0",

@@ -18,7 +18,9 @@ import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { useChatStore } from '../store/useChatStore';
 import { useLanguage } from '@/locales/useLanguage';
+
 import { cn } from '@/lib/utils';
+import { chatSocket } from '@/lib/socket';
 
 import { useLobbyStore } from '../store/useLobbyStore';
 
@@ -30,7 +32,10 @@ export function LobbyChat() {
   const { t } = useLanguage();
 
   const lobbyId = useLobbyStore((state) => state.lobby?.id);
+  const lobby = useLobbyStore((state) => state.lobby);
+  const addSystemMessage = useChatStore((state) => state.addSystemMessage);
   const clearMessages = useChatStore((state) => state.clearMessages);
+  const prevMembersRef = React.useRef<string[]>([]);
 
   React.useEffect(() => {
     if (!lobbyId) return;
@@ -41,6 +46,37 @@ export function LobbyChat() {
       clearMessages();
     };
   }, [lobbyId, initChatListeners, clearMessages]);
+
+  React.useEffect(() => {
+    if (!lobby || !lobby.members) {
+      prevMembersRef.current = [];
+      return;
+    }
+    const currentIds = lobby.members.map((m) => String(m.userId));
+    const prevIds = prevMembersRef.current;
+    const newIds = currentIds.filter((id) => !prevIds.includes(id));
+    for (const id of newIds) {
+      const member = lobby.members.find((m) => String(m.userId) === id);
+      if (member) {
+        addSystemMessage(
+          `${member.username} ${t('app.lobby.userEnteredLobby') || 'ha entrado al Lobby'}`
+        );
+      }
+    }
+    prevMembersRef.current = currentIds;
+  }, [lobby, addSystemMessage, t]);
+
+  React.useEffect(() => {
+    const handleLeft = (data: { username: string }) => {
+      addSystemMessage(
+        `${data.username} ${t('app.lobby.userLeftLobby') || 'ha salido del Lobby'}`
+      );
+    };
+    chatSocket.on('user:left_lobby', handleLeft);
+    return () => {
+      chatSocket.off('user:left_lobby', handleLeft);
+    };
+  }, [addSystemMessage, t]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +94,7 @@ export function LobbyChat() {
       <div className="mb-2 flex items-center justify-between border-b border-zinc-800 pb-2">
         <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-zinc-300 uppercase">
           <span>💬</span>
-          <span>{t('chat.lobby') || 'Canal General'}</span>
+          <span>{t('app.lobby.lobbyChat') || 'Lobby Chat'}</span>
         </h4>
         <span
           className={`h-2 w-2 rounded-full ${
@@ -66,7 +102,11 @@ export function LobbyChat() {
               ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50'
               : 'bg-red-500'
           }`}
-          title={isConnected ? 'Conectado' : 'Desconectado'}
+          title={
+            isConnected
+              ? t('app.general.connected') || 'Conectado'
+              : t('app.general.connecting') || 'Desconectado'
+          }
         />
       </div>
 
@@ -75,10 +115,10 @@ export function LobbyChat() {
         <MessageScrollerProvider autoScroll>
           <MessageScroller>
             <MessageScrollerViewport>
-              <MessageScrollerContent className="flex flex-col gap-3 p-1">
+              <MessageScrollerContent className="flex flex-col gap-2 p-1">
                 {messages.map((msg, index) => {
                   const isMe = msg.senderId === user?.id;
-                  const isSystem = msg.sender === 'Sistema';
+                  const isSystem = msg.sender === 'System';
                   const isLast = index === messages.length - 1;
 
                   return (
@@ -89,15 +129,23 @@ export function LobbyChat() {
                     >
                       <Message align={isMe ? 'end' : 'start'}>
                         <MessageContent
-                          className={isMe ? 'items-end' : 'items-start'}
+                          className={
+                            isSystem
+                              ? 'items-center'
+                              : isMe
+                                ? 'items-end'
+                                : 'items-start'
+                          }
                         >
                           {/* User info and time aligned to the right if it's mine */}
                           <span
                             className={cn(
                               'mb-1 flex items-center gap-1.5 text-[10px] text-zinc-400',
-                              isMe
-                                ? 'justify-end text-right'
-                                : 'justify-start text-left'
+                              isSystem
+                                ? 'justify-center text-center'
+                                : isMe
+                                  ? 'justify-end text-right'
+                                  : 'justify-start text-left'
                             )}
                           >
                             <span
@@ -118,7 +166,7 @@ export function LobbyChat() {
                           </span>
 
                           <Bubble
-                            align={isMe ? 'end' : 'start'}
+                            align={isSystem ? 'center' : isMe ? 'end' : 'start'}
                             variant={
                               isSystem
                                 ? 'system'
@@ -147,7 +195,10 @@ export function LobbyChat() {
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Enviar mensaje a tu lobby..."
+          placeholder={
+            t('app.lobby.sendMessagePlaceholder') ||
+            'Enviar mensaje a tu lobby...'
+          }
           disabled={!lobbyId || !isConnected}
           maxLength={500}
           className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500"
@@ -164,7 +215,9 @@ export function LobbyChat() {
           className="h-8 bg-orange-600 px-3 text-white hover:bg-orange-500"
         >
           <SendIcon className="size-3.5" />
-          <span className="sr-only">Enviar</span>
+          <span className="sr-only">
+            {t('app.lobby.sendButton') || 'Enviar'}
+          </span>
         </Button>
       </form>
     </Card>

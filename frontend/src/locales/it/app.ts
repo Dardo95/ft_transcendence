@@ -1,6 +1,11 @@
 /**
  * Italian application translations.
  * Category: Translation Resource
+ *
+ * Contains user-facing strings grouped by domain so they can be found and
+ * maintained easily, similar to how `auth.ts` organizes authentication texts.
+ *
+ * Translation resources must not contain application logic.
  */
 
 export const appIt = {
@@ -26,6 +31,10 @@ export const appIt = {
     connected: 'Connesso al server',
     connecting: 'Connessione in corso...',
     connectingStatus: 'Connessione in corso...',
+    openSession: "Sessione aperta in un'altra finestra",
+    sessionReplaced:
+      "Questo account è stato aperto in un'altra scheda o dispositivo. Questa finestra è stata disconnessa.",
+    reloadSession: 'Recupera sessione',
   },
   lobby: {
     lobbyTitle: 'Lobby',
@@ -129,5 +138,8 @@ export const appIt = {
     title: 'Regole del Gioco',
     subtitle:
       'Guida tattica su meccaniche di movimento, posizionamento delle bombe, tipi di blocchi e catalogo di potenziamenti.',
+    sent: 'Inviata',
+    add: '+ Aggiungi',
+    noResults: 'Nessun risultato trovato.',
   },
 } as const;

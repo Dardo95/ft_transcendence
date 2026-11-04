@@ -106,9 +106,9 @@ fclean:
 	rm -f certs/cert.pem certs/key.pem
 	@echo "$(YELLOW)Removing node_modules, dist and caches...$(RESET)"
 	docker run --rm -v "$$(pwd):/app" -w /app alpine sh -c "\
-			rm -rf node_modules backend/node_modules frontend/node_modules shared/node_modules \
-				frontend/dist backend/dist \
-				backend/main.js backend/main.d.ts backend/main.js.map .pnpm-store" 2>/dev/null || true
+		rm -rf node_modules backend/node_modules frontend/node_modules shared/node_modules \
+		frontend/dist backend/dist shared/dist \
+		backend/main.js backend/main.d.ts backend/main.js.map .pnpm-store" 2>/dev/null || true
 	@echo "$(GREEN)Project completely cleaned!$(RESET)"
 	@echo ""
 	@echo "$(YELLOW)[Warning]$(RESET) Local node_modules have been purged."
@@ -116,6 +116,11 @@ fclean:
 	@echo ""
 
 re: clean all
+
+prune:
+	@echo "$(YELLOW)Pruning unused Docker resources...$(RESET)"
+	docker system prune -f
+	@echo ""
 
 # **************************************************************************** #
 # DEVELOPMENT MODE
@@ -139,6 +144,11 @@ dev: prep-env
 studio:
 	@echo "$(CYAN)Opening Prisma Studio...$(RESET)"
 	docker exec -it -w /app/backend ft_backend ./node_modules/.bin/prisma studio --port 5555 --browser none
+	@echo ""
+
+seed:
+	@echo "$(CYAN)Seeding demo data...$(RESET)"
+	docker compose exec -T backend ./node_modules/.bin/prisma db seed
 	@echo ""
 
 # **************************************************************************** #
@@ -181,8 +191,14 @@ test:
 	docker compose exec -T backend pnpm run test:e2e
 	@echo ""
 
-allcheck: typecheck lint buildcheck formatcheck test
+allcheck: typecheck lint buildcheck formatcheck test sharedcheck
 	@echo "$(GREEN)All QA checks passed successfully.$(RESET)"
+	@echo ""
+
+sharedcheck:
+	@echo "$(CYAN)Checking Shared package (format, typecheck)...$(RESET)"
+	pnpm run --filter shared format:check
+	pnpm run --filter shared typecheck
 	@echo ""
 
 envcheck:
@@ -343,6 +359,7 @@ help:
 	@echo "  $(CYAN)Development:$(RESET)"
 	@echo "  make dev            - Dev mode: hot reload at http://localhost:5173"
 	@echo "  make studio         - Open Prisma Studio at http://localhost:5555"
+	@echo "  make seed           - Load demo users and friendships"
 	@echo ""
 	@echo "  $(CYAN)QA & Testing:$(RESET)"
 	@echo "  make typecheck      - Verify TypeScript types in backend and frontend"
@@ -351,6 +368,7 @@ help:
 	@echo "  make buildcheck     - Run build check in backend and frontend"
 	@echo "  make check          - Run full pipeline: typecheck, lint, and test"
 	@echo "  make envcheck       - Check environment variables in host and backend container"
+	@echo "  make sharedcheck    - Check shared code quality"
 	@echo ""
 	@echo "  $(CYAN)Inspection:$(RESET)"
 	@echo "  make ps             - Status of every container"
@@ -380,7 +398,7 @@ help:
 
 .PHONY: all prep prep-env prep-tls build up down \
 		re clean fclean \
-		dev studio \
-		typecheck lint buildcheck test allcheck envcheck \
+		dev studio seed \
+		typecheck lint buildcheck test allcheck envcheck sharedcheck \
 		ps config volumes images stats logs f \
 		help FORCE

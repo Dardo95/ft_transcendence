@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
   OnGatewayInit,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -15,20 +16,113 @@ import { PrismaService } from '../database/prisma.service.js';
 
 import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
+import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 
 @WebSocketGateway({
   namespace: '/chat',
   ...websocketOptions,
 })
-export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection
+{
   @WebSocketServer()
   server!: Namespace;
 
   constructor(
     private readonly wsAuth: WsJwtAuthService,
     private readonly lobbyService: LobbyService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly registry: SocketRegistryService
   ) {}
+
+  async handleConnection(client: Socket): Promise<void> {
+    const user = client.data.user as WsUser | undefined;
+    if (!user?.id) return;
+
+    // 1. Registra el socket y expulsa el de otra pestaña del mismo namespace.
+    this.registry.register('chat', user.id, client);
+
+    // 2. Sala personal: invitaciones y avisos llegan a la pestaña activa.
+    await client.join(`user:${user.id}`);
+
+    // 3. Marca online solo si este socket sigue siendo el activo.
+    try {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { isOnline: true },
+      });
+
+      if (!this.registry.isCurrent('chat', user.id, client.id)) {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { isOnline: false },
+        });
+        return;
+      }
+
+      await this.notifyFriendsStatus(user.id, true);
+    } catch {
+      // Si falla la BD no tumbamos el gateway.
+    }
+  }
+
+  handleDisconnect(client: Socket): void {
+    const user = client.data.user as WsUser | undefined;
+    if (!user?.id) return;
+
+    // Si fue reemplazado, no toca presencia ni lobby.
+    if (!this.registry.unregister('chat', user.id, client.id)) return;
+
+    this.prisma.user
+      .update({ where: { id: user.id }, data: { isOnline: false } })
+      .catch(() => undefined);
+
+    this.notifyFriendsStatus(user.id, false).catch(() => undefined);
+
+    const result = this.lobbyService.leaveLobby(user.id);
+    if (!result || !result.lobby) return;
+
+    this.server
+      .to(`lobby:${result.lobby.id}`)
+      .emit('lobby:updated', result.lobby);
+
+    this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
+      username: user.username,
+    });
+  }
+
+  private async notifyFriendsStatus(userId: number, isOnline: boolean) {
+    try {
+      const friendships = await this.prisma.friendship.findMany({
+        where: {
+          status: 'ACCEPTED',
+          OR: [{ requesterId: userId }, { addresseeId: userId }],
+        },
+        include: {
+          requester: { select: { id: true } },
+          addressee: { select: { id: true } },
+        },
+      });
+      const friendIds = new Set<number>();
+      for (const f of friendships) {
+        const friendId =
+          f.requesterId === userId ? f.addresseeId : f.requesterId;
+        friendIds.add(friendId);
+      }
+      for (const friendId of friendIds) {
+        this.server
+          .to(`user:${friendId}`)
+          .emit('friend:status', { userId, isOnline });
+      }
+
+      // También notificar al propio usuario conectado por si refresca
+      this.server
+        .to(`user:${userId}`)
+        .emit('friend:status', { userId, isOnline });
+    } catch {
+      // Silenciar errores de notificación
+    }
+  }
 
   afterInit(server: Namespace): void {
     this.wsAuth.attach(server);
@@ -93,13 +187,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
       const invitation = this.lobbyService.createInvitation(inviter, invitee);
 
       // 4. Notificar al destinatario si está conectado.
-      for (const socket of this.server.sockets.values()) {
-        const connectedUser = socket.data.user as WsUser | undefined;
-
-        if (connectedUser?.id === invitee.id) {
-          socket.emit('lobby:invitation', invitation);
-        }
-      }
+      this.server.to(`user:${invitee.id}`).emit('lobby:invitation', invitation);
 
       // 5. Confirmar el envío al anfitrión.
       client.emit('lobby:invitationSent', {
@@ -245,8 +333,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
       await client.leave(`lobby:${previousLobby.id}`);
     }
 
-    // Actualizamos a los antiguos compañeros.
+    // Notificar salida del lobby
     if (result?.lobby) {
+      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
+        username: user.username,
+      });
+
+      // Actualizamos a los antiguos compañeros.
       this.server
         .to(`lobby:${result.lobbyId}`)
         .emit('lobby:updated', result.lobby);
@@ -303,26 +396,5 @@ export class ChatGateway implements OnGatewayInit, OnGatewayDisconnect {
 
     // 4. Enviar el mensaje exclusivamente al lobby del remitente.
     this.server.to(`lobby:${lobby.id}`).emit('chat:message', message);
-  }
-
-  handleDisconnect(client: Socket): void {
-    const user = client.data.user as WsUser | undefined;
-
-    // Puede que la conexión se haya rechazado antes de autenticar.
-    if (!user) {
-      return;
-    }
-
-    // Eliminar al usuario del lobby.
-    const result = this.lobbyService.leaveLobby(user.id);
-
-    if (!result || !result.lobby) {
-      return;
-    }
-
-    // Actualizar el estado visible para los miembros restantes.
-    this.server
-      .to(`lobby:${result.lobbyId}`)
-      .emit('lobby:updated', result.lobby);
   }
 }

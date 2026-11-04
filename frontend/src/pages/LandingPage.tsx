@@ -54,13 +54,14 @@ export function LandingPage() {
             <div className="mb-3 flex items-center gap-2 text-sm font-black tracking-widest text-orange-400 uppercase sm:text-base">
               <span className="text-orange-500">❖</span>
               <span>
-                {t('app.battlefield') || 'LA COCINA ES UN CAMPO DE BATALLA'}
+                {t('app.general.battlefield') ||
+                  'LA COCINA ES UN CAMPO DE BATALLA'}
               </span>
               <span className="text-orange-500">❖</span>
             </div>
 
             <p className="max-w-md text-xs font-medium text-zinc-400 sm:text-sm">
-              {t('app.subTitle') ||
+              {t('app.general.subTitle') ||
                 'Fine cuisine, destruction, pressure cookers, and unleashed steam. Sign up or log in to enter the service.'}
             </p>
           </div>

@@ -5,18 +5,23 @@
     "build": "pnpm --filter frontend build && pnpm --filter backend build",
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
+    "build:shared": "pnpm --filter @transcendence/shared build",
     "test": "pnpm --filter frontend test && pnpm --filter backend test",
     "test:frontend": "pnpm --filter frontend test",
     "test:backend": "pnpm --filter backend test",
-    "lint": "pnpm --filter frontend lint && pnpm --filter backend lint",
+    "test:shared": "pnpm --filter @transcendence/shared test",
+    "lint": "pnpm --filter frontend lint && pnpm --filter backend lint && pnpm --filter @transcendence/shared lint",
     "lint:frontend": "pnpm --filter frontend lint",
     "lint:backend": "pnpm --filter backend lint",
-    "typecheck": "pnpm --filter frontend typecheck && pnpm --filter backend typecheck",
+    "lint:shared": "pnpm --filter @transcendence/shared lint",
+    "typecheck": "pnpm --filter frontend typecheck && pnpm --filter backend typecheck && pnpm --filter @transcendence/shared typecheck",
     "typecheck:frontend": "pnpm --filter frontend typecheck",
     "typecheck:backend": "pnpm --filter backend typecheck",
-    "format": "pnpm --filter frontend format && pnpm --filter backend format",
+    "typecheck:shared": "pnpm --filter @transcendence/shared typecheck",
+    "format": "pnpm --filter frontend format && pnpm --filter backend format && pnpm --filter @transcendence/shared format",
     "format:frontend": "pnpm --filter frontend format",
     "format:backend": "pnpm --filter backend format",
-    "format:check": "pnpm --filter frontend format:check && pnpm --filter backend format:check"
+    "format:shared": "pnpm --filter @transcendence/shared format",
+    "format:check": "pnpm --filter frontend format:check && pnpm --filter backend format:check && pnpm --filter @transcendence/shared format:check"
   }
 }
