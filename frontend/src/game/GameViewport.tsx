@@ -1,7 +1,9 @@
-import { Application } from 'pixi.js';
+import { Application, type Ticker } from 'pixi.js';
 import { useEffect, useRef } from 'react';
-import { GameScene } from './scenes/GameScene';
+
 import { testMap, TILE_SIZE } from './map/TileMap';
+import { demoPlayers } from './players/demoPlayers';
+import { GameScene } from './scenes/GameScene';
 
 export function GameViewport() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,6 +20,10 @@ export function GameViewport() {
     appRef.current = app;
 
     let destroyed = false;
+
+    const tick = (ticker: Ticker) => {
+      sceneRef.current?.update(ticker.deltaMS);
+    };
 
     const fitMap = () => {
       if (destroyed || !appRef.current || !sceneRef.current) {
@@ -56,9 +62,10 @@ export function GameViewport() {
         app.renderer.resize(container.clientWidth, container.clientHeight);
         container.appendChild(app.canvas);
 
-        const scene = new GameScene(testMap);
+        const scene = new GameScene(testMap, demoPlayers);
         sceneRef.current = scene;
         app.stage.addChild(scene);
+        app.ticker.add(tick);
 
         fitMap();
       } catch (error) {
@@ -88,6 +95,7 @@ export function GameViewport() {
     return () => {
       destroyed = true;
       resizeObserver.disconnect();
+      appRef.current?.ticker.remove(tick);
 
       if (sceneRef.current) {
         sceneRef.current.destroy({ children: true });
