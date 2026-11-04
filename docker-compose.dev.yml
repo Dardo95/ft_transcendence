@@ -1,12 +1,13 @@
 services:
   
   backend:
+    image: backend:dev
     build:
       context: .
       dockerfile: backend/Dockerfile
       target: builder
     working_dir: /app/backend
-    command: sh -c "./node_modules/.bin/prisma db push && ./node_modules/.bin/prisma generate && pnpm run start:dev"
+    command: sh -c "./node_modules/.bin/prisma db push --skip-generate && ./node_modules/.bin/prisma generate && pnpm run start:dev"
     volumes:
       - ./shared:/app/shared
       - ./backend:/app/backend
@@ -29,6 +30,7 @@ services:
       start_period: 40s
 
   frontend:
+    image: frontend:dev
     build:
       context: .
       dockerfile: frontend/Dockerfile
