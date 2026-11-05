@@ -10,12 +10,14 @@ COPY shared ./shared
 COPY frontend ./frontend
 
 RUN pnpm --filter frontend... install --ignore-scripts
-RUN pnpm --filter @transcendence/shared build
+RUN pnpm --filter @transcendence/shared run build
 
+# Build frontend
 WORKDIR /app/frontend
 
 ARG VITE_API_URL
 ARG VITE_WS_URL
+
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_WS_URL=${VITE_WS_URL}
 
