@@ -185,6 +185,31 @@ export class AuthService {
 
     return this.sign({ id: user.id, username: user.username });
   }
+
+  async getSession(token?: string) {
+    if (!token) {
+      return { user: null };
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync<{ sub: number }>(token);
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          xp: true,
+          isOnline: true,
+          createdAt: true,
+        },
+      });
+      return { user: user ?? null };
+    } catch {
+      return { user: null };
+    }
+  }
+
   /*----------utils-----------*/
 
   private sign(user: { id: number; username: string }) {

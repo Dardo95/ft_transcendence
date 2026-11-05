@@ -51,10 +51,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   checkAuth: async () => {
     set({ error: null, authErrorKey: null });
     try {
-      const response = await getMe();
+      const user = await getMe();
       set({
-        user: 'user' in response ? response.user : response,
-        isAuthenticated: true,
+        user,
+        isAuthenticated: user !== null,
         isAuthChecked: true,
         error: null,
         authErrorKey: null,
@@ -74,9 +74,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ error: null, authErrorKey: null });
     try {
       await loginUser(credentials);
-      const response = await getMe();
+      const user = await getMe();
+      if (!user) throw new Error('Unable to load user session');
       set({
-        user: 'user' in response ? response.user : response,
+        user,
         isAuthenticated: true,
         isAuthChecked: true,
         error: null,
@@ -102,9 +103,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         email: credentials.email,
         password: credentials.password,
       });
-      const response = await getMe();
+      const user = await getMe();
+      if (!user) throw new Error('Unable to load user session');
       set({
-        user: 'user' in response ? response.user : response,
+        user,
         isAuthenticated: true,
         isAuthChecked: true,
         error: null,

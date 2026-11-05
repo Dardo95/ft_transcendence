@@ -67,6 +67,11 @@ export class AuthController {
     };
   }
 
+  @Get('session')
+  session(@Req() req: Request) {
+    return this.authService.getSession(req.cookies?.access_token);
+  }
+
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)

@@ -115,7 +115,25 @@ export function AddFriendCard() {
         body: JSON.stringify({ username }),
       });
 
-      if (res.status === 409) {
+      const body = (await res.json().catch(() => ({}))) as {
+        outcome?: string;
+        message?: string;
+      };
+
+      if (!res.ok) {
+        throw new Error(body.message || `Error ${res.status}`);
+      }
+
+      if (body.outcome === 'not_found') {
+        setSentMap((prev) => ({ ...prev, [username]: false }));
+        setFeedback({
+          text: t('app.friends.friendNotFound').replace('{username}', username),
+          isError: true,
+        });
+        return;
+      }
+
+      if (body.outcome === 'already_exists') {
         setSentMap((prev) => ({ ...prev, [username]: true }));
         setFeedback({
           text: t('app.friends.friendAlreadySent').replace(
@@ -127,18 +145,20 @@ export function AddFriendCard() {
         return;
       }
 
-      if (res.status === 404) {
-        setSentMap((prev) => ({ ...prev, [username]: false }));
+      if (body.outcome === 'self') {
         setFeedback({
-          text: t('app.friends.friendNotFound').replace('{username}', username),
+          text: t('app.friends.friendSelfRequest'),
           isError: true,
         });
         return;
       }
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `Error ${res.status}`);
+      if (body.outcome === 'blocked') {
+        setFeedback({
+          text: t('app.friends.friendBlocked'),
+          isError: true,
+        });
+        return;
       }
 
       setSentMap((prev) => ({ ...prev, [username]: true }));

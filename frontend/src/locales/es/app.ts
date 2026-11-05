@@ -141,6 +141,8 @@ export const appEs = {
     friendRequestSentTo: 'Solicitud enviada a {username}',
     friendAlreadySent: 'Solicitud ya enviada a {username}',
     friendNotFound: 'Usuario {username} no encontrado',
+    friendSelfRequest: 'No puedes añadirte a ti mismo como amigo',
+    friendBlocked: 'No puedes interactuar con este usuario',
     sendRequestError: 'Error al enviar solicitud',
   },
   aboutUs: {

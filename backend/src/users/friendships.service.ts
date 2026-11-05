@@ -1,6 +1,5 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -31,18 +30,32 @@ export class FriendshipsService {
   }
 
   async request(meId: number, username: string) {
-    const other = await this.getUserOrThrow(username);
-    if (other.id === meId)
-      throw new ConflictException('Cannot befriend yourself');
+    const other = await this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true, username: true },
+    });
+
+    if (!other) {
+      return { outcome: 'not_found' as const };
+    }
+
+    if (other.id === meId) {
+      return { outcome: 'self' as const };
+    }
+
     const existing = await this.findBetween(meId, other.id);
     if (existing) {
-      if (existing.status === 'BLOCKED')
-        throw new ForbiddenException('Interaction not allowed');
-      throw new ConflictException('Friend request already exists');
+      if (existing.status === 'BLOCKED') {
+        return { outcome: 'blocked' as const };
+      }
+      return { outcome: 'already_exists' as const, status: existing.status };
     }
-    return this.prisma.friendship.create({
+
+    const friendship = await this.prisma.friendship.create({
       data: { requesterId: meId, addresseeId: other.id },
     });
+
+    return { outcome: 'created' as const, ...friendship };
   }
 
   async accept(meId: number, id: number) {

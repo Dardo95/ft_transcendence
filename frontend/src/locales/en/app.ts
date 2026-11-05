@@ -139,6 +139,8 @@ export const appEn = {
     friendRequestSentTo: 'Request sent to {username}',
     friendAlreadySent: 'Friend request already sent to {username}',
     friendNotFound: 'User {username} not found',
+    friendSelfRequest: 'You cannot add yourself as a friend',
+    friendBlocked: 'You cannot interact with this user',
     sendRequestError: 'Error sending request',
   },
 } as const;

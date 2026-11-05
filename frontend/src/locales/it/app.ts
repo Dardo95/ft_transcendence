@@ -141,6 +141,8 @@ export const appIt = {
     friendRequestSentTo: 'Richiesta inviata a {username}',
     friendAlreadySent: 'Richiesta già inviata a {username}',
     friendNotFound: 'Utente {username} non trovato',
+    friendSelfRequest: 'Non puoi aggiungere te stesso come amico',
+    friendBlocked: 'Non puoi interagire con questo utente',
     sendRequestError: "Errore nell'invio della richiesta",
   },
   aboutUs: {

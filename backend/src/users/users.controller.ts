@@ -4,6 +4,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
@@ -40,12 +42,19 @@ export class UsersController {
   }
 
   @Post('me/friend-requests')
+  @HttpCode(HttpStatus.OK)
   async requestFriend(
     @CurrentUser('sub') userId: number,
     @Body() dto: SendFriendRequestDto
   ) {
     const result = await this.friendships.request(userId, dto.username);
-    if (result && typeof result === 'object' && 'addresseeId' in result) {
+    if (
+      result &&
+      typeof result === 'object' &&
+      'outcome' in result &&
+      result.outcome === 'created' &&
+      'addresseeId' in result
+    ) {
       this.emitToUser(
         Number(result.addresseeId),
         'friend:incoming_request',

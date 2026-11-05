@@ -17,7 +17,7 @@
  */
 
 import { apiFetch } from '../../../api/api';
-import type { AuthCredentials, AuthResponse } from '@transcendence/shared';
+import type { AuthCredentials, UserPublic } from '@transcendence/shared';
 
 // Sends the registration HTTP request for a new user.
 export async function registerUser(
@@ -44,8 +44,12 @@ export async function logoutUser(): Promise<void> {
   });
 }
 
-export async function getMe(): Promise<AuthResponse> {
-  return await apiFetch<AuthResponse>('/users/me', {
-    method: 'GET',
-  });
+export async function getMe(): Promise<UserPublic | null> {
+  const response = await apiFetch<{ user: UserPublic | null }>(
+    '/auth/session',
+    {
+      method: 'GET',
+    }
+  );
+  return response.user ?? null;
 }
