@@ -1,9 +1,7 @@
+import type { UserPublic } from '@transcendence/shared';
 import { apiFetch } from '../../../api/api';
 
-export interface FriendUser {
-  id: number;
-  username: string;
-  avatarUrl?: string | null;
+export interface FriendUser extends UserPublic {
   status?: 'online' | 'in_game' | 'offline';
   currentGameId?: string | null;
 }

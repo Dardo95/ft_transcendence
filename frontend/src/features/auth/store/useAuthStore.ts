@@ -18,15 +18,15 @@ import {
   loginUser,
   logoutUser,
   registerUser,
-  getMe,
+  fetchSession,
 } from '../service/authService';
-import type { AuthCredentials, UserPublic } from '@transcendence/shared';
+import type { AuthCredentials, UserPrivate } from '@transcendence/shared';
 import { resolveAuthErrorKey } from '../utils/authErrorMessage';
 import type { TranslationKey } from '@/locales/translations';
 
 export interface AuthState {
   // State
-  user: UserPublic | null;
+  user: UserPrivate | null;
   isAuthenticated: boolean;
   isAuthChecked: boolean;
   error: string | null;
@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   checkAuth: async () => {
     set({ error: null, authErrorKey: null });
     try {
-      const user = await getMe();
+      const user = await fetchSession();
       set({
         user,
         isAuthenticated: user !== null,
@@ -74,7 +74,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ error: null, authErrorKey: null });
     try {
       await loginUser(credentials);
-      const user = await getMe();
+      const user = await fetchSession();
       if (!user) throw new Error('Unable to load user session');
       set({
         user,
@@ -103,7 +103,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         email: credentials.email,
         password: credentials.password,
       });
-      const user = await getMe();
+      const user = await fetchSession();
       if (!user) throw new Error('Unable to load user session');
       set({
         user,

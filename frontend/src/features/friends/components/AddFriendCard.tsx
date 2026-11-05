@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import type { UserPublic } from '@transcendence/shared';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,14 +10,8 @@ type FeedbackState = {
   isError: boolean;
 };
 
-interface UserSearchResult {
-  id: number;
-  username: string;
-  avatarUrl?: string | null;
-}
-
 interface ApiResponse {
-  data: UserSearchResult[];
+  data: UserPublic[];
   total: number;
   page: number;
   limit: number;
@@ -26,7 +21,7 @@ export function AddFriendCard() {
   const { t } = useLanguage();
 
   const [targetUsername, setTargetUsername] = useState('');
-  const [results, setResults] = useState<UserSearchResult[]>([]);
+  const [results, setResults] = useState<UserPublic[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 

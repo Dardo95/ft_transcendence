@@ -17,7 +17,7 @@
  */
 
 import { apiFetch } from '../../../api/api';
-import type { AuthCredentials, UserPublic } from '@transcendence/shared';
+import type { AuthCredentials, UserPrivate } from '@transcendence/shared';
 
 // Sends the registration HTTP request for a new user.
 export async function registerUser(
@@ -44,12 +44,20 @@ export async function logoutUser(): Promise<void> {
   });
 }
 
-export async function getMe(): Promise<UserPublic | null> {
-  const response = await apiFetch<{ user: UserPublic | null }>(
+// Public session bootstrap. Returns null when there is no active session.
+export async function fetchSession(): Promise<UserPrivate | null> {
+  const response = await apiFetch<{ user: UserPrivate | null }>(
     '/auth/session',
     {
       method: 'GET',
     }
   );
   return response.user ?? null;
+}
+
+// Protected private profile. Throws 401 when there is no valid session.
+export async function getMyProfile(): Promise<UserPrivate> {
+  return apiFetch<UserPrivate>('/users/me', {
+    method: 'GET',
+  });
 }
