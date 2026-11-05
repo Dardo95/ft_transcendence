@@ -16,6 +16,7 @@ RUN pnpm install --frozen-lockfile
 WORKDIR /app/backend
 
 RUN ./node_modules/.bin/prisma generate
+RUN pnpm run build:shared
 RUN pnpm run build
 
 # ---- Production dependencies ----
@@ -51,6 +52,8 @@ COPY --chown=node:node --from=production-dependencies /app/backend/node_modules 
 COPY --chown=node:node --from=builder /app/backend/dist ./backend/dist
 COPY --chown=node:node --from=builder /app/backend/package*.json ./backend/
 COPY --chown=node:node --from=builder /app/backend/prisma ./backend/prisma
+COPY --chown=node:node --from=builder /app/shared/package.json ./shared/package.json
+COPY --chown=node:node --from=builder /app/shared/dist ./shared/dist
 
 WORKDIR /app/backend
 

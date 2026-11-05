@@ -6,7 +6,7 @@ services:
       dockerfile: backend/Dockerfile
       target: builder
     working_dir: /app/backend
-    command: sh -c "./node_modules/.bin/prisma db push && ./node_modules/.bin/prisma generate && pnpm run start:dev"
+    command: sh -c "./node_modules/.bin/prisma db push && ./node_modules/.bin/prisma generate && pnpm exec tsc -p ../shared/tsconfig.json && (pnpm exec tsc -p ../shared/tsconfig.json --watch --preserveWatchOutput &) && ./node_modules/.bin/nest start --watch"
     volumes:
       - ./shared:/app/shared
       - ./backend:/app/backend

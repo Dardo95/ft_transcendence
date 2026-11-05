@@ -107,7 +107,7 @@ fclean:
 	@echo "$(YELLOW)Removing node_modules, dist and caches...$(RESET)"
 	docker run --rm -v "$$(pwd):/app" -w /app alpine sh -c "\
 		rm -rf node_modules backend/node_modules frontend/node_modules shared/node_modules \
-		frontend/dist backend/dist shared/dist \
+		frontend/dist backend/dist shared/dist shared/tsconfig.tsbuildinfo \
 		backend/main.js backend/main.d.ts backend/main.js.map .pnpm-store" 2>/dev/null || true
 	@echo "$(GREEN)Project completely cleaned!$(RESET)"
 	@echo ""
