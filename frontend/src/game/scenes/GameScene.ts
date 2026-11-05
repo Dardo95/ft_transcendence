@@ -1,6 +1,13 @@
-import type { GamePlayerSnapshot } from '@transcendence/shared';
+import type {
+  BombSnapshot,
+  ExplosionSnapshot,
+  GamePlayerSnapshot,
+} from '@transcendence/shared';
 import { Assets, Container, Sprite, Texture } from 'pixi.js';
 
+import { BombLayer } from '../bombs/BombLayer';
+import { ExplosionLayer } from '../bombs/ExplosionLayer';
+import { loadFxTextures } from '../bombs/textures';
 import { getTileTexture, TILE_SIZE } from '../map/TileMap';
 import { PlayerLayer } from '../players/PlayerLayer';
 import { loadPlayerTextures } from '../players/textures';
@@ -10,10 +17,15 @@ export class GameScene extends Container {
   private blockLayer = new Container();
   private wallLayer = new Container();
   private tableLayer = new Container();
+  private bombLayer = new BombLayer();
   private playerLayer = new PlayerLayer();
+  private explosionLayer = new ExplosionLayer();
 
   private map: number[][];
   private players: readonly GamePlayerSnapshot[];
+  private bombs: readonly BombSnapshot[] = [];
+  private explosions: readonly ExplosionSnapshot[] = [];
+  private nowMs = 0;
 
   constructor(map: number[][], players: readonly GamePlayerSnapshot[] = []) {
     super();
@@ -25,9 +37,15 @@ export class GameScene extends Container {
     this.addChild(this.blockLayer);
     this.addChild(this.tableLayer);
     this.addChild(this.wallLayer);
+    this.addChild(this.bombLayer);
     this.addChild(this.playerLayer);
+    this.addChild(this.explosionLayer);
 
     void this.init();
+  }
+
+  get timeMs(): number {
+    return this.nowMs;
   }
 
   setPlayers(players: readonly GamePlayerSnapshot[]): void {
@@ -35,19 +53,34 @@ export class GameScene extends Container {
     this.playerLayer.setPlayers(players);
   }
 
+  setBombs(bombs: readonly BombSnapshot[]): void {
+    this.bombs = bombs;
+    this.bombLayer.setBombs(bombs);
+  }
+
+  setExplosions(explosions: readonly ExplosionSnapshot[]): void {
+    this.explosions = explosions;
+    this.explosionLayer.setExplosions(explosions);
+  }
+
   setLabelsVisible(visible: boolean): void {
     this.playerLayer.setLabelsVisible(visible);
   }
 
   update(deltaMs: number): void {
+    this.nowMs += deltaMs;
+
     this.playerLayer.update(deltaMs);
+    this.bombLayer.update(this.nowMs);
+    this.explosionLayer.update(this.nowMs);
   }
 
   private async init(): Promise<void> {
     try {
-      const [sheet, textures] = await Promise.all([
+      const [sheet, playerTextures, fxTextures] = await Promise.all([
         Assets.load('/game/atlas/tileset.json'),
         loadPlayerTextures(),
+        loadFxTextures(),
       ]);
 
       const atlas = sheet.textures as Record<string, Texture>;
@@ -61,8 +94,12 @@ export class GameScene extends Container {
         }
       }
 
-      this.playerLayer.setTextures(textures);
+      this.playerLayer.setTextures(playerTextures);
       this.playerLayer.setPlayers(this.players);
+      this.bombLayer.setTextures(fxTextures);
+      this.explosionLayer.setTextures(fxTextures);
+      this.setBombs(this.bombs);
+      this.setExplosions(this.explosions);
       this.buildMap();
     } catch (error) {
       console.error('[GameScene] Failed to load assets:', error);

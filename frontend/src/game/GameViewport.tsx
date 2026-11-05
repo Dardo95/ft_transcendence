@@ -5,6 +5,8 @@ import { testMap, TILE_SIZE } from './map/TileMap';
 import { demoPlayers } from './players/demoPlayers';
 import { GameScene } from './scenes/GameScene';
 
+import { demoBombStateAt } from './bombs/demoBombs';
+
 export function GameViewport() {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
@@ -22,7 +24,17 @@ export function GameViewport() {
     let destroyed = false;
 
     const tick = (ticker: Ticker) => {
-      sceneRef.current?.update(ticker.deltaMS);
+      const scene = sceneRef.current;
+
+      if (!scene) {
+        return;
+      }
+
+      scene.update(ticker.deltaMS);
+
+      const demo = demoBombStateAt(scene.timeMs);
+      scene.setBombs(demo.bombs);
+      scene.setExplosions(demo.explosions);
     };
 
     const fitMap = () => {
