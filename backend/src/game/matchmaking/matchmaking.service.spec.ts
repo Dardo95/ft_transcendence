@@ -1,4 +1,3 @@
-
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { MatchmakingRequest } from '@transcendence/shared';
@@ -25,10 +24,7 @@ import {
   type PublicMatchmakingStatusEvent,
 } from './matchmaking.service.js';
 
-function createLobby(
-  id: string,
-  userIds: number[]
-): LobbySnapshot {
+function createLobby(id: string, userIds: number[]): LobbySnapshot {
   return {
     id,
     hostUserId: userIds[0],
@@ -58,24 +54,17 @@ function createHarness(initialLobbies: LobbySnapshot[]) {
   }
 
   let membershipChangedListener:
-    | ((event: LobbyMembershipChangedEvent) => void)
-    | undefined;
+    ((event: LobbyMembershipChangedEvent) => void) | undefined;
 
   const lobbyService = {
-    getLobbyForUser: vi.fn((userId: number) =>
-      lobbyByUserId.get(userId) ?? null
+    getLobbyForUser: vi.fn(
+      (userId: number) => lobbyByUserId.get(userId) ?? null
     ),
 
-    getLobbyById: vi.fn((lobbyId: string) =>
-      lobbies.get(lobbyId) ?? null
-    ),
+    getLobbyById: vi.fn((lobbyId: string) => lobbies.get(lobbyId) ?? null),
 
     subscribeToMembershipChanges: vi.fn(
-      (
-        listener: (
-          event: LobbyMembershipChangedEvent
-        ) => void
-      ) => {
+      (listener: (event: LobbyMembershipChangedEvent) => void) => {
         membershipChangedListener = listener;
 
         return () => {
@@ -120,9 +109,7 @@ function createHarness(initialLobbies: LobbySnapshot[]) {
   } as unknown as GameManagerService;
 
   const mapRegistry = {
-    hasMap: vi.fn((mapId: string) =>
-      ['map1', 'map2'].includes(mapId)
-    ),
+    hasMap: vi.fn((mapId: string) => ['map1', 'map2'].includes(mapId)),
   } as unknown as MapRegistryService;
 
   const service = new MatchmakingService(
@@ -139,10 +126,7 @@ function createHarness(initialLobbies: LobbySnapshot[]) {
     lobbies,
     lobbyByUserId,
 
-    notifyMembershipChanged: (
-      lobbyId: string,
-      memberIds: number[]
-    ) => {
+    notifyMembershipChanged: (lobbyId: string, memberIds: number[]) => {
       membershipChangedListener?.({
         lobbyId,
         memberIds,
@@ -181,10 +165,7 @@ describe('MatchmakingService', () => {
       createLobby('lobby-a', [1]),
     ]);
 
-    const result = service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    const result = service.requestMatchmaking(user(1), request('PUBLIC'));
 
     expect(result).toMatchObject({
       mode: 'PUBLIC',
@@ -201,24 +182,14 @@ describe('MatchmakingService', () => {
   it('starts a fixed 15-second countdown when at least two players are matched', async () => {
     vi.useFakeTimers();
 
-    const {
-      service,
-      gameManager,
-      sessions,
-    } = createHarness([
+    const { service, gameManager, sessions } = createHarness([
       createLobby('lobby-a', [1]),
       createLobby('lobby-b', [2]),
     ]);
 
-    service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(1), request('PUBLIC'));
 
-    const secondResult = service.requestMatchmaking(
-      user(2),
-      request('PUBLIC')
-    );
+    const secondResult = service.requestMatchmaking(user(2), request('PUBLIC'));
 
     expect(secondResult).toMatchObject({
       status: 'COUNTDOWN',
@@ -231,9 +202,7 @@ describe('MatchmakingService', () => {
         : undefined
     ).toBe(Date.now() + PUBLIC_MATCH_COUNTDOWN_MS);
 
-    await vi.advanceTimersByTimeAsync(
-      PUBLIC_MATCH_COUNTDOWN_MS - 1
-    );
+    await vi.advanceTimersByTimeAsync(PUBLIC_MATCH_COUNTDOWN_MS - 1);
 
     expect(gameManager.createSession).not.toHaveBeenCalled();
 
@@ -242,9 +211,10 @@ describe('MatchmakingService', () => {
     expect(sessions).toHaveLength(1);
     expect(sessions[0].mode).toBe('PUBLIC');
 
-    expect(
-      sessions[0].players.map((player) => player.userId)
-    ).toEqual(['1', '2']);
+    expect(sessions[0].players.map((player) => player.userId)).toEqual([
+      '1',
+      '2',
+    ]);
 
     service.onModuleDestroy();
   });
@@ -258,29 +228,18 @@ describe('MatchmakingService', () => {
       createLobby('lobby-c', [3]),
     ]);
 
-    service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(1), request('PUBLIC'));
 
-    service.requestMatchmaking(
-      user(2),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(2), request('PUBLIC'));
 
     await vi.advanceTimersByTimeAsync(5_000);
 
-    const thirdResult = service.requestMatchmaking(
-      user(3),
-      request('PUBLIC')
-    );
+    const thirdResult = service.requestMatchmaking(user(3), request('PUBLIC'));
 
     expect(thirdResult.status).toBe('COUNTDOWN');
 
     expect(
-      'countdownEndsAt' in thirdResult
-        ? thirdResult.countdownEndsAt
-        : undefined
+      'countdownEndsAt' in thirdResult ? thirdResult.countdownEndsAt : undefined
     ).toBe(Date.now() + 10_000);
 
     await vi.advanceTimersByTimeAsync(10_000);
@@ -299,10 +258,7 @@ describe('MatchmakingService', () => {
       createLobby('lobby-two', [4, 5]),
     ]);
 
-    service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(1), request('PUBLIC'));
 
     const waitingGroupResult = service.requestMatchmaking(
       user(4),
@@ -311,15 +267,15 @@ describe('MatchmakingService', () => {
 
     expect(waitingGroupResult.status).toBe('SEARCHING');
 
-    await vi.advanceTimersByTimeAsync(
-      PUBLIC_MATCH_COUNTDOWN_MS
-    );
+    await vi.advanceTimersByTimeAsync(PUBLIC_MATCH_COUNTDOWN_MS);
 
     expect(sessions).toHaveLength(1);
 
-    expect(
-      sessions[0].players.map((player) => player.userId)
-    ).toEqual(['1', '2', '3']);
+    expect(sessions[0].players.map((player) => player.userId)).toEqual([
+      '1',
+      '2',
+      '3',
+    ]);
 
     const secondGroupStatus = service.requestMatchmaking(
       user(4),
@@ -334,31 +290,24 @@ describe('MatchmakingService', () => {
         : undefined
     ).toBe(2);
 
-    await vi.advanceTimersByTimeAsync(
-      PUBLIC_MATCH_COUNTDOWN_MS
-    );
+    await vi.advanceTimersByTimeAsync(PUBLIC_MATCH_COUNTDOWN_MS);
 
     expect(sessions).toHaveLength(2);
 
-    expect(
-      sessions[1].players.map((player) => player.userId)
-    ).toEqual(['4', '5']);
+    expect(sessions[1].players.map((player) => player.userId)).toEqual([
+      '4',
+      '5',
+    ]);
 
     service.onModuleDestroy();
   });
 
   it('creates private matches immediately with the complete lobby', () => {
-    const {
-      service,
-      gameManager,
-    } = createHarness([
+    const { service, gameManager } = createHarness([
       createLobby('lobby-private', [1, 2, 3]),
     ]);
 
-    const result = service.requestMatchmaking(
-      user(1),
-      request('PRIVATE')
-    );
+    const result = service.requestMatchmaking(user(1), request('PRIVATE'));
 
     expect(result).toMatchObject({
       mode: 'PRIVATE',
@@ -392,17 +341,11 @@ describe('MatchmakingService', () => {
   });
 
   it('creates a practice match with one human; the engine factory adds the bot', () => {
-    const {
-      service,
-      gameManager,
-    } = createHarness([
+    const { service, gameManager } = createHarness([
       createLobby('lobby-a', [1]),
     ]);
 
-    const result = service.requestMatchmaking(
-      user(1),
-      request('PRACTICE')
-    );
+    const result = service.requestMatchmaking(user(1), request('PRACTICE'));
 
     expect(result).toMatchObject({
       mode: 'PRACTICE',
@@ -428,32 +371,19 @@ describe('MatchmakingService', () => {
   it('cancels the complete public lobby group instead of splitting it', () => {
     vi.useFakeTimers();
 
-    const {
-      service,
-      gameManager,
-    } = createHarness([
+    const { service, gameManager } = createHarness([
       createLobby('lobby-a', [1, 2]),
     ]);
 
-    service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(1), request('PUBLIC'));
 
     expect(service.cancelMatchmaking(2)).toBe(true);
 
-    const retry = service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    const retry = service.requestMatchmaking(user(1), request('PUBLIC'));
 
     expect(retry.status).toBe('COUNTDOWN');
 
-    expect(
-      'playerCount' in retry
-        ? retry.playerCount
-        : undefined
-    ).toBe(2);
+    expect('playerCount' in retry ? retry.playerCount : undefined).toBe(2);
 
     expect(gameManager.createSession).not.toHaveBeenCalled();
 
@@ -463,27 +393,18 @@ describe('MatchmakingService', () => {
   it('cancels a queued group when its lobby membership changes', async () => {
     vi.useFakeTimers();
 
-    const {
-      service,
-      gameManager,
-      notifyMembershipChanged,
-    } = createHarness([
+    const { service, gameManager, notifyMembershipChanged } = createHarness([
       createLobby('lobby-a', [1, 2]),
     ]);
 
-    service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(1), request('PUBLIC'));
 
     notifyMembershipChanged('lobby-a', [1]);
 
     expect(service.cancelMatchmaking(1)).toBe(false);
     expect(service.cancelMatchmaking(2)).toBe(false);
 
-    await vi.advanceTimersByTimeAsync(
-      PUBLIC_MATCH_COUNTDOWN_MS
-    );
+    await vi.advanceTimersByTimeAsync(PUBLIC_MATCH_COUNTDOWN_MS);
 
     expect(gameManager.createSession).not.toHaveBeenCalled();
 
@@ -500,37 +421,25 @@ describe('MatchmakingService', () => {
 
     const events: PublicMatchmakingStatusEvent[] = [];
 
-    const unsubscribe = service.subscribeToStatusChanges(
-      (event) => {
-        events.push(event);
-      }
-    );
+    const unsubscribe = service.subscribeToStatusChanges((event) => {
+      events.push(event);
+    });
 
-    service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(1), request('PUBLIC'));
 
-    service.requestMatchmaking(
-      user(2),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(2), request('PUBLIC'));
 
     const countdownEvents = events.filter(
       (event) => event.status === 'COUNTDOWN'
     );
 
-    expect(
-      countdownEvents.map((event) => event.lobbyId).sort()
-    ).toEqual([
+    expect(countdownEvents.map((event) => event.lobbyId).sort()).toEqual([
       'lobby-a',
       'lobby-b',
     ]);
 
     expect(
-      countdownEvents.every(
-        (event) => event.playersInCurrentMatch === 2
-      )
+      countdownEvents.every((event) => event.playersInCurrentMatch === 2)
     ).toBe(true);
 
     unsubscribe();
@@ -540,22 +449,15 @@ describe('MatchmakingService', () => {
   it('notifies the complete lobby when its public search is cancelled', () => {
     vi.useFakeTimers();
 
-    const { service } = createHarness([
-      createLobby('lobby-a', [1, 2]),
-    ]);
+    const { service } = createHarness([createLobby('lobby-a', [1, 2])]);
 
     const events: PublicMatchmakingStatusEvent[] = [];
 
-    const unsubscribe = service.subscribeToStatusChanges(
-      (event) => {
-        events.push(event);
-      }
-    );
+    const unsubscribe = service.subscribeToStatusChanges((event) => {
+      events.push(event);
+    });
 
-    service.requestMatchmaking(
-      user(1),
-      request('PUBLIC')
-    );
+    service.requestMatchmaking(user(1), request('PUBLIC'));
 
     service.cancelMatchmaking(1);
 

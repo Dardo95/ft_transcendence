@@ -1,29 +1,12 @@
-export type GameMode =
-  | 'PUBLIC'
-  | 'PRIVATE'
-  | 'PRACTICE';
+export type GameMode = "PUBLIC" | "PRIVATE" | "PRACTICE";
 
-export type GameStatus =
-  | 'COUNTDOWN'
-  | 'RUNNING'
-  | 'OVERTIME'
-  | 'FINISHED';
+export type GameStatus = "COUNTDOWN" | "RUNNING" | "OVERTIME" | "FINISHED";
 
-export type TerrainType =
-  | 'FLOOR'
-  | 'DESTRUCTIBLE'
-  | 'INDESTRUCTIBLE';
+export type TerrainType = "FLOOR" | "DESTRUCTIBLE" | "INDESTRUCTIBLE";
 
-export type PowerUpType =
-  | 'EXTRA_BOMB'
-  | 'BLAST_RADIUS'
-  | 'SPEED';
+export type PowerUpType = "EXTRA_BOMB" | "BLAST_RADIUS" | "SPEED";
 
-export type Direction =
-  | 'UP'
-  | 'DOWN'
-  | 'LEFT'
-  | 'RIGHT';
+export type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 
 export interface Position {
   x: number;

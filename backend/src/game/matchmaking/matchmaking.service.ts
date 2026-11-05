@@ -72,9 +72,7 @@ export interface PublicMatchmakingStatusEvent {
   countdownEndsAt?: number;
 }
 
-type MatchmakingStatusListener = (
-  event: PublicMatchmakingStatusEvent
-) => void;
+type MatchmakingStatusListener = (event: PublicMatchmakingStatusEvent) => void;
 
 type MatchCreatedListener = (event: MatchCreatedEvent) => void;
 
@@ -96,45 +94,42 @@ export class MatchmakingService implements OnModuleDestroy {
 
   private readonly matchCreatedListeners = new Set<MatchCreatedListener>();
 
-  private readonly statusListeners =
-  new Set<MatchmakingStatusListener>();
+  private readonly statusListeners = new Set<MatchmakingStatusListener>();
 
   private readonly unsubscribeFromLobbyChanges: () => void;
 
   constructor(
-  private readonly lobbyService: LobbyService,
-  private readonly gameManager: GameManagerService,
-  private readonly mapRegistry: MapRegistryService
-) {
-  this.unsubscribeFromLobbyChanges =
-    this.lobbyService.subscribeToMembershipChanges((event) => {
-      this.handleLobbyMembershipChanged(event);
-    });
-}
-
-  onModuleDestroy(): void {
-  this.unsubscribeFromLobbyChanges();
-
-  for (const batch of this.activeBatchesByMap.values()) {
-    clearTimeout(batch.timer);
+    private readonly lobbyService: LobbyService,
+    private readonly gameManager: GameManagerService,
+    private readonly mapRegistry: MapRegistryService
+  ) {
+    this.unsubscribeFromLobbyChanges =
+      this.lobbyService.subscribeToMembershipChanges((event) => {
+        this.handleLobbyMembershipChanged(event);
+      });
   }
 
-  this.activeBatchesByMap.clear();
-  this.waitingGroupsByMap.clear();
-  this.groupIdByUserId.clear();
-  this.statusListeners.clear();
-this.matchCreatedListeners.clear();
-}
+  onModuleDestroy(): void {
+    this.unsubscribeFromLobbyChanges();
 
-subscribeToStatusChanges(
-  listener: MatchmakingStatusListener
-): () => void {
-  this.statusListeners.add(listener);
+    for (const batch of this.activeBatchesByMap.values()) {
+      clearTimeout(batch.timer);
+    }
 
-  return () => {
-    this.statusListeners.delete(listener);
-  };
-}
+    this.activeBatchesByMap.clear();
+    this.waitingGroupsByMap.clear();
+    this.groupIdByUserId.clear();
+    this.statusListeners.clear();
+    this.matchCreatedListeners.clear();
+  }
+
+  subscribeToStatusChanges(listener: MatchmakingStatusListener): () => void {
+    this.statusListeners.add(listener);
+
+    return () => {
+      this.statusListeners.delete(listener);
+    };
+  }
 
   /**
    * Entry point for all three matchmaking modes.
@@ -163,106 +158,99 @@ subscribeToStatusChanges(
    * any member removes the complete group rather than splitting it.
    */
 
-cancelMatchmaking(userId: number): boolean {
-  const groupId = this.groupIdByUserId.get(userId);
+  cancelMatchmaking(userId: number): boolean {
+    const groupId = this.groupIdByUserId.get(userId);
 
-  if (!groupId) {
-    return false;
-  }
-
-  const cancelled = this.cancelGroup(groupId);
-
-  if (!cancelled) {
-    // Limpieza defensiva de reservas huérfanas.
-    this.groupIdByUserId.delete(userId);
-  }
-
-  return cancelled;
-}
-
-private handleLobbyMembershipChanged(
-  event: LobbyMembershipChangedEvent
-): void {
-  const group = this.findGroupByLobbyId(event.lobbyId);
-
-  if (!group) {
-    return;
-  }
-
-  const expected = [...group.userIds].sort((a, b) => a - b);
-  const actual = [...event.memberIds].sort((a, b) => a - b);
-
-  const membershipIsUnchanged =
-    expected.length === actual.length &&
-    expected.every((userId, index) => userId === actual[index]);
-
-  if (!membershipIsUnchanged) {
-    // La composición del grupo ha cambiado.
-    // Cancelamos el grupo completo, nunca lo dividimos.
-    this.cancelGroup(group.id);
-  }
-}
-
-private cancelGroup(groupId: string): boolean {
-  for (const [mapId, batch] of this.activeBatchesByMap) {
-    const group = batch.groups.find(
-      (candidate) => candidate.id === groupId
-    );
-
-    if (!group) {
-      continue;
+    if (!groupId) {
+      return false;
     }
 
-    batch.groups = batch.groups.filter(
-      (candidate) => candidate.id !== groupId
-    );
+    const cancelled = this.cancelGroup(groupId);
 
-    batch.playerCount -= group.players.length;
+    if (!cancelled) {
+      // Limpieza defensiva de reservas huérfanas.
+      this.groupIdByUserId.delete(userId);
+    }
 
-    this.releaseGroup(group);
-    this.notifyGroupStatus(group, 'CANCELLED');
+    return cancelled;
+  }
 
-    if (batch.playerCount < 2) {
-      clearTimeout(batch.timer);
-      this.activeBatchesByMap.delete(mapId);
+  private handleLobbyMembershipChanged(
+    event: LobbyMembershipChangedEvent
+  ): void {
+    const group = this.findGroupByLobbyId(event.lobbyId);
 
-      const waiting = this.waitingGroupsByMap.get(mapId) ?? [];
+    if (!group) {
+      return;
+    }
+
+    const expected = [...group.userIds].sort((a, b) => a - b);
+    const actual = [...event.memberIds].sort((a, b) => a - b);
+
+    const membershipIsUnchanged =
+      expected.length === actual.length &&
+      expected.every((userId, index) => userId === actual[index]);
+
+    if (!membershipIsUnchanged) {
+      // La composición del grupo ha cambiado.
+      // Cancelamos el grupo completo, nunca lo dividimos.
+      this.cancelGroup(group.id);
+    }
+  }
+
+  private cancelGroup(groupId: string): boolean {
+    for (const [mapId, batch] of this.activeBatchesByMap) {
+      const group = batch.groups.find((candidate) => candidate.id === groupId);
+
+      if (!group) {
+        continue;
+      }
+
+      batch.groups = batch.groups.filter(
+        (candidate) => candidate.id !== groupId
+      );
+
+      batch.playerCount -= group.players.length;
+
+      this.releaseGroup(group);
+      this.notifyGroupStatus(group, 'CANCELLED');
+
+      if (batch.playerCount < 2) {
+        clearTimeout(batch.timer);
+        this.activeBatchesByMap.delete(mapId);
+
+        const waiting = this.waitingGroupsByMap.get(mapId) ?? [];
+
+        this.waitingGroupsByMap.set(mapId, [...batch.groups, ...waiting]);
+      }
+
+      this.tryStartNextBatch(mapId);
+
+      return true;
+    }
+
+    for (const [mapId, waiting] of this.waitingGroupsByMap) {
+      const group = waiting.find((candidate) => candidate.id === groupId);
+
+      if (!group) {
+        continue;
+      }
 
       this.waitingGroupsByMap.set(
         mapId,
-        [...batch.groups, ...waiting]
+        waiting.filter((candidate) => candidate.id !== groupId)
       );
+
+      this.releaseGroup(group);
+      this.notifyGroupStatus(group, 'CANCELLED');
+
+      this.tryStartNextBatch(mapId);
+
+      return true;
     }
 
-    this.tryStartNextBatch(mapId);
-
-    return true;
+    return false;
   }
-
-  for (const [mapId, waiting] of this.waitingGroupsByMap) {
-    const group = waiting.find(
-      (candidate) => candidate.id === groupId
-    );
-
-    if (!group) {
-      continue;
-    }
-
-    this.waitingGroupsByMap.set(
-      mapId,
-      waiting.filter((candidate) => candidate.id !== groupId)
-    );
-
-    this.releaseGroup(group);
-    this.notifyGroupStatus(group, 'CANCELLED');
-
-    this.tryStartNextBatch(mapId);
-
-    return true;
-  }
-
-  return false;
-}
 
   /** Subscribe to sessions created by public, private or practice matchmaking. */
   subscribeToMatchCreation(listener: MatchCreatedListener): () => void {
@@ -289,15 +277,11 @@ private cancelGroup(groupId: string): boolean {
 
       this.assertSameLobbyMembers(existingGroup, lobby);
 
-const result = this.toPublicResult(existingGroup);
+      const result = this.toPublicResult(existingGroup);
 
-this.notifyGroupStatus(
-  existingGroup,
-  result.status,
-  result
-);
+      this.notifyGroupStatus(existingGroup, result.status, result);
 
-return result;
+      return result;
     }
 
     const group = this.createLobbyGroup(lobby, mapId);
@@ -467,57 +451,53 @@ return result;
    * a match of 2-4 players. During its 15-second countdown, later groups are
    * added only when the complete group fits in the remaining slots.
    */
-private tryStartNextBatch(mapId: string): void {
-  const activeBatch = this.activeBatchesByMap.get(mapId);
+  private tryStartNextBatch(mapId: string): void {
+    const activeBatch = this.activeBatchesByMap.get(mapId);
 
-  if (activeBatch) {
-    this.fillActiveBatch(activeBatch);
+    if (activeBatch) {
+      this.fillActiveBatch(activeBatch);
+      this.notifyMapStatuses(mapId);
+      return;
+    }
+
+    const waiting = this.waitingGroupsByMap.get(mapId) ?? [];
+    const selected = this.selectInitialGroups(waiting);
+
+    if (selected.length === 0) {
+      this.notifyMapStatuses(mapId);
+      return;
+    }
+
+    const selectedIds = new Set(selected.map((group) => group.id));
+
+    const remaining = waiting.filter((group) => !selectedIds.has(group.id));
+
+    this.waitingGroupsByMap.set(mapId, remaining);
+
+    const playerCount = selected.reduce(
+      (count, group) => count + group.players.length,
+      0
+    );
+
+    const batchId = randomUUID();
+    const countdownEndsAt = Date.now() + PUBLIC_MATCH_COUNTDOWN_MS;
+
+    const batch: PublicMatchmakingBatch = {
+      id: batchId,
+      mapId,
+      groups: selected,
+      playerCount,
+      countdownEndsAt,
+      timer: setTimeout(() => {
+        this.finishPublicBatch(mapId, batchId);
+      }, PUBLIC_MATCH_COUNTDOWN_MS),
+    };
+
+    this.activeBatchesByMap.set(mapId, batch);
+
+    this.fillActiveBatch(batch);
     this.notifyMapStatuses(mapId);
-    return;
   }
-
-  const waiting = this.waitingGroupsByMap.get(mapId) ?? [];
-  const selected = this.selectInitialGroups(waiting);
-
-  if (selected.length === 0) {
-    this.notifyMapStatuses(mapId);
-    return;
-  }
-
-  const selectedIds = new Set(
-    selected.map((group) => group.id)
-  );
-
-  const remaining = waiting.filter(
-    (group) => !selectedIds.has(group.id)
-  );
-
-  this.waitingGroupsByMap.set(mapId, remaining);
-
-  const playerCount = selected.reduce(
-    (count, group) => count + group.players.length,
-    0
-  );
-
-  const batchId = randomUUID();
-  const countdownEndsAt = Date.now() + PUBLIC_MATCH_COUNTDOWN_MS;
-
-  const batch: PublicMatchmakingBatch = {
-    id: batchId,
-    mapId,
-    groups: selected,
-    playerCount,
-    countdownEndsAt,
-    timer: setTimeout(() => {
-      this.finishPublicBatch(mapId, batchId);
-    }, PUBLIC_MATCH_COUNTDOWN_MS),
-  };
-
-  this.activeBatchesByMap.set(mapId, batch);
-
-  this.fillActiveBatch(batch);
-  this.notifyMapStatuses(mapId);
-}
 
   /**
    * Prefer the oldest group that can form a match, or the oldest compatible
@@ -709,58 +689,48 @@ private tryStartNextBatch(mapId: string): void {
   }
 
   private notifyMapStatuses(mapId: string): void {
-  const active = this.activeBatchesByMap.get(mapId);
-  const waiting = this.waitingGroupsByMap.get(mapId) ?? [];
+    const active = this.activeBatchesByMap.get(mapId);
+    const waiting = this.waitingGroupsByMap.get(mapId) ?? [];
 
-  const groups = [
-    ...(active?.groups ?? []),
-    ...waiting,
-  ];
+    const groups = [...(active?.groups ?? []), ...waiting];
 
-  for (const group of groups) {
-    const result = this.toPublicResult(group);
+    for (const group of groups) {
+      const result = this.toPublicResult(group);
 
-    this.notifyGroupStatus(
-      group,
-      result.status,
-      result
-    );
-  }
-}
-
-private notifyGroupStatus(
-  group: QueuedLobbyGroup,
-  status: PublicMatchmakingStatusEvent['status'],
-  result?: PublicMatchmakingResult
-): void {
-  const event: PublicMatchmakingStatusEvent = {
-    mode: 'PUBLIC',
-    status,
-    queueId: group.id,
-    lobbyId: group.lobbyId,
-    userIds: [...group.userIds],
-    playerCount: group.players.length,
-    playersInCurrentMatch:
-      result?.playersInCurrentMatch ?? 0,
-    ...(result?.countdownEndsAt !== undefined
-      ? { countdownEndsAt: result.countdownEndsAt }
-      : {}),
-  };
-
-  for (const listener of this.statusListeners) {
-    try {
-      listener(event);
-    } catch (error) {
-      this.logger.error(
-        `Matchmaking status listener failed: ${
-          error instanceof Error
-            ? error.message
-            : String(error)
-        }`
-      );
+      this.notifyGroupStatus(group, result.status, result);
     }
   }
-}
+
+  private notifyGroupStatus(
+    group: QueuedLobbyGroup,
+    status: PublicMatchmakingStatusEvent['status'],
+    result?: PublicMatchmakingResult
+  ): void {
+    const event: PublicMatchmakingStatusEvent = {
+      mode: 'PUBLIC',
+      status,
+      queueId: group.id,
+      lobbyId: group.lobbyId,
+      userIds: [...group.userIds],
+      playerCount: group.players.length,
+      playersInCurrentMatch: result?.playersInCurrentMatch ?? 0,
+      ...(result?.countdownEndsAt !== undefined
+        ? { countdownEndsAt: result.countdownEndsAt }
+        : {}),
+    };
+
+    for (const listener of this.statusListeners) {
+      try {
+        listener(event);
+      } catch (error) {
+        this.logger.error(
+          `Matchmaking status listener failed: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+      }
+    }
+  }
 
   private notifyMatchCreated(event: MatchCreatedEvent): void {
     for (const listener of this.matchCreatedListeners) {

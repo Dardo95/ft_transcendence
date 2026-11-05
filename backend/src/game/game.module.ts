@@ -15,10 +15,6 @@ import { GameManagerService } from './sessions/game-manager.service.js';
     MatchmakingService,
     GameGateway,
   ],
-  exports: [
-    GameManagerService,
-    MapRegistryService,
-    MatchmakingService,
-  ],
+  exports: [GameManagerService, MapRegistryService, MatchmakingService],
 })
 export class GameModule {}

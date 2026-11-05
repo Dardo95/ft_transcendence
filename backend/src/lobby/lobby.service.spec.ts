@@ -1,4 +1,3 @@
-
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -17,12 +16,9 @@ describe('LobbyService membership notifications', () => {
   it('notifies when a lobby is created', () => {
     const service = new LobbyService();
 
-    const listener = vi.fn<
-      (event: LobbyMembershipChangedEvent) => void
-    >();
+    const listener = vi.fn<(event: LobbyMembershipChangedEvent) => void>();
 
-    const unsubscribe =
-      service.subscribeToMembershipChanges(listener);
+    const unsubscribe = service.subscribeToMembershipChanges(listener);
 
     const lobby = service.createLobby(user(1));
 
@@ -46,12 +42,9 @@ describe('LobbyService membership notifications', () => {
 
     service.acceptInvitation(invitation.id, member);
 
-    const listener = vi.fn<
-      (event: LobbyMembershipChangedEvent) => void
-    >();
+    const listener = vi.fn<(event: LobbyMembershipChangedEvent) => void>();
 
-    const unsubscribe =
-      service.subscribeToMembershipChanges(listener);
+    const unsubscribe = service.subscribeToMembershipChanges(listener);
 
     const result = service.leaveLobby(host.id);
 
@@ -76,25 +69,17 @@ describe('LobbyService membership notifications', () => {
     const targetLobby = service.createLobby(host);
     const sourceLobby = service.createLobby(invitedUser);
 
-    const invitation = service.createInvitation(
-      host,
-      invitedUser
-    );
+    const invitation = service.createInvitation(host, invitedUser);
 
-    const listener = vi.fn<
-      (event: LobbyMembershipChangedEvent) => void
-    >();
+    const listener = vi.fn<(event: LobbyMembershipChangedEvent) => void>();
 
-    const unsubscribe =
-      service.subscribeToMembershipChanges(listener);
+    const unsubscribe = service.subscribeToMembershipChanges(listener);
 
     service.acceptInvitation(invitation.id, invitedUser);
 
     expect(listener).toHaveBeenCalledTimes(2);
 
-    expect(
-      listener.mock.calls.map(([event]) => event)
-    ).toEqual([
+    expect(listener.mock.calls.map(([event]) => event)).toEqual([
       {
         lobbyId: sourceLobby.id,
         memberIds: [],

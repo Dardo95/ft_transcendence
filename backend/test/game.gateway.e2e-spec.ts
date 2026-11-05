@@ -1,4 +1,3 @@
-
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
@@ -94,17 +93,13 @@ function waitForSocketEvent<T>(
     const onConnectError = (error: Error) => {
       cleanup();
 
-      reject(
-        new Error(`Socket connection failed: ${error.message}`)
-      );
+      reject(new Error(`Socket connection failed: ${error.message}`));
     };
 
     timer = setTimeout(() => {
       cleanup();
 
-      reject(
-        new Error(`Timeout waiting for Socket.IO event "${event}"`)
-      );
+      reject(new Error(`Timeout waiting for Socket.IO event "${event}"`));
     }, timeoutMs);
 
     socket.on(event, onEvent);
@@ -144,11 +139,7 @@ async function connectAs(user: TestUser): Promise<Socket> {
 
   const socket = createSocket(token);
 
-  const connected = waitForSocketEvent<void>(
-    socket,
-    'connect',
-    8_000
-  );
+  const connected = waitForSocketEvent<void>(socket, 'connect', 8_000);
 
   socket.connect();
 
@@ -162,21 +153,17 @@ async function connectPrivateLobby(): Promise<void> {
 
   lobbyService.createLobby(ALICE);
 
-  const invitation = lobbyService.createInvitation(
-    ALICE,
-    BOB
-  );
+  const invitation = lobbyService.createInvitation(ALICE, BOB);
 
-  lobbyService.acceptInvitation(
-    invitation.id,
-    BOB
-  );
+  lobbyService.acceptInvitation(invitation.id, BOB);
 
   const lobby = lobbyService.getLobbyForUser(ALICE.id);
 
   expect(lobby).not.toBeNull();
-  expect(lobby?.members.map((member) => member.userId).sort())
-    .toEqual([ALICE.id, BOB.id]);
+  expect(lobby?.members.map((member) => member.userId).sort()).toEqual([
+    ALICE.id,
+    BOB.id,
+  ]);
 }
 
 function delay(ms: number): Promise<void> {
@@ -200,10 +187,7 @@ async function waitUntil(
   throw new Error('Timed out waiting for the expected server state');
 }
 
-function getPlayerPosition(
-  snapshot: GameSnapshot,
-  userId: number
-): number {
+function getPlayerPosition(snapshot: GameSnapshot, userId: number): number {
   const player = snapshot.players.find(
     (candidate) => candidate.id === String(userId)
   );
@@ -215,10 +199,7 @@ function getPlayerPosition(
   return player.position.x;
 }
 
-function isMovementStopped(
-  gameId: string,
-  userId: number
-): boolean {
+function isMovementStopped(gameId: string, userId: number): boolean {
   const session = gameManager.getSession(gameId);
 
   const player = session?.players.get(String(userId));
@@ -229,20 +210,13 @@ function isMovementStopped(
 
   const input = player.movementInput;
 
-  return (
-    !input.up &&
-    !input.down &&
-    !input.left &&
-    !input.right
-  );
+  return !input.up && !input.down && !input.left && !input.right;
 }
 
 beforeAll(async () => {
   previousMapsDirectory = process.env.MAPS_DIR;
 
-  process.env.MAPS_DIR = fileURLToPath(
-    new URL('../maps/', import.meta.url)
-  );
+  process.env.MAPS_DIR = fileURLToPath(new URL('../maps/', import.meta.url));
 
   const moduleFixture = await Test.createTestingModule({
     imports: [GameModule],
@@ -297,301 +271,257 @@ afterAll(async () => {
 });
 
 describe('GameGateway E2E', () => {
-  it(
-    'rejects connections without a valid JWT cookie',
-    async () => {
-      for (const token of [undefined, 'invalid-jwt-token']) {
-        const socket = createSocket(token);
+  it('rejects connections without a valid JWT cookie', async () => {
+    for (const token of [undefined, 'invalid-jwt-token']) {
+      const socket = createSocket(token);
 
-        const connectionError = waitForSocketEvent<Error>(
-          socket,
-          'connect_error',
-          5_000
+      const connectionError = waitForSocketEvent<Error>(
+        socket,
+        'connect_error',
+        5_000
+      );
+
+      socket.connect();
+
+      const error = await connectionError;
+
+      expect(error.message).toContain('Unauthorized');
+      expect(socket.connected).toBe(false);
+
+      socket.disconnect();
+    }
+  }, 12_000);
+
+  it('creates a private match, broadcasts snapshots, processes movement and stops it on disconnect', async () => {
+    await connectPrivateLobby();
+
+    const aliceSocket = await connectAs(ALICE);
+    const bobSocket = await connectAs(BOB);
+    const outsiderSocket = await connectAs(OUTSIDER);
+
+    const aliceFoundPromise = waitForSocketEvent<GameFoundPayload>(
+      aliceSocket,
+      'game:found',
+      8_000
+    );
+
+    const bobFoundPromise = waitForSocketEvent<GameFoundPayload>(
+      bobSocket,
+      'game:found',
+      8_000
+    );
+
+    const matchmakingStatusPromise =
+      waitForSocketEvent<MatchmakingStatusPayload>(
+        aliceSocket,
+        'game:matchmakingStatus',
+        5_000
+      );
+
+    aliceSocket.emit('game:matchmaking', {
+      mode: 'PRIVATE',
+      mapId: 'map1',
+    });
+
+    const status = await matchmakingStatusPromise;
+
+    expect(status).toMatchObject({
+      mode: 'PRIVATE',
+      status: 'CREATED',
+    });
+
+    const [aliceFound, bobFound] = await Promise.all([
+      aliceFoundPromise,
+      bobFoundPromise,
+    ]);
+
+    expect(aliceFound.gameId).toBe(bobFound.gameId);
+
+    expect(aliceFound.gameId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+
+    expect(aliceFound.playerId).toBe(String(ALICE.id));
+    expect(bobFound.playerId).toBe(String(BOB.id));
+
+    expect(aliceFound.snapshot.players).toHaveLength(2);
+    expect(bobFound.snapshot.players).toHaveLength(2);
+
+    const gameId = aliceFound.gameId;
+
+    expect(status.gameId).toBe(gameId);
+
+    // Un usuario autenticado que no pertenece a la partida
+    // no debe poder incorporarse mediante game:join.
+    const outsiderJoinErrorPromise = waitForSocketEvent<unknown>(
+      outsiderSocket,
+      'exception',
+      5_000
+    );
+
+    outsiderSocket.emit('game:join', {
+      gameId,
+    });
+
+    const joinError = await outsiderJoinErrorPromise;
+
+    expect(JSON.stringify(joinError)).toContain('participant');
+
+    // Ambos jugadores deben recibir snapshots reales
+    // procedentes de la sala Socket.IO de la partida.
+    const aliceStatePromise = waitForSocketEvent<GameSnapshot>(
+      aliceSocket,
+      'game:state',
+      5_000
+    );
+
+    const bobStatePromise = waitForSocketEvent<GameSnapshot>(
+      bobSocket,
+      'game:state',
+      5_000
+    );
+
+    const [aliceState, bobState] = await Promise.all([
+      aliceStatePromise,
+      bobStatePromise,
+    ]);
+
+    expect(aliceState.gameId).toBe(gameId);
+    expect(bobState.gameId).toBe(gameId);
+
+    expect(aliceState.players).toHaveLength(2);
+    expect(bobState.players).toHaveLength(2);
+
+    // Esperar al final de la cuenta atrás real del motor.
+    const aliceStartedPromise = waitForSocketEvent<GameStartedPayload>(
+      aliceSocket,
+      'game:started',
+      7_000
+    );
+
+    const bobStartedPromise = waitForSocketEvent<GameStartedPayload>(
+      bobSocket,
+      'game:started',
+      7_000
+    );
+
+    const [aliceStarted, bobStarted] = await Promise.all([
+      aliceStartedPromise,
+      bobStartedPromise,
+    ]);
+
+    expect(aliceStarted.gameId).toBe(gameId);
+    expect(bobStarted.gameId).toBe(gameId);
+
+    expect(aliceStarted.snapshot.status).toBe('RUNNING');
+    expect(bobStarted.snapshot.status).toBe('RUNNING');
+
+    const initialX = getPlayerPosition(aliceStarted.snapshot, ALICE.id);
+
+    // Enviar movimiento desde Alice y comprobar que
+    // Bob recibe la posición actualizada por el servidor.
+    const movementUpdatePromise = waitForSocketEvent<GameSnapshot>(
+      bobSocket,
+      'game:state',
+      5_000,
+      (snapshot) => {
+        const player = snapshot.players.find(
+          (candidate) => candidate.id === String(ALICE.id)
         );
 
-        socket.connect();
-
-        const error = await connectionError;
-
-        expect(error.message).toContain('Unauthorized');
-        expect(socket.connected).toBe(false);
-
-        socket.disconnect();
+        return player !== undefined && player.position.x > initialX + 0.05;
       }
-    },
-    12_000
-  );
+    );
 
-  it(
-    'creates a private match, broadcasts snapshots, processes movement and stops it on disconnect',
-    async () => {
-      await connectPrivateLobby();
+    aliceSocket.emit('game:input', {
+      action: 'movement',
+      input: {
+        up: false,
+        down: false,
+        left: false,
+        right: true,
+      },
+    });
 
-      const aliceSocket = await connectAs(ALICE);
-      const bobSocket = await connectAs(BOB);
-      const outsiderSocket = await connectAs(OUTSIDER);
+    const movedSnapshot = await movementUpdatePromise;
 
-      const aliceFoundPromise =
-        waitForSocketEvent<GameFoundPayload>(
-          aliceSocket,
-          'game:found',
-          8_000
+    const movedX = getPlayerPosition(movedSnapshot, ALICE.id);
+
+    expect(movedX).toBeGreaterThan(initialX);
+
+    // Comprobar la parada de movimiento por input.
+    aliceSocket.emit('game:input', {
+      action: 'stop',
+    });
+
+    await waitUntil(() => isMovementStopped(gameId, ALICE.id));
+
+    const session = gameManager.getSession(gameId);
+
+    expect(session).toBeDefined();
+
+    const alicePlayer = session!.players.get(String(ALICE.id));
+
+    expect(alicePlayer).toBeDefined();
+
+    const stoppedX = alicePlayer!.position.x;
+
+    await delay(150);
+
+    expect(alicePlayer!.position.x).toBeCloseTo(stoppedX, 4);
+
+    // Volver a movernos para comprobar que desconectar
+    // el socket también detiene el movimiento.
+    const movementBeforeDisconnect = waitForSocketEvent<GameSnapshot>(
+      bobSocket,
+      'game:state',
+      5_000,
+      (snapshot) => {
+        const player = snapshot.players.find(
+          (candidate) => candidate.id === String(ALICE.id)
         );
 
-      const bobFoundPromise =
-        waitForSocketEvent<GameFoundPayload>(
-          bobSocket,
-          'game:found',
-          8_000
-        );
+        return player !== undefined && player.position.x > stoppedX + 0.05;
+      }
+    );
 
-      const matchmakingStatusPromise =
-        waitForSocketEvent<MatchmakingStatusPayload>(
-          aliceSocket,
-          'game:matchmakingStatus',
-          5_000
-        );
+    aliceSocket.emit('game:input', {
+      action: 'movement',
+      input: {
+        up: false,
+        down: false,
+        left: false,
+        right: true,
+      },
+    });
 
-      aliceSocket.emit('game:matchmaking', {
-        mode: 'PRIVATE',
-        mapId: 'map1',
-      });
+    const movingSnapshot = await movementBeforeDisconnect;
 
-      const status = await matchmakingStatusPromise;
+    expect(getPlayerPosition(movingSnapshot, ALICE.id)).toBeGreaterThan(
+      stoppedX
+    );
 
-      expect(status).toMatchObject({
-        mode: 'PRIVATE',
-        status: 'CREATED',
-      });
+    const playerLeftPromise = waitForSocketEvent<PlayerLeftPayload>(
+      bobSocket,
+      'game:playerLeft',
+      5_000
+    );
 
-      const [aliceFound, bobFound] = await Promise.all([
-        aliceFoundPromise,
-        bobFoundPromise,
-      ]);
+    aliceSocket.disconnect();
 
-      expect(aliceFound.gameId).toBe(bobFound.gameId);
+    const playerLeft = await playerLeftPromise;
 
-      expect(aliceFound.gameId).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-      );
+    expect(playerLeft).toEqual({
+      gameId,
+      userId: ALICE.id,
+    });
 
-      expect(aliceFound.playerId).toBe(String(ALICE.id));
-      expect(bobFound.playerId).toBe(String(BOB.id));
+    await waitUntil(() => isMovementStopped(gameId, ALICE.id));
 
-      expect(aliceFound.snapshot.players).toHaveLength(2);
-      expect(bobFound.snapshot.players).toHaveLength(2);
+    const positionAtDisconnect = alicePlayer!.position.x;
 
-      const gameId = aliceFound.gameId;
+    await delay(150);
 
-      expect(status.gameId).toBe(gameId);
-
-      // Un usuario autenticado que no pertenece a la partida
-      // no debe poder incorporarse mediante game:join.
-      const outsiderJoinErrorPromise =
-        waitForSocketEvent<unknown>(
-          outsiderSocket,
-          'exception',
-          5_000
-        );
-
-      outsiderSocket.emit('game:join', {
-        gameId,
-      });
-
-      const joinError = await outsiderJoinErrorPromise;
-
-      expect(JSON.stringify(joinError))
-        .toContain('participant');
-
-      // Ambos jugadores deben recibir snapshots reales
-      // procedentes de la sala Socket.IO de la partida.
-      const aliceStatePromise =
-        waitForSocketEvent<GameSnapshot>(
-          aliceSocket,
-          'game:state',
-          5_000
-        );
-
-      const bobStatePromise =
-        waitForSocketEvent<GameSnapshot>(
-          bobSocket,
-          'game:state',
-          5_000
-        );
-
-      const [aliceState, bobState] = await Promise.all([
-        aliceStatePromise,
-        bobStatePromise,
-      ]);
-
-      expect(aliceState.gameId).toBe(gameId);
-      expect(bobState.gameId).toBe(gameId);
-
-      expect(aliceState.players).toHaveLength(2);
-      expect(bobState.players).toHaveLength(2);
-
-      // Esperar al final de la cuenta atrás real del motor.
-      const aliceStartedPromise =
-        waitForSocketEvent<GameStartedPayload>(
-          aliceSocket,
-          'game:started',
-          7_000
-        );
-
-      const bobStartedPromise =
-        waitForSocketEvent<GameStartedPayload>(
-          bobSocket,
-          'game:started',
-          7_000
-        );
-
-      const [aliceStarted, bobStarted] = await Promise.all([
-        aliceStartedPromise,
-        bobStartedPromise,
-      ]);
-
-      expect(aliceStarted.gameId).toBe(gameId);
-      expect(bobStarted.gameId).toBe(gameId);
-
-      expect(aliceStarted.snapshot.status).toBe('RUNNING');
-      expect(bobStarted.snapshot.status).toBe('RUNNING');
-
-      const initialX = getPlayerPosition(
-        aliceStarted.snapshot,
-        ALICE.id
-      );
-
-      // Enviar movimiento desde Alice y comprobar que
-      // Bob recibe la posición actualizada por el servidor.
-      const movementUpdatePromise =
-        waitForSocketEvent<GameSnapshot>(
-          bobSocket,
-          'game:state',
-          5_000,
-          (snapshot) => {
-            const player = snapshot.players.find(
-              (candidate) => candidate.id === String(ALICE.id)
-            );
-
-            return (
-              player !== undefined &&
-              player.position.x > initialX + 0.05
-            );
-          }
-        );
-
-      aliceSocket.emit('game:input', {
-        action: 'movement',
-        input: {
-          up: false,
-          down: false,
-          left: false,
-          right: true,
-        },
-      });
-
-      const movedSnapshot = await movementUpdatePromise;
-
-      const movedX = getPlayerPosition(
-        movedSnapshot,
-        ALICE.id
-      );
-
-      expect(movedX).toBeGreaterThan(initialX);
-
-      // Comprobar la parada de movimiento por input.
-      aliceSocket.emit('game:input', {
-        action: 'stop',
-      });
-
-      await waitUntil(
-        () => isMovementStopped(gameId, ALICE.id)
-      );
-
-      const session = gameManager.getSession(gameId);
-
-      expect(session).toBeDefined();
-
-      const alicePlayer = session!.players.get(
-        String(ALICE.id)
-      );
-
-      expect(alicePlayer).toBeDefined();
-
-      const stoppedX = alicePlayer!.position.x;
-
-      await delay(150);
-
-      expect(alicePlayer!.position.x).toBeCloseTo(
-        stoppedX,
-        4
-      );
-
-      // Volver a movernos para comprobar que desconectar
-      // el socket también detiene el movimiento.
-      const movementBeforeDisconnect =
-        waitForSocketEvent<GameSnapshot>(
-          bobSocket,
-          'game:state',
-          5_000,
-          (snapshot) => {
-            const player = snapshot.players.find(
-              (candidate) => candidate.id === String(ALICE.id)
-            );
-
-            return (
-              player !== undefined &&
-              player.position.x > stoppedX + 0.05
-            );
-          }
-        );
-
-      aliceSocket.emit('game:input', {
-        action: 'movement',
-        input: {
-          up: false,
-          down: false,
-          left: false,
-          right: true,
-        },
-      });
-
-      const movingSnapshot = await movementBeforeDisconnect;
-
-      expect(
-        getPlayerPosition(movingSnapshot, ALICE.id)
-      ).toBeGreaterThan(stoppedX);
-
-      const playerLeftPromise =
-        waitForSocketEvent<PlayerLeftPayload>(
-          bobSocket,
-          'game:playerLeft',
-          5_000
-        );
-
-      aliceSocket.disconnect();
-
-      const playerLeft = await playerLeftPromise;
-
-      expect(playerLeft).toEqual({
-        gameId,
-        userId: ALICE.id,
-      });
-
-      await waitUntil(
-        () => isMovementStopped(gameId, ALICE.id)
-      );
-
-      const positionAtDisconnect =
-        alicePlayer!.position.x;
-
-      await delay(150);
-
-      expect(alicePlayer!.position.x).toBeCloseTo(
-        positionAtDisconnect,
-        4
-      );
-    },
-    20_000
-  );
+    expect(alicePlayer!.position.x).toBeCloseTo(positionAtDisconnect, 4);
+  }, 20_000);
 });

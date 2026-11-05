@@ -22,10 +22,7 @@ import type {
 import { randomUUID } from 'node:crypto';
 import type { Namespace, Socket } from 'socket.io';
 
-import {
-  WsJwtAuthService,
-  type WsUser,
-} from '../auth/ws-jwt-auth.service.js';
+import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
 
 import { placeBomb } from './engine/bomb-system.js';
@@ -67,11 +64,7 @@ const STOPPED_MOVEMENT: MovementInput = {
   ...websocketOptions,
 })
 export class GameGateway
-  implements
-    OnGatewayInit,
-    OnGatewayDisconnect,
-    OnModuleInit,
-    OnModuleDestroy
+  implements OnGatewayInit, OnGatewayDisconnect, OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(GameGateway.name);
 
@@ -111,10 +104,11 @@ export class GameGateway
         this.emitMatchmakingStatus(event);
       });
 
-    this.unsubscribeFromGameTicks =
-      this.gameManager.subscribeToTicks((session, result) => {
+    this.unsubscribeFromGameTicks = this.gameManager.subscribeToTicks(
+      (session, result) => {
         this.handleGameTick(session, result);
-      });
+      }
+    );
   }
 
   onModuleDestroy(): void {
@@ -138,10 +132,7 @@ export class GameGateway
     this.requestingSocketId = client.id;
 
     try {
-      const result = this.matchmaking.requestMatchmaking(
-        user,
-        request
-      );
+      const result = this.matchmaking.requestMatchmaking(user, request);
 
       if (result.mode === 'PUBLIC') {
         client.emit('game:matchmakingStatus', result);
@@ -159,13 +150,10 @@ export class GameGateway
   }
 
   @SubscribeMessage('game:cancelMatchmaking')
-  handleCancelMatchmaking(
-    @ConnectedSocket() client: Socket
-  ): void {
+  handleCancelMatchmaking(@ConnectedSocket() client: Socket): void {
     const user = this.getAuthenticatedUser(client);
 
-    const cancelled =
-      this.matchmaking.cancelMatchmaking(user.id);
+    const cancelled = this.matchmaking.cancelMatchmaking(user.id);
 
     client.emit('game:matchmakingCancelled', {
       cancelled,
@@ -191,17 +179,13 @@ export class GameGateway
     const session = this.gameManager.getSession(gameId);
 
     if (!session || session.status === 'FINISHED') {
-      throw new WsException(
-        'Game not found or already finished'
-      );
+      throw new WsException('Game not found or already finished');
     }
 
     const player = this.findHumanPlayer(session, user.id);
 
     if (!player) {
-      throw new WsException(
-        'You are not a participant in this game'
-      );
+      throw new WsException('You are not a participant in this game');
     }
 
     const data = client.data as GameSocketData;
@@ -221,14 +205,11 @@ export class GameGateway
       snapshot: this.toGameSnapshot(session),
     });
 
-    this.server.to(`match:${gameId}`).emit(
-      'game:playerJoined',
-      {
-        gameId,
-        userId: user.id,
-        username: user.username,
-      }
-    );
+    this.server.to(`match:${gameId}`).emit('game:playerJoined', {
+      gameId,
+      userId: user.id,
+      username: user.username,
+    });
   }
 
   // --------------------------------------------------
@@ -257,18 +238,13 @@ export class GameGateway
     const player = this.findHumanPlayer(session, user.id);
 
     if (!player) {
-      throw new WsException(
-        'You are not a participant in this game'
-      );
+      throw new WsException('You are not a participant in this game');
     }
 
     const input = this.parseInput(body);
 
     // Colocación de bombas.
-    if (
-      input.action === 'place-bomb' ||
-      input.action === 'place-pot'
-    ) {
+    if (input.action === 'place-bomb' || input.action === 'place-pot') {
       const result = placeBomb(
         session,
         player.id,
@@ -306,11 +282,7 @@ export class GameGateway
       };
     }
 
-    const result = setPlayerMovementInput(
-      session,
-      player.id,
-      movement
-    );
+    const result = setPlayerMovementInput(session, player.id, movement);
 
     if (!result.success) {
       client.emit('game:inputRejected', {
@@ -335,19 +307,17 @@ export class GameGateway
 
     // Si el usuario tiene otra conexión activa en esta
     // misma partida, no detenemos su movimiento.
-    const anotherSocketIsConnected =
-      [...this.server.sockets.values()].some((socket) => {
+    const anotherSocketIsConnected = [...this.server.sockets.values()].some(
+      (socket) => {
         if (socket.id === client.id) {
           return false;
         }
 
         const otherData = socket.data as GameSocketData;
 
-        return (
-          otherData.user?.id === user.id &&
-          otherData.gameId === gameId
-        );
-      });
+        return otherData.user?.id === user.id && otherData.gameId === gameId;
+      }
+    );
 
     if (anotherSocketIsConnected) {
       return;
@@ -355,22 +325,17 @@ export class GameGateway
 
     this.stopPlayerMovement(gameId, user.id);
 
-    this.server.to(`match:${gameId}`).emit(
-      'game:playerLeft',
-      {
-        gameId,
-        userId: user.id,
-      }
-    );
+    this.server.to(`match:${gameId}`).emit('game:playerLeft', {
+      gameId,
+      userId: user.id,
+    });
   }
 
   // --------------------------------------------------
   // MATCH CREATION
   // --------------------------------------------------
 
-  private async handleMatchCreated(
-    event: MatchCreatedEvent
-  ): Promise<void> {
+  private async handleMatchCreated(event: MatchCreatedEvent): Promise<void> {
     if (!this.server) {
       return;
     }
@@ -414,9 +379,7 @@ export class GameGateway
   // MATCHMAKING NOTIFICATIONS
   // --------------------------------------------------
 
-  private emitMatchmakingStatus(
-    event: PublicMatchmakingStatusEvent
-  ): void {
+  private emitMatchmakingStatus(event: PublicMatchmakingStatusEvent): void {
     if (!this.server) {
       return;
     }
@@ -433,10 +396,7 @@ export class GameGateway
         allowedUsers.has(user.id) &&
         socket.id !== this.requestingSocketId
       ) {
-        socket.emit(
-          'game:matchmakingStatus',
-          payload
-        );
+        socket.emit('game:matchmakingStatus', payload);
       }
     }
   }
@@ -445,10 +405,7 @@ export class GameGateway
   // GAME LOOP / SNAPSHOTS
   // --------------------------------------------------
 
-  private handleGameTick(
-    session: GameSession,
-    result: GameTickResult
-  ): void {
+  private handleGameTick(session: GameSession, result: GameTickResult): void {
     if (!this.server) {
       return;
     }
@@ -476,9 +433,7 @@ export class GameGateway
     }
   }
 
-  private toGameSnapshot(
-    session: GameSession
-  ): GameSnapshot {
+  private toGameSnapshot(session: GameSession): GameSnapshot {
     const nowMs = this.gameManager.getNowMs();
 
     return {
@@ -516,21 +471,17 @@ export class GameGateway
         blastRadius: bomb.blastRadius,
       })),
 
-      explosions: [...session.explosions.values()].map(
-        (explosion) => ({
-          id: explosion.id,
-          cells: explosion.cells.map((cell) => ({ ...cell })),
-          expiresAt: explosion.expiresAtMs,
-        })
-      ),
+      explosions: [...session.explosions.values()].map((explosion) => ({
+        id: explosion.id,
+        cells: explosion.cells.map((cell) => ({ ...cell })),
+        expiresAt: explosion.expiresAtMs,
+      })),
 
-      powerUps: [...session.powerUps.values()].map(
-        (powerUp) => ({
-          id: powerUp.id,
-          type: powerUp.type,
-          position: { ...powerUp.position },
-        })
-      ),
+      powerUps: [...session.powerUps.values()].map((powerUp) => ({
+        id: powerUp.id,
+        type: powerUp.type,
+        position: { ...powerUp.position },
+      })),
 
       winnerId: session.winnerId,
     };
@@ -540,23 +491,16 @@ export class GameGateway
   // HELPERS
   // --------------------------------------------------
 
-  private findHumanPlayer(
-    session: GameSession,
-    userId: number
-  ) {
+  private findHumanPlayer(session: GameSession, userId: number) {
     const expectedUserId = String(userId);
 
     return [...session.players.values()].find(
       (player) =>
-        !player.isBot &&
-        (player.userId ?? player.id) === expectedUserId
+        !player.isBot && (player.userId ?? player.id) === expectedUserId
     );
   }
 
-  private stopPlayerMovement(
-    gameId: string,
-    userId: number
-  ): void {
+  private stopPlayerMovement(gameId: string, userId: number): void {
     const session = this.gameManager.getSession(gameId);
 
     if (!session) {
@@ -570,9 +514,7 @@ export class GameGateway
     }
   }
 
-  private getAuthenticatedUser(
-    client: Socket
-  ): WsUser {
+  private getAuthenticatedUser(client: Socket): WsUser {
     const user = (client.data as GameSocketData).user;
 
     if (!user) {
@@ -582,14 +524,8 @@ export class GameGateway
     return user;
   }
 
-  private parseMatchmakingRequest(
-    body: unknown
-  ): MatchmakingRequest {
-    if (
-      typeof body !== 'object' ||
-      body === null ||
-      Array.isArray(body)
-    ) {
+  private parseMatchmakingRequest(body: unknown): MatchmakingRequest {
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) {
       throw new WsException('Invalid matchmaking request');
     }
 
@@ -598,20 +534,16 @@ export class GameGateway
     if (
       typeof value.mapId !== 'string' ||
       !value.mapId.trim() ||
-      !['PUBLIC', 'PRIVATE', 'PRACTICE'].includes(
-        value.mode as string
-      )
+      !['PUBLIC', 'PRIVATE', 'PRACTICE'].includes(value.mode as string)
     ) {
       throw new WsException('Invalid matchmaking request');
     }
 
     if (
       value.settings !== undefined &&
-      (
-        typeof value.settings !== 'object' ||
+      (typeof value.settings !== 'object' ||
         value.settings === null ||
-        Array.isArray(value.settings)
-      )
+        Array.isArray(value.settings))
     ) {
       throw new WsException('Invalid matchmaking settings');
     }
@@ -628,11 +560,7 @@ export class GameGateway
   }
 
   private parseInput(body: unknown): GameInput {
-    if (
-      typeof body !== 'object' ||
-      body === null ||
-      Array.isArray(body)
-    ) {
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) {
       throw new WsException('Invalid game input');
     }
 
@@ -641,9 +569,7 @@ export class GameGateway
     // Compatibilidad con el movimiento direccional anterior.
     if (
       value.action === 'move' &&
-      ['up', 'down', 'left', 'right'].includes(
-        value.direction as string
-      )
+      ['up', 'down', 'left', 'right'].includes(value.direction as string)
     ) {
       return {
         action: 'move',
@@ -661,8 +587,7 @@ export class GameGateway
         !Array.isArray(movement) &&
         ['up', 'down', 'left', 'right'].every(
           (key) =>
-            typeof (movement as Record<string, unknown>)[key] ===
-            'boolean'
+            typeof (movement as Record<string, unknown>)[key] === 'boolean'
         )
       ) {
         const input = movement as Record<string, boolean>;
@@ -695,15 +620,8 @@ export class GameGateway
     throw new WsException('Invalid game input');
   }
 
-  private readString(
-    body: unknown,
-    key: string
-  ): string {
-    if (
-      typeof body !== 'object' ||
-      body === null ||
-      Array.isArray(body)
-    ) {
+  private readString(body: unknown, key: string): string {
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) {
       return '';
     }
 
