@@ -39,8 +39,10 @@ export function LobbyChat() {
 
   React.useEffect(() => {
     if (!lobbyId) return;
+
     clearMessages();
     const cleanup = initChatListeners();
+
     return () => {
       cleanup();
       clearMessages();
@@ -52,17 +54,21 @@ export function LobbyChat() {
       prevMembersRef.current = [];
       return;
     }
+
     const currentIds = lobby.members.map((m) => String(m.userId));
     const prevIds = prevMembersRef.current;
     const newIds = currentIds.filter((id) => !prevIds.includes(id));
+
     for (const id of newIds) {
       const member = lobby.members.find((m) => String(m.userId) === id);
+
       if (member) {
         addSystemMessage(
           `${member.username} ${t('app.lobby.userEnteredLobby') || 'ha entrado al Lobby'}`
         );
       }
     }
+
     prevMembersRef.current = currentIds;
   }, [lobby, addSystemMessage, t]);
 
@@ -72,7 +78,9 @@ export function LobbyChat() {
         `${data.username} ${t('app.lobby.userLeftLobby') || 'ha salido del Lobby'}`
       );
     };
+
     chatSocket.on('user:left_lobby', handleLeft);
+
     return () => {
       chatSocket.off('user:left_lobby', handleLeft);
     };
@@ -80,11 +88,13 @@ export function LobbyChat() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     const cleanText = inputValue.trim();
-    if (!lobbyId || !isConnected || !cleanText || cleanText.length > 500) {
+
     if (!lobbyId || !isConnected || !cleanText || cleanText.length > 500) {
       return;
     }
+
     sendMessage(cleanText);
     setInputValue('');
   };
@@ -97,6 +107,7 @@ export function LobbyChat() {
           <span>💬</span>
           <span>{t('app.lobby.lobbyChat') || 'Lobby Chat'}</span>
         </h4>
+
         <span
           className={`h-2 w-2 rounded-full ${
             isConnected
@@ -157,11 +168,11 @@ export function LobbyChat() {
                             >
                               {msg.sender}
                             </span>
+
                             <span>•</span>
+
                             <span>
                               {new Date(msg.timestamp).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
                                 hour: '2-digit',
                                 minute: '2-digit',
                               })}
@@ -184,9 +195,10 @@ export function LobbyChat() {
                       </Message>
                     </MessageScrollerItem>
                   );
-                })}{' '}
+                })}
               </MessageScrollerContent>
             </MessageScrollerViewport>
+
             <MessageScrollerButton />
           </MessageScroller>
         </MessageScrollerProvider>
@@ -206,6 +218,7 @@ export function LobbyChat() {
           maxLength={500}
           className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500"
         />
+
         <Button
           type="submit"
           size="sm"
@@ -218,6 +231,7 @@ export function LobbyChat() {
           className="h-8 bg-orange-600 px-3 text-white hover:bg-orange-500"
         >
           <SendIcon className="size-3.5" />
+
           <span className="sr-only">
             {t('app.lobby.sendButton') || 'Enviar'}
           </span>

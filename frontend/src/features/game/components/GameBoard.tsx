@@ -58,7 +58,7 @@ export function GameBoard({ snapshot, playerId }: GameBoardProps) {
               className={`${tileClass(tile)} game-tile--pattern-${(x + y) % 4}`}
               aria-hidden="true"
             />
-          )),
+          ))
         )}
 
         <div className="game-board-entities">
@@ -72,7 +72,7 @@ export function GameBoard({ snapshot, playerId }: GameBoardProps) {
               >
                 <span>✹</span>
               </div>
-            )),
+            ))
           )}
 
           {snapshot.powerUps.map((powerUp) => (
@@ -109,8 +109,8 @@ export function GameBoard({ snapshot, playerId }: GameBoardProps) {
               <div
                 key={player.id}
                 className={`game-player-token ${playerStyles[index % playerStyles.length]}${
-                  player.alive ? '' : ' game-player-token--dead'
-                }${isMe ? ' game-player-token--me' : ''}`}
+                  player.alive ? '' : 'game-player-token--dead'
+                }${isMe ? 'game-player-token--me' : ''}`}
                 style={{
                   left: `${(player.position.x / width) * 100}%`,
                   top: `${(player.position.y / height) * 100}%`,

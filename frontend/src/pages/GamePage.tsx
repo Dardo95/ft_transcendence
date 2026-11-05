@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import type { GameMode, GameSnapshot, MovementInput } from '@transcendence/shared';
+import type {
+  GameMode,
+  GameSnapshot,
+  MovementInput,
+} from '@transcendence/shared';
 
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { chatSocket, gameSocket } from '../lib/socket';
@@ -8,7 +12,8 @@ import { GameBoard } from '../features/game/components/GameBoard';
 import './GamePage.css';
 
 type ConnectionState = 'connecting' | 'connected' | 'disconnected';
-type LocalMatchmakingStatus = 'REQUESTING' | 'SEARCHING' | 'COUNTDOWN' | 'CANCELLED' | 'CREATED';
+type LocalMatchmakingStatus =
+  'REQUESTING' | 'SEARCHING' | 'COUNTDOWN' | 'CANCELLED' | 'CREATED';
 
 interface MatchmakingStatusPayload {
   mode: GameMode;
@@ -119,11 +124,12 @@ export function GamePage() {
   routeGameIdRef.current = routeGameId ?? null;
 
   const [connection, setConnection] = useState<ConnectionState>(
-    gameSocket.connected ? 'connected' : 'connecting',
+    gameSocket.connected ? 'connected' : 'connecting'
   );
   const [selectedMode, setSelectedMode] = useState<GameMode>('PRACTICE');
   const [selectedMap, setSelectedMap] = useState('map1');
-  const [matchmaking, setMatchmaking] = useState<MatchmakingStatusPayload | null>(null);
+  const [matchmaking, setMatchmaking] =
+    useState<MatchmakingStatusPayload | null>(null);
   const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [joinedGameId, setJoinedGameId] = useState<string | null>(null);
@@ -142,15 +148,19 @@ export function GamePage() {
 
   const currentPlayer = useMemo(
     () => snapshot?.players.find((player) => player.id === playerId) ?? null,
-    [snapshot, playerId],
+    [snapshot, playerId]
   );
 
   const countdownSeconds = useMemo(() => {
     if (!matchmaking?.countdownEndsAt) return null;
-    return Math.max(0, Math.ceil((matchmaking.countdownEndsAt - clockNow) / 1000));
+    return Math.max(
+      0,
+      Math.ceil((matchmaking.countdownEndsAt - clockNow) / 1000)
+    );
   }, [matchmaking?.countdownEndsAt, clockNow]);
 
-  const alivePlayers = snapshot?.players.filter((player) => player.alive).length ?? 0;
+  const alivePlayers =
+    snapshot?.players.filter((player) => player.alive).length ?? 0;
   const isPlaying = snapshot?.status === 'RUNNING';
 
   const emitStop = useCallback(() => {
@@ -184,13 +194,17 @@ export function GamePage() {
 
     const handleConnectError = (socketError: Error) => {
       setConnection('disconnected');
-      setError(`No se pudo conectar al servidor de juego: ${socketError.message}`);
+      setError(
+        `No se pudo conectar al servidor de juego: ${socketError.message}`
+      );
     };
 
     const handleMatchmakingStatus = (payload: MatchmakingStatusPayload) => {
       if (payload.status === 'CANCELLED') {
         setMatchmaking(null);
-        setNotice('La búsqueda se ha cancelado porque cambió la composición de la lobby.');
+        setNotice(
+          'La búsqueda se ha cancelado porque cambió la composición de la lobby.'
+        );
         return;
       }
 
@@ -198,7 +212,9 @@ export function GamePage() {
       setNotice(null);
     };
 
-    const handleMatchmakingCancelled = (payload: MatchmakingCancelledPayload) => {
+    const handleMatchmakingCancelled = (
+      payload: MatchmakingCancelledPayload
+    ) => {
       if (payload.cancelled) {
         setMatchmaking(null);
         setNotice('Búsqueda cancelada.');
@@ -226,9 +242,8 @@ export function GamePage() {
       activeGameId.current = payload.gameId;
       setJoinedGameId(payload.gameId);
       setSnapshot(payload.snapshot);
-      const authenticatedPlayerId = userIdRef.current === null
-        ? null
-        : String(userIdRef.current);
+      const authenticatedPlayerId =
+        userIdRef.current === null ? null : String(userIdRef.current);
       playerIdRef.current = playerIdRef.current ?? authenticatedPlayerId;
       setPlayerId((current) => current ?? authenticatedPlayerId);
       setMatchmaking(null);
@@ -254,7 +269,7 @@ export function GamePage() {
           ? '¡Has ganado la partida!'
           : payload.winnerId
             ? 'La partida ha terminado.'
-            : 'La partida ha terminado en empate.',
+            : 'La partida ha terminado en empate.'
       );
     };
 
@@ -276,7 +291,7 @@ export function GamePage() {
     const handleException = (payload: unknown) => {
       setError(errorMessage(payload));
       setMatchmaking((current) =>
-        current?.status === 'REQUESTING' ? null : current,
+        current?.status === 'REQUESTING' ? null : current
       );
     };
 
@@ -342,7 +357,15 @@ export function GamePage() {
 
   useEffect(() => {
     const alive = Boolean(currentPlayer?.alive);
-    if (connection !== 'connected' || !isPlaying || !alive || !snapshot?.gameId || !playerId || joinedGameId !== snapshot.gameId || !gameSocket.connected) {
+    if (
+      connection !== 'connected' ||
+      !isPlaying ||
+      !alive ||
+      !snapshot?.gameId ||
+      !playerId ||
+      joinedGameId !== snapshot.gameId ||
+      !gameSocket.connected
+    ) {
       return;
     }
 
@@ -419,7 +442,15 @@ export function GamePage() {
       window.removeEventListener('blur', onBlur);
       emitStop();
     };
-  }, [connection, currentPlayer?.alive, emitStop, isPlaying, joinedGameId, playerId, snapshot?.gameId]);
+  }, [
+    connection,
+    currentPlayer?.alive,
+    emitStop,
+    isPlaying,
+    joinedGameId,
+    playerId,
+    snapshot?.gameId,
+  ]);
 
   const startMatchmaking = () => {
     if (!gameSocket.connected) {
@@ -463,7 +494,9 @@ export function GamePage() {
 
   if (snapshot) {
     const ownPlayer = snapshot.players.find((player) => player.id === playerId);
-    const winner = snapshot.players.find((player) => player.id === snapshot.winnerId);
+    const winner = snapshot.players.find(
+      (player) => player.id === snapshot.winnerId
+    );
 
     return (
       <section className="game-preview-page">
@@ -473,41 +506,81 @@ export function GamePage() {
             <h1 className="game-preview-title">ARENA</h1>
           </div>
           <div className="game-topbar-actions">
-            <span className={`game-connection-chip game-connection-chip--${connection}`}>
-              <span /> {connection === 'connected' ? 'SOCKET ONLINE' : 'SOCKET OFFLINE'}
+            <span
+              className={`game-connection-chip game-connection-chip--${connection}`}
+            >
+              <span />{' '}
+              {connection === 'connected' ? 'SOCKET ONLINE' : 'SOCKET OFFLINE'}
             </span>
-            <button className="game-quiet-button" type="button" onClick={leaveForLobby}>
+            <button
+              className="game-quiet-button"
+              type="button"
+              onClick={leaveForLobby}
+            >
               Volver al lobby
             </button>
           </div>
         </div>
 
-        {notice && <div className="game-notice" role="status">{notice}</div>}
-        {error && <div className="game-error" role="alert">{error}</div>}
+        {notice && (
+          <div className="game-notice" role="status">
+            {notice}
+          </div>
+        )}
+        {error && (
+          <div className="game-error" role="alert">
+            {error}
+          </div>
+        )}
 
         <div className="game-match-layout">
           <main className="game-play-area">
             <div className="game-match-header">
               <div>
-                <span className="game-section-kicker">PARTIDA {modeLabel(snapshot.mode)}</span>
-                <h2>{snapshot.board.width} × {snapshot.board.height} · {snapshot.gameId.slice(0, 8)}</h2>
+                <span className="game-section-kicker">
+                  PARTIDA {modeLabel(snapshot.mode)}
+                </span>
+                <h2>
+                  {snapshot.board.width} × {snapshot.board.height} ·{' '}
+                  {snapshot.gameId.slice(0, 8)}
+                </h2>
               </div>
-              <div className={`game-status-pill game-status-pill--${snapshot.status.toLowerCase()}`}>
+              <div
+                className={`game-status-pill game-status-pill--${snapshot.status.toLowerCase()}`}
+              >
                 {statusLabel(snapshot.status)}
               </div>
             </div>
 
             <div className="game-score-strip">
-              <div><span>TIEMPO</span><strong>{formatElapsed(snapshot.elapsedMs)}</strong></div>
-              <div><span>SUPERVIVIENTES</span><strong>{alivePlayers}/{snapshot.players.length}</strong></div>
-              <div><span>MAPA</span><strong>{selectedMap.toUpperCase()}</strong></div>
+              <div>
+                <span>TIEMPO</span>
+                <strong>{formatElapsed(snapshot.elapsedMs)}</strong>
+              </div>
+              <div>
+                <span>SUPERVIVIENTES</span>
+                <strong>
+                  {alivePlayers}/{snapshot.players.length}
+                </strong>
+              </div>
+              <div>
+                <span>MAPA</span>
+                <strong>{selectedMap.toUpperCase()}</strong>
+              </div>
             </div>
 
             <GameBoard snapshot={snapshot} playerId={playerId} />
 
             <div className="game-controls-hint">
-              <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> o flechas <small>MOVER</small></span>
-              <span><kbd>ESPACIO</kbd> <small>COLOCAR BOMBA</small></span>
+              <span>
+                <kbd>W</kbd>
+                <kbd>A</kbd>
+                <kbd>S</kbd>
+                <kbd>D</kbd> o flechas <small>MOVER</small>
+              </span>
+              <span>
+                <kbd>ESPACIO</kbd> <small>COLOCAR BOMBA</small>
+              </span>
             </div>
 
             {snapshot.status === 'FINISHED' && (
@@ -515,9 +588,17 @@ export function GamePage() {
                 <div className="game-finished-icon">🏆</div>
                 <div>
                   <p className="game-section-kicker">PARTIDA FINALIZADA</p>
-                  <h2>{winner ? `${winner.displayName || 'Jugador'} gana` : 'Empate'}</h2>
+                  <h2>
+                    {winner
+                      ? `${winner.displayName || 'Jugador'} gana`
+                      : 'Empate'}
+                  </h2>
                 </div>
-                <button type="button" className="game-primary-button" onClick={returnToGameMenu}>
+                <button
+                  type="button"
+                  className="game-primary-button"
+                  onClick={returnToGameMenu}
+                >
                   Volver a jugar
                 </button>
               </div>
@@ -532,15 +613,30 @@ export function GamePage() {
               </div>
               <div className="game-roster">
                 {snapshot.players.map((player, index) => (
-                  <div className={`game-roster-player${player.alive ? '' : ' is-dead'}`} key={player.id}>
-                    <span className={`game-roster-avatar game-roster-avatar--${index % 4}`}>
+                  <div
+                    className={`game-roster-player${player.alive ? '' : 'is-dead'}`}
+                    key={player.id}
+                  >
+                    <span
+                      className={`game-roster-avatar game-roster-avatar--${index % 4}`}
+                    >
                       {player.isBot ? '🤖' : '👨‍🍳'}
                     </span>
                     <div className="game-roster-copy">
-                      <strong>{player.displayName || `Jugador ${index + 1}`}</strong>
-                      <span>{player.isBot ? 'BOT PASIVO' : player.id === playerId ? 'TÚ' : 'JUGADOR'}</span>
+                      <strong>
+                        {player.displayName || `Jugador ${index + 1}`}
+                      </strong>
+                      <span>
+                        {player.isBot
+                          ? 'BOT PASIVO'
+                          : player.id === playerId
+                            ? 'TÚ'
+                            : 'JUGADOR'}
+                      </span>
                     </div>
-                    <span className={`game-alive-dot${player.alive ? '' : ' is-dead'}`} />
+                    <span
+                      className={`game-alive-dot${player.alive ? '' : 'is-dead'}`}
+                    />
                   </div>
                 ))}
               </div>
@@ -550,20 +646,46 @@ export function GamePage() {
               <span className="game-section-kicker">TUS ESTADÍSTICAS</span>
               {ownPlayer ? (
                 <div className="game-stat-grid">
-                  <div><strong>{ownPlayer.bombCapacity}</strong><span>BOMBAS</span></div>
-                  <div><strong>{ownPlayer.blastRadius}</strong><span>ALCANCE</span></div>
-                  <div><strong>{ownPlayer.speed.toFixed(1)}</strong><span>VELOCIDAD</span></div>
+                  <div>
+                    <strong>{ownPlayer.bombCapacity}</strong>
+                    <span>BOMBAS</span>
+                  </div>
+                  <div>
+                    <strong>{ownPlayer.blastRadius}</strong>
+                    <span>ALCANCE</span>
+                  </div>
+                  <div>
+                    <strong>{ownPlayer.speed.toFixed(1)}</strong>
+                    <span>VELOCIDAD</span>
+                  </div>
                 </div>
-              ) : <p className="game-muted-copy">Esperando datos del jugador...</p>}
+              ) : (
+                <p className="game-muted-copy">
+                  Esperando datos del jugador...
+                </p>
+              )}
             </section>
 
             <section className="game-side-card game-legend-card">
               <span className="game-section-kicker">LEYENDA</span>
-              <div><i className="legend-swatch legend-swatch--wall" /> Muro indestructible</div>
-              <div><i className="legend-swatch legend-swatch--crate" /> Muro destructible</div>
-              <div><i className="legend-swatch legend-swatch--bomb" /> Bomba</div>
-              <div><i className="legend-swatch legend-swatch--power" /> Power-up</div>
-              <p>El servidor calcula las colisiones, las explosiones y el resultado de la partida.</p>
+              <div>
+                <i className="legend-swatch legend-swatch--wall" /> Muro
+                indestructible
+              </div>
+              <div>
+                <i className="legend-swatch legend-swatch--crate" /> Muro
+                destructible
+              </div>
+              <div>
+                <i className="legend-swatch legend-swatch--bomb" /> Bomba
+              </div>
+              <div>
+                <i className="legend-swatch legend-swatch--power" /> Power-up
+              </div>
+              <p>
+                El servidor calcula las colisiones, las explosiones y el
+                resultado de la partida.
+              </p>
             </section>
           </aside>
         </div>
@@ -576,41 +698,84 @@ export function GamePage() {
       <div className="game-preview-topbar">
         <div>
           <p className="game-eyebrow">KITCHEN MAYHEM · DEV BUILD</p>
-          <h1 className="game-preview-title">GAME LAB<span>.</span></h1>
+          <h1 className="game-preview-title">
+            GAME LAB<span>.</span>
+          </h1>
         </div>
         <div className="game-topbar-actions">
-          <span className={`game-connection-chip game-connection-chip--${connection}`}>
-            <span /> {connection === 'connected' ? 'SOCKET ONLINE' : connection === 'connecting' ? 'CONECTANDO' : 'SOCKET OFFLINE'}
+          <span
+            className={`game-connection-chip game-connection-chip--${connection}`}
+          >
+            <span />{' '}
+            {connection === 'connected'
+              ? 'SOCKET ONLINE'
+              : connection === 'connecting'
+                ? 'CONECTANDO'
+                : 'SOCKET OFFLINE'}
           </span>
-          <span className="game-user-chip">👨‍🍳 {user?.username ?? 'Jugador'}</span>
+          <span className="game-user-chip">
+            👨‍🍳 {user?.username ?? 'Jugador'}
+          </span>
         </div>
       </div>
 
       <div className="game-menu-hero">
         <div className="game-menu-copy">
-          <span className="game-section-kicker">PROTOCOLO DE PRUEBAS · BACKEND AUTHORITATIVE</span>
-          <h2>Entra en la<br /><em>cocina.</em></h2>
-          <p>Prueba el motor de juego real. El servidor controla movimiento, bombas, explosiones, mejoras y victoria. Esta interfaz es temporal y solo para desarrollo.</p>
+          <span className="game-section-kicker">
+            PROTOCOLO DE PRUEBAS · BACKEND AUTHORITATIVE
+          </span>
+          <h2>
+            Entra en la
+            <br />
+            <em>cocina.</em>
+          </h2>
+          <p>
+            Prueba el motor de juego real. El servidor controla movimiento,
+            bombas, explosiones, mejoras y victoria. Esta interfaz es temporal y
+            solo para desarrollo.
+          </p>
         </div>
         <div className="game-menu-art" aria-hidden="true">
           <div className="game-art-glow" />
           <div className="game-art-grid">
-            <span>✦</span><span>▦</span><span>✹</span><span>▦</span><span>✦</span>
-            <span>▦</span><span>●</span><span>▦</span><span>●</span><span>▦</span>
-            <span>✹</span><span>▦</span><span>●</span><span>▦</span><span>✹</span>
+            <span>✦</span>
+            <span>▦</span>
+            <span>✹</span>
+            <span>▦</span>
+            <span>✦</span>
+            <span>▦</span>
+            <span>●</span>
+            <span>▦</span>
+            <span>●</span>
+            <span>▦</span>
+            <span>✹</span>
+            <span>▦</span>
+            <span>●</span>
+            <span>▦</span>
+            <span>✹</span>
           </div>
           <div className="game-art-caption">BOMBS READY / CHEF MODE</div>
         </div>
       </div>
 
-      {notice && <div className="game-notice" role="status">{notice}</div>}
-      {error && <div className="game-error" role="alert">{error}</div>}
+      {notice && (
+        <div className="game-notice" role="status">
+          {notice}
+        </div>
+      )}
+      {error && (
+        <div className="game-error" role="alert">
+          {error}
+        </div>
+      )}
 
       {matchmaking && (
         <div className="game-queue-panel">
           <div className="game-queue-spinner" />
           <div className="game-queue-copy">
-            <span className="game-section-kicker">BUSCANDO PARTIDA · {modeLabel(matchmaking.mode)}</span>
+            <span className="game-section-kicker">
+              BUSCANDO PARTIDA · {modeLabel(matchmaking.mode)}
+            </span>
             <strong>
               {matchmaking.status === 'COUNTDOWN'
                 ? `La partida comienza en ${countdownSeconds ?? 0}s`
@@ -628,8 +793,13 @@ export function GamePage() {
                   : 'Conectando con el motor del servidor'}
             </span>
           </div>
-          {(matchmaking.status === 'SEARCHING' || matchmaking.status === 'COUNTDOWN') && (
-            <button type="button" className="game-danger-button" onClick={cancelMatchmaking}>
+          {(matchmaking.status === 'SEARCHING' ||
+            matchmaking.status === 'COUNTDOWN') && (
+            <button
+              type="button"
+              className="game-danger-button"
+              onClick={cancelMatchmaking}
+            >
               Cancelar búsqueda
             </button>
           )}
@@ -645,7 +815,7 @@ export function GamePage() {
           <div className="game-mode-grid">
             <button
               type="button"
-              className={`game-mode-card${selectedMode === 'PRACTICE' ? ' selected' : ''}`}
+              className={`game-mode-card${selectedMode === 'PRACTICE' ? 'selected' : ''}`}
               onClick={() => setSelectedMode('PRACTICE')}
               disabled={Boolean(matchmaking)}
             >
@@ -656,24 +826,28 @@ export function GamePage() {
             </button>
             <button
               type="button"
-              className={`game-mode-card${selectedMode === 'PRIVATE' ? ' selected' : ''}`}
+              className={`game-mode-card${selectedMode === 'PRIVATE' ? 'selected' : ''}`}
               onClick={() => setSelectedMode('PRIVATE')}
               disabled={Boolean(matchmaking)}
             >
               <span className="game-mode-icon">👥</span>
               <strong>PRIVADA</strong>
-              <small>Solo los miembros de tu lobby (2–4). Todos deben abrir Game Lab.</small>
+              <small>
+                Solo los miembros de tu lobby (2–4). Todos deben abrir Game Lab.
+              </small>
               <span className="game-mode-tag">SIN RANDOMS</span>
             </button>
             <button
               type="button"
-              className={`game-mode-card${selectedMode === 'PUBLIC' ? ' selected' : ''}`}
+              className={`game-mode-card${selectedMode === 'PUBLIC' ? 'selected' : ''}`}
               onClick={() => setSelectedMode('PUBLIC')}
               disabled={Boolean(matchmaking)}
             >
               <span className="game-mode-icon">🌐</span>
               <strong>PÚBLICA</strong>
-              <small>Tu lobby contra otros grupos. Todos deben abrir Game Lab.</small>
+              <small>
+                Tu lobby contra otros grupos. Todos deben abrir Game Lab.
+              </small>
               <span className="game-mode-tag">MATCHMAKING</span>
             </button>
           </div>
@@ -689,12 +863,18 @@ export function GamePage() {
               <button
                 type="button"
                 key={map.id}
-                className={`game-map-card${selectedMap === map.id ? ' selected' : ''}`}
+                className={`game-map-card${selectedMap === map.id ? 'selected' : ''}`}
                 onClick={() => setSelectedMap(map.id)}
                 disabled={Boolean(matchmaking)}
               >
-                <span className={`game-map-preview game-map-preview--${index + 1}`}>
-                  <i /><i /><i /><i /><b />
+                <span
+                  className={`game-map-preview game-map-preview--${index + 1}`}
+                >
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  <b />
                 </span>
                 <strong>{map.name}</strong>
                 <small>{map.subtitle}</small>
@@ -721,7 +901,10 @@ export function GamePage() {
 
       <div className="game-preview-disclaimer">
         <span>DEV PREVIEW</span>
-        <p>Esta pantalla es un cliente temporal para validar el motor. No reemplaza el diseño definitivo del frontend.</p>
+        <p>
+          Esta pantalla es un cliente temporal para validar el motor. No
+          reemplaza el diseño definitivo del frontend.
+        </p>
         <Link to="/lobby">Volver al lobby ↗</Link>
       </div>
     </section>
