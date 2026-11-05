@@ -45,27 +45,14 @@ export async function apiFetch<T>(
 
   const response = await fetch(url, config);
 
-  const authEndpoints = [
-    '/auth/login',
-    '/auth/logout',
-    '/auth/register',
-    '/auth/google/callback',
-    '/auth/google',
-  ];
-
-  const isAuthEndpoint = authEndpoints.some((path) =>
-    cleanEndpoint.startsWith(path)
-  );
-
   if (response.status === 401) {
-    if (
-      !isAuthEndpoint &&
-      typeof window !== 'undefined' &&
-      window.location.pathname !== '/login'
-    ) {
-      window.location.replace('/login');
-    }
-    throw new ApiError('Unauthorized', 401);
+    const errorBody = await response.json().catch(() => ({}));
+    const message =
+      (Array.isArray(errorBody.message)
+        ? errorBody.message[0]
+        : errorBody.message) || 'Unauthorized';
+
+    throw new ApiError(message, 401);
   }
 
   if (!response.ok) {

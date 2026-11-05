@@ -26,22 +26,22 @@ export interface LobbyInvitation {
 
 interface LobbyState {
   lobby: LobbySnapshot | null;
-  invitations: LobbyInvitation[];
+  lobbyInvitations: LobbyInvitation[];
   error: string | null;
   notice: string | null;
 
   initListeners: () => () => void;
   createLobby: () => void;
   leaveLobby: () => void;
-  inviteFriend: (username: string) => void;
-  acceptInvitation: (invitationId: string) => void;
-  rejectInvitation: (invitationId: string) => void;
+  inviteFriendToLobby: (username: string) => void;
+  acceptLobbyInvitation: (invitationId: string) => void;
+  rejectLobbyInvitation: (invitationId: string) => void;
   clearFeedback: () => void;
 }
 
 export const useLobbyStore = create<LobbyState>((set) => ({
   lobby: null,
-  invitations: [],
+  lobbyInvitations: [],
   error: null,
   notice: null,
 
@@ -56,7 +56,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     }) => {
       set({
         lobby: data.lobby,
-        invitations: data.invitations,
+        lobbyInvitations: data.invitations,
       });
     };
 
@@ -71,7 +71,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     const handleJoined = (lobby: LobbySnapshot) => {
       set({
         lobby,
-        invitations: [],
+        lobbyInvitations: [],
         error: null,
         notice: 'Te has unido al lobby',
       });
@@ -91,9 +91,11 @@ export const useLobbyStore = create<LobbyState>((set) => ({
 
     const handleInvitation = (invitation: LobbyInvitation) => {
       set((state) => ({
-        invitations: state.invitations.some((item) => item.id === invitation.id)
-          ? state.invitations
-          : [...state.invitations, invitation],
+        lobbyInvitations: state.lobbyInvitations.some(
+          (item) => item.id === invitation.id
+        )
+          ? state.lobbyInvitations
+          : [...state.lobbyInvitations, invitation],
         error: null,
       }));
     };
@@ -107,7 +109,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
 
     const handleInvitationRejected = (data: { invitationId: string }) => {
       set((state) => ({
-        invitations: state.invitations.filter(
+        lobbyInvitations: state.lobbyInvitations.filter(
           (item) => item.id !== data.invitationId
         ),
       }));
@@ -166,7 +168,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     }
   },
 
-  inviteFriend: (username) => {
+  inviteFriendToLobby: (username) => {
     const cleanUsername = username.trim();
 
     if (!cleanUsername) {
@@ -185,7 +187,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     });
   },
 
-  acceptInvitation: (invitationId) => {
+  acceptLobbyInvitation: (invitationId) => {
     set({ error: null, notice: null });
 
     if (chatSocket.connected) {
@@ -193,7 +195,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     }
   },
 
-  rejectInvitation: (invitationId) => {
+  rejectLobbyInvitation: (invitationId) => {
     set({ error: null });
 
     if (chatSocket.connected) {

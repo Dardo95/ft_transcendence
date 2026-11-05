@@ -60,7 +60,11 @@ export class FriendshipsService {
     if (!fr || fr.addresseeId !== meId || fr.status !== 'PENDING')
       throw new NotFoundException('Request not found');
     await this.prisma.friendship.delete({ where: { id } });
-    return { message: 'Request rejected' };
+    return {
+      message: 'Request rejected',
+      requesterId: fr.requesterId,
+      addresseeId: fr.addresseeId,
+    };
   }
 
   async remove(meId: number, username: string) {
@@ -69,7 +73,11 @@ export class FriendshipsService {
     if (!fr || fr.status !== 'ACCEPTED')
       throw new NotFoundException('Friendship not found');
     await this.prisma.friendship.delete({ where: { id: fr.id } });
-    return { message: 'Friend removed' };
+    return {
+      message: 'Friend removed',
+      requesterId: fr.requesterId,
+      addresseeId: fr.addresseeId,
+    };
   }
 
   async block(meId: number, username: string) {
@@ -160,6 +168,11 @@ export class FriendshipsService {
             xp: true,
             isOnline: true,
             createdAt: true,
+            matchPlayers: {
+              where: { match: { status: 'IN_PROGRESS' } },
+              include: { match: { select: { id: true } } },
+              take: 1,
+            },
           },
         },
         addressee: {
@@ -169,12 +182,24 @@ export class FriendshipsService {
             xp: true,
             isOnline: true,
             createdAt: true,
+            matchPlayers: {
+              where: { match: { status: 'IN_PROGRESS' } },
+              include: { match: { select: { id: true } } },
+              take: 1,
+            },
           },
         },
       },
     });
-    return rows.map((r: any) =>
-      r.requesterId === meId ? r.addressee : r.requester
-    );
+    return rows.map((r: any) => {
+      const user = r.requesterId === meId ? r.addressee : r.requester;
+      const playing = user.matchPlayers?.length > 0;
+      const status = playing ? 'in_game' : user.isOnline ? 'online' : 'offline';
+      return {
+        ...user,
+        status,
+        currentGameId: playing ? String(user.matchPlayers[0].match.id) : null,
+      };
+    });
   }
 }

@@ -21,99 +21,121 @@ import {
   getMe,
 } from '../service/authService';
 import type { AuthCredentials, UserPublic } from '@transcendence/shared';
+import { resolveAuthErrorKey } from '../utils/authErrorMessage';
+import type { TranslationKey } from '@/locales/translations';
 
-interface AuthState {
+export interface AuthState {
   // State
   user: UserPublic | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
+  isAuthChecked: boolean;
+  error: string | null;
+  authErrorKey: TranslationKey | null;
 
   // Actions
   checkAuth: () => Promise<void>;
   login: (credentials: AuthCredentials) => Promise<void>;
   register: (credentials: AuthCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  clearError: () => void;
+  setAuthErrorKey: (key: TranslationKey | null) => void;
 }
 
-// Creation of the store with persistence in localStorage
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isAuthChecked: false,
+  error: null,
+  authErrorKey: null,
 
   checkAuth: async () => {
-    set({ isLoading: true });
+    set({ error: null, authErrorKey: null });
     try {
       const response = await getMe();
       set({
         user: 'user' in response ? response.user : response,
         isAuthenticated: true,
-        isLoading: false,
+        isAuthChecked: true,
+        error: null,
+        authErrorKey: null,
       });
     } catch {
       set({
         user: null,
         isAuthenticated: false,
-        isLoading: false,
+        isAuthChecked: true,
+        error: null,
+        authErrorKey: null,
       });
-    } finally {
-      set({ isLoading: false });
     }
   },
 
   login: async (credentials: AuthCredentials) => {
-    set({ isLoading: true });
+    set({ error: null, authErrorKey: null });
     try {
       await loginUser(credentials);
-
-      // After successful login, fetch the authenticated user's data
       const response = await getMe();
       set({
         user: 'user' in response ? response.user : response,
         isAuthenticated: true,
-        isLoading: false,
+        isAuthChecked: true,
+        error: null,
+        authErrorKey: null,
       });
     } catch (error) {
-      set({ isLoading: false });
-      throw error;
-    } finally {
-      set({ isLoading: false });
+      const key = resolveAuthErrorKey(error, 'login');
+      set({
+        user: null,
+        isAuthenticated: false,
+        error: error instanceof Error ? error.message : 'Login error',
+        authErrorKey: key,
+        isAuthChecked: true,
+      });
     }
   },
 
   register: async (credentials: AuthCredentials) => {
-    set({ isLoading: true });
+    set({ error: null, authErrorKey: null });
     try {
       await registerUser(credentials);
       await loginUser({
         email: credentials.email,
         password: credentials.password,
       });
-      // After successful registration and login, fetch the authenticated user's data
       const response = await getMe();
       set({
         user: 'user' in response ? response.user : response,
         isAuthenticated: true,
-        isLoading: false,
+        isAuthChecked: true,
+        error: null,
+        authErrorKey: null,
       });
     } catch (error) {
-      set({ isLoading: false });
-      throw error;
-    } finally {
-      set({ isLoading: false });
+      const key = resolveAuthErrorKey(error, 'register');
+      set({
+        user: null,
+        isAuthenticated: false,
+        error: error instanceof Error ? error.message : 'Register error',
+        authErrorKey: key,
+        isAuthChecked: true,
+      });
     }
   },
 
   logout: async () => {
-    set({ isLoading: true });
+    set({ error: null, authErrorKey: null });
     try {
       await logoutUser();
     } finally {
       set({
         user: null,
         isAuthenticated: false,
-        isLoading: false,
+        error: null,
+        authErrorKey: null,
       });
     }
   },
+
+  clearError: () => set({ error: null, authErrorKey: null }),
+  setAuthErrorKey: (key: TranslationKey | null) => set({ authErrorKey: key }),
 }));

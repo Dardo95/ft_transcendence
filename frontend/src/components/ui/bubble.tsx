@@ -13,7 +13,7 @@ function BubbleGroup({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 const bubbleVariants = cva(
-  'w-fit max-w-[85%] rounded-2xl px-3.5 py-2 text-xs break-words shadow-sm transition-all',
+  'w-fit max-w-[85%] rounded-2xl px-3.5 py-1 text-xs break-words shadow-sm transition-all',
   {
     variants: {
       variant: {
@@ -28,6 +28,7 @@ const bubbleVariants = cva(
       align: {
         start: 'self-start rounded-bl-sm',
         end: 'self-end rounded-br-sm',
+        center: 'self-center rounded-b-sm',
       },
     },
     defaultVariants: {
