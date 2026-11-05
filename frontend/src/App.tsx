@@ -73,6 +73,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route path="/lobby" element={<LobbyPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/:username" element={<ProfilePage />} />
             <Route path="/stats" element={<StatsPage />} />
             <Route path="/game/:id" element={<GamePage />} />
           </Route>

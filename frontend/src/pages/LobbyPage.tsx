@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 
 import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
 import { LobbyChat } from '../features/chat/components/LobbyChat';
-import { FriendsListCard } from '@/features/friends/components/FriendListCard';
+import { FriendList } from '@/features/friends/components/FriendListCard';
 import { GameModeSelector } from '../features/lobby/components/GameModeSelector';
 import { MapSelector } from '../features/lobby/components/MapSelector';
 import { GameSettingsCard } from '../features/lobby/components/GameSettingsCard';
@@ -210,7 +210,7 @@ export function LobbyPage() {
 
         {/* Columna lateral: amigos y chat */}
         <div className="space-y-4">
-          <FriendsListCard
+          <FriendList
             onSpectate={(gameId) => {
               navigate(`/game/${gameId}?mode=spectator`);
             }}

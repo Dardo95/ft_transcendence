@@ -9,11 +9,11 @@ import { FriendListItem } from './FriendListItem';
 import { AddFriendCard } from './AddFriendCard';
 import { IncomingRequests } from './IncomingRequests';
 
-interface FriendsListCardProps {
+interface FriendListProps {
   onSpectate?: (gameId: string) => void;
 }
 
-export function FriendsListCard({ onSpectate }: FriendsListCardProps) {
+export function FriendList({ onSpectate }: FriendListProps) {
   const { t } = useLanguage();
   const inviteFriend = useLobbyStore((state) => state.inviteFriendToLobby);
   const { friends, isLoading, loadFriendsData, deleteFriend } =
