@@ -9,7 +9,8 @@ COPY pnpm-workspace.yaml package.json* pnpm-lock.yaml* ./
 COPY shared ./shared
 COPY frontend ./frontend
 
-RUN pnpm install
+RUN pnpm --filter frontend... install --ignore-scripts
+RUN pnpm --filter @transcendence/shared build
 
 WORKDIR /app/frontend
 
