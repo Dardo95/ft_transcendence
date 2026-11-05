@@ -41,7 +41,11 @@ export function LobbyPage() {
 
     return () => {
       cleanupListeners();
-      disconnect();
+      // Keep the lobby namespace connected while the temporary Game Lab is
+      // open. ChatGateway removes a user from the lobby on socket disconnect.
+      if (!window.location.pathname.startsWith('/game')) {
+        disconnect();
+      }
     };
   }, [initListeners, connect, disconnect]);
 

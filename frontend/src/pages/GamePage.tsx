@@ -111,6 +111,12 @@ export function GamePage() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const { id: routeGameId } = useParams<{ id?: string }>();
+  // useNavigate is not referentially stable with BrowserRouter. Keep the latest
+  // function without making the socket lifecycle effect depend on it.
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+  const routeGameIdRef = useRef<string | null>(routeGameId ?? null);
+  routeGameIdRef.current = routeGameId ?? null;
 
   const [connection, setConnection] = useState<ConnectionState>(
     gameSocket.connected ? 'connected' : 'connecting',
@@ -120,6 +126,7 @@ export function GamePage() {
   const [matchmaking, setMatchmaking] = useState<MatchmakingStatusPayload | null>(null);
   const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
+  const [joinedGameId, setJoinedGameId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [clockNow, setClockNow] = useState(Date.now());
@@ -157,11 +164,22 @@ export function GamePage() {
     const handleConnect = () => {
       setConnection('connected');
       setError(null);
+
+      // A reconnect creates a fresh server-side socket with no room membership.
+      // Rejoin the current game before allowing movement again.
+      const gameId = activeGameId.current ?? routeGameIdRef.current;
+      if (gameId && autoJoinedGameId.current !== gameId) {
+        autoJoinedGameId.current = gameId;
+        gameSocket.emit('game:join', { gameId });
+      }
     };
 
     const handleDisconnect = () => {
       setConnection('disconnected');
       movement.current = { ...INITIAL_MOVEMENT };
+      // A new connection must join again; don't keep a stale join marker.
+      autoJoinedGameId.current = null;
+      setJoinedGameId(null);
     };
 
     const handleConnectError = (socketError: Error) => {
@@ -191,17 +209,22 @@ export function GamePage() {
       activeGameId.current = payload.gameId;
       autoJoinedGameId.current = payload.gameId;
       movement.current = { ...INITIAL_MOVEMENT };
+      setJoinedGameId(null);
       setSnapshot(payload.snapshot);
       playerIdRef.current = payload.playerId;
       setPlayerId(payload.playerId);
       setMatchmaking(null);
       setError(null);
       setNotice(`Partida ${modeLabel(payload.mode)} encontrada.`);
-      navigate(`/game/${payload.gameId}`, { replace: true });
+      // Confirm the game membership explicitly before enabling keyboard input.
+      // This mirrors the join flow used when the page is refreshed.
+      gameSocket.emit('game:join', { gameId: payload.gameId });
+      navigateRef.current(`/game/${payload.gameId}`, { replace: true });
     };
 
     const handleGameJoined = (payload: GameJoinedPayload) => {
       activeGameId.current = payload.gameId;
+      setJoinedGameId(payload.gameId);
       setSnapshot(payload.snapshot);
       const authenticatedPlayerId = userIdRef.current === null
         ? null
@@ -301,7 +324,7 @@ export function GamePage() {
         chatSocket.disconnect();
       }
     };
-  }, [emitStop, navigate]);
+  }, [emitStop]);
 
   useEffect(() => {
     if (!routeGameId || !gameSocket.connected) return;
@@ -319,7 +342,7 @@ export function GamePage() {
 
   useEffect(() => {
     const alive = Boolean(currentPlayer?.alive);
-    if (connection !== 'connected' || !isPlaying || !alive || !snapshot?.gameId || !playerId || !gameSocket.connected) {
+    if (connection !== 'connected' || !isPlaying || !alive || !snapshot?.gameId || !playerId || joinedGameId !== snapshot.gameId || !gameSocket.connected) {
       return;
     }
 
@@ -396,7 +419,7 @@ export function GamePage() {
       window.removeEventListener('blur', onBlur);
       emitStop();
     };
-  }, [connection, currentPlayer?.alive, emitStop, isPlaying, playerId, snapshot?.gameId]);
+  }, [connection, currentPlayer?.alive, emitStop, isPlaying, joinedGameId, playerId, snapshot?.gameId]);
 
   const startMatchmaking = () => {
     if (!gameSocket.connected) {
@@ -408,6 +431,7 @@ export function GamePage() {
     setNotice(null);
     setSnapshot(null);
     setPlayerId(null);
+    setJoinedGameId(null);
     setMatchmaking({ mode: selectedMode, status: 'REQUESTING' });
     gameSocket.emit('game:matchmaking', {
       mode: selectedMode,
@@ -426,6 +450,7 @@ export function GamePage() {
     autoJoinedGameId.current = null;
     setSnapshot(null);
     setPlayerId(null);
+    setJoinedGameId(null);
     setMatchmaking(null);
     setNotice(null);
     navigate('/game', { replace: true });
