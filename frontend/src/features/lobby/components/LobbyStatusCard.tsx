@@ -27,7 +27,7 @@ export function LobbyStatusCard() {
           </div>
 
           <div className="flex items-center justify-between">
-            <h4 className="font-semibold">
+            <h4>
               {t('app.lobby.players') || 'Jugadores'} ({lobby.members.length}/4)
             </h4>
 

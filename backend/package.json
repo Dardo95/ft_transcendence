@@ -24,6 +24,9 @@
     "typecheck": "tsc --noEmit --incremental false -p tsconfig.json",
     "dev": "pnpm run start:dev"
   },
+  "prisma": {
+    "seed": "node prisma/seed.mjs"
+  },
   "dependencies": {
     "@nestjs/common": "^12.1.0",
     "@nestjs/core": "^12.1.0",
@@ -50,6 +53,7 @@
     "@nestjs/testing": "^12.0.1",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.0",
+    "@types/multer": "^2.3.0",
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
     "@vitest/coverage-v8": "^4.1.2",

@@ -31,6 +31,10 @@ export const appEs = {
     connected: 'Conectado al servidor',
     connecting: 'Conectando...',
     connectingStatus: 'Conectando...',
+    openSession: 'Sesión abierta en otra ventana',
+    sessionReplaced:
+      'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.',
+    reloadSession: 'Recuperar sesión',
   },
   lobby: {
     lobbyTitle: 'Lobby',
@@ -92,7 +96,7 @@ export const appEs = {
   },
   friends: {
     friendList: 'Lista de Amigos',
-    addFriendPlaceholder: 'Añadir amigo: Introducir nombre de usuario exacto',
+    addFriendPlaceholder: 'Añadir amigo: introducir nombre de usuario',
     addFriendButton: 'Enviar',
     friendRequestSent: 'Solicitud enviada a',
     requestSendError: 'Error al enviar solicitud',
@@ -115,5 +119,8 @@ export const appEs = {
     onlineStatus: 'En línea',
     inGameStatus: 'En partida',
     offlineStatus: 'Desconectado',
+    sent: 'Enviada',
+    add: '+ Añadir',
+    noResults: 'No se encontraron resultados.',
   },
 } as const;

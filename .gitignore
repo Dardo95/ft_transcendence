@@ -59,3 +59,7 @@ ft_transcendence.wiki/
 # Test coverage
 coverage/
 */coverage/
+
+# Uploads (User Avatars)
+backend/uploads/*
+!backend/uploads/.gitkeep

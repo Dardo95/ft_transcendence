@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useFriendsStore } from '../store/useFriendsStore';
+import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useLanguage } from '@/locales/useLanguage';
 
 import { Card } from '@/components/ui/card';
@@ -8,18 +9,13 @@ import { FriendListItem } from './FriendListItem';
 import { AddFriendCard } from './AddFriendCard';
 import { IncomingRequests } from './IncomingRequests';
 
-import type { FriendUser } from '../service/friendsService';
-
 interface FriendsListCardProps {
-  onInviteToLobby?: (friend: FriendUser) => void;
   onSpectate?: (gameId: string) => void;
 }
 
-export function FriendsListCard({
-  onInviteToLobby,
-  onSpectate,
-}: FriendsListCardProps) {
+export function FriendsListCard({ onSpectate }: FriendsListCardProps) {
   const { t } = useLanguage();
+  const inviteFriend = useLobbyStore((state) => state.inviteFriendToLobby);
   const { friends, isLoading, loadFriendsData, deleteFriend } =
     useFriendsStore();
 
@@ -61,7 +57,7 @@ export function FriendsListCard({
             <FriendListItem
               key={friend.id}
               friend={friend}
-              onInviteToLobby={onInviteToLobby}
+              onInviteToLobby={(f) => inviteFriend(f.username)}
               onSpectate={onSpectate}
               onRemove={deleteFriend}
             />

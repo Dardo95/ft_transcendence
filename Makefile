@@ -146,6 +146,11 @@ studio:
 	docker exec -it -w /app/backend ft_backend ./node_modules/.bin/prisma studio --port 5555 --browser none
 	@echo ""
 
+seed:
+	@echo "$(CYAN)Seeding demo data...$(RESET)"
+	docker compose exec -T backend ./node_modules/.bin/prisma db seed
+	@echo ""
+
 # **************************************************************************** #
 # QA AND CODE QUALITY
 
@@ -354,6 +359,7 @@ help:
 	@echo "  $(CYAN)Development:$(RESET)"
 	@echo "  make dev            - Dev mode: hot reload at http://localhost:5173"
 	@echo "  make studio         - Open Prisma Studio at http://localhost:5555"
+	@echo "  make seed           - Load demo users and friendships"
 	@echo ""
 	@echo "  $(CYAN)QA & Testing:$(RESET)"
 	@echo "  make typecheck      - Verify TypeScript types in backend and frontend"
@@ -392,7 +398,7 @@ help:
 
 .PHONY: all prep prep-env prep-tls build up down \
 		re clean fclean \
-		dev studio \
+		dev studio seed \
 		typecheck lint buildcheck test allcheck envcheck sharedcheck \
 		ps config volumes images stats logs f \
 		help FORCE

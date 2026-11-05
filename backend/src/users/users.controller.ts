@@ -9,6 +9,10 @@ import {
   Post,
   Query,
   UseGuards,
+  HttpCode,
+  HttpStatus,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
@@ -17,6 +21,7 @@ import { SendFriendRequestDto } from './dto/send-friend-request.dto.js';
 import { FriendshipsService } from './friendships.service.js';
 import { UsersService } from './users.service.js';
 import { ChatGateway } from '../chat/chat.gateway.js';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -28,18 +33,39 @@ export class UsersController {
   ) {}
 
   private emitToUser(userId: number, event: string, data: unknown) {
-    if (!this.chatGateway || !this.chatGateway.server) return;
-    for (const socket of this.chatGateway.server.sockets.values()) {
-      const user = socket.data.user as { id?: number } | undefined;
-      if (user?.id === userId) {
-        socket.emit(event, data);
-      }
-    }
+    const server = this.chatGateway?.server;
+    if (!server) return;
+
+    server.to(`user:${userId}`).emit(event, data);
   }
 
   @Get('me')
   me(@CurrentUser('sub') userId: number) {
     return this.usersService.findById(userId);
+  }
+
+  @Post('me/avatar')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      limits: { fileSize: 2 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        const allowed = ['image/png', 'image/jpeg', 'image/webp'];
+        if (!allowed.includes(file.mimetype)) {
+          return cb(new BadRequestException('Unsupported image type'), false);
+        }
+        cb(null, true);
+      },
+    })
+  )
+  uploadAvatar(
+    @CurrentUser('sub') userId: number,
+    @UploadedFile() file?: Express.Multer.File
+  ) {
+    if (!file) {
+      throw new BadRequestException('Avatar file is required');
+    }
+    return this.usersService.updateAvatar(userId, file);
   }
 
   @Post('me/friend-requests')

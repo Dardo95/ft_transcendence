@@ -118,6 +118,7 @@ export class FriendshipsService {
             username: true,
             xp: true,
             isOnline: true,
+            avatarUrl: true,
             createdAt: true,
           },
         },
@@ -141,6 +142,7 @@ export class FriendshipsService {
             username: true,
             xp: true,
             isOnline: true,
+            avatarUrl: true,
             createdAt: true,
           },
         },
@@ -168,6 +170,7 @@ export class FriendshipsService {
             xp: true,
             isOnline: true,
             createdAt: true,
+            avatarUrl: true,
             matchPlayers: {
               where: { match: { status: 'IN_PROGRESS' } },
               include: { match: { select: { id: true } } },
@@ -181,6 +184,7 @@ export class FriendshipsService {
             username: true,
             xp: true,
             isOnline: true,
+            avatarUrl: true,
             createdAt: true,
             matchPlayers: {
               where: { match: { status: 'IN_PROGRESS' } },

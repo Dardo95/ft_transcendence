@@ -16,6 +16,7 @@ import { PrismaService } from '../database/prisma.service.js';
 
 import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
+import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 
 @WebSocketGateway({
   namespace: '/chat',
@@ -30,45 +31,61 @@ export class ChatGateway
   constructor(
     private readonly wsAuth: WsJwtAuthService,
     private readonly lobbyService: LobbyService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly registry: SocketRegistryService
   ) {}
 
   async handleConnection(client: Socket): Promise<void> {
     const user = client.data.user as WsUser | undefined;
     if (!user?.id) return;
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { isOnline: true },
-    });
+    // 1. Registra el socket y expulsa el de otra pestaña del mismo namespace.
+    this.registry.register('chat', user.id, client);
 
-    // Notificar a amigos sobre cambio de estado
-    await this.notifyFriendsStatus(user.id, true);
+    // 2. Sala personal: invitaciones y avisos llegan a la pestaña activa.
+    await client.join(`user:${user.id}`);
+
+    // 3. Marca online solo si este socket sigue siendo el activo.
+    try {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { isOnline: true },
+      });
+
+      if (!this.registry.isCurrent('chat', user.id, client.id)) {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { isOnline: false },
+        });
+        return;
+      }
+
+      await this.notifyFriendsStatus(user.id, true);
+    } catch {
+      // Si falla la BD no tumbamos el gateway.
+    }
   }
 
   handleDisconnect(client: Socket): void {
     const user = client.data.user as WsUser | undefined;
     if (!user?.id) return;
 
+    // Si fue reemplazado, no toca presencia ni lobby.
+    if (!this.registry.unregister('chat', user.id, client.id)) return;
+
     this.prisma.user
       .update({ where: { id: user.id }, data: { isOnline: false } })
       .catch(() => undefined);
 
-    // Notificar a amigos sobre cambio de estado
     this.notifyFriendsStatus(user.id, false).catch(() => undefined);
 
-    // Eliminar al usuario del lobby.
     const result = this.lobbyService.leaveLobby(user.id);
-    if (!result || !result.lobby) {
-      return;
-    }
+    if (!result || !result.lobby) return;
 
-    // Actualizar el estado visible para los miembros restantes.
     this.server
       .to(`lobby:${result.lobby.id}`)
       .emit('lobby:updated', result.lobby);
 
-    // Notificar salida del lobby
     this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
       username: user.username,
     });
@@ -93,20 +110,15 @@ export class ChatGateway
         friendIds.add(friendId);
       }
       for (const friendId of friendIds) {
-        for (const socket of this.server.sockets.values()) {
-          const sUser = socket.data.user as WsUser | undefined;
-          if (sUser?.id === friendId) {
-            socket.emit('friend:status', { userId, isOnline });
-          }
-        }
+        this.server
+          .to(`user:${friendId}`)
+          .emit('friend:status', { userId, isOnline });
       }
+
       // También notificar al propio usuario conectado por si refresca
-      for (const socket of this.server.sockets.values()) {
-        const sUser = socket.data.user as WsUser | undefined;
-        if (sUser?.id === userId) {
-          socket.emit('friend:status', { userId, isOnline });
-        }
-      }
+      this.server
+        .to(`user:${userId}`)
+        .emit('friend:status', { userId, isOnline });
     } catch {
       // Silenciar errores de notificación
     }
@@ -175,13 +187,7 @@ export class ChatGateway
       const invitation = this.lobbyService.createInvitation(inviter, invitee);
 
       // 4. Notificar al destinatario si está conectado.
-      for (const socket of this.server.sockets.values()) {
-        const connectedUser = socket.data.user as WsUser | undefined;
-
-        if (connectedUser?.id === invitee.id) {
-          socket.emit('lobby:invitation', invitation);
-        }
-      }
+      this.server.to(`user:${invitee.id}`).emit('lobby:invitation', invitation);
 
       // 5. Confirmar el envío al anfitrión.
       client.emit('lobby:invitationSent', {
