@@ -4,8 +4,16 @@ import { UsersModule } from './users/users.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { ChatModule } from './chat/chat.module.js';
 import { GameModule } from './game/game.module.js';
+import { StatsModule } from './stats/stats.module.js';
 
 @Module({
-  imports: [HealthModule, UsersModule, AuthModule, ChatModule, GameModule],
+  imports: [
+    HealthModule,
+    UsersModule,
+    AuthModule,
+    ChatModule,
+    GameModule,
+    StatsModule,
+  ],
 })
 export class AppModule {}
