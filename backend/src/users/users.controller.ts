@@ -38,7 +38,7 @@ export class UsersController {
 
   @Get('me')
   me(@CurrentUser('sub') userId: number) {
-    return this.usersService.findById(userId);
+    return this.usersService.findPrivateById(userId);
   }
 
   @Post('me/friend-requests')

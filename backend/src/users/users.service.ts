@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import type { UserPrivate, UserPublic } from '@transcendence/shared';
 import { PrismaService } from '../database/prisma.service.js';
-import { UserPublicDto } from './dto/user-public.dto.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
+import { toUserPrivate, toUserPublic } from './user.mapper.js';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findById(id: number) {
+  async findPrivateById(id: number): Promise<UserPrivate> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
@@ -16,16 +17,18 @@ export class UsersService {
         email: true,
         xp: true,
         isOnline: true,
+        twoFaEnabled: true,
+        oauthProvider: true,
         createdAt: true,
       },
     });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
+    return toUserPrivate(user);
   }
 
-  async findByUsername(username: string): Promise<UserPublicDto> {
+  async findByUsername(username: string): Promise<UserPublic> {
     const user = await this.prisma.user.findUnique({
       where: { username },
       select: {
@@ -39,7 +42,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
+    return toUserPublic(user);
   }
 
   async search(dto: SearchUsersDto) {
@@ -64,6 +67,6 @@ export class UsersService {
         take: limit,
       }),
     ]);
-    return { data, total, page, limit };
+    return { data: data.map(toUserPublic), total, page, limit };
   }
 }

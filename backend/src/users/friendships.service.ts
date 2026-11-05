@@ -3,7 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import type { UserPublic } from '@transcendence/shared';
 import { PrismaService } from '../database/prisma.service.js';
+import { toUserPublic } from './user.mapper.js';
 
 @Injectable()
 export class FriendshipsService {
@@ -121,7 +123,9 @@ export class FriendshipsService {
     return { message: 'User unblocked' };
   }
 
-  async listIncoming(meId: number) {
+  async listIncoming(
+    meId: number
+  ): Promise<Array<{ id: number; createdAt: Date; from: UserPublic }>> {
     const rows = await this.prisma.friendship.findMany({
       where: { addresseeId: meId, status: 'PENDING' },
       include: {
@@ -140,11 +144,13 @@ export class FriendshipsService {
     return rows.map((r: any) => ({
       id: r.id,
       createdAt: r.createdAt,
-      from: r.requester,
+      from: toUserPublic(r.requester),
     }));
   }
 
-  async listOutgoing(meId: number) {
+  async listOutgoing(
+    meId: number
+  ): Promise<Array<{ id: number; createdAt: Date; to: UserPublic }>> {
     const rows = await this.prisma.friendship.findMany({
       where: { requesterId: meId, status: 'PENDING' },
       include: {
@@ -163,11 +169,18 @@ export class FriendshipsService {
     return rows.map((r: any) => ({
       id: r.id,
       createdAt: r.createdAt,
-      to: r.addressee,
+      to: toUserPublic(r.addressee),
     }));
   }
 
-  async listFriends(meId: number) {
+  async listFriends(meId: number): Promise<
+    Array<
+      UserPublic & {
+        status: 'online' | 'in_game' | 'offline';
+        currentGameId: string | null;
+      }
+    >
+  > {
     const rows = await this.prisma.friendship.findMany({
       where: {
         status: 'ACCEPTED',
@@ -206,10 +219,10 @@ export class FriendshipsService {
     });
     return rows.map((r: any) => {
       const user = r.requesterId === meId ? r.addressee : r.requester;
-      const playing = user.matchPlayers?.length > 0;
+      const playing = user.matchPlayers.length > 0;
       const status = playing ? 'in_game' : user.isOnline ? 'online' : 'offline';
       return {
-        ...user,
+        ...toUserPublic(user),
         status,
         currentGameId: playing ? String(user.matchPlayers[0].match.id) : null,
       };

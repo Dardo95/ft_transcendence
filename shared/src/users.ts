@@ -1,7 +1,15 @@
+// API contract shared by the frontend and backend consumers.
 export interface UserPublic {
   id: number;
-  email: string;
   username: string;
-  avatarUrl?: string;
-  createdAt?: string;
+  xp: number;
+  isOnline: boolean;
+  avatarUrl: string | null;
+  createdAt: string;
+}
+
+export interface UserPrivate extends UserPublic {
+  email: string;
+  twoFaEnabled: boolean;
+  oauthProvider: string | null;
 }
