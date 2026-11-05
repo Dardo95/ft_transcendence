@@ -18,6 +18,11 @@
     "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "types": ["vitest/globals", "node"]
+    "types": ["vitest/globals", "node", "multer"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@transcendence/shared": ["../shared/src/index.ts"],
+      "@transcendence/shared/*": ["../shared/src/*"]
+    }
   }
 }

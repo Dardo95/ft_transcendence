@@ -24,6 +24,8 @@ services:
       dockerfile: backend/Dockerfile
     restart: unless-stopped
     env_file: .env
+    volumes:
+      - ./backend/uploads:/app/backend/uploads
     ports:
       - "127.0.0.1:5555:5555"
     networks:

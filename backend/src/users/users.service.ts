@@ -1,7 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { UserPrivate, UserPublic } from '@transcendence/shared';
 import { PrismaService } from '../database/prisma.service.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
+import { randomUUID } from 'node:crypto';
+import { unlink, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const AVATAR_EXTENSIONS: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+};
+
+const AVATAR_URL_PREFIX = '/api/uploads/avatars/';
 import { toUserPrivate, toUserPublic } from './user.mapper.js';
 
 @Injectable()
@@ -17,6 +32,7 @@ export class UsersService {
         email: true,
         xp: true,
         isOnline: true,
+        avatarUrl: true,
         twoFaEnabled: true,
         oauthProvider: true,
         createdAt: true,
@@ -36,6 +52,7 @@ export class UsersService {
         username: true,
         xp: true,
         isOnline: true,
+        avatarUrl: true,
         createdAt: true,
       },
     });
@@ -60,6 +77,7 @@ export class UsersService {
           username: true,
           xp: true,
           isOnline: true,
+          avatarUrl: true,
           createdAt: true,
         },
         orderBy: { username: 'asc' },
@@ -68,5 +86,123 @@ export class UsersService {
       }),
     ]);
     return { data: data.map(toUserPublic), total, page, limit };
+  }
+
+  async updateAvatar(
+    userId: number,
+    file: { buffer: Buffer; mimetype: string }
+  ) {
+    const extension = AVATAR_EXTENSIONS[file.mimetype];
+    if (!extension) {
+      throw new BadRequestException('Unsupported image type');
+    }
+
+    const current = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatarUrl: true },
+    });
+    if (!current) {
+      throw new NotFoundException('User not found');
+    }
+
+    const filename = `${userId}-${randomUUID()}.${extension}`;
+    const absolutePath = join(process.cwd(), 'uploads', 'avatars', filename);
+
+    await writeFile(absolutePath, file.buffer);
+
+    try {
+      const updated = await this.prisma.user.update({
+        where: { id: userId },
+        data: { avatarUrl: `${AVATAR_URL_PREFIX}${filename}` },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          xp: true,
+          isOnline: true,
+          createdAt: true,
+          avatarUrl: true,
+        },
+      });
+
+      if (current.avatarUrl) {
+        await this.deleteAvatarFile(current.avatarUrl);
+      }
+
+      return updated;
+    } catch (error) {
+      await unlink(absolutePath).catch(() => undefined);
+      throw error;
+    }
+  }
+
+  private async deleteAvatarFile(avatarUrl: string) {
+    if (!avatarUrl.startsWith(AVATAR_URL_PREFIX)) return;
+
+    const filename = avatarUrl.slice(AVATAR_URL_PREFIX.length);
+    if (!filename || filename.includes('/')) return;
+
+    await unlink(join(process.cwd(), 'uploads', 'avatars', filename)).catch(
+      () => undefined
+    );
+  }
+
+  async updateAvatar(
+    userId: number,
+    file: { buffer: Buffer; mimetype: string }
+  ) {
+    const extension = AVATAR_EXTENSIONS[file.mimetype];
+    if (!extension) {
+      throw new BadRequestException('Unsupported image type');
+    }
+
+    const current = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatarUrl: true },
+    });
+    if (!current) {
+      throw new NotFoundException('User not found');
+    }
+
+    const filename = `${userId}-${randomUUID()}.${extension}`;
+    const absolutePath = join(process.cwd(), 'uploads', 'avatars', filename);
+
+    await writeFile(absolutePath, file.buffer);
+
+    try {
+      const updated = await this.prisma.user.update({
+        where: { id: userId },
+        data: { avatarUrl: `${AVATAR_URL_PREFIX}${filename}` },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          xp: true,
+          isOnline: true,
+          createdAt: true,
+          avatarUrl: true,
+        },
+      });
+
+      if (current.avatarUrl) {
+        await this.deleteAvatarFile(current.avatarUrl);
+      }
+
+      return updated;
+    } catch (error) {
+      await unlink(absolutePath).catch(() => undefined);
+      throw error;
+    }
+  }
+
+  private async deleteAvatarFile(avatarUrl: string) {
+    if (!avatarUrl.startsWith(AVATAR_URL_PREFIX)) return;
+
+    const filename = avatarUrl.slice(AVATAR_URL_PREFIX.length);
+    if (!filename || filename.includes('/')) return;
+
+    await unlink(join(process.cwd(), 'uploads', 'avatars', filename)).catch(
+      () => undefined
+    );
   }
 }
