@@ -6,15 +6,19 @@ const prisma = new PrismaClient();
 const DEMO_PASSWORD = 'Demo1234!';
 
 const demoUsers = [
-  { username: 'demo1', email: 'demo1@example.com', xp: 0 },
-  { username: 'demo2', email: 'demo2@example.com', xp: 120 },
-  { username: 'demo3', email: 'demo3@example.com', xp: 340 },
-  { username: 'demo4', email: 'demo4@example.com', xp: 75 },
+  { username: 'ozamora-', email: 'ozamora@example.com', xp: 0 },
+  { username: 'brivera', email: 'brivera@example.com', xp: 120 },
+  { username: 'raperez-', email: 'raperez@example.com', xp: 340 },
+  { username: 'enogueir', email: 'enogueir@example.com', xp: 75 },
+  { username: 'nsantand', email: 'nsantand@example.com', xp: 200 },
+  { username: 'brian', email: 'brian@example.com', xp: 150 }
 ];
 
 const demoFriendships = [
-  ['demo1', 'demo2'],
-  ['demo3', 'demo4'],
+  ['ozamora-', 'brivera'],
+  ['ozamora-', 'raperez-'],
+  ['ozamora-', 'enogueir'],
+  ['ozamora-', 'nsantand'],
 ];
 
 const achievements = [

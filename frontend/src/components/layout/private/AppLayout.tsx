@@ -16,17 +16,34 @@
  * - Contain feature-specific business logic.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { SideDrawer } from './SideDrawer';
+import { SessionReplacedOverlay } from './SessionReplacedOverlay';
+import { useAuthStore } from '@/features/auth/store/useAuthStore';
+import { useSocketStore } from '@/stores/useSocketStore';
 
 export function AppLayout() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const connect = useSocketStore((state) => state.connect);
+  const disconnect = useSocketStore((state) => state.disconnect);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    connect();
+    return () => {
+      disconnect();
+    };
+  }, [isAuthenticated, connect, disconnect]);
 
   return (
     <div className="flex min-h-screen flex-col justify-between bg-slate-950 font-sans text-slate-100">
+      {/* Overlay for session replacement */}
+      <SessionReplacedOverlay />
+
       {/* Top navigation bar */}
       <Header onOpenDrawer={() => setIsDrawerOpen(true)} />
 
