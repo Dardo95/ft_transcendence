@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service.js';
 import { UserPublicDto } from './dto/user-public.dto.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
@@ -135,8 +139,8 @@ export class UsersService {
     const filename = avatarUrl.slice(AVATAR_URL_PREFIX.length);
     if (!filename || filename.includes('/')) return;
 
-    await unlink(
-      join(process.cwd(), 'uploads', 'avatars', filename)
-    ).catch(() => undefined);
+    await unlink(join(process.cwd(), 'uploads', 'avatars', filename)).catch(
+      () => undefined
+    );
   }
 }
