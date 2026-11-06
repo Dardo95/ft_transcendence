@@ -4,8 +4,8 @@ import type {
   Position,
 } from '@transcendence/shared';
 
-const FUSE_MS = 2500;
-const EXPLOSION_MS = 500;
+export const FUSE_MS = 2500;
+export const EXPLOSION_MS = 500;
 const PAUSE_MS = 500;
 const CYCLE_MS = FUSE_MS + EXPLOSION_MS + PAUSE_MS;
 
