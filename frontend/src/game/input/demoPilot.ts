@@ -33,7 +33,6 @@ const STOPPED: MovementInput = {
  */
 export class DemoPilot {
   private readonly map: number[][];
-  private readonly players: GamePlayerSnapshot[];
   private readonly localPlayer: GamePlayerSnapshot;
 
   private movement: MovementInput = STOPPED;
@@ -55,7 +54,6 @@ export class DemoPilot {
     }
 
     this.map = map;
-    this.players = players;
     this.localPlayer = localPlayer;
   }
 

@@ -1,11 +1,12 @@
 import { Application, type Ticker } from 'pixi.js';
 import { useEffect, useRef } from 'react';
 
+import { demoBombStateAt } from './bombs/demoBombs';
+import { DemoPilot } from './input/demoPilot';
+import { KeyboardController } from './input/keyboard';
 import { testMap, TILE_SIZE } from './map/TileMap';
 import { demoPlayers } from './players/demoPlayers';
 import { GameScene } from './scenes/GameScene';
-
-import { demoBombStateAt } from './bombs/demoBombs';
 
 export function GameViewport() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -23,6 +24,21 @@ export function GameViewport() {
 
     let destroyed = false;
 
+    // Copia local del fixture: el piloto mueve a Bren y no
+    // debemos mutar el array compartido de demoPlayers (si no,
+    // al salir y volver Bren aparecería en la última posición).
+    const players = demoPlayers.map((player) => ({
+      ...player,
+      position: { ...player.position },
+    }));
+    const pilot = new DemoPilot(testMap, players, 'bren');
+    const keyboard = new KeyboardController({
+      onMovement: (movement) => pilot.setMovement(movement),
+      onPlaceBomb: () => pilot.placeBomb(),
+    });
+
+    keyboard.attach();
+
     const tick = (ticker: Ticker) => {
       const scene = sceneRef.current;
 
@@ -31,10 +47,15 @@ export function GameViewport() {
       }
 
       scene.update(ticker.deltaMS);
+      pilot.update(scene.timeMs, ticker.deltaMS);
 
-      const demo = demoBombStateAt(scene.timeMs);
-      scene.setBombs(demo.bombs);
-      scene.setExplosions(demo.explosions);
+      if (pilot.consumeMoved()) {
+        scene.setPlayers(players);
+      }
+
+      const fixture = demoBombStateAt(scene.timeMs);
+      scene.setBombs([...fixture.bombs, ...pilot.getBombs()]);
+      scene.setExplosions([...fixture.explosions, ...pilot.getExplosions()]);
     };
 
     const fitMap = () => {
@@ -74,7 +95,7 @@ export function GameViewport() {
         app.renderer.resize(container.clientWidth, container.clientHeight);
         container.appendChild(app.canvas);
 
-        const scene = new GameScene(testMap, demoPlayers);
+        const scene = new GameScene(testMap, players);
         sceneRef.current = scene;
         app.stage.addChild(scene);
         app.ticker.add(tick);
@@ -108,6 +129,7 @@ export function GameViewport() {
       destroyed = true;
       resizeObserver.disconnect();
       appRef.current?.ticker.remove(tick);
+      keyboard.destroy();
 
       if (sceneRef.current) {
         sceneRef.current.destroy({ children: true });
