@@ -42,6 +42,7 @@ const SPOTS: readonly DemoSpot[] = [
       { x: 15, y: 8 },
       { x: 17, y: 8 },
       { x: 16, y: 7 },
+      { x: 16, y: 9 },
     ],
   },
 ];
