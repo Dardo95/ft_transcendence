@@ -195,12 +195,12 @@ export function GameViewport() {
   }, []);
 
   return (
-    <div className="flex h-[calc(100dvh-80px)] w-full flex-col gap-3 overflow-y-auto p-3 lg:flex-row lg:overflow-hidden">
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
+    <div className="flex w-full flex-col gap-3 p-3 lg:h-[calc(100dvh-80px)] lg:flex-row lg:overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
         {hudModel && <GameTopBar model={hudModel} />}
         <div
           ref={containerRef}
-          className="relative min-h-[320px] flex-1 overflow-auto rounded-lg bg-zinc-950"
+          className="relative h-[55vh] min-h-[320px] overflow-auto rounded-lg bg-zinc-950 lg:h-auto lg:min-h-0 lg:flex-1"
           style={{ imageRendering: 'pixelated' }}
           aria-label="Game viewport"
         />
