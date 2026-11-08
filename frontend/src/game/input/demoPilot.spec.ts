@@ -1,4 +1,7 @@
-import type { GamePlayerSnapshot } from '@transcendence/shared';
+import type {
+  ExplosionSnapshot,
+  GamePlayerSnapshot,
+} from '@transcendence/shared';
 import { describe, expect, it } from 'vitest';
 
 import { testMap } from '../map/TileMap';
@@ -110,12 +113,81 @@ describe('DemoPilot', () => {
   });
 
   it('frees the bomb slot after detonation', () => {
-    const { pilot } = createPilot(1.5, 1.5);
+    const { pilot, players } = createPilot(1.5, 1.5);
 
     pilot.placeBomb();
+    // Aleja a Bren de la explosión para que sobreviva.
+    pilot.setMovement({ up: false, down: false, left: false, right: true });
+
+    for (let frame = 1; frame <= 45; frame++) {
+      pilot.update(frame * 16, 16);
+    }
+
+    pilot.setMovement({ up: false, down: false, left: false, right: false });
     pilot.update(2500, 16);
+
+    expect(players[0].alive).toBe(true);
+
     pilot.placeBomb();
 
     expect(pilot.getBombs()).toHaveLength(1);
+  });
+
+  it('dies when its own explosion catches it', () => {
+    const { pilot, players } = createPilot(1.5, 1.5);
+
+    pilot.placeBomb();
+    pilot.update(2500, 16);
+
+    expect(players[0].alive).toBe(false);
+    expect(pilot.consumeMoved()).toBe(true);
+  });
+
+  it('cannot move or bomb after death', () => {
+    const { pilot, players } = createPilot(1.5, 1.5);
+
+    pilot.placeBomb();
+    pilot.update(2500, 16);
+
+    const deadX = players[0].position.x;
+    pilot.setMovement({ up: false, down: false, left: false, right: true });
+    pilot.update(2600, 16);
+    pilot.placeBomb();
+
+    expect(players[0].position.x).toBe(deadX);
+    expect(pilot.getBombs()).toHaveLength(0);
+  });
+
+  it('survives an external explosion on another tile', () => {
+    const { pilot, players } = createPilot(1.5, 1.5);
+    const fixtureExplosion: ExplosionSnapshot = {
+      id: 'fixture',
+      cells: [
+        { x: 10, y: 1 },
+        { x: 9, y: 1 },
+        { x: 11, y: 1 },
+      ],
+      expiresAt: 3000,
+    };
+
+    pilot.update(2600, 16, [fixtureExplosion]);
+
+    expect(players[0].alive).toBe(true);
+  });
+
+  it('dies standing on an external fixture explosion', () => {
+    const { pilot, players } = createPilot(1.5, 1.5);
+    const fixtureExplosion: ExplosionSnapshot = {
+      id: 'fixture',
+      cells: [
+        { x: 1, y: 1 },
+        { x: 2, y: 1 },
+      ],
+      expiresAt: 3000,
+    };
+
+    pilot.update(2600, 16, [fixtureExplosion]);
+
+    expect(players[0].alive).toBe(false);
   });
 });

@@ -62,6 +62,10 @@ export class DemoPilot {
   }
 
   placeBomb(): void {
+    if (!this.localPlayer.alive) {
+      return;
+    }
+
     const tile = {
       x: Math.floor(this.localPlayer.position.x),
       y: Math.floor(this.localPlayer.position.y),
@@ -106,13 +110,26 @@ export class DemoPilot {
     return moved;
   }
 
-  update(nowMs: number, deltaMs: number): void {
+  update(
+    nowMs: number,
+    deltaMs: number,
+    externalExplosions: readonly ExplosionSnapshot[] = []
+  ): void {
     this.lastNowMs = nowMs;
-    this.moveLocalPlayer(Math.min(deltaMs, MAX_STEP_MS));
+
+    if (this.localPlayer.alive) {
+      this.moveLocalPlayer(Math.min(deltaMs, MAX_STEP_MS));
+    }
+
     this.processBombs(nowMs);
+    this.checkDeath(nowMs, externalExplosions);
   }
 
   private moveLocalPlayer(deltaMs: number): void {
+    if (!this.localPlayer.alive) {
+      return;
+    }
+
     const { movement, localPlayer } = this;
     const movingHorizontally = movement.left !== movement.right;
     const movingVertically = movement.up !== movement.down;
@@ -143,6 +160,43 @@ export class DemoPilot {
 
     if (dy !== 0 && !this.collides(position.x, position.y + dy)) {
       position.y += dy;
+      this.moved = true;
+    }
+  }
+
+  // Una explosión activa sobre la casilla del jugador local
+  // lo elimina (igual que el backend resuelve el daño).
+  private checkDeath(
+    nowMs: number,
+    externalExplosions: readonly ExplosionSnapshot[]
+  ): void {
+    const { localPlayer } = this;
+
+    if (!localPlayer.alive) {
+      return;
+    }
+
+    const tile = {
+      x: Math.floor(localPlayer.position.x),
+      y: Math.floor(localPlayer.position.y),
+    };
+
+    const coversTile = (cells: readonly { x: number; y: number }[]): boolean =>
+      cells.some((cell) => cell.x === tile.x && cell.y === tile.y);
+
+    const hit =
+      this.explosions.some(
+        (explosion) =>
+          nowMs < explosion.expiresAt && coversTile(explosion.cells)
+      ) ||
+      externalExplosions.some(
+        (explosion) =>
+          nowMs < explosion.expiresAt && coversTile(explosion.cells)
+      );
+
+    if (hit) {
+      localPlayer.alive = false;
+      this.movement = STOPPED;
       this.moved = true;
     }
   }

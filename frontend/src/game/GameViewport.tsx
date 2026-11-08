@@ -47,13 +47,14 @@ export function GameViewport() {
       }
 
       scene.update(ticker.deltaMS);
-      pilot.update(scene.timeMs, ticker.deltaMS);
+
+      const fixture = demoBombStateAt(scene.timeMs);
+      pilot.update(scene.timeMs, ticker.deltaMS, fixture.explosions);
 
       if (pilot.consumeMoved()) {
         scene.setPlayers(players);
       }
 
-      const fixture = demoBombStateAt(scene.timeMs);
       scene.setBombs([...fixture.bombs, ...pilot.getBombs()]);
       scene.setExplosions([...fixture.explosions, ...pilot.getExplosions()]);
     };
