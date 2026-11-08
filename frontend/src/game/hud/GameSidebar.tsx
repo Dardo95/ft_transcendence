@@ -1,18 +1,11 @@
-import {
-  BombIcon,
-  ChefHatIcon,
-  CircleIcon,
-  CircleOffIcon,
-  CoffeeIcon,
-  FlameIcon,
-  type LucideIcon,
-  PackageIcon,
-  ScrollTextIcon,
-  SquareIcon,
-  ZapIcon,
-} from 'lucide-react';
+import { ChefHatIcon, CircleIcon, CircleOffIcon, InfoIcon } from 'lucide-react';
 
+import bombUrl from '../../assets/sprites/bomb_pressure_cooker.png';
+import crateUrl from '../../assets/sprites/crate_wood.png';
+import powerUpUrl from '../../assets/sprites/powerup_extrabomb.png';
+import tileWallUrl from '../../assets/sprites/tile_wall.png';
 import { useLanguage } from '../../locales/useLanguage';
+import { PLAYER_COLORS, type PlayerColor } from '../players/types';
 import type { HudModel } from './hudModel';
 
 interface RosterEntry {
@@ -22,24 +15,23 @@ interface RosterEntry {
 }
 
 interface StatBox {
-  icon: LucideIcon;
   label: string;
   value: string;
 }
 
-// Tinte de avatar por posición del roster (mismo criterio
-// "color e id" que el render de jugadores en el canvas).
-const AVATAR_TINTS = [
-  'bg-emerald-950 text-emerald-300 border-emerald-800',
-  'bg-sky-950 text-sky-300 border-sky-800',
-  'bg-amber-950 text-amber-300 border-amber-800',
-  'bg-rose-950 text-rose-300 border-rose-800',
-] as const;
+// Mismos colores que los sprites de jugadores del canvas
+// (PLAYER_COLORS), para que el gorrito del sidebar coincida
+// con el personaje que se ve en el tablero.
+const PLAYER_COLOR_CLASSES: Record<PlayerColor, string> = {
+  blue: 'bg-blue-950 text-blue-300 border-blue-700',
+  green: 'bg-emerald-950 text-emerald-300 border-emerald-700',
+  red: 'bg-red-950 text-red-300 border-red-700',
+  yellow: 'bg-yellow-950 text-yellow-300 border-yellow-700',
+};
 
 interface LegendItem {
-  icon: LucideIcon;
+  src: string;
   label: string;
-  className: string;
 }
 
 /**
@@ -59,41 +51,38 @@ export function GameSidebar({ model }: { model: HudModel }) {
     })),
   ];
 
+  // Replica PlayerLayer.assignColor: primer color libre en
+  // orden de aparición. El roster va en el mismo orden que el
+  // array de jugadores del canvas, así el gorrito coincide
+  // con el personaje del tablero (bren=blue, eduardo=green…).
+  const usedColors = new Set<PlayerColor>();
+  const rosterWithColor = roster.map((entry) => {
+    const color =
+      PLAYER_COLORS.find((item) => !usedColors.has(item)) ?? PLAYER_COLORS[0];
+    usedColors.add(color);
+    return { ...entry, color };
+  });
+
   const stats: StatBox[] = [
     {
-      icon: BombIcon,
       label: t('app.sidebar.bombs'),
       value: String(model.local.availableBombs),
     },
     {
-      icon: FlameIcon,
       label: t('app.sidebar.blast'),
       value: String(model.local.blastRadius),
     },
     {
-      icon: CoffeeIcon,
       label: t('app.sidebar.speed'),
       value: model.local.speed.toFixed(1),
     },
   ];
 
   const legend: LegendItem[] = [
-    {
-      icon: SquareIcon,
-      label: t('app.legend.wall'),
-      className: 'text-zinc-500',
-    },
-    {
-      icon: PackageIcon,
-      label: t('app.legend.crate'),
-      className: 'text-amber-700',
-    },
-    { icon: BombIcon, label: t('app.legend.bomb'), className: 'text-zinc-300' },
-    {
-      icon: ZapIcon,
-      label: t('app.legend.powerUp'),
-      className: 'text-yellow-400',
-    },
+    { src: tileWallUrl, label: t('app.legend.wall') },
+    { src: crateUrl, label: t('app.legend.crate') },
+    { src: bombUrl, label: t('app.legend.bomb') },
+    { src: powerUpUrl, label: t('app.legend.powerUp') },
   ];
 
   return (
@@ -111,7 +100,7 @@ export function GameSidebar({ model }: { model: HudModel }) {
         </div>
 
         <ul className="mt-2 flex flex-col gap-1.5">
-          {roster.map((entry, index) => (
+          {rosterWithColor.map((entry) => (
             <li
               key={entry.name}
               className={`flex items-center gap-2.5 rounded-md border border-zinc-800 bg-zinc-950/70 px-2.5 py-2 ${
@@ -120,7 +109,7 @@ export function GameSidebar({ model }: { model: HudModel }) {
             >
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${
-                  AVATAR_TINTS[index % AVATAR_TINTS.length]
+                  PLAYER_COLOR_CLASSES[entry.color]
                 }`}
                 aria-hidden="true"
               >
@@ -165,16 +154,12 @@ export function GameSidebar({ model }: { model: HudModel }) {
         </h2>
 
         <div className="mt-2 grid grid-cols-3 gap-2">
-          {stats.map(({ icon: Icon, label, value }) => (
+          {stats.map(({ label, value }) => (
             <div
               key={label}
               className="rounded-md border border-zinc-800 bg-zinc-950/70 px-1 py-2 text-center"
             >
-              <Icon
-                className="mx-auto h-4 w-4 text-zinc-500"
-                aria-hidden="true"
-              />
-              <p className="mt-1 font-mono text-lg leading-tight font-bold text-amber-300">
+              <p className="font-mono text-lg leading-tight font-bold text-amber-300">
                 {value}
               </p>
               <p className="text-[9px] font-semibold tracking-wider text-zinc-500 uppercase">
@@ -188,25 +173,24 @@ export function GameSidebar({ model }: { model: HudModel }) {
       {/* Leyenda del tablero */}
       <section className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-zinc-100 shadow-lg">
         <h2 className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.2em] text-zinc-400 uppercase">
-          <ScrollTextIcon className="h-4 w-4" aria-hidden="true" />
+          <InfoIcon className="h-4 w-4" aria-hidden="true" />
           {t('app.legend.title')}
         </h2>
 
         <ul className="mt-2 flex flex-col gap-1.5">
-          {legend.map(({ icon: Icon, label, className }) => (
+          {legend.map(({ src, label }) => (
             <li key={label} className="flex items-center gap-2.5 text-xs">
-              <Icon
-                className={`h-4 w-4 shrink-0 ${className}`}
+              <img
+                src={src}
+                alt=""
                 aria-hidden="true"
+                className="h-5 w-5 shrink-0 rounded-sm border border-zinc-800 object-cover"
+                style={{ imageRendering: 'pixelated' }}
               />
               <span className="text-zinc-300">{label}</span>
             </li>
           ))}
         </ul>
-
-        <p className="mt-3 border-t border-zinc-800 pt-2 text-[11px] leading-snug text-zinc-500 italic">
-          {t('app.legend.serverNote')}
-        </p>
       </section>
     </div>
   );

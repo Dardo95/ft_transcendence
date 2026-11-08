@@ -149,12 +149,10 @@ export const appEn = {
     speed: 'Speed',
   },
   legend: {
-    title: 'Legend',
+    title: 'Information',
     wall: 'Indestructible wall',
     crate: 'Destructible wall',
     bomb: 'Bomb',
     powerUp: 'Power-up',
-    serverNote:
-      'The server resolves collisions, explosions and the match result.',
   },
 } as const;

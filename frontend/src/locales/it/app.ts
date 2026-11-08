@@ -150,12 +150,10 @@ export const appIt = {
     speed: 'Velocità',
   },
   legend: {
-    title: 'Leggenda',
+    title: 'Informazioni',
     wall: 'Muro indivisibile',
     crate: 'Muro distruttibile',
     bomb: 'Bomba',
     powerUp: 'Power-up',
-    serverNote:
-      'Il server calcola le collisioni, le esplosioni e il risultato della partita.',
   },
 } as const;

@@ -151,12 +151,10 @@ export const appEs = {
     speed: 'Velocidad',
   },
   legend: {
-    title: 'Leyenda',
+    title: 'Información',
     wall: 'Muro indestructible',
     crate: 'Muro destructible',
     bomb: 'Bomba',
     powerUp: 'Power-up',
-    serverNote:
-      'El servidor calcula las colisiones, las explosiones y el resultado de la partida.',
   },
 } as const;
