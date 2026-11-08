@@ -139,6 +139,7 @@ export const appEn = {
     time: 'Time',
     survivors: 'Survivors',
     map: 'Map',
+    exitFullscreen: 'Exit fullscreen',
   },
   sidebar: {
     inKitchen: 'In the kitchen',

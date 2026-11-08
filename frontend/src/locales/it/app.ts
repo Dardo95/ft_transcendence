@@ -140,6 +140,7 @@ export const appIt = {
     time: 'Tempo',
     survivors: 'Sopravvissuti',
     map: 'Mappa',
+    exitFullscreen: 'Esci da schermo intero',
   },
   sidebar: {
     inKitchen: 'In cucina',

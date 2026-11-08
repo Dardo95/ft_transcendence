@@ -141,6 +141,7 @@ export const appEs = {
     time: 'Tiempo',
     survivors: 'Supervivientes',
     map: 'Mapa',
+    exitFullscreen: 'Salir de pantalla completa',
   },
   sidebar: {
     inKitchen: 'En la cocina',

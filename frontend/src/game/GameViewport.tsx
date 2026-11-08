@@ -2,23 +2,30 @@ import { Application, type Ticker } from 'pixi.js';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { approach, computeSceneOffset, type CameraViewport } from './camera';
 import { demoBombStateAt } from './bombs/demoBombs';
-import { DemoPilot } from './input/demoPilot';
-import { KeyboardController } from './input/keyboard';
 import { GameSidebar } from './hud/GameSidebar';
 import { buildHudModel, type HudModel } from './hud/hudModel';
 import { GameTopBar } from './hud/GameTopBar';
+import { DemoPilot } from './input/demoPilot';
+import { KeyboardController } from './input/keyboard';
 import { testMap, TILE_SIZE } from './map/TileMap';
 import { demoPlayers } from './players/demoPlayers';
 import { GameScene } from './scenes/GameScene';
 
 const LOCAL_PLAYER_ID = 'bren';
+const MAP_WIDTH = testMap[0].length * TILE_SIZE;
+const MAP_HEIGHT = testMap.length * TILE_SIZE;
+// Suavizado de la cámara (mismo enfoque exponencial que la
+// interpolación de jugadores): estable a 60 y 120 fps.
+const CAMERA_FOLLOW = 8;
 
 export function GameViewport() {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
   const sceneRef = useRef<GameScene | null>(null);
   const [hudModel, setHudModel] = useState<HudModel | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // El id vive en la ruta (/game/:id); una ref permite que el
   // tick lea el valor actual sin recrear el effect completo.
@@ -28,6 +35,26 @@ export function GameViewport() {
   useEffect(() => {
     gameIdRef.current = routeGameId ?? 'demo';
   }, [routeGameId]);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === containerRef.current);
+    };
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement === containerRef.current) {
+      void document.exitFullscreen();
+    } else {
+      void containerRef.current?.requestFullscreen();
+    }
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -59,6 +86,32 @@ export function GameViewport() {
     // React cuando el modelo cambia (el reloj, 1 vez/s).
     let lastHudKey = '';
 
+    // Cámara: viewport visible + desplazamiento actual de la
+    // escena. El objetivo se recalcula cada tick siguiendo a Bren.
+    const viewport: CameraViewport = { width: 0, height: 0 };
+    const camera = { x: 0, y: 0 };
+
+    const cameraTarget = () => {
+      const local =
+        players.find((player) => player.id === LOCAL_PLAYER_ID) ?? players[0];
+
+      return computeSceneOffset(MAP_WIDTH, MAP_HEIGHT, viewport, {
+        x: local.position.x * TILE_SIZE + TILE_SIZE / 2,
+        y: local.position.y * TILE_SIZE + TILE_SIZE / 2,
+      });
+    };
+
+    const snapCamera = () => {
+      const target = cameraTarget();
+      camera.x = target.x;
+      camera.y = target.y;
+
+      if (sceneRef.current) {
+        sceneRef.current.x = camera.x;
+        sceneRef.current.y = camera.y;
+      }
+    };
+
     const tick = (ticker: Ticker) => {
       const scene = sceneRef.current;
 
@@ -78,6 +131,15 @@ export function GameViewport() {
       const bombs = [...fixture.bombs, ...pilot.getBombs()];
       scene.setBombs(bombs);
       scene.setExplosions([...fixture.explosions, ...pilot.getExplosions()]);
+
+      // Cámara siguiendo al jugador local con suavizado.
+      if (viewport.width > 0 && viewport.height > 0) {
+        const target = cameraTarget();
+        camera.x = approach(camera.x, target.x, CAMERA_FOLLOW, ticker.deltaMS);
+        camera.y = approach(camera.y, target.y, CAMERA_FOLLOW, ticker.deltaMS);
+        scene.x = camera.x;
+        scene.y = camera.y;
+      }
 
       const model = buildHudModel(
         players,
@@ -101,20 +163,18 @@ export function GameViewport() {
       if (destroyed || !appRef.current || !sceneRef.current) {
         return;
       }
-      const mapWidth = testMap[0].length * TILE_SIZE;
-      const mapHeight = testMap.length * TILE_SIZE;
       const cw = container.clientWidth;
       const ch = container.clientHeight;
       if (cw === 0 || ch === 0) {
         return;
       }
-      const scene = sceneRef.current;
-      const renderWidth = Math.max(cw, mapWidth);
-      const renderHeight = Math.max(ch, mapHeight);
-      app.renderer.resize(renderWidth, renderHeight);
-      scene.scale.set(1);
-      scene.x = Math.round((renderWidth - mapWidth) / 2);
-      scene.y = Math.round((renderHeight - mapHeight) / 2);
+      viewport.width = cw;
+      viewport.height = ch;
+      // El renderer vive exactamente en el contenedor: el mapa
+      // se mueve con la cámara en vez de scrollear a mano.
+      app.renderer.resize(cw, ch);
+      sceneRef.current.scale.set(1);
+      snapCamera();
     };
 
     const init = async () => {
@@ -197,10 +257,20 @@ export function GameViewport() {
   return (
     <div className="flex w-full flex-col gap-3 p-3 lg:h-[calc(100dvh-80px)] lg:flex-row lg:overflow-hidden">
       <div className="flex min-w-0 flex-1 flex-col gap-3">
-        {hudModel && <GameTopBar model={hudModel} />}
+        {hudModel && (
+          <GameTopBar
+            model={hudModel}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={toggleFullscreen}
+          />
+        )}
         <div
           ref={containerRef}
-          className="relative h-[55vh] min-h-[320px] overflow-auto rounded-lg bg-zinc-950 lg:h-auto lg:min-h-0 lg:flex-1"
+          className={`relative overflow-hidden bg-zinc-950 ${
+            isFullscreen
+              ? 'h-screen w-screen rounded-none'
+              : 'h-[55vh] min-h-[320px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
+          }`}
           style={{ imageRendering: 'pixelated' }}
           aria-label="Game viewport"
         />
