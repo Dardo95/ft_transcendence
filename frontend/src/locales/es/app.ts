@@ -135,4 +135,28 @@ export const appEs = {
     alive: 'En pie',
     down: 'Fuera',
   },
+
+  topbar: {
+    practiceMatch: 'Partida práctica',
+    time: 'Tiempo',
+    survivors: 'Supervivientes',
+    map: 'Mapa',
+  },
+  sidebar: {
+    inKitchen: 'En la cocina',
+    yourStats: 'Tus estadísticas',
+    you: 'Tú',
+    bombs: 'Bombas',
+    blast: 'Alcance',
+    speed: 'Velocidad',
+  },
+  legend: {
+    title: 'Leyenda',
+    wall: 'Muro indestructible',
+    crate: 'Muro destructible',
+    bomb: 'Bomba',
+    powerUp: 'Power-up',
+    serverNote:
+      'El servidor calcula las colisiones, las explosiones y el resultado de la partida.',
+  },
 } as const;

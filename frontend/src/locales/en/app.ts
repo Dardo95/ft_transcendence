@@ -133,4 +133,28 @@ export const appEn = {
     alive: 'Up',
     down: 'Out',
   },
+
+  topbar: {
+    practiceMatch: 'Practice match',
+    time: 'Time',
+    survivors: 'Survivors',
+    map: 'Map',
+  },
+  sidebar: {
+    inKitchen: 'In the kitchen',
+    yourStats: 'Your stats',
+    you: 'You',
+    bombs: 'Bombs',
+    blast: 'Blast',
+    speed: 'Speed',
+  },
+  legend: {
+    title: 'Legend',
+    wall: 'Indestructible wall',
+    crate: 'Destructible wall',
+    bomb: 'Bomb',
+    powerUp: 'Power-up',
+    serverNote:
+      'The server resolves collisions, explosions and the match result.',
+  },
 } as const;
