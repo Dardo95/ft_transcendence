@@ -123,4 +123,16 @@ export const appEs = {
     add: '+ Añadir',
     noResults: 'No se encontraron resultados.',
   },
+
+  hud: {
+    health: 'Vidas',
+    bombs: 'Ollas',
+    blast: 'Fuego',
+    speed: 'Café',
+    time: 'Tiempo',
+    rivals: 'Rivales',
+    remaining: 'Restantes',
+    alive: 'En pie',
+    down: 'Fuera',
+  },
 } as const;

@@ -123,4 +123,15 @@ export const appIt = {
     add: '+ Aggiungi',
     noResults: 'Nessun risultato trovato.',
   },
+  hud: {
+    health: 'Vite',
+    bombs: 'Pentole',
+    blast: 'Vapore',
+    speed: 'Caffè',
+    time: 'Tempo',
+    rivals: 'Avversari',
+    remaining: 'Rimanenti',
+    alive: 'In piedi',
+    down: 'Fuori',
+  },
 } as const;

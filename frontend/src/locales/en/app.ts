@@ -121,4 +121,16 @@ export const appEn = {
     add: '+ Add',
     noResults: 'No results found.',
   },
+
+  hud: {
+    health: 'Lives',
+    bombs: 'Pots',
+    blast: 'Steam',
+    speed: 'Coffee',
+    time: 'Time',
+    rivals: 'Rivals',
+    remaining: 'Left',
+    alive: 'Up',
+    down: 'Out',
+  },
 } as const;
