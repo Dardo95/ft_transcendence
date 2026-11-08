@@ -169,4 +169,32 @@ describe('buildHudModel', () => {
     expect(model.clockMs).toBe(165_000);
     expect(formatClock(model.clockMs)).toBe('02:45');
   });
+
+  it('exposes map metadata from the options', () => {
+    const map = [
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+    ];
+
+    const model = buildHudModel(PLAYERS, [], 'bren', 0, {
+      map,
+      mapId: 'KITCHEN',
+      gameId: '42',
+    });
+
+    expect(model.mapWidth).toBe(4);
+    expect(model.mapHeight).toBe(3);
+    expect(model.mapId).toBe('KITCHEN');
+    expect(model.gameId).toBe('42');
+  });
+
+  it('falls back to demo metadata without options', () => {
+    const model = buildHudModel(PLAYERS, [], 'bren', 0);
+
+    expect(model.mapWidth).toBe(0);
+    expect(model.mapHeight).toBe(0);
+    expect(model.mapId).toBe('MAP1');
+    expect(model.gameId).toBe('demo');
+  });
 });

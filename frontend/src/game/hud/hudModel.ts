@@ -21,6 +21,17 @@ export interface HudModel {
   rivals: RivalHud[];
   playersRemaining: number;
   clockMs: number;
+  mapWidth: number;
+  mapHeight: number;
+  mapId: string;
+  gameId: string;
+}
+
+export interface HudModelOptions {
+  durationMs?: number;
+  map?: readonly number[][];
+  mapId?: string;
+  gameId?: string;
 }
 
 /**
@@ -89,18 +100,27 @@ export function formatClock(ms: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-/** Modelo completo que consume el componente del HUD. */
+/** Modelo completo que consume el HUD (topbar + sidebar). */
 export function buildHudModel(
   players: readonly GamePlayerSnapshot[],
   bombs: readonly BombSnapshot[],
   localPlayerId: string,
   elapsedMs: number,
-  durationMs: number = MATCH_DURATION_MS
+  {
+    durationMs = MATCH_DURATION_MS,
+    map,
+    mapId = 'MAP1',
+    gameId = 'demo',
+  }: HudModelOptions = {}
 ): HudModel {
   return {
     local: buildLocalHud(players, bombs, localPlayerId),
     rivals: buildRivalHud(players, localPlayerId),
     playersRemaining: countAlivePlayers(players),
     clockMs: remainingMatchMs(elapsedMs, durationMs),
+    mapWidth: map?.[0]?.length ?? 0,
+    mapHeight: map?.length ?? 0,
+    mapId,
+    gameId,
   };
 }
