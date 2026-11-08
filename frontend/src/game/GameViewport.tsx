@@ -1,17 +1,22 @@
 import { Application, type Ticker } from 'pixi.js';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { demoBombStateAt } from './bombs/demoBombs';
 import { DemoPilot } from './input/demoPilot';
 import { KeyboardController } from './input/keyboard';
+import { GameHud } from './hud/GameHud';
+import { buildHudModel, type HudModel } from './hud/hudModel';
 import { testMap, TILE_SIZE } from './map/TileMap';
 import { demoPlayers } from './players/demoPlayers';
 import { GameScene } from './scenes/GameScene';
+
+const LOCAL_PLAYER_ID = 'bren';
 
 export function GameViewport() {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
   const sceneRef = useRef<GameScene | null>(null);
+  const [hudModel, setHudModel] = useState<HudModel | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -31,13 +36,17 @@ export function GameViewport() {
       ...player,
       position: { ...player.position },
     }));
-    const pilot = new DemoPilot(testMap, players, 'bren');
+    const pilot = new DemoPilot(testMap, players, LOCAL_PLAYER_ID);
     const keyboard = new KeyboardController({
       onMovement: (movement) => pilot.setMovement(movement),
       onPlaceBomb: () => pilot.placeBomb(),
     });
 
     keyboard.attach();
+
+    // Último estado del HUD ya pintado: solo re-renderizamos
+    // React cuando el modelo cambia (el reloj, 1 vez/s).
+    let lastHudKey = '';
 
     const tick = (ticker: Ticker) => {
       const scene = sceneRef.current;
@@ -57,6 +66,19 @@ export function GameViewport() {
 
       scene.setBombs([...fixture.bombs, ...pilot.getBombs()]);
       scene.setExplosions([...fixture.explosions, ...pilot.getExplosions()]);
+
+      const model = buildHudModel(
+        players,
+        [...fixture.bombs, ...pilot.getBombs()],
+        LOCAL_PLAYER_ID,
+        scene.timeMs
+      );
+      const hudKey = JSON.stringify(model);
+
+      if (hudKey !== lastHudKey) {
+        lastHudKey = hudKey;
+        setHudModel(model);
+      }
     };
 
     const fitMap = () => {
@@ -157,11 +179,14 @@ export function GameViewport() {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative h-[calc(100dvh-80px)] w-full overflow-auto bg-zinc-950"
-      style={{ imageRendering: 'pixelated' }}
-      aria-label="Game viewport"
-    />
+    <div className="relative h-[calc(100dvh-80px)] w-full overflow-hidden bg-zinc-950">
+      <div
+        ref={containerRef}
+        className="absolute inset-0 overflow-auto"
+        style={{ imageRendering: 'pixelated' }}
+        aria-label="Game viewport"
+      />
+      {hudModel && <GameHud model={hudModel} />}
+    </div>
   );
 }
