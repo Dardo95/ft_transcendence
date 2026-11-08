@@ -3,7 +3,7 @@ import { ChefHatIcon, CircleIcon, CircleOffIcon, InfoIcon } from 'lucide-react';
 import bombUrl from '../../assets/sprites/bomb_pressure_cooker.png';
 import crateUrl from '../../assets/sprites/crate_wood.png';
 import powerUpUrl from '../../assets/sprites/powerup_extrabomb.png';
-import tileWallUrl from '../../assets/sprites/tile_wall.png';
+import tileWallUrl from '../../assets/sprites/tile_table.png';
 import { useLanguage } from '../../locales/useLanguage';
 import { PLAYER_COLORS, type PlayerColor } from '../players/types';
 import type { HudModel } from './hudModel';
