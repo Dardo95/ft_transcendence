@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { randomUUID } from 'node:crypto';
 
@@ -33,6 +33,15 @@ export interface LeaveLobbyResult {
   lobby: LobbySnapshot | null;
 }
 
+export interface LobbyMembershipChangedEvent {
+  lobbyId: string;
+  memberIds: number[];
+}
+
+type LobbyMembershipChangedListener = (
+  event: LobbyMembershipChangedEvent
+) => void;
+
 interface LobbyInvitationRecord {
   id: string;
   lobbyId: string;
@@ -60,6 +69,21 @@ export class LobbyService {
 
   private readonly invitations = new Map<string, LobbyInvitationRecord>();
 
+  private readonly logger = new Logger(LobbyService.name);
+
+  private readonly membershipChangedListeners =
+    new Set<LobbyMembershipChangedListener>();
+
+  subscribeToMembershipChanges(
+    listener: LobbyMembershipChangedListener
+  ): () => void {
+    this.membershipChangedListeners.add(listener);
+
+    return () => {
+      this.membershipChangedListeners.delete(listener);
+    };
+  }
+
   createLobby(user: WsUser): LobbySnapshot {
     if (this.lobbyIdByUserId.has(user.id)) {
       throw new WsException('You are already in a lobby');
@@ -85,6 +109,7 @@ export class LobbyService {
 
     this.lobbies.set(lobby.id, lobby);
     this.lobbyIdByUserId.set(user.id, lobby.id);
+    this.notifyMembershipChanged(lobby);
 
     return this.toSnapshot(lobby);
   }
@@ -141,6 +166,7 @@ export class LobbyService {
 
     if (lobby.members.size === 0) {
       this.lobbies.delete(lobbyId);
+      this.notifyMembershipChanged(lobby);
 
       return { lobbyId, lobby: null };
     }
@@ -152,6 +178,8 @@ export class LobbyService {
         lobby.hostUserId = nextMember.userId;
       }
     }
+
+    this.notifyMembershipChanged(lobby);
 
     return {
       lobbyId,
@@ -280,6 +308,8 @@ export class LobbyService {
         if (currentLobby.members.size === 0) {
           this.lobbies.delete(currentLobby.id);
         }
+
+        this.notifyMembershipChanged(currentLobby);
       }
 
       this.lobbyIdByUserId.delete(user.id);
@@ -294,6 +324,7 @@ export class LobbyService {
 
     lobby.members.set(user.id, member);
     this.lobbyIdByUserId.set(user.id, lobby.id);
+    this.notifyMembershipChanged(lobby);
 
     // Eliminamos la invitación aceptada y las demás dirigidas al usuario.
     this.invitations.delete(invitationId);
@@ -317,6 +348,25 @@ export class LobbyService {
     }
 
     this.invitations.delete(invitationId);
+  }
+
+  private notifyMembershipChanged(lobby: LobbyRecord): void {
+    const event: LobbyMembershipChangedEvent = {
+      lobbyId: lobby.id,
+      memberIds: [...lobby.members.keys()],
+    };
+
+    for (const listener of this.membershipChangedListeners) {
+      try {
+        listener(event);
+      } catch (error) {
+        this.logger.error(
+          `Lobby membership listener failed: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+      }
+    }
   }
 
   private cleanupExpiredInvitations(): void {

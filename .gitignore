@@ -61,5 +61,5 @@ coverage/
 */coverage/
 
 # Uploads (User Avatars)
-backend/uploads/*
-!backend/uploads/.gitkeep
+backend/uploads/avatars/*
+!backend/uploads/avatars/.gitkeep
