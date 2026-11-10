@@ -118,8 +118,17 @@ fclean:
 re: clean all
 
 prune:
-	@echo "$(YELLOW)Pruning unused Docker resources...$(RESET)"
-	docker system prune -f
+	@echo "$(YELLOW)[Warning]$(RESET) This will remove all Docker resources and volumes, including those not related to this project."
+	@read -p "Are you sure you want to proceed? [y/N]: " confirm; \
+	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+		echo "$(YELLOW)Pruning all Docker resources and volumes...$(RESET)"; \
+		docker system prune -a --volumes -f; \
+		echo "$(YELLOW)Pruning BuildKit cache...$(RESET)"; \
+		docker builder prune -a -f; \
+		echo "$(GREEN)Docker completely wiped clean!$(RESET)"; \
+	else \
+		echo "Prune canceled."; \
+	fi
 	@echo ""
 
 # **************************************************************************** #
@@ -154,51 +163,40 @@ seed:
 # **************************************************************************** #
 # QA AND CODE QUALITY
 
-typecheck:
-	@echo "$(CYAN)Checking TypeScript types in Backend...$(RESET)"
-	docker compose exec -T backend pnpm run typecheck
-	@echo ""
-	@echo "$(CYAN)Checking TypeScript types in Frontend...$(RESET)"
-	docker compose exec -T frontend pnpm run typecheck
+node_modules: pnpm-lock.yaml
+	@echo "$(CYAN)Installing necessary QA tools dependencies...$(RESET)"
+	pnpm install --frozen-lockfile --ignore-scripts
+	@touch node_modules
+
+buildcheck: node_modules
+	@echo "$(CYAN)Running build check...$(RESET)"
+	pnpm run build
 	@echo ""
 
-lint:
-	@echo "$(CYAN)Running linter in Backend...$(RESET)"
-	docker compose exec -T backend pnpm run lint
-	@echo ""
-	@echo "$(CYAN)Running linter in Frontend...$(RESET)"
-	docker compose exec -T frontend pnpm run lint
+typecheck: node_modules
+	@echo "$(CYAN)Checking TypeScript types...$(RESET)"
+	pnpm run typecheck
 	@echo ""
 
-buildcheck:
-	@echo "$(CYAN)Running build check in Backend...$(RESET)"
-	docker compose exec -T backend pnpm run build
-	@echo ""
-	@echo "$(CYAN)Running build check in Frontend...$(RESET)"
-	docker compose exec -T frontend pnpm run build
+lint: node_modules
+	@echo "$(CYAN)Running linter...$(RESET)"
+	pnpm run lint
 	@echo ""
 
-formatcheck:
-	@echo "$(CYAN)Checking code formatting in Backend...$(RESET)"
-	docker compose exec -T backend pnpm run format:check
-	@echo ""
-	@echo "$(CYAN)Checking code formatting in Frontend...$(RESET)"
-	docker compose exec -T frontend pnpm run format:check
+formatcheck: node_modules
+	@echo "$(CYAN)Checking code formatting...$(RESET)"
+	pnpm run format:check
 	@echo ""
 
-test:
-	@echo "$(CYAN)Running backend tests...$(RESET)"
-	docker compose exec -T backend pnpm run test:e2e
+test: node_modules
+	@echo "$(CYAN)Running tests...$(RESET)"
+	pnpm run test
 	@echo ""
 
-allcheck: typecheck lint buildcheck formatcheck test sharedcheck
+allcheck: node_modules
+	@echo "$(CYAN)Running all QA checks...$(RESET)"
+	pnpm run allcheck
 	@echo "$(GREEN)All QA checks passed successfully.$(RESET)"
-	@echo ""
-
-sharedcheck:
-	@echo "$(CYAN)Checking Shared package (format, typecheck)...$(RESET)"
-	pnpm run --filter shared format:check
-	pnpm run --filter shared typecheck
 	@echo ""
 
 envcheck:
