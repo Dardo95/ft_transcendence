@@ -143,4 +143,38 @@ export const appEn = {
     friendBlocked: 'You cannot interact with this user',
     sendRequestError: 'Error sending request',
   },
+  aboutUs: {
+    title: 'About Us',
+    subtitle:
+      'Four 42 Madrid developers building a real-time multiplayer arcade experience driven by modern software architecture.',
+    contributionsLabel: 'Assigned Work & Highlights',
+    roles: {
+      frontendLead: 'Project Manager QA & Frontend Lead Developer',
+      frontendArchitect: 'Product Owner & Frontend Architect/Designer',
+      backendLead: 'Backend Lead Developer & Real-time/Game Engine',
+      devopsLead: 'Technical Architect & DevOps Engineer',
+    },
+    contributions: {
+      member1:
+        'Frontend implementation, client-side routing and page development, i18n multi-language engine, User/friendship management interface and Chat',
+      member2:
+        'Frontend architecture, illustration creation, page development, i18n multi-language engine and game frontend design.',
+      member3:
+        'User authentication + JWT and Google, WebSocket implementation, chat functionality, live matchmaking and game engine',
+      member4:
+        'Docker Compose deployment orchestration, Nginx reverse proxy, prisma ORM with seed, user authentification, friend relationship management, and avatar management.',
+    },
+  },
+  aboutProject: {
+    title: 'About the Project',
+    subtitle:
+      'Technical specification, system architecture and module breakdown evaluated according to the official guidelines (ft_trascendence v21.2).',
+    officialNotice:
+      'This project was created as part of the 42 curriculum by ozamora-, brivera, enogueir and raperez-.',
+  },
+  aboutGame: {
+    title: 'Rules of the Game',
+    subtitle:
+      'Tactical guide on movement mechanics, bomb placement, block types and upgrade catalog.',
+  },
 } as const;

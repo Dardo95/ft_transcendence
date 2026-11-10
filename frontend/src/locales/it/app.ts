@@ -148,9 +148,24 @@ export const appIt = {
   aboutUs: {
     title: 'Informazioni su di noi',
     subtitle:
-      "Quattro sviluppatori di 42 Madrid che creano un'esperienza arcade multigiocatore in tempo reale spinta da un'architettura software moderna.",
-    manifesto:
-      'In ft_bomberman affrontiamo le sfide del Common Core combinando ingegneria di sistemi, concorrenza di rete e prestazioni grafiche. Il nostro obiettivo è offrire un ambiente competitivo a latenza minima, resistente a disincronizzazioni, costruito secondo rigorosi standard di sicurezza e scalabilità.',
+      "Quattro sviluppatori di 42 Madrid che costruiscono un'esperienza arcade multiplayer in tempo reale guidata da un'architettura software moderna.",
+    contributionsLabel: 'Lavoro Assegnato e Punti Salienti',
+    roles: {
+      frontendLead: 'Project Manager QA & Frontend Lead Developer',
+      frontendArchitect: 'Product Owner & Frontend Architect/Designer',
+      backendLead: 'Backend Lead Developer & Real-time/Game Engine',
+      devopsLead: 'Technical Architect & DevOps Engineer',
+    },
+    contributions: {
+      member1:
+        'Implementazione frontend, routing lato client e sviluppo delle pagine, motore multilingua (i18n), interfaccia per la gestione degli utenti e delle amicizie, chat.',
+      member2:
+        'Architettura frontend, creazione di illustrazioni, sviluppo delle pagine, motore multilingua (i18n) e progettazione del frontend di gioco.',
+      member3:
+        "Autenticazione utente (inclusa l'integrazione con Google e JWT), implementazione di WebSocket, funzionalità di chat, matchmaking in tempo reale e motore di gioco.",
+      member4:
+        'Orchestrazione del deployment tramite Docker Compose, reverse proxy Nginx, utilizzo di Prisma ORM con seed, gestione delle relazioni di amicizia, autenticazione utente e gestione degli avatar.',
+    },
   },
   aboutProject: {
     title: 'Informazioni sul progetto',
