@@ -41,7 +41,7 @@ services:
       start_period: 15s
     environment:
       - NODE_ENV=production
-      - FRONTEND_URL=${FRONTEND_URL} # Exported from Makefile
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:8443} # Exported from Makefile
 
   frontend:
     container_name: ft_frontend

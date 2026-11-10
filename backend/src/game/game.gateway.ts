@@ -12,7 +12,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
   WsException,
-  OnGatewayConnection,
 } from '@nestjs/websockets';
 import type {
   GameSnapshot,

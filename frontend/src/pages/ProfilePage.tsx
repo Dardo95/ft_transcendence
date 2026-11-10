@@ -19,7 +19,8 @@ export function ProfilePage() {
   const [notFound, setNotFound] = useState(false);
 
   // Check if viewing authenticated user's own profile or a public user's profile
-  const isOwnProfile = !username || (currentUser && currentUser.username === username);
+  const isOwnProfile =
+    !username || (currentUser && currentUser.username === username);
 
   useEffect(() => {
     if (!isOwnProfile && username) {
@@ -68,7 +69,7 @@ export function ProfilePage() {
   // 2. Loading state
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-zinc-400 gap-3">
+      <div className="flex flex-col items-center justify-center gap-3 p-12 text-zinc-400">
         <Loader2 className="size-8 animate-spin text-orange-500" />
         <p className="text-sm">
           {t('profile.loading') || 'Loading user profile...'}
@@ -80,7 +81,7 @@ export function ProfilePage() {
   // 3. User not found (404)
   if (notFound || !publicUser) {
     return (
-      <div className="max-w-md mx-auto my-12 p-8 text-center bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl space-y-4">
+      <div className="mx-auto my-12 max-w-md space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center shadow-xl">
         <div className="flex justify-center">
           <UserX className="size-12 text-zinc-500" />
         </div>
@@ -89,13 +90,13 @@ export function ProfilePage() {
         </h3>
         <p className="text-sm text-zinc-400">
           {t('profile.userNotFoundDesc') || 'The user'}{' '}
-          <span className="text-white font-mono">@{username}</span>{' '}
+          <span className="font-mono text-white">@{username}</span>{' '}
           {t('profile.doesNotExist') || 'does not exist.'}
         </p>
         <div className="pt-2">
           <Link
             to="/lobby"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-200 transition-colors hover:bg-zinc-700"
           >
             <ArrowLeft className="size-4" />
             {t('app.general.lobby') || 'Back to Lobby'}

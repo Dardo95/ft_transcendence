@@ -1,4 +1,4 @@
-import type { MovementInput, WorldPosition } from '@transcendence/shared';
+import type { MovementInput } from '@transcendence/shared';
 
 import { getTerrainAt } from './game-board.js';
 import type { GamePlayer, GameSession } from './game-state.js';

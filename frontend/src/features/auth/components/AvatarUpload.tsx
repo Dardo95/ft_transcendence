@@ -35,8 +35,8 @@ export function AvatarUpload({
   };
 
   return (
-    <div className="relative group size-28 shrink-0">
-      <div className="size-28 rounded-2xl overflow-hidden border-2 border-orange-500/50 bg-zinc-800 shadow-lg">
+    <div className="group relative size-28 shrink-0">
+      <div className="size-28 overflow-hidden rounded-2xl border-2 border-orange-500/50 bg-zinc-800 shadow-lg">
         <img
           src={preview || currentAvatarUrl || '/default-avatar.png'}
           alt={username}
@@ -54,7 +54,7 @@ export function AvatarUpload({
         disabled={isUploading}
         onClick={() => fileInputRef.current?.click()}
         aria-label="Upload avatar"
-        className="absolute bottom-0 right-0 p-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white shadow-md transition-transform active:scale-95 disabled:opacity-50"
+        className="absolute right-0 bottom-0 rounded-xl bg-orange-600 p-2 text-white shadow-md transition-transform hover:bg-orange-500 active:scale-95 disabled:opacity-50"
       >
         {isUploading ? (
           <Loader2 className="size-4 animate-spin" />

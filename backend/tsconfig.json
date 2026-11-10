@@ -21,8 +21,6 @@
     "types": ["vitest/globals", "node", "multer"],
     "paths": {
       "@/*": ["./src/*"],
-      "@transcendence/shared": ["../shared/src/index.ts"],
-      "@transcendence/shared/*": ["../shared/src/*"]
     }
   }
 }

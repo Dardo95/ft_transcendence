@@ -16,17 +16,17 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
   const isFriend = friends.some((f) => f.username === user.username);
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
-      <Card className="p-6 bg-zinc-900 border-zinc-800 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-6 items-center">
+    <div className="mx-auto w-full max-w-4xl space-y-6">
+      <Card className="flex flex-col items-center gap-6 rounded-2xl border-zinc-800 bg-zinc-900 p-6 shadow-xl sm:flex-row">
         {/* Read-only Avatar */}
-        <div className="relative size-28 rounded-2xl overflow-hidden border-2 border-zinc-700 bg-zinc-800 shrink-0">
+        <div className="relative size-28 shrink-0 overflow-hidden rounded-2xl border-2 border-zinc-700 bg-zinc-800">
           <img
             src={user.avatarUrl || '/default-avatar.png'}
             alt={user.username}
             className="size-full object-cover"
           />
           <span
-            className={`absolute bottom-2 right-2 size-3.5 rounded-full border-2 border-zinc-900 ${
+            className={`absolute right-2 bottom-2 size-3.5 rounded-full border-2 border-zinc-900 ${
               user.isOnline ? 'bg-emerald-500' : 'bg-zinc-600'
             }`}
           />
@@ -34,9 +34,9 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
 
         {/* Public Information (No Email) */}
         <div className="flex-1 space-y-3 text-center sm:text-left">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <h2 className="text-2xl font-bold text-white">{user.username}</h2>
-            <span className="px-2 py-0.5 w-fit mx-auto sm:mx-0 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
+            <span className="mx-auto w-fit rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs font-semibold text-zinc-300 sm:mx-0">
               User #{user.id}
             </span>
           </div>
@@ -56,7 +56,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
             ) : (
               <Button
                 onClick={() => sendRequest(user.username)}
-                className="gap-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold"
+                className="gap-2 bg-orange-600 text-xs font-semibold text-white hover:bg-orange-500"
               >
                 <UserPlus className="size-4" />
                 {t('profile.addFriend') || 'Add Friend'}
