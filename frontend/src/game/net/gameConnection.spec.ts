@@ -20,7 +20,10 @@ class FakeSocket implements GameSocketLike {
   connected = true;
   emitCalls: Array<{ event: string; payload?: unknown }> = [];
 
-  private readonly handlers = new Map<string, Set<(payload: unknown) => void>>();
+  private readonly handlers = new Map<
+    string,
+    Set<(payload: unknown) => void>
+  >();
 
   connect = (): void => {
     this.connected = true;
@@ -125,7 +128,10 @@ describe('GameConnection', () => {
 
   it('does not fail after the snapshot arrived', () => {
     connection.join('abc');
-    socket.fire('game:joined', { gameId: 'abc', snapshot: makeSnapshot('abc') });
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
 
     vi.advanceTimersByTime(JOIN_TIMEOUT_MS);
 
@@ -150,7 +156,10 @@ describe('GameConnection', () => {
 
   it('ignores exceptions after a successful join', () => {
     connection.join('abc');
-    socket.fire('game:joined', { gameId: 'abc', snapshot: makeSnapshot('abc') });
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
     socket.fire('exception', { message: 'Join a game first' });
 
     expect(onFailed).not.toHaveBeenCalled();
@@ -174,7 +183,10 @@ describe('GameConnection', () => {
 
   it('rejoins after a reconnect', () => {
     connection.join('abc');
-    socket.fire('game:joined', { gameId: 'abc', snapshot: makeSnapshot('abc') });
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
     socket.fire('disconnect');
     socket.fire('connect');
 
@@ -185,13 +197,26 @@ describe('GameConnection', () => {
 
   it('sends movement and bombs only once joined', () => {
     connection.join('abc');
-    connection.sendMovement({ up: true, down: false, left: false, right: false });
+    connection.sendMovement({
+      up: true,
+      down: false,
+      left: false,
+      right: false,
+    });
     connection.sendBomb();
 
     expect(socket.emitted('game:input')).toHaveLength(0);
 
-    socket.fire('game:joined', { gameId: 'abc', snapshot: makeSnapshot('abc') });
-    connection.sendMovement({ up: true, down: false, left: false, right: false });
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
+    connection.sendMovement({
+      up: true,
+      down: false,
+      left: false,
+      right: false,
+    });
     connection.sendBomb();
 
     expect(socket.emitted('game:input')).toEqual([
@@ -208,7 +233,10 @@ describe('GameConnection', () => {
 
   it('stops the player and detaches listeners on destroy', () => {
     connection.join('abc');
-    socket.fire('game:joined', { gameId: 'abc', snapshot: makeSnapshot('abc') });
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
     connection.destroy();
 
     expect(socket.emitted('game:input')).toEqual([

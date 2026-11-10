@@ -1,4 +1,8 @@
-import type { BombSnapshot, GamePlayerSnapshot, GameSnapshot } from '@transcendence/shared';
+import type {
+  BombSnapshot,
+  GamePlayerSnapshot,
+  GameSnapshot,
+} from '@transcendence/shared';
 import { Application, type Ticker } from 'pixi.js';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -248,7 +252,10 @@ export function GameViewport() {
 
         latestSnapshot = snapshot;
         setMode('server');
-        void ensureScene(boardToTileMap(snapshot.board.tiles), snapshot.players);
+        void ensureScene(
+          boardToTileMap(snapshot.board.tiles),
+          snapshot.players
+        );
       },
       onState: (snapshot) => {
         if (destroyed) {
@@ -348,14 +355,27 @@ export function GameViewport() {
         const target = cameraTarget();
 
         if (target) {
-          camera.x = approach(camera.x, target.x, CAMERA_FOLLOW, ticker.deltaMS);
-          camera.y = approach(camera.y, target.y, CAMERA_FOLLOW, ticker.deltaMS);
+          camera.x = approach(
+            camera.x,
+            target.x,
+            CAMERA_FOLLOW,
+            ticker.deltaMS
+          );
+          camera.y = approach(
+            camera.y,
+            target.y,
+            CAMERA_FOLLOW,
+            ticker.deltaMS
+          );
           scene.x = camera.x;
           scene.y = camera.y;
         }
       }
 
-      if (!hudLocalId || !scenePlayers.some((player) => player.id === hudLocalId)) {
+      if (
+        !hudLocalId ||
+        !scenePlayers.some((player) => player.id === hudLocalId)
+      ) {
         return;
       }
 
