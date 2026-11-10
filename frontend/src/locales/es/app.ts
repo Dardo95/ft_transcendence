@@ -93,6 +93,9 @@ export const appEs = {
       'Se necesita al menos 2 jugadores en la sala para empezar en modo público.',
     practiceInfoText:
       'Se puede empezar la práctica en cualquier momento, ya que es un modo de juego individual contra un bot.',
+    matchmakingFailed: 'No se pudo iniciar la partida. Inténtalo de nuevo.',
+    matchmakingActiveGame:
+      'Ya tienes una partida en curso. Termínala antes de empezar otra.',
   },
   friends: {
     friendList: 'Lista de Amigos',

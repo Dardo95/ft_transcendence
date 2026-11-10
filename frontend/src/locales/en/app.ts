@@ -90,6 +90,9 @@ export const appEn = {
     needPublicText: 'At least 2 players are needed to start a public match.',
     practiceInfoText:
       'You can start practice anytime since it is a 1v1 game against a bot.',
+    matchmakingFailed: 'The match could not be started. Try again.',
+    matchmakingActiveGame:
+      'You already have a match in progress. Finish it before starting another one.',
   },
   friends: {
     friendList: 'Friend List',

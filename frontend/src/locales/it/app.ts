@@ -93,6 +93,9 @@ export const appIt = {
       'Sono necessari almeno 2 giocatori per iniziare in pubblico.',
     practiceInfoText:
       'Puoi iniziare la pratica in qualsiasi momento, poiché è un gioco 1v1 contro un bot.',
+    matchmakingFailed: 'Impossibile avviare la partita. Riprova.',
+    matchmakingActiveGame:
+      'Hai già una partita in corso. Falla terminare prima di iniziarne una nuova.',
   },
   friends: {
     friendList: 'Lista amici',

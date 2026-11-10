@@ -5,6 +5,10 @@ import { useSocketStore } from '../stores/useSocketStore';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
+import { gameSocket } from '@/lib/socket';
+import { toServerMatchmakingRequest } from '../features/lobby/matchmakingRequest';
+import { resolveMatchmakingErrorKey } from '../features/lobby/matchmakingErrorMessage';
+import type { TranslationKey } from '@/locales/translations';
 
 import { Card } from '@/components/ui/card';
 
@@ -51,7 +55,14 @@ export function LobbyPage() {
   // Search states
   const [isSearching, setIsSearching] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
+  // Fallo de `game:matchmaking` (clave i18n, no texto: el
+  // idioma se resuelve al renderizar).
+  const [matchmakingErrorKey, setMatchmakingErrorKey] =
+    useState<TranslationKey | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Mapa elegido al pedir la partida: la respuesta del backend
+  // no lo trae, así que se guarda aquí para la navegación.
+  const pendingMapRef = useRef<MapId>('map1');
 
   // Host and player count in lobby
   const user = useAuthStore((state) => state.user);
@@ -86,10 +97,58 @@ export function LobbyPage() {
     };
   }, [socket, navigate]);
 
+  // El backend crea la partida y responde con su id real
+  // (por eso ya no se navega a un id ficticio).
+  useEffect(() => {
+    const handleMatchmakingStatus = (payload: {
+      mode?: string;
+      status?: string;
+      gameId?: string;
+    }) => {
+      if (payload.mode !== 'PRACTICE' || payload.status !== 'CREATED') {
+        return;
+      }
+
+      if (!payload.gameId) {
+        return;
+      }
+
+      if (timerRef.current) clearInterval(timerRef.current);
+      setIsSearching(false);
+      setCountdown(null);
+      navigate(`/game/${payload.gameId}?map=${pendingMapRef.current}`);
+    };
+
+    gameSocket.on('game:matchmakingStatus', handleMatchmakingStatus);
+    return () => {
+      gameSocket.off('game:matchmakingStatus', handleMatchmakingStatus);
+    };
+  }, [navigate]);
+
+  // El backend rechaza `game:matchmaking` con un `exception`
+  // (p. ej. al reintentar una partida que sigue viva). Sin este
+  // listener el fallo era un clic silencioso. Se guarda la clave
+  // y no el texto: así el idioma se resuelve al renderizar.
+  useEffect(() => {
+    const handleException = (payload: unknown) => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      setIsSearching(false);
+      setCountdown(null);
+      setMatchmakingErrorKey(resolveMatchmakingErrorKey(payload));
+    };
+
+    gameSocket.on('exception', handleException);
+    return () => {
+      gameSocket.off('exception', handleException);
+    };
+  }, []);
+
   const handleStartMatchmaking = (payload: MatchmakingPayload) => {
+    setMatchmakingErrorKey(null);
+
     if (payload.mode === 'practice') {
-      socket?.emit('game:practice_start', payload);
-      navigate('/game/practice-session');
+      pendingMapRef.current = payload.mapId;
+      gameSocket.emit('game:matchmaking', toServerMatchmakingRequest(payload));
       return;
     }
 
@@ -156,6 +215,15 @@ export function LobbyPage() {
           className="mb-4 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300"
         >
           {error}
+        </div>
+      )}
+
+      {matchmakingErrorKey && (
+        <div
+          role="alert"
+          className="mb-4 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300"
+        >
+          {t(matchmakingErrorKey)}
         </div>
       )}
 
