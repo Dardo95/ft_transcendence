@@ -9,6 +9,14 @@ import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { Card } from '@/components/ui/card';
 import { gameSocket } from '@/lib/socket';
 import { useLanguage } from '@/locales/useLanguage';
+import {
+  countdownSeconds,
+  gameRoute,
+  readCancelResult,
+  readGameFoundId,
+  readMatchmakingStatus,
+} from '@/features/lobby/matchmakingEvents';
+import { toServerMatchmakingRequest } from '@/features/lobby/matchmakingRequest';
 
 import { GameConfig } from '@/features/lobby/components/GameConfig';
 import { LobbyNotifications } from '@/features/lobby/components/LobbyNotifications';
@@ -28,14 +36,9 @@ import {
 interface MatchmakingStatusPayload {
   mode?: string;
   status?: MatchmakingStatus;
-  gameId?: string;
   playerCount?: number;
   playersInCurrentMatch?: number;
   countdownEndsAt?: number;
-}
-
-interface GameFoundPayload {
-  gameId?: string;
 }
 
 interface SocketErrorPayload {
@@ -78,6 +81,7 @@ export function LobbyPage() {
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [gameError, setGameError] = useState<string | null>(null);
   const navigatedGameId = useRef<string | null>(null);
+  const requestedMap = useRef<MapId>('map1');
 
   // Game settings state
   const [selectedMode, setSelectedMode] = useState<GameMode>('practice');
@@ -101,9 +105,9 @@ export function LobbyPage() {
 
       navigatedGameId.current = gameId;
       setMatchmaking(null);
-      navigate(`/game/${gameId}?map=${selectedMap}`);
+      navigate(gameRoute(gameId, requestedMap.current));
     },
-    [navigate, selectedMap]
+    [navigate]
   );
 
   useEffect(() => {
@@ -150,36 +154,45 @@ export function LobbyPage() {
   // matches report CREATED immediately; public matches report SEARCHING until
   // game:found is emitted for the whole lobby.
   useEffect(() => {
-    const handleMatchmakingStatus = (payload: MatchmakingStatusPayload) => {
-      if (payload.status === 'CANCELLED') {
+    const handleMatchmakingStatus = (payload: unknown) => {
+      const update = readMatchmakingStatus(payload);
+
+      if (!update) {
+        return;
+      }
+
+      if (update.type === 'cancelled') {
         setMatchmaking(null);
         return;
       }
 
-      if (payload.status === 'CREATED') {
-        if (payload.gameId) {
-          goToGame(payload.gameId);
-        } else {
-          setMatchmaking(null);
-        }
+      if (update.type === 'created') {
+        goToGame(update.gameId);
         return;
       }
 
-      if (payload.countdownEndsAt) {
+      const statusPayload = payload as MatchmakingStatusPayload;
+      if (update.type === 'countdown') {
         setClockNow(Date.now());
       }
 
       setMatchmaking({
-        mode: payload.mode ?? 'PUBLIC',
-        status: payload.status ?? 'SEARCHING',
-        playerCount: payload.playerCount,
-        playersInCurrentMatch: payload.playersInCurrentMatch,
-        countdownEndsAt: payload.countdownEndsAt,
+        mode: statusPayload.mode ?? 'PUBLIC',
+        status: update.type === 'countdown' ? 'COUNTDOWN' : 'SEARCHING',
+        playerCount: statusPayload.playerCount,
+        playersInCurrentMatch: statusPayload.playersInCurrentMatch,
+        countdownEndsAt:
+          update.type === 'countdown'
+            ? update.endsAt
+            : statusPayload.countdownEndsAt,
       });
     };
 
-    const handleGameFound = (payload: GameFoundPayload) => {
-      goToGame(payload.gameId);
+    const handleGameFound = (payload: unknown) => {
+      const gameId = readGameFoundId(payload);
+      if (gameId) {
+        goToGame(gameId);
+      }
     };
 
     const handleException = (payload: unknown) => {
@@ -187,14 +200,22 @@ export function LobbyPage() {
       setMatchmaking(null);
     };
 
+    const handleMatchmakingCancelled = (payload: unknown) => {
+      if (readCancelResult(payload)) {
+        setMatchmaking(null);
+      }
+    };
+
     gameSocket.on('game:matchmakingStatus', handleMatchmakingStatus);
     gameSocket.on('game:found', handleGameFound);
     gameSocket.on('exception', handleException);
+    gameSocket.on('game:matchmakingCancelled', handleMatchmakingCancelled);
 
     return () => {
       gameSocket.off('game:matchmakingStatus', handleMatchmakingStatus);
       gameSocket.off('game:found', handleGameFound);
       gameSocket.off('exception', handleException);
+      gameSocket.off('game:matchmakingCancelled', handleMatchmakingCancelled);
     };
   }, [goToGame]);
 
@@ -206,7 +227,7 @@ export function LobbyPage() {
   }, [matchmaking?.countdownEndsAt]);
 
   const countdown = matchmaking?.countdownEndsAt
-    ? Math.max(0, Math.ceil((matchmaking.countdownEndsAt - clockNow) / 1000))
+    ? countdownSeconds(matchmaking.countdownEndsAt, clockNow)
     : null;
 
   const handleModeChange = (mode: GameMode) => {
@@ -231,21 +252,17 @@ export function LobbyPage() {
 
     setGameError(null);
     navigatedGameId.current = null;
+    requestedMap.current = payload.mapId;
     setMatchmaking({
       mode: payload.mode.toUpperCase(),
       status: 'REQUESTING',
     });
 
-    gameSocket.emit('game:matchmaking', {
-      mode: payload.mode.toUpperCase(),
-      mapId: payload.mapId,
-      settings: payload.settings,
-    });
+    gameSocket.emit('game:matchmaking', toServerMatchmakingRequest(payload));
   };
 
   const handleCancelSearch = () => {
     gameSocket.emit('game:cancelMatchmaking');
-    setMatchmaking(null);
   };
 
   return (
