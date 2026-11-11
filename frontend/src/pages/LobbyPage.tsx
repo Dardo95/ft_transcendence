@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../locales/useLanguage';
 import { useSocketStore } from '../stores/useSocketStore';
@@ -8,6 +8,13 @@ import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
 import { gameSocket } from '@/lib/socket';
 import { toServerMatchmakingRequest } from '../features/lobby/matchmakingRequest';
 import { resolveMatchmakingErrorKey } from '../features/lobby/matchmakingErrorMessage';
+import {
+  countdownSeconds,
+  gameRoute,
+  readCancelResult,
+  readGameFoundId,
+  readMatchmakingStatus,
+} from '../features/lobby/matchmakingEvents';
 import type { TranslationKey } from '@/locales/translations';
 
 import { Card } from '@/components/ui/card';
@@ -33,7 +40,6 @@ export function LobbyPage() {
 
   // Socket connection state
   const isConnected = useSocketStore((state) => state.isConnected);
-  const socket = useSocketStore((state) => state.socket);
 
   // Lobby state
   const lobby = useLobbyStore((state) => state.lobby);
@@ -63,6 +69,24 @@ export function LobbyPage() {
   // Mapa elegido al pedir la partida: la respuesta del backend
   // no lo trae, así que se guarda aquí para la navegación.
   const pendingMapRef = useRef<MapId>('map1');
+  // `game:found` y `game:matchmakingStatus CREATED` llegan para
+  // la misma partida: solo la primera navegación debe actuar.
+  const navigatedRef = useRef(false);
+
+  const navigateToGame = useCallback(
+    (gameId: string) => {
+      if (navigatedRef.current) {
+        return;
+      }
+
+      navigatedRef.current = true;
+
+      if (timerRef.current) clearInterval(timerRef.current);
+
+      navigate(gameRoute(gameId, pendingMapRef.current));
+    },
+    [navigate]
+  );
 
   // Host and player count in lobby
   const user = useAuthStore((state) => state.user);
@@ -81,49 +105,98 @@ export function LobbyPage() {
     };
   }, [lobbyListeners, friendsListeners]);
 
-  // Socket listener to receive match id from backend
+  // Estado del matchmaking público: el servidor manda
+  // (SEARCHING → COUNTDOWN con fecha fin → CANCELLED/CREATED).
+  // El countdown no se inventa localmente: se deriva de
+  // `countdownEndsAt` (epoch del servidor) con un ticker de 1 s.
   useEffect(() => {
-    if (!socket) return;
+    const handleStatus = (payload: unknown) => {
+      const update = readMatchmakingStatus(payload);
 
-    const handleGameStart = (data: { gameId: string }) => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIsSearching(false);
-      navigate(`/game/${data.gameId}`);
-    };
-
-    socket.on('match:ready', handleGameStart);
-    return () => {
-      socket.off('match:ready', handleGameStart);
-    };
-  }, [socket, navigate]);
-
-  // El backend crea la partida y responde con su id real
-  // (por eso ya no se navega a un id ficticio).
-  useEffect(() => {
-    const handleMatchmakingStatus = (payload: {
-      mode?: string;
-      status?: string;
-      gameId?: string;
-    }) => {
-      if (payload.mode !== 'PRACTICE' || payload.status !== 'CREATED') {
+      if (!update) {
         return;
       }
 
-      if (!payload.gameId) {
+      if (update.type === 'created') {
+        navigateToGame(update.gameId);
+        return;
+      }
+
+      if (update.type === 'countdown') {
+        const { endsAt } = update;
+
+        setIsSearching(true);
+        setCountdown(countdownSeconds(endsAt, Date.now()));
+
+        if (timerRef.current) clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => {
+          const remaining = countdownSeconds(endsAt, Date.now());
+          setCountdown(remaining);
+
+          if (remaining <= 0 && timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+        }, 1000);
+        return;
+      }
+
+      if (update.type === 'searching') {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setIsSearching(true);
+        setCountdown(null);
+        return;
+      }
+
+      // cancelled
+      if (timerRef.current) clearInterval(timerRef.current);
+      setIsSearching(false);
+      setCountdown(null);
+    };
+
+    gameSocket.on('game:matchmakingStatus', handleStatus);
+    return () => {
+      gameSocket.off('game:matchmakingStatus', handleStatus);
+    };
+  }, [navigateToGame]);
+
+  // La partida creada llega a todos los miembros del grupo (y a
+  // la práctica y al privado): es el disparador único de
+  // navegación. El CREATED del status queda como red por si este
+  // evento no llegara; `navigatedRef` evita la doble navegación.
+  useEffect(() => {
+    const handleGameFound = (payload: unknown) => {
+      const gameId = readGameFoundId(payload);
+
+      if (gameId) {
+        navigateToGame(gameId);
+      }
+    };
+
+    gameSocket.on('game:found', handleGameFound);
+    return () => {
+      gameSocket.off('game:found', handleGameFound);
+    };
+  }, [navigateToGame]);
+
+  // Confirmación directa de `game:cancelMatchmaking`. El mismo
+  // reset también llega vía status CANCELLED (idempotente).
+  useEffect(() => {
+    const handleCancelled = (payload: unknown) => {
+      if (!readCancelResult(payload)) {
         return;
       }
 
       if (timerRef.current) clearInterval(timerRef.current);
       setIsSearching(false);
       setCountdown(null);
-      navigate(`/game/${payload.gameId}?map=${pendingMapRef.current}`);
     };
 
-    gameSocket.on('game:matchmakingStatus', handleMatchmakingStatus);
+    gameSocket.on('game:matchmakingCancelled', handleCancelled);
     return () => {
-      gameSocket.off('game:matchmakingStatus', handleMatchmakingStatus);
+      gameSocket.off('game:matchmakingCancelled', handleCancelled);
     };
-  }, [navigate]);
+  }, []);
 
   // El backend rechaza `game:matchmaking` con un `exception`
   // (p. ej. al reintentar una partida que sigue viva). Sin este
@@ -145,42 +218,27 @@ export function LobbyPage() {
 
   const handleStartMatchmaking = (payload: MatchmakingPayload) => {
     setMatchmakingErrorKey(null);
+    pendingMapRef.current = payload.mapId;
 
-    if (payload.mode === 'practice') {
-      pendingMapRef.current = payload.mapId;
-      gameSocket.emit('game:matchmaking', toServerMatchmakingRequest(payload));
-      return;
-    }
-
-    if (payload.mode === 'private') {
-      socket?.emit('game:private_start', payload);
-      return;
-    }
+    // Público, privado y práctica hablan el mismo evento: el
+    // servidor responde con status (SEARCHING/COUNTDOWN) o con
+    // `game:found` en cuanto la partida existe.
+    gameSocket.emit('game:matchmaking', toServerMatchmakingRequest(payload));
 
     if (payload.mode === 'public') {
+      // Estado optimista: el SEARCHING del servidor llega en el
+      // mismo tick y este evita el parpadeo del botón.
       setIsSearching(true);
-      setCountdown(10);
-      socket?.emit('matchmaking:queue_join', payload);
-
-      // 10-second countdown timer
-      timerRef.current = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev !== null && prev <= 1) {
-            clearInterval(timerRef.current!);
-            socket?.emit('matchmaking:force_start');
-            return 0;
-          }
-          return prev !== null ? prev - 1 : null;
-        });
-      }, 1000);
+      setCountdown(null);
     }
   };
 
   const handleCancelSearch = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setIsSearching(false);
-    setCountdown(null);
-    socket?.emit('matchmaking:queue_leave');
+    // El estado se limpia con la confirmación
+    // `game:matchmakingCancelled` (o con el status CANCELLED
+    // que también llega a este socket): no se resetea aquí para
+    // no ocultar un fallo del servidor.
+    gameSocket.emit('game:cancelMatchmaking');
   };
 
   const currentPayload: MatchmakingPayload = {
