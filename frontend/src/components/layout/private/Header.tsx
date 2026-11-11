@@ -14,6 +14,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { LogOutIcon, MenuIcon, UserIcon } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/store/useAuthStore';
 import { useLanguage } from '../../../locales/useLanguage';
 import { LanguageSwitcher } from '../LanguageSwitcher';
@@ -62,7 +63,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-white focus:outline-none"
         aria-label="Open sidebar menu"
       >
-        <span className="text-xl leading-none">☰</span>
+        <MenuIcon className="h-5 w-5" aria-hidden="true" />
       </button>
 
       {/* Center section: logo */}
@@ -92,9 +93,9 @@ export function Header({ onOpenDrawer }: HeaderProps) {
               alt={user?.username || 'Avatar'}
               className="h-full w-full rounded-full border border-zinc-700 bg-zinc-800 object-cover"
               onError={(e) => {
-                // Fallback icon if image fails to load
+                // Fallback icon if image fails to load (lucide chef-hat)
                 (e.target as HTMLImageElement).src =
-                  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><text y="18" font-size="16">👨‍🍳</text></svg>';
+                  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="%23a1a1aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/></svg>';
               }}
             />
           </button>
@@ -117,7 +118,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
                 onClick={() => setIsDropdownOpen(false)}
                 className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
               >
-                <span>👤</span>
+                <UserIcon className="h-4 w-4" aria-hidden="true" />
                 <span>{t('app.general.profile') || 'Profile'}</span>
               </Link>
 
@@ -127,7 +128,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
                 onClick={handleLogout}
                 className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-400 transition-colors hover:bg-red-950/40 hover:text-red-300"
               >
-                <span>🚪</span>
+                <LogOutIcon className="h-4 w-4" aria-hidden="true" />
                 <span>{t('app.general.logout') || 'Logout'}</span>
               </button>
             </div>

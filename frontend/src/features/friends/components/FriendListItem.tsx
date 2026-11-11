@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChefHatIcon, EyeIcon, XIcon } from 'lucide-react';
 import { useLanguage } from '@/locales/useLanguage';
 
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,10 @@ export function FriendListItem({
             />
           ) : (
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs">
-              👨‍🍳
+              <ChefHatIcon
+                className="h-4 w-4 text-zinc-400"
+                aria-hidden="true"
+              />
             </div>
           )}
           <span
@@ -84,7 +88,7 @@ export function FriendListItem({
             onClick={() => onSpectate?.(friend.currentGameId!)}
             title={t('app.friends.spectateTitle') || 'Espectar partida'}
           >
-            👁
+            <EyeIcon className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
         )}
 
@@ -113,7 +117,7 @@ export function FriendListItem({
                 className="h-7 w-7 p-0 text-xs text-zinc-500 hover:text-red-400"
                 title={t('app.friends.deleteFriendTitle') || 'Eliminar amigo'}
               >
-                ✕
+                <XIcon className="h-3.5 w-3.5" aria-hidden="true" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { UsersIcon } from 'lucide-react';
 import { useFriendsStore } from '../store/useFriendsStore';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useLanguage } from '@/locales/useLanguage';
@@ -27,7 +28,7 @@ export function FriendsListCard({ onSpectate }: FriendsListCardProps) {
     <Card className="flex flex-col gap-3 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 shadow-xl">
       <div className="flex items-center justify-between border-b border-zinc-700 pb-2">
         <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-zinc-300 uppercase">
-          <span>👥</span>
+          <UsersIcon className="h-4 w-4" aria-hidden="true" />
           <span>
             {t('app.friends.friendList') || 'Lista de Amigos'} ({friends.length}
             )
