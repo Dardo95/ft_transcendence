@@ -75,7 +75,8 @@ const TEAM_MEMBERS: TeamMember[] = [
       'Docker Compose deployment orchestration, Nginx reverse proxy, prisma ORM with seed, user authentification, friend relationship management, and avatar management.',
     githubUrl: 'https://github.com/Dardo95',
     githubName: 'Dardo95',
-    linkedinUrl: 'https://linkedin.com/in/eduardo-nogueira-santo-tomás-68b691144/',
+    linkedinUrl:
+      'https://linkedin.com/in/eduardo-nogueira-santo-tomás-68b691144/',
     linkedinName: 'Eduardo Nogueira',
   },
 ];
@@ -88,7 +89,7 @@ export function AboutUsPage() {
       <div className="w-full max-w-5xl space-y-8">
         {/* Header Section */}
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-orange-400">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase">
             <span>👥</span>
             <span>42 Madrid Team</span>
           </div>
@@ -132,8 +133,9 @@ export function AboutUsPage() {
 
               {/* Contributions & Assigned Work */}
               <div className="my-4 flex-1">
-                <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  {t('app.aboutUs.contributionsLabel') || 'Work & Contributions'}
+                <h3 className="mb-1 text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+                  {t('app.aboutUs.contributionsLabel') ||
+                    'Work & Contributions'}
                 </h3>
                 <p className="text-xs leading-relaxed text-zinc-300">
                   {t(member.contributionsKey) || member.defaultContributions}

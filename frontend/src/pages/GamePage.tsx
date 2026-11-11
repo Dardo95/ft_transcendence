@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Navigate,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import type {
   GameMode,
   GameSnapshot,
@@ -9,29 +14,8 @@ import type {
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { chatSocket, gameSocket } from '../lib/socket';
 import { GameBoard } from '../features/game/components/GameBoard';
-import './GamePage.css';
 
 type ConnectionState = 'connecting' | 'connected' | 'disconnected';
-type LocalMatchmakingStatus =
-  'REQUESTING' | 'SEARCHING' | 'COUNTDOWN' | 'CANCELLED' | 'CREATED';
-
-interface MatchmakingStatusPayload {
-  mode: GameMode;
-  status: LocalMatchmakingStatus;
-  queueId?: string;
-  lobbyId?: string;
-  playerCount?: number;
-  playersInCurrentMatch?: number;
-  countdownEndsAt?: number;
-  gameId?: string;
-}
-
-interface GameFoundPayload {
-  gameId: string;
-  mode: GameMode;
-  playerId: string;
-  snapshot: GameSnapshot;
-}
 
 interface GameJoinedPayload {
   gameId: string;
@@ -49,10 +33,6 @@ interface SnapshotEventPayload {
   snapshot: GameSnapshot;
 }
 
-interface MatchmakingCancelledPayload {
-  cancelled: boolean;
-}
-
 interface SocketErrorPayload {
   message?: string | string[];
   error?: string;
@@ -63,10 +43,6 @@ interface InputRejectedPayload {
   action?: string;
   reason?: string;
 }
-
-const MAPS = [
-  { id: 'map1', name: 'ARENA 01', subtitle: '13 × 11 · mapa actual' },
-] as const;
 
 const INITIAL_MOVEMENT: MovementInput = {
   up: false,
@@ -112,30 +88,39 @@ function statusLabel(status: GameSnapshot['status']): string {
   }
 }
 
+function statusPillClass(status: GameSnapshot['status']): string {
+  switch (status) {
+    case 'RUNNING':
+      return 'border-emerald-500/30 bg-emerald-900/20 text-emerald-200';
+    case 'COUNTDOWN':
+      return 'border-amber-500/30 bg-amber-900/20 text-amber-200';
+    case 'OVERTIME':
+      return 'animate-pulse border-red-500/40 bg-red-900/25 text-red-200';
+    case 'FINISHED':
+      return 'border-amber-300/35 text-amber-200';
+  }
+}
+
 export function GamePage() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const { id: routeGameId } = useParams<{ id?: string }>();
-  // useNavigate is not referentially stable with BrowserRouter. Keep the latest
-  // function without making the socket lifecycle effect depend on it.
-  const navigateRef = useRef(navigate);
-  navigateRef.current = navigate;
+  const [searchParams] = useSearchParams();
+  const mapId = searchParams.get('map') ?? 'map1';
   const routeGameIdRef = useRef<string | null>(routeGameId ?? null);
-  routeGameIdRef.current = routeGameId ?? null;
+
+  useEffect(() => {
+    routeGameIdRef.current = routeGameId ?? null;
+  }, [routeGameId]);
 
   const [connection, setConnection] = useState<ConnectionState>(
     gameSocket.connected ? 'connected' : 'connecting'
   );
-  const [selectedMode, setSelectedMode] = useState<GameMode>('PRACTICE');
-  const [selectedMap, setSelectedMap] = useState('map1');
-  const [matchmaking, setMatchmaking] =
-    useState<MatchmakingStatusPayload | null>(null);
   const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [joinedGameId, setJoinedGameId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [clockNow, setClockNow] = useState(Date.now());
 
   const autoJoinedGameId = useRef<string | null>(null);
   const activeGameId = useRef<string | null>(null);
@@ -143,21 +128,18 @@ export function GamePage() {
   const userIdRef = useRef<number | null>(user?.id ?? null);
   const movement = useRef<MovementInput>({ ...INITIAL_MOVEMENT });
 
-  playerIdRef.current = playerId;
-  userIdRef.current = user?.id ?? null;
+  useEffect(() => {
+    playerIdRef.current = playerId;
+  }, [playerId]);
+
+  useEffect(() => {
+    userIdRef.current = user?.id ?? null;
+  }, [user?.id]);
 
   const currentPlayer = useMemo(
     () => snapshot?.players.find((player) => player.id === playerId) ?? null,
     [snapshot, playerId]
   );
-
-  const countdownSeconds = useMemo(() => {
-    if (!matchmaking?.countdownEndsAt) return null;
-    return Math.max(
-      0,
-      Math.ceil((matchmaking.countdownEndsAt - clockNow) / 1000)
-    );
-  }, [matchmaking?.countdownEndsAt, clockNow]);
 
   const alivePlayers =
     snapshot?.players.filter((player) => player.alive).length ?? 0;
@@ -199,45 +181,6 @@ export function GamePage() {
       );
     };
 
-    const handleMatchmakingStatus = (payload: MatchmakingStatusPayload) => {
-      if (payload.status === 'CANCELLED') {
-        setMatchmaking(null);
-        setNotice(
-          'La búsqueda se ha cancelado porque cambió la composición de la lobby.'
-        );
-        return;
-      }
-
-      setMatchmaking(payload);
-      setNotice(null);
-    };
-
-    const handleMatchmakingCancelled = (
-      payload: MatchmakingCancelledPayload
-    ) => {
-      if (payload.cancelled) {
-        setMatchmaking(null);
-        setNotice('Búsqueda cancelada.');
-      }
-    };
-
-    const handleMatchFound = (payload: GameFoundPayload) => {
-      activeGameId.current = payload.gameId;
-      autoJoinedGameId.current = payload.gameId;
-      movement.current = { ...INITIAL_MOVEMENT };
-      setJoinedGameId(null);
-      setSnapshot(payload.snapshot);
-      playerIdRef.current = payload.playerId;
-      setPlayerId(payload.playerId);
-      setMatchmaking(null);
-      setError(null);
-      setNotice(`Partida ${modeLabel(payload.mode)} encontrada.`);
-      // Confirm the game membership explicitly before enabling keyboard input.
-      // This mirrors the join flow used when the page is refreshed.
-      gameSocket.emit('game:join', { gameId: payload.gameId });
-      navigateRef.current(`/game/${payload.gameId}`, { replace: true });
-    };
-
     const handleGameJoined = (payload: GameJoinedPayload) => {
       activeGameId.current = payload.gameId;
       setJoinedGameId(payload.gameId);
@@ -246,7 +189,6 @@ export function GamePage() {
         userIdRef.current === null ? null : String(userIdRef.current);
       playerIdRef.current = playerIdRef.current ?? authenticatedPlayerId;
       setPlayerId((current) => current ?? authenticatedPlayerId);
-      setMatchmaking(null);
       setError(null);
       setNotice('Te has conectado a la partida.');
     };
@@ -290,17 +232,11 @@ export function GamePage() {
 
     const handleException = (payload: unknown) => {
       setError(errorMessage(payload));
-      setMatchmaking((current) =>
-        current?.status === 'REQUESTING' ? null : current
-      );
     };
 
     gameSocket.on('connect', handleConnect);
     gameSocket.on('disconnect', handleDisconnect);
     gameSocket.on('connect_error', handleConnectError);
-    gameSocket.on('game:matchmakingStatus', handleMatchmakingStatus);
-    gameSocket.on('game:matchmakingCancelled', handleMatchmakingCancelled);
-    gameSocket.on('game:found', handleMatchFound);
     gameSocket.on('game:joined', handleGameJoined);
     gameSocket.on('game:state', handleGameState);
     gameSocket.on('game:started', handleGameStarted);
@@ -321,9 +257,6 @@ export function GamePage() {
       gameSocket.off('connect', handleConnect);
       gameSocket.off('disconnect', handleDisconnect);
       gameSocket.off('connect_error', handleConnectError);
-      gameSocket.off('game:matchmakingStatus', handleMatchmakingStatus);
-      gameSocket.off('game:matchmakingCancelled', handleMatchmakingCancelled);
-      gameSocket.off('game:found', handleMatchFound);
       gameSocket.off('game:joined', handleGameJoined);
       gameSocket.off('game:state', handleGameState);
       gameSocket.off('game:started', handleGameStarted);
@@ -348,12 +281,6 @@ export function GamePage() {
     autoJoinedGameId.current = routeGameId;
     gameSocket.emit('game:join', { gameId: routeGameId });
   }, [routeGameId, connection]);
-
-  useEffect(() => {
-    if (!matchmaking?.countdownEndsAt) return;
-    const timer = window.setInterval(() => setClockNow(Date.now()), 100);
-    return () => window.clearInterval(timer);
-  }, [matchmaking?.countdownEndsAt]);
 
   useEffect(() => {
     const alive = Boolean(currentPlayer?.alive);
@@ -452,45 +379,28 @@ export function GamePage() {
     snapshot?.gameId,
   ]);
 
-  const startMatchmaking = () => {
-    if (!gameSocket.connected) {
-      setError('El socket de juego todavía no está conectado.');
-      return;
-    }
-
-    setError(null);
-    setNotice(null);
-    setSnapshot(null);
-    setPlayerId(null);
-    setJoinedGameId(null);
-    setMatchmaking({ mode: selectedMode, status: 'REQUESTING' });
-    gameSocket.emit('game:matchmaking', {
-      mode: selectedMode,
-      mapId: selectedMap,
-    });
-  };
-
-  const cancelMatchmaking = () => {
-    if (!gameSocket.connected) return;
-    gameSocket.emit('game:cancelMatchmaking');
-  };
-
-  const returnToGameMenu = () => {
+  const returnToLobby = () => {
     emitStop();
     activeGameId.current = null;
     autoJoinedGameId.current = null;
     setSnapshot(null);
     setPlayerId(null);
     setJoinedGameId(null);
-    setMatchmaking(null);
     setNotice(null);
-    navigate('/game', { replace: true });
+    navigate('/lobby', { replace: true });
   };
 
   const leaveForLobby = () => {
     emitStop();
     navigate('/lobby');
   };
+
+  const connectionDotClass =
+    connection === 'connected'
+      ? 'bg-emerald-400'
+      : connection === 'disconnected'
+        ? 'bg-red-400'
+        : 'bg-amber-400';
 
   if (snapshot) {
     const ownPlayer = snapshot.players.find((player) => player.id === playerId);
@@ -499,21 +409,26 @@ export function GamePage() {
     );
 
     return (
-      <section className="game-preview-page">
-        <div className="game-preview-topbar">
+      <section className="mx-auto w-full max-w-[1440px] text-[#f6f1e9]">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pt-1 pb-5">
           <div>
-            <p className="game-eyebrow">KITCHEN MAYHEM · DEV BUILD</p>
-            <h1 className="game-preview-title">ARENA</h1>
+            <p className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
+              BOMB ARENA · LIVE MATCH
+            </p>
+            <h1 className="mt-0.5 text-[clamp(1.65rem,4vw,2.4rem)] leading-none font-black tracking-[-0.065em] text-[#fff4e5]">
+              ARENA
+            </h1>
           </div>
-          <div className="game-topbar-actions">
-            <span
-              className={`game-connection-chip game-connection-chip--${connection}`}
-            >
-              <span />{' '}
+
+          <div className="flex flex-wrap items-center justify-end gap-4">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[0.65rem] font-extrabold tracking-wider text-zinc-300">
+              <span
+                className={`h-[0.48rem] w-[0.48rem] rounded-full shadow-[0_0_10px_currentColor] ${connectionDotClass}`}
+              />
               {connection === 'connected' ? 'SOCKET ONLINE' : 'SOCKET OFFLINE'}
             </span>
             <button
-              className="game-quiet-button"
+              className="rounded-[0.7rem] border border-white/10 bg-transparent px-4 py-3 text-[0.68rem] font-black tracking-normal text-zinc-300 transition hover:bg-white/5"
               type="button"
               onClick={leaveForLobby}
             >
@@ -523,72 +438,110 @@ export function GamePage() {
         </div>
 
         {notice && (
-          <div className="game-notice" role="status">
+          <div
+            className="my-4 rounded-[0.65rem] border border-emerald-700/25 bg-emerald-900/15 px-3.5 py-3 text-[0.78rem] text-emerald-200"
+            role="status"
+          >
             {notice}
           </div>
         )}
+
         {error && (
-          <div className="game-error" role="alert">
+          <div
+            className="my-4 rounded-[0.65rem] border border-red-700/30 bg-red-900/15 px-3.5 py-3 text-[0.78rem] text-red-200"
+            role="alert"
+          >
             {error}
           </div>
         )}
 
-        <div className="game-match-layout">
-          <main className="game-play-area">
-            <div className="game-match-header">
+        <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_270px]">
+          <main className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-3 sm:p-[clamp(0.65rem,2vw,1.15rem)]">
+            <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <span className="game-section-kicker">
+                <span className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
                   PARTIDA {modeLabel(snapshot.mode)}
                 </span>
-                <h2>
+                <h2 className="mt-1 text-sm font-extrabold text-[#f6eee2]">
                   {snapshot.board.width} × {snapshot.board.height} ·{' '}
                   {snapshot.gameId.slice(0, 8)}
                 </h2>
               </div>
               <div
-                className={`game-status-pill game-status-pill--${snapshot.status.toLowerCase()}`}
+                className={`rounded-full border px-3 py-1.5 text-[0.58rem] font-black tracking-wider whitespace-nowrap ${statusPillClass(
+                  snapshot.status
+                )}`}
               >
                 {statusLabel(snapshot.status)}
               </div>
             </div>
 
-            <div className="game-score-strip">
-              <div>
-                <span>TIEMPO</span>
-                <strong>{formatElapsed(snapshot.elapsedMs)}</strong>
+            <div className="mb-3 flex items-center justify-start gap-5 border-y border-white/5 py-2.5 sm:gap-8">
+              <div className="grid gap-1">
+                <span className="text-[0.55rem] font-black tracking-widest text-zinc-500">
+                  TIEMPO
+                </span>
+                <strong className="text-sm font-bold text-[#f5c18a] tabular-nums">
+                  {formatElapsed(snapshot.elapsedMs)}
+                </strong>
               </div>
-              <div>
-                <span>SUPERVIVIENTES</span>
-                <strong>
+              <div className="grid gap-1">
+                <span className="text-[0.55rem] font-black tracking-widest text-zinc-500">
+                  SUPERVIVIENTES
+                </span>
+                <strong className="text-sm font-bold text-[#f5c18a] tabular-nums">
                   {alivePlayers}/{snapshot.players.length}
                 </strong>
               </div>
-              <div>
-                <span>MAPA</span>
-                <strong>{selectedMap.toUpperCase()}</strong>
+              <div className="grid gap-1">
+                <span className="text-[0.55rem] font-black tracking-widest text-zinc-500">
+                  MAPA
+                </span>
+                <strong className="text-sm font-bold text-[#f5c18a] tabular-nums">
+                  {mapId.toUpperCase()}
+                </strong>
               </div>
             </div>
 
             <GameBoard snapshot={snapshot} playerId={playerId} />
 
-            <div className="game-controls-hint">
-              <span>
-                <kbd>W</kbd>
-                <kbd>A</kbd>
-                <kbd>S</kbd>
-                <kbd>D</kbd> o flechas <small>MOVER</small>
+            <div className="flex flex-wrap items-center justify-center gap-5 px-1 pt-3 pb-0.5 text-[0.67rem] text-zinc-400">
+              <span className="inline-flex items-center gap-1">
+                <kbd className="inline-grid h-5 min-w-5 place-items-center rounded-[3px] border border-white/15 bg-[#252b2d] px-1 text-[0.56rem] font-black text-[#f0e8dc]">
+                  W
+                </kbd>
+                <kbd className="inline-grid h-5 min-w-5 place-items-center rounded-[3px] border border-white/15 bg-[#252b2d] px-1 text-[0.56rem] font-black text-[#f0e8dc]">
+                  A
+                </kbd>
+                <kbd className="inline-grid h-5 min-w-5 place-items-center rounded-[3px] border border-white/15 bg-[#252b2d] px-1 text-[0.56rem] font-black text-[#f0e8dc]">
+                  S
+                </kbd>
+                <kbd className="inline-grid h-5 min-w-5 place-items-center rounded-[3px] border border-white/15 bg-[#252b2d] px-1 text-[0.56rem] font-black text-[#f0e8dc]">
+                  D
+                </kbd>{' '}
+                o flechas{' '}
+                <small className="ml-1 text-[0.55rem] font-black tracking-wider text-zinc-500">
+                  MOVER
+                </small>
               </span>
-              <span>
-                <kbd>ESPACIO</kbd> <small>COLOCAR BOMBA</small>
+              <span className="inline-flex items-center gap-1">
+                <kbd className="inline-grid h-5 min-w-5 place-items-center rounded-[3px] border border-white/15 bg-[#252b2d] px-1 text-[0.56rem] font-black text-[#f0e8dc]">
+                  ESPACIO
+                </kbd>{' '}
+                <small className="ml-1 text-[0.55rem] font-black tracking-wider text-zinc-500">
+                  COLOCAR BOMBA
+                </small>
               </span>
             </div>
 
             {snapshot.status === 'FINISHED' && (
-              <div className="game-finished-panel">
-                <div className="game-finished-icon">🏆</div>
-                <div>
-                  <p className="game-section-kicker">PARTIDA FINALIZADA</p>
-                  <h2>
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-amber-400/25 bg-amber-700/10 p-3.5">
+                <div className="text-3xl">🏆</div>
+                <div className="flex-1">
+                  <p className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
+                    PARTIDA FINALIZADA
+                  </p>
+                  <h2 className="mt-0.5 text-base text-amber-200">
                     {winner
                       ? `${winner.displayName || 'Jugador'} gana`
                       : 'Empate'}
@@ -596,8 +549,8 @@ export function GamePage() {
                 </div>
                 <button
                   type="button"
-                  className="game-primary-button"
-                  onClick={returnToGameMenu}
+                  className="rounded-[0.7rem] bg-gradient-to-br from-orange-300 to-orange-600 px-4 py-3 text-[0.68rem] font-black tracking-wider text-[#231710] shadow-[0_8px_22px_rgba(237,113,55,0.17)] transition hover:-translate-y-0.5 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45"
+                  onClick={returnToLobby}
                 >
                   Volver a jugar
                 </button>
@@ -605,28 +558,42 @@ export function GamePage() {
             )}
           </main>
 
-          <aside className="game-sidebar">
-            <section className="game-side-card game-player-card">
-              <div className="game-side-card-heading">
-                <span className="game-section-kicker">EN LA COCINA</span>
-                <strong>{snapshot.players.length}/4</strong>
+          <aside className="grid gap-3">
+            <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <span className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
+                  EN PARTIDA
+                </span>
+                <strong className="text-xs text-amber-300">
+                  {snapshot.players.length}/4
+                </strong>
               </div>
-              <div className="game-roster">
+              <div className="mt-3 grid gap-2">
                 {snapshot.players.map((player, index) => (
                   <div
-                    className={`game-roster-player${player.alive ? '' : 'is-dead'}`}
+                    className={`flex items-center gap-2.5 rounded-[0.6rem] border border-white/5 bg-white/[0.025] p-2 ${
+                      player.alive ? '' : 'opacity-40'
+                    }`}
                     key={player.id}
                   >
                     <span
-                      className={`game-roster-avatar game-roster-avatar--${index % 4}`}
+                      className={`grid h-8 w-8 shrink-0 place-items-center rounded-[0.55rem] text-base ${
+                        index % 4 === 1
+                          ? 'bg-cyan-500/15'
+                          : index % 4 === 2
+                            ? 'bg-violet-500/15'
+                            : index % 4 === 3
+                              ? 'bg-lime-500/15'
+                              : 'bg-orange-400/15'
+                      }`}
                     >
-                      {player.isBot ? '🤖' : '👨‍🍳'}
+                      {player.isBot ? '🤖' : '🧑'}
                     </span>
-                    <div className="game-roster-copy">
-                      <strong>
+                    <div className="grid min-w-0 flex-1 gap-0.5">
+                      <strong className="truncate text-[0.72rem] text-zinc-200">
                         {player.displayName || `Jugador ${index + 1}`}
                       </strong>
-                      <span>
+                      <span className="text-[0.53rem] font-black tracking-widest text-zinc-500">
                         {player.isBot
                           ? 'BOT PASIVO'
                           : player.id === playerId
@@ -635,54 +602,75 @@ export function GamePage() {
                       </span>
                     </div>
                     <span
-                      className={`game-alive-dot${player.alive ? '' : 'is-dead'}`}
+                      className={`h-2 w-2 shrink-0 rounded-full ${
+                        player.alive
+                          ? 'bg-emerald-400 shadow-[0_0_9px_rgba(112,211,154,0.45)]'
+                          : 'bg-zinc-500 shadow-none'
+                      }`}
                     />
                   </div>
                 ))}
               </div>
             </section>
 
-            <section className="game-side-card">
-              <span className="game-section-kicker">TUS ESTADÍSTICAS</span>
+            <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
+              <span className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
+                TUS ESTADÍSTICAS
+              </span>
               {ownPlayer ? (
-                <div className="game-stat-grid">
-                  <div>
-                    <strong>{ownPlayer.bombCapacity}</strong>
-                    <span>BOMBAS</span>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="grid gap-1 rounded-[0.55rem] bg-white/5 px-1 py-2.5 text-center">
+                    <strong className="text-base text-orange-300">
+                      {ownPlayer.bombCapacity}
+                    </strong>
+                    <span className="text-[0.48rem] font-black tracking-wider text-zinc-500">
+                      BOMBAS
+                    </span>
                   </div>
-                  <div>
-                    <strong>{ownPlayer.blastRadius}</strong>
-                    <span>ALCANCE</span>
+                  <div className="grid gap-1 rounded-[0.55rem] bg-white/5 px-1 py-2.5 text-center">
+                    <strong className="text-base text-orange-300">
+                      {ownPlayer.blastRadius}
+                    </strong>
+                    <span className="text-[0.48rem] font-black tracking-wider text-zinc-500">
+                      ALCANCE
+                    </span>
                   </div>
-                  <div>
-                    <strong>{ownPlayer.speed.toFixed(1)}</strong>
-                    <span>VELOCIDAD</span>
+                  <div className="grid gap-1 rounded-[0.55rem] bg-white/5 px-1 py-2.5 text-center">
+                    <strong className="text-base text-orange-300">
+                      {ownPlayer.speed.toFixed(1)}
+                    </strong>
+                    <span className="text-[0.48rem] font-black tracking-wider text-zinc-500">
+                      VELOCIDAD
+                    </span>
                   </div>
                 </div>
               ) : (
-                <p className="game-muted-copy">
+                <p className="text-[0.7rem] text-zinc-400">
                   Esperando datos del jugador...
                 </p>
               )}
             </section>
 
-            <section className="game-side-card game-legend-card">
-              <span className="game-section-kicker">LEYENDA</span>
-              <div>
-                <i className="legend-swatch legend-swatch--wall" /> Muro
-                indestructible
+            <section className="grid min-w-0 gap-2.5 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
+              <span className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
+                LEYENDA
+              </span>
+              <div className="flex items-center gap-2.5 text-[0.65rem] text-zinc-300">
+                <i className="h-3 w-3 rounded-[3px] bg-[linear-gradient(145deg,#737b78,#424b4b)]" />{' '}
+                Muro indestructible
               </div>
-              <div>
-                <i className="legend-swatch legend-swatch--crate" /> Muro
-                destructible
+              <div className="flex items-center gap-2.5 text-[0.65rem] text-zinc-300">
+                <i className="h-3 w-3 rounded-[3px] bg-[linear-gradient(145deg,#a36a3e,#70462f)]" />{' '}
+                Muro destructible
               </div>
-              <div>
-                <i className="legend-swatch legend-swatch--bomb" /> Bomba
+              <div className="flex items-center gap-2.5 text-[0.65rem] text-zinc-300">
+                <i className="h-3 w-3 rounded-full bg-[#333] shadow-[0_0_7px_#f6a04b]" />{' '}
+                Bomba
               </div>
-              <div>
-                <i className="legend-swatch legend-swatch--power" /> Power-up
+              <div className="flex items-center gap-2.5 text-[0.65rem] text-zinc-300">
+                <i className="h-3 w-3 rounded-[3px] bg-[#d4a84e]" /> Power-up
               </div>
-              <p>
+              <p className="mt-1 text-[0.62rem] leading-relaxed text-zinc-500">
                 El servidor calcula las colisiones, las explosiones y el
                 resultado de la partida.
               </p>
@@ -693,219 +681,44 @@ export function GamePage() {
     );
   }
 
+  if (!routeGameId) {
+    return <Navigate to="/lobby" replace />;
+  }
+
   return (
-    <section className="game-preview-page game-preview-menu">
-      <div className="game-preview-topbar">
-        <div>
-          <p className="game-eyebrow">KITCHEN MAYHEM · DEV BUILD</p>
-          <h1 className="game-preview-title">
-            GAME LAB<span>.</span>
-          </h1>
-        </div>
-        <div className="game-topbar-actions">
-          <span
-            className={`game-connection-chip game-connection-chip--${connection}`}
+    <section className="mx-auto flex min-h-[60vh] w-full max-w-[1440px] items-center justify-center px-4 text-[#f6f1e9]">
+      <div className="grid w-full max-w-md justify-items-center gap-3 rounded-2xl border border-white/10 bg-zinc-900/90 p-8 text-center">
+        <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-orange-400/20 border-t-orange-400" />
+        <p className="text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
+          PARTIDA {routeGameId.slice(0, 8).toUpperCase()}
+        </p>
+        <h1 className="text-xl font-black text-[#fff4e5]">
+          Conectando a la arena...
+        </h1>
+        <p className="text-xs leading-relaxed text-zinc-400">
+          {connection === 'connected'
+            ? 'Uniéndote a la partida...'
+            : connection === 'connecting'
+              ? 'Estableciendo conexión con el servidor...'
+              : 'Sin conexión con el servidor de juego.'}
+        </p>
+
+        {error && (
+          <p
+            role="alert"
+            className="w-full rounded-[0.65rem] border border-red-700/30 bg-red-900/15 px-3.5 py-3 text-[0.78rem] text-red-200"
           >
-            <span />{' '}
-            {connection === 'connected'
-              ? 'SOCKET ONLINE'
-              : connection === 'connecting'
-                ? 'CONECTANDO'
-                : 'SOCKET OFFLINE'}
-          </span>
-          <span className="game-user-chip">
-            👨‍🍳 {user?.username ?? 'Jugador'}
-          </span>
-        </div>
-      </div>
-
-      <div className="game-menu-hero">
-        <div className="game-menu-copy">
-          <span className="game-section-kicker">
-            PROTOCOLO DE PRUEBAS · BACKEND AUTHORITATIVE
-          </span>
-          <h2>
-            Entra en la
-            <br />
-            <em>cocina.</em>
-          </h2>
-          <p>
-            Prueba el motor de juego real. El servidor controla movimiento,
-            bombas, explosiones, mejoras y victoria. Esta interfaz es temporal y
-            solo para desarrollo.
+            {error}
           </p>
-        </div>
-        <div className="game-menu-art" aria-hidden="true">
-          <div className="game-art-glow" />
-          <div className="game-art-grid">
-            <span>✦</span>
-            <span>▦</span>
-            <span>✹</span>
-            <span>▦</span>
-            <span>✦</span>
-            <span>▦</span>
-            <span>●</span>
-            <span>▦</span>
-            <span>●</span>
-            <span>▦</span>
-            <span>✹</span>
-            <span>▦</span>
-            <span>●</span>
-            <span>▦</span>
-            <span>✹</span>
-          </div>
-          <div className="game-art-caption">BOMBS READY / CHEF MODE</div>
-        </div>
-      </div>
+        )}
 
-      {notice && (
-        <div className="game-notice" role="status">
-          {notice}
-        </div>
-      )}
-      {error && (
-        <div className="game-error" role="alert">
-          {error}
-        </div>
-      )}
-
-      {matchmaking && (
-        <div className="game-queue-panel">
-          <div className="game-queue-spinner" />
-          <div className="game-queue-copy">
-            <span className="game-section-kicker">
-              BUSCANDO PARTIDA · {modeLabel(matchmaking.mode)}
-            </span>
-            <strong>
-              {matchmaking.status === 'COUNTDOWN'
-                ? `La partida comienza en ${countdownSeconds ?? 0}s`
-                : matchmaking.status === 'SEARCHING'
-                  ? 'Buscando jugadores...'
-                  : matchmaking.status === 'CREATED'
-                    ? 'Creando partida...'
-                    : 'Preparando búsqueda...'}
-            </strong>
-            <span>
-              {matchmaking.status === 'COUNTDOWN'
-                ? `${matchmaking.playersInCurrentMatch ?? 0} jugadores confirmados · máximo 4`
-                : matchmaking.status === 'SEARCHING'
-                  ? `${matchmaking.playerCount ?? 1} jugador(es) en tu grupo · la búsqueda no caduca`
-                  : 'Conectando con el motor del servidor'}
-            </span>
-          </div>
-          {(matchmaking.status === 'SEARCHING' ||
-            matchmaking.status === 'COUNTDOWN') && (
-            <button
-              type="button"
-              className="game-danger-button"
-              onClick={cancelMatchmaking}
-            >
-              Cancelar búsqueda
-            </button>
-          )}
-        </div>
-      )}
-
-      <div className="game-config-grid">
-        <section className="game-config-section">
-          <div className="game-section-heading">
-            <span>01 / MODO DE JUEGO</span>
-            <small>Selecciona tu desafío</small>
-          </div>
-          <div className="game-mode-grid">
-            <button
-              type="button"
-              className={`game-mode-card${selectedMode === 'PRACTICE' ? 'selected' : ''}`}
-              onClick={() => setSelectedMode('PRACTICE')}
-              disabled={Boolean(matchmaking)}
-            >
-              <span className="game-mode-icon">🥘</span>
-              <strong>PRÁCTICA</strong>
-              <small>1 jugador + Chef Bot pasivo</small>
-              <span className="game-mode-tag">IDEAL PARA PROBAR</span>
-            </button>
-            <button
-              type="button"
-              className={`game-mode-card${selectedMode === 'PRIVATE' ? 'selected' : ''}`}
-              onClick={() => setSelectedMode('PRIVATE')}
-              disabled={Boolean(matchmaking)}
-            >
-              <span className="game-mode-icon">👥</span>
-              <strong>PRIVADA</strong>
-              <small>
-                Solo los miembros de tu lobby (2–4). Todos deben abrir Game Lab.
-              </small>
-              <span className="game-mode-tag">SIN RANDOMS</span>
-            </button>
-            <button
-              type="button"
-              className={`game-mode-card${selectedMode === 'PUBLIC' ? 'selected' : ''}`}
-              onClick={() => setSelectedMode('PUBLIC')}
-              disabled={Boolean(matchmaking)}
-            >
-              <span className="game-mode-icon">🌐</span>
-              <strong>PÚBLICA</strong>
-              <small>
-                Tu lobby contra otros grupos. Todos deben abrir Game Lab.
-              </small>
-              <span className="game-mode-tag">MATCHMAKING</span>
-            </button>
-          </div>
-        </section>
-
-        <section className="game-config-section">
-          <div className="game-section-heading">
-            <span>02 / ESCENARIO</span>
-            <small>Elige el mapa</small>
-          </div>
-          <div className="game-map-grid">
-            {MAPS.map((map, index) => (
-              <button
-                type="button"
-                key={map.id}
-                className={`game-map-card${selectedMap === map.id ? 'selected' : ''}`}
-                onClick={() => setSelectedMap(map.id)}
-                disabled={Boolean(matchmaking)}
-              >
-                <span
-                  className={`game-map-preview game-map-preview--${index + 1}`}
-                >
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <b />
-                </span>
-                <strong>{map.name}</strong>
-                <small>{map.subtitle}</small>
-              </button>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <div className="game-menu-footer">
-        <div>
-          <strong>LISTO PARA JUGAR</strong>
-          <span>Controles: WASD / flechas · ESPACIO para bomba</span>
-        </div>
         <button
           type="button"
-          className="game-primary-button game-launch-button"
-          onClick={startMatchmaking}
-          disabled={connection !== 'connected' || Boolean(matchmaking)}
+          className="mt-1 rounded-[0.7rem] border border-white/10 bg-transparent px-4 py-3 text-[0.68rem] font-black tracking-normal text-zinc-300 transition hover:bg-white/5"
+          onClick={leaveForLobby}
         >
-          {matchmaking ? 'BUSCANDO...' : 'INICIAR PARTIDA'} <span>↗</span>
+          Volver al lobby
         </button>
-      </div>
-
-      <div className="game-preview-disclaimer">
-        <span>DEV PREVIEW</span>
-        <p>
-          Esta pantalla es un cliente temporal para validar el motor. No
-          reemplaza el diseño definitivo del frontend.
-        </p>
-        <Link to="/lobby">Volver al lobby ↗</Link>
       </div>
     </section>
   );

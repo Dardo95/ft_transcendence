@@ -14,32 +14,50 @@ export function ProfilePage() {
   const currentUser = useAuthStore((state) => state.user) as UserPrivate | null;
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
-  const [publicUser, setPublicUser] = useState<UserPublic | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [notFound, setNotFound] = useState(false);
+  const [profileState, setProfileState] = useState<{
+    username: string;
+    user: UserPublic | null;
+    notFound: boolean;
+  } | null>(null);
 
   // Check if viewing authenticated user's own profile or a public user's profile
   const isOwnProfile =
     !username || (currentUser && currentUser.username === username);
 
-  useEffect(() => {
-    if (!isOwnProfile && username) {
-      setLoading(true);
-      setNotFound(false);
+  const loading =
+    !isOwnProfile && Boolean(username) && profileState?.username !== username;
+  const publicUser =
+    profileState !== null && profileState.username === username
+      ? profileState.user
+      : null;
+  const notFound =
+    !isOwnProfile &&
+    profileState !== null &&
+    profileState.username === username &&
+    profileState.notFound;
 
-      apiFetch<UserPublic>(`/users/${encodeURIComponent(username)}`, {
-        method: 'GET',
+  useEffect(() => {
+    if (isOwnProfile || !username) return;
+
+    let cancelled = false;
+
+    apiFetch<UserPublic>(`/users/${encodeURIComponent(username)}`, {
+      method: 'GET',
+    })
+      .then((data) => {
+        if (!cancelled) {
+          setProfileState({ username, user: data, notFound: false });
+        }
       })
-        .then((data) => {
-          setPublicUser(data);
-        })
-        .catch(() => {
-          setNotFound(true);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
+      .catch(() => {
+        if (!cancelled) {
+          setProfileState({ username, user: null, notFound: true });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [username, isOwnProfile]);
 
   const handleAvatarUpload = async (blob: Blob) => {
