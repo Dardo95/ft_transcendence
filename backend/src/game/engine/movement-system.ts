@@ -21,13 +21,6 @@ const COLLISION_EPSILON = 1e-9;
 // Evita saltos excesivos por cada subpaso de movimiento.
 const MAX_SUBSTEP_DISTANCE = 0.05;
 
-const NO_MOVEMENT: MovementInput = {
-  up: false,
-  down: false,
-  left: false,
-  right: false,
-};
-
 export function setPlayerMovementInput(
   session: GameSession,
   playerId: string,

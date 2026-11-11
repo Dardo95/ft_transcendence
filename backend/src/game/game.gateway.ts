@@ -552,7 +552,7 @@ export class GameGateway
       mode: value.mode as MatchmakingRequest['mode'],
       ...(value.settings !== undefined
         ? {
-            settings: value.settings as Record<string, unknown>,
+            settings: value.settings as MatchmakingRequest['settings'],
           }
         : {}),
     };

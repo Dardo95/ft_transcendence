@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { randomUUID } from 'node:crypto';
 
-import type { MatchmakingRequest } from '@transcendence/shared';
+import type { GameSettings, MatchmakingRequest } from '@transcendence/shared';
 
 import type { WsUser } from '../../auth/ws-jwt-auth.service.js';
 import {
@@ -10,6 +10,10 @@ import {
   type LobbyMembershipChangedEvent,
   type LobbySnapshot,
 } from '../../lobby/lobby.service.js';
+import {
+  DEFAULT_GAME_SETTINGS,
+  normalizeGameSettings,
+} from '../config/game-settings.js';
 import { GameManagerService } from '../sessions/game-manager.service.js';
 import type { GameSession } from '../engine/game-state.js';
 import type { GameSessionPlayerInput } from '../engine/game-session.factory.js';
@@ -133,7 +137,8 @@ export class MatchmakingService implements OnModuleDestroy {
 
   /**
    * Entry point for all three matchmaking modes.
-   * Settings are intentionally not applied yet; map and mode are authoritative.
+   * Private and practice matches use the requested settings. Public matches
+   * always use the server defaults because their settings are fixed in the UI.
    */
   requestMatchmaking(
     user: WsUser,
@@ -145,9 +150,17 @@ export class MatchmakingService implements OnModuleDestroy {
       case 'PUBLIC':
         return this.requestPublicMatch(user, request.mapId);
       case 'PRIVATE':
-        return this.requestPrivateMatch(user, request.mapId);
+        return this.requestPrivateMatch(
+          user,
+          request.mapId,
+          normalizeGameSettings(request.settings)
+        );
       case 'PRACTICE':
-        return this.requestPracticeMatch(user, request.mapId);
+        return this.requestPracticeMatch(
+          user,
+          request.mapId,
+          normalizeGameSettings(request.settings)
+        );
       default:
         throw new WsException('Unsupported game mode');
     }
@@ -295,7 +308,8 @@ export class MatchmakingService implements OnModuleDestroy {
 
   private requestPrivateMatch(
     user: WsUser,
-    mapId: string
+    mapId: string,
+    settings: GameSettings
   ): CreatedMatchmakingResult {
     const lobby = this.getUserLobby(user.id);
 
@@ -313,6 +327,7 @@ export class MatchmakingService implements OnModuleDestroy {
       mode: 'PRIVATE',
       mapId,
       players,
+      settings,
     });
 
     this.notifyMatchCreated({
@@ -326,7 +341,8 @@ export class MatchmakingService implements OnModuleDestroy {
 
   private requestPracticeMatch(
     user: WsUser,
-    mapId: string
+    mapId: string,
+    settings: GameSettings
   ): CreatedMatchmakingResult {
     this.assertUsersAvailable([user.id]);
 
@@ -340,6 +356,7 @@ export class MatchmakingService implements OnModuleDestroy {
           displayName: user.username,
         },
       ],
+      settings,
     });
 
     const lobby = this.lobbyService.getLobbyForUser(user.id);
@@ -577,6 +594,7 @@ export class MatchmakingService implements OnModuleDestroy {
           mode: 'PUBLIC',
           mapId,
           players,
+          settings: DEFAULT_GAME_SETTINGS,
         });
 
         const event: MatchCreatedEvent = {

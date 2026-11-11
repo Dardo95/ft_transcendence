@@ -1,6 +1,10 @@
-import type { GameMode, Position } from '@transcendence/shared';
+import type { GameMode, GameSettings, Position } from '@transcendence/shared';
 
 import { GAME_DEFAULTS } from '../config/game-defaults.js';
+import {
+  resolveGameSettings,
+  type ResolvedGameSettings,
+} from '../config/game-settings.js';
 import type { LoadedMap } from '../maps/map-loader.js';
 
 import { createGameBoard } from './game-board.js';
@@ -34,6 +38,9 @@ export interface CreateGameSessionOptions {
    * el bot se crea automáticamente.
    */
   players: GameSessionPlayerInput[];
+
+  /** Ajustes de partida elegidos en el lobby. */
+  settings?: GameSettings;
 
   /**
    * Permite fijar el tiempo durante las pruebas.
@@ -80,7 +87,8 @@ function getSpawnOrder(playerCount: number): number[] {
 function createPlayer(
   input: GameSessionPlayerInput,
   spawnPoint: Position,
-  isBot: boolean
+  isBot: boolean,
+  settings: ResolvedGameSettings
 ): GamePlayer {
   return {
     id: input.id,
@@ -96,8 +104,8 @@ function createPlayer(
 
     alive: true,
 
-    speedTilesPerSecond: GAME_DEFAULTS.defaultSpeedTilesPerSecond,
-    bombCapacity: GAME_DEFAULTS.defaultBombCapacity,
+    speedTilesPerSecond: settings.speedTilesPerSecond,
+    bombCapacity: settings.bombCapacity,
     blastRadius: GAME_DEFAULTS.defaultBlastRadius,
 
     activeBombIds: new Set<string>(),
@@ -125,6 +133,8 @@ export function createGameSession(
   }
 
   validatePlayers(mode, players);
+
+  const settings = resolveGameSettings(options.settings);
 
   // Evita participantes duplicados.
   const participantIds = players.map((player) => player.id);
@@ -183,7 +193,10 @@ export function createGameSession(
       throw new Error(`Spawn point ${spawnId} is not on floor`);
     }
 
-    sessionPlayers.set(input.id, createPlayer(input, spawnPosition, isBot));
+    sessionPlayers.set(
+      input.id,
+      createPlayer(input, spawnPosition, isBot, settings)
+    );
   });
 
   return {
@@ -193,6 +206,7 @@ export function createGameSession(
 
     board: createGameBoard(map),
     players: sessionPlayers,
+    settings,
 
     bombs: new Map(),
     explosions: new Map(),

@@ -2,7 +2,7 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 
 import { randomUUID } from 'node:crypto';
 
-import type { GameMode } from '@transcendence/shared';
+import type { GameMode, GameSettings } from '@transcendence/shared';
 
 import { MapRegistryService } from '../maps/map-registry.service.js';
 
@@ -21,6 +21,7 @@ export interface CreateManagedGameInput {
   mode: GameMode;
   mapId: string;
   players: GameSessionPlayerInput[];
+  settings?: GameSettings;
 }
 
 export type GameTickListener = (
@@ -75,6 +76,7 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
       mode: input.mode,
       map,
       players: input.players,
+      settings: input.settings,
       nowMs: this.gameLoop.nowMs(),
     });
 

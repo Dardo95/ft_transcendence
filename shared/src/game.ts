@@ -14,13 +14,23 @@ export interface Position {
 }
 
 /**
+ * Ajustes configurables de una partida.
+ * `fuseTime` se expresa en segundos.
+ */
+export interface GameSettings {
+  initialBombs: number;
+  initialSpeed: number;
+  fuseTime: number;
+}
+
+/**
  * Petición para solicitar una partida.
  * El servidor deberá validar estos datos.
  */
 export interface MatchmakingRequest {
   mapId: string;
   mode: GameMode;
-  settings?: Record<string, unknown>;
+  settings?: GameSettings;
 }
 
 /**

@@ -85,27 +85,30 @@ function createHarness(initialLobbies: LobbySnapshot[]) {
       userId?: string;
       displayName: string;
     }>;
+    settings?: MatchmakingRequest['settings'];
   }> = [];
+
+  const createSession = vi.fn((input: CreateManagedGameInput) => {
+    const sessionId = `session-${sessions.length + 1}`;
+
+    sessions.push({
+      id: sessionId,
+      mode: input.mode,
+      mapId: input.mapId,
+      players: input.players,
+      settings: input.settings,
+    });
+
+    return {
+      id: sessionId,
+      mode: input.mode,
+      players: new Map(),
+    } as unknown as GameSession;
+  });
 
   const gameManager = {
     hasActiveSessionForUser: vi.fn(() => false),
-
-    createSession: vi.fn((input: CreateManagedGameInput) => {
-      const sessionId = `session-${sessions.length + 1}`;
-
-      sessions.push({
-        id: sessionId,
-        mode: input.mode,
-        mapId: input.mapId,
-        players: input.players,
-      });
-
-      return {
-        id: sessionId,
-        mode: input.mode,
-        players: new Map(),
-      } as unknown as GameSession;
-    }),
+    createSession,
   } as unknown as GameManagerService;
 
   const mapRegistry = {
@@ -122,6 +125,7 @@ function createHarness(initialLobbies: LobbySnapshot[]) {
     service,
     lobbyService,
     gameManager,
+    createSession,
     sessions,
     lobbies,
     lobbyByUserId,
@@ -161,7 +165,7 @@ describe('MatchmakingService', () => {
   it('keeps a solo public search open until another player arrives', () => {
     vi.useFakeTimers();
 
-    const { service, gameManager } = createHarness([
+    const { service, createSession } = createHarness([
       createLobby('lobby-a', [1]),
     ]);
 
@@ -174,7 +178,7 @@ describe('MatchmakingService', () => {
       playersInCurrentMatch: 0,
     });
 
-    expect(gameManager.createSession).not.toHaveBeenCalled();
+    expect(createSession).not.toHaveBeenCalled();
 
     service.onModuleDestroy();
   });
@@ -182,7 +186,7 @@ describe('MatchmakingService', () => {
   it('starts a fixed 15-second countdown when at least two players are matched', async () => {
     vi.useFakeTimers();
 
-    const { service, gameManager, sessions } = createHarness([
+    const { service, createSession, sessions } = createHarness([
       createLobby('lobby-a', [1]),
       createLobby('lobby-b', [2]),
     ]);
@@ -204,7 +208,7 @@ describe('MatchmakingService', () => {
 
     await vi.advanceTimersByTimeAsync(PUBLIC_MATCH_COUNTDOWN_MS - 1);
 
-    expect(gameManager.createSession).not.toHaveBeenCalled();
+    expect(createSession).not.toHaveBeenCalled();
 
     await vi.advanceTimersByTimeAsync(1);
 
@@ -303,7 +307,7 @@ describe('MatchmakingService', () => {
   });
 
   it('creates private matches immediately with the complete lobby', () => {
-    const { service, gameManager } = createHarness([
+    const { service, createSession } = createHarness([
       createLobby('lobby-private', [1, 2, 3]),
     ]);
 
@@ -314,7 +318,7 @@ describe('MatchmakingService', () => {
       status: 'CREATED',
     });
 
-    expect(gameManager.createSession).toHaveBeenCalledWith(
+    expect(createSession).toHaveBeenCalledWith(
       expect.objectContaining({
         mode: 'PRIVATE',
         players: [
@@ -340,8 +344,51 @@ describe('MatchmakingService', () => {
     service.onModuleDestroy();
   });
 
+  it('forwards private match settings to session creation', () => {
+    const { service, createSession } = createHarness([
+      createLobby('lobby-private', [1, 2]),
+    ]);
+
+    const settings = {
+      initialBombs: 2,
+      initialSpeed: 3,
+      fuseTime: 4,
+    };
+
+    service.requestMatchmaking(user(1), {
+      ...request('PRIVATE'),
+      settings,
+    });
+
+    expect(createSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: 'PRIVATE',
+        settings,
+      })
+    );
+
+    service.onModuleDestroy();
+  });
+
+  it('rejects private match settings outside the allowed range', () => {
+    const { service } = createHarness([createLobby('lobby-private', [1, 2])]);
+
+    expect(() =>
+      service.requestMatchmaking(user(1), {
+        ...request('PRIVATE'),
+        settings: {
+          initialBombs: 8,
+          initialSpeed: 1,
+          fuseTime: 3,
+        },
+      })
+    ).toThrow(/initialBombs/);
+
+    service.onModuleDestroy();
+  });
+
   it('creates a practice match with one human; the engine factory adds the bot', () => {
-    const { service, gameManager } = createHarness([
+    const { service, createSession } = createHarness([
       createLobby('lobby-a', [1]),
     ]);
 
@@ -352,7 +399,7 @@ describe('MatchmakingService', () => {
       status: 'CREATED',
     });
 
-    expect(gameManager.createSession).toHaveBeenCalledWith(
+    expect(createSession).toHaveBeenCalledWith(
       expect.objectContaining({
         mode: 'PRACTICE',
         players: [
@@ -371,7 +418,7 @@ describe('MatchmakingService', () => {
   it('cancels the complete public lobby group instead of splitting it', () => {
     vi.useFakeTimers();
 
-    const { service, gameManager } = createHarness([
+    const { service, createSession } = createHarness([
       createLobby('lobby-a', [1, 2]),
     ]);
 
@@ -385,7 +432,7 @@ describe('MatchmakingService', () => {
 
     expect('playerCount' in retry ? retry.playerCount : undefined).toBe(2);
 
-    expect(gameManager.createSession).not.toHaveBeenCalled();
+    expect(createSession).not.toHaveBeenCalled();
 
     service.onModuleDestroy();
   });
@@ -393,7 +440,7 @@ describe('MatchmakingService', () => {
   it('cancels a queued group when its lobby membership changes', async () => {
     vi.useFakeTimers();
 
-    const { service, gameManager, notifyMembershipChanged } = createHarness([
+    const { service, createSession, notifyMembershipChanged } = createHarness([
       createLobby('lobby-a', [1, 2]),
     ]);
 
@@ -406,7 +453,7 @@ describe('MatchmakingService', () => {
 
     await vi.advanceTimersByTimeAsync(PUBLIC_MATCH_COUNTDOWN_MS);
 
-    expect(gameManager.createSession).not.toHaveBeenCalled();
+    expect(createSession).not.toHaveBeenCalled();
 
     service.onModuleDestroy();
   });
