@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MailIcon, UserIcon } from 'lucide-react';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/ui/icons';
+import { PasswordInput } from './PasswordInput';
 
 export function RegisterForm() {
   const [username, setUsername] = useState('');
@@ -72,51 +74,60 @@ export function RegisterForm() {
           <FieldLabel htmlFor="register-username">
             {t('auth.register.newUser') || 'New User'}
           </FieldLabel>
-          <Input
-            id="register-username"
-            className="h-10"
-            type="text"
-            autoComplete="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder={
-              t('auth.register.userPlaceholder') || 'Enter your username'
-            }
-            required
-          />
+          <div className="relative">
+            <UserIcon
+              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500"
+              aria-hidden="true"
+            />
+            <Input
+              id="register-username"
+              className="h-10 pl-9"
+              type="text"
+              autoComplete="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder={
+                t('auth.register.userPlaceholder') || 'Enter your username'
+              }
+              required
+            />
+          </div>
         </Field>
 
         <Field>
           <FieldLabel htmlFor="register-email">
             {t('auth.register.email') || 'Email'}
           </FieldLabel>
-          <Input
-            id="register-email"
-            className="h-10"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={
-              t('auth.register.emailPlaceholder') || 'Enter your email'
-            }
-            required
-          />
+          <div className="relative">
+            <MailIcon
+              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500"
+              aria-hidden="true"
+            />
+            <Input
+              id="register-email"
+              className="h-10 pl-9"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={
+                t('auth.register.emailPlaceholder') || 'Enter your email'
+              }
+              required
+            />
+          </div>
         </Field>
 
         <Field>
           <FieldLabel htmlFor="register-password">
             {t('auth.register.password') || 'Password'}
           </FieldLabel>
-          <Input
+          <PasswordInput
             id="register-password"
-            className="h-10"
-            type="password"
-            autoComplete="new-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
+            autoComplete="new-password"
             placeholder={t('auth.register.passwordPlaceholder') || '********'}
-            required
           />
         </Field>
 

@@ -21,6 +21,8 @@ export const authEs = {
     emailPlaceholder: 'Introduce tu correo electrónico',
     password: 'Contraseña',
     passwordPlaceholder: '********',
+    showPassword: 'Mostrar contraseña',
+    hidePassword: 'Ocultar contraseña',
     orContinueWith: 'o',
     continueGoogle: 'Continuar con Google',
     noAccount: '¿No tienes cuenta?',

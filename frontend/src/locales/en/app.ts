@@ -102,6 +102,9 @@ export const appEn = {
     needPublicText: 'At least 2 players are needed to start a public match.',
     practiceInfoText:
       'You can start practice anytime since it is a 1v1 game against a bot.',
+    matchmakingFailed: 'The match could not be started. Try again.',
+    matchmakingActiveGame:
+      'You already have a match in progress. Finish it before starting another one.',
   },
   friends: {
     friendList: 'Friend List',
@@ -176,5 +179,48 @@ export const appEn = {
     title: 'Rules of the Game',
     subtitle:
       'Tactical guide on movement mechanics, bomb placement, block types and upgrade catalog.',
+  },
+
+  hud: {
+    health: 'Lives',
+    bombs: 'Pots',
+    blast: 'Steam',
+    speed: 'Coffee',
+    time: 'Time',
+    rivals: 'Rivals',
+    remaining: 'Left',
+    alive: 'Up',
+    down: 'Out',
+  },
+
+  topbar: {
+    practiceMatch: 'Practice match',
+    time: 'Time',
+    survivors: 'Survivors',
+    map: 'Map',
+    exitFullscreen: 'Exit fullscreen',
+    leave: 'Leave',
+  },
+  endScreen: {
+    deadTitle: 'bye bye goodbye',
+    victoryTitle: 'You win',
+    defeatTitle: 'You lose',
+    returnLobby: 'Back to lobby',
+    keepWatching: 'Keep watching',
+  },
+  sidebar: {
+    inKitchen: 'In the kitchen',
+    yourStats: 'Your stats',
+    you: 'You',
+    bombs: 'Bombs',
+    blast: 'Blast',
+    speed: 'Speed',
+  },
+  legend: {
+    title: 'Information',
+    wall: 'Indestructible wall',
+    crate: 'Destructible wall',
+    bomb: 'Bomb',
+    powerUp: 'Power-up',
   },
 } as const;

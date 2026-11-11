@@ -105,6 +105,9 @@ export const appEs = {
       'Se necesita al menos 2 jugadores en la sala para empezar en modo público.',
     practiceInfoText:
       'Se puede empezar la práctica en cualquier momento, ya que es un modo de juego individual contra un bot.',
+    matchmakingFailed: 'No se pudo iniciar la partida. Inténtalo de nuevo.',
+    matchmakingActiveGame:
+      'Ya tienes una partida en curso. Termínala antes de empezar otra.',
   },
   friends: {
     friendList: 'Lista de Amigos',
@@ -178,5 +181,48 @@ export const appEs = {
     title: 'Reglas del Juego',
     subtitle:
       'Guía táctica sobre mecánicas de movimiento, colocación de bombas, tipos de bloques y catálogo de mejoras.',
+  },
+
+  hud: {
+    health: 'Vidas',
+    bombs: 'Ollas',
+    blast: 'Fuego',
+    speed: 'Café',
+    time: 'Tiempo',
+    rivals: 'Rivales',
+    remaining: 'Restantes',
+    alive: 'En pie',
+    down: 'Fuera',
+  },
+
+  topbar: {
+    practiceMatch: 'Partida práctica',
+    time: 'Tiempo',
+    survivors: 'Supervivientes',
+    map: 'Mapa',
+    exitFullscreen: 'Salir de pantalla completa',
+    leave: 'Salir',
+  },
+  endScreen: {
+    deadTitle: 'chau chao adios',
+    victoryTitle: 'Ganaste',
+    defeatTitle: 'Perdiste',
+    returnLobby: 'Volver al lobby',
+    keepWatching: 'Seguir viendo',
+  },
+  sidebar: {
+    inKitchen: 'En la cocina',
+    yourStats: 'Tus estadísticas',
+    you: 'Tú',
+    bombs: 'Bombas',
+    blast: 'Alcance',
+    speed: 'Velocidad',
+  },
+  legend: {
+    title: 'Información',
+    wall: 'Muro indestructible',
+    crate: 'Muro destructible',
+    bomb: 'Bomba',
+    powerUp: 'Power-up',
   },
 } as const;

@@ -21,6 +21,8 @@ export const authEn = {
     emailPlaceholder: 'Enter your email',
     password: 'Password',
     passwordPlaceholder: '********',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
     orContinueWith: 'or',
     continueGoogle: 'Continue with Google',
     noAccount: "Don't have an account?",

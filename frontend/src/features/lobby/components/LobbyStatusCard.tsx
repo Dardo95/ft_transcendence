@@ -1,3 +1,5 @@
+import { CircleIcon } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
@@ -59,7 +61,10 @@ export function LobbyStatusCard() {
                   </p>
                 </div>
 
-                <span className="text-emerald-400">●</span>
+                <CircleIcon
+                  className="h-3 w-3 fill-emerald-400 text-emerald-400"
+                  aria-hidden="true"
+                />
               </div>
             ))}
           </div>
