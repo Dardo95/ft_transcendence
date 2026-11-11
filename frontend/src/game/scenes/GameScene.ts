@@ -8,7 +8,9 @@ import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { BombLayer } from '../bombs/BombLayer';
 import { ExplosionLayer } from '../bombs/ExplosionLayer';
 import { loadFxTextures } from '../bombs/textures';
+import { sameBoard } from '../map/boardConversion';
 import { getTileTexture, TILE_SIZE } from '../map/TileMap';
+import { TileType } from '../map/types';
 import { PlayerLayer } from '../players/PlayerLayer';
 import { loadPlayerTextures } from '../players/textures';
 
@@ -22,6 +24,9 @@ export class GameScene extends Container {
   private explosionLayer = new ExplosionLayer();
 
   private map: number[][];
+  // true cuando `buildMap` ya pintó el tablero: hasta entonces
+  // `setTiles` solo guarda el mapa para que `init()` lo use.
+  private mapBuilt = false;
   private players: readonly GamePlayerSnapshot[];
   private bombs: readonly BombSnapshot[] = [];
   private explosions: readonly ExplosionSnapshot[] = [];
@@ -61,6 +66,44 @@ export class GameScene extends Container {
   setExplosions(explosions: readonly ExplosionSnapshot[]): void {
     this.explosions = explosions;
     this.explosionLayer.setExplosions(explosions);
+  }
+
+  /**
+   * Aplica el tablero autoritativo del servidor. Los snapshots
+   * llegan a 20 Hz, así que:
+   * - Si el mapa no cambia (`sameBoard`), no se hace nada.
+   * - Si cambia, solo se repinta la capa de cajas: el piso, los
+   *   muros y las mesas nunca cambian, y el suelo ya está pintado
+   *   debajo de cada caja, así que al eliminarla queda el piso.
+   * - Si el atlas aún no cargó, `init()` construirá este mapa.
+   */
+  setTiles(map: number[][]): void {
+    if (sameBoard(this.map, map)) {
+      return;
+    }
+
+    const sizeChanged =
+      map.length !== this.map.length || map[0]?.length !== this.map[0]?.length;
+
+    this.map = map;
+
+    if (!this.mapBuilt) {
+      return;
+    }
+
+    if (sizeChanged) {
+      // Caso teórico: el backend no cambia las dimensiones del
+      // tablero en una partida. Si llegara a pasar, se repinta
+      // entero en vez de dejar sprites fuera del nuevo tamaño.
+      this.clearLayer(this.floorLayer);
+      this.clearLayer(this.blockLayer);
+      this.clearLayer(this.wallLayer);
+      this.clearLayer(this.tableLayer);
+      this.buildMap();
+      return;
+    }
+
+    this.rebuildBlocks();
   }
 
   setLabelsVisible(visible: boolean): void {
@@ -110,36 +153,91 @@ export class GameScene extends Container {
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         const tile = this.map[y][x];
-        const textureName = getTileTexture(tile);
 
-        if (!textureName) {
+        // El piso se pinta siempre debajo de las cajas: cuando
+        // una explosión la elimine, quedará el suelo y no un
+        // hueco en el tablero.
+        if (tile === TileType.BLOCK) {
+          const floor = this.createTileSprite(TileType.FLOOR, x, y);
+
+          if (floor) {
+            this.floorLayer.addChild(floor);
+          }
+        }
+
+        const sprite = this.createTileSprite(tile, x, y);
+
+        if (!sprite) {
           continue;
         }
 
-        const sprite = Sprite.from(textureName);
-        sprite.roundPixels = true;
-        sprite.width = TILE_SIZE;
-        sprite.height = TILE_SIZE;
-
-        if (sprite.texture?.source) {
-          sprite.texture.source.scaleMode = 'nearest';
-        }
-
-        sprite.x = Math.round(x * TILE_SIZE);
-        sprite.y = Math.round(y * TILE_SIZE);
-
-        if (tile === 1) {
+        if (tile === TileType.FLOOR) {
           this.floorLayer.addChild(sprite);
-        } else if (tile === 2) {
+        } else if (tile === TileType.WALL) {
           this.wallLayer.addChild(sprite);
-        } else if (tile === 3) {
+        } else if (tile === TileType.BLOCK) {
           this.blockLayer.addChild(sprite);
-        } else if (tile === 4) {
+        } else if (tile === TileType.TABLE) {
           this.tableLayer.addChild(sprite);
         } else {
           this.floorLayer.addChild(sprite);
         }
       }
     }
+
+    this.mapBuilt = true;
+  }
+
+  /**
+   * Repinta solo la capa de cajas con el mapa actual: es el
+   * único contenido que cambia durante la partida. Piso, muros
+   * y mesas se quedan como están.
+   */
+  private rebuildBlocks(): void {
+    this.clearLayer(this.blockLayer);
+
+    for (let y = 0; y < this.map.length; y++) {
+      for (let x = 0; x < this.map[y].length; x++) {
+        if (this.map[y][x] !== TileType.BLOCK) {
+          continue;
+        }
+
+        const sprite = this.createTileSprite(TileType.BLOCK, x, y);
+
+        if (sprite) {
+          this.blockLayer.addChild(sprite);
+        }
+      }
+    }
+  }
+
+  private clearLayer(layer: Container): void {
+    // `destroy({ children: true })` no destruye las texturas
+    // (compartidas del atlas), igual que en BombLayer/PlayerLayer.
+    for (const child of layer.removeChildren()) {
+      child.destroy({ children: true });
+    }
+  }
+
+  private createTileSprite(tile: number, x: number, y: number): Sprite | null {
+    const textureName = getTileTexture(tile);
+
+    if (!textureName) {
+      return null;
+    }
+
+    const sprite = Sprite.from(textureName);
+    sprite.roundPixels = true;
+    sprite.width = TILE_SIZE;
+    sprite.height = TILE_SIZE;
+
+    if (sprite.texture?.source) {
+      sprite.texture.source.scaleMode = 'nearest';
+    }
+
+    sprite.x = Math.round(x * TILE_SIZE);
+    sprite.y = Math.round(y * TILE_SIZE);
+
+    return sprite;
   }
 }

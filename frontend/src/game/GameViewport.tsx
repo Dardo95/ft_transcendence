@@ -324,6 +324,9 @@ export function GameViewport() {
           scene.setPlayers(snapshot.players);
           scene.setBombs(snapshot.bombs);
           scene.setExplosions(snapshot.explosions);
+          // El tablero viaja en cada snapshot; la escena decide
+          // si repinta (solo cuando una explosión cambia casillas).
+          scene.setTiles(boardToTileMap(snapshot.board.tiles));
         }
 
         scenePlayers = snapshot.players;
