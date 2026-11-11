@@ -21,6 +21,8 @@ export const authIt = {
     emailPlaceholder: 'Inserisci il tuo indirizzo email',
     password: 'Password',
     passwordPlaceholder: '********',
+    showPassword: 'Mostra password',
+    hidePassword: 'Nascondi password',
     orContinueWith: 'o',
     continueGoogle: 'Continua con Google',
     noAccount: 'Non hai un account?',

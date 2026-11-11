@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MailIcon } from 'lucide-react';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/ui/icons';
+import { PasswordInput } from './PasswordInput';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -70,31 +72,36 @@ export function LoginForm() {
           <FieldLabel htmlFor="login-email">
             {t('auth.login.email') || 'Email'}
           </FieldLabel>
-          <Input
-            id="login-email"
-            className="h-10"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={t('auth.login.emailPlaceholder') || 'Enter your email'}
-            required
-          />
+          <div className="relative">
+            <MailIcon
+              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500"
+              aria-hidden="true"
+            />
+            <Input
+              id="login-email"
+              className="h-10 pl-9"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={
+                t('auth.login.emailPlaceholder') || 'Enter your email'
+              }
+              required
+            />
+          </div>
         </Field>
 
         <Field>
           <FieldLabel htmlFor="login-password">
             {t('auth.login.password') || 'Password'}
           </FieldLabel>
-          <Input
+          <PasswordInput
             id="login-password"
-            className="h-10"
-            type="password"
-            autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
+            autoComplete="current-password"
             placeholder={t('auth.login.passwordPlaceholder') || '********'}
-            required
           />
         </Field>
 
