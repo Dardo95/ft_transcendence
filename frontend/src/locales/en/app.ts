@@ -171,9 +171,76 @@ export const appEn = {
   aboutProject: {
     title: 'About the Project',
     subtitle:
-      'Technical specification, system architecture and module breakdown evaluated according to the official guidelines (ft_trascendence v21.2).',
-    officialNotice:
-      'This project was created as part of the 42 curriculum by ozamora-, brivera, enogueir and raperez-.',
+      'Technical specification, system architecture, and module breakdown evaluated under the official 42 guidelines (v21.2).',
+    summaryMandatory: 'Mandatory',
+    summaryBonus: 'Bonus',
+    mandatoryHeading: 'Mandatory Core Modules',
+    bonusHeading: 'Bonus Modules (Max 5 pts)',
+    pointsLabel: 'Points Claimed',
+    colModule: 'Module',
+    colCategory: 'Category',
+    colType: 'Type',
+    colPoints: 'Points',
+    categories: {
+      web: 'Web',
+      userMgmt: 'User Management',
+      gaming: 'Gaming & UX',
+      a11y: 'Accessibility & i18n',
+    },
+    types: {
+      major: 'Major (2 pts)',
+      minor: 'Minor (1 pt)',
+    },
+    modules: {
+      frameworks: {
+        title: 'Frontend & Backend Frameworks',
+        desc: 'React + Vite on client and NestJS modular architecture on server.',
+      },
+      websockets: {
+        title: 'Real-time WebSockets',
+        desc: 'Low-latency Socket.io server-authoritative ticks and event loop.',
+      },
+      interaction: {
+        title: 'User Interaction & Social',
+        desc: 'Global and lobby chat, public profiles, and live friend status.',
+      },
+      userMgmt: {
+        title: 'Standard User Management & Auth',
+        desc: 'Argon2id password hashing, JWT HTTP-only cookies, and avatar upload.',
+      },
+      game: {
+        title: 'Complete Web-Based Game',
+        desc: 'Real-time 2D Bomberman arena with clear rules and win/loss states.',
+      },
+      remote: {
+        title: 'Remote Players Support',
+        desc: 'Synchronized remote gameplay across separate devices with reconnect logic.',
+      },
+      multiplayer: {
+        title: 'Multiplayer 3+ Players',
+        desc: 'Concurrent 4-player deathmatch with real-time state synchronization.',
+      },
+      orm: {
+        title: 'Database ORM Integration',
+        desc: 'Prisma ORM schema, strong typings, migrations, and PostgreSQL relations.',
+      },
+      i18n: {
+        title: 'Multi-Language Support (3+)',
+        desc: 'Internationalization engine supporting English, Spanish, and Italian.',
+      },
+      customization: {
+        title: 'Game Customization & Power-ups',
+        desc: 'Dynamic power-up pickups (blast radius, extra bombs, speed boots).',
+      },
+      stats: {
+        title: 'Game Statistics & Match History',
+        desc: 'Player match records, win/loss tracking, and leaderboard rankings.',
+      },
+      spectator: {
+        title: 'Spectator Mode',
+        desc: 'Live spectator view for ongoing arena matches without player input lag.',
+      },
+    },
   },
   aboutGame: {
     title: 'Rules of the Game',

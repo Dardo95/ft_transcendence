@@ -171,11 +171,78 @@ export const appIt = {
     },
   },
   aboutProject: {
-    title: 'Informazioni sul progetto',
+    title: 'Sul Progetto',
     subtitle:
-      'Specifica tecnica, architettura del sistema e suddivisione dei moduli valutati secondo la normativa ufficiale (ft_trascendencev21.2).',
-    officialNotice:
-      'Questo progetto è stato creato come parte del curriculum 42 da ozamora-, brivera, enogueir e raperez-.',
+      'Specifiche tecniche, architettura di sistema e suddivisione dei moduli valutati secondo il regolamento ufficiale di 42 (v21.2).',
+    summaryMandatory: 'Obbligatorio',
+    summaryBonus: 'Bonus',
+    mandatoryHeading: 'Moduli Obbligatori di Base',
+    bonusHeading: 'Moduli Bonus (Max 5 pts)',
+    pointsLabel: 'Punti Dichiarati',
+    colModule: 'Modulo',
+    colCategory: 'Categoria',
+    colType: 'Tipo',
+    colPoints: 'Punti',
+    categories: {
+      web: 'Web',
+      userMgmt: 'Gestione Utenti',
+      gaming: 'Gioco e UX',
+      a11y: 'Accessibilità e i18n',
+    },
+    types: {
+      major: 'Mayor (2 pts)',
+      minor: 'Menor (1 pt)',
+    },
+    modules: {
+      frameworks: {
+        title: 'Framework Frontend e Backend',
+        desc: 'React + Vite sul client e architettura modulare NestJS sul server.',
+      },
+      websockets: {
+        title: 'Funzionalità Real-Time con WebSockets',
+        desc: 'Ciclo di gioco autoritativo con Socket.io e bassa latenza.',
+      },
+      interaction: {
+        title: 'Interazione Utente e Social',
+        desc: 'Chat globale e di lobby, profili pubblici e stato amici in tempo reale.',
+      },
+      userMgmt: {
+        title: 'Gestione Utente Standard e Autenticazione',
+        desc: 'Hashing password con Argon2id, cookie JWT HTTP-only e caricamento avatar.',
+      },
+      game: {
+        title: 'Gioco Completo basato su Web',
+        desc: 'Arena Bomberman 2D in tempo reale con regole chiare e condizioni di vittoria/sconfitta.',
+      },
+      remote: {
+        title: 'Supporto Giocatori Remoti',
+        desc: 'Gameplay sincronizzato tra dispositivi diversi con gestione riconnessioni.',
+      },
+      multiplayer: {
+        title: 'Partite Multigiocatore (3+ Giocatori)',
+        desc: 'Deathmatch fino a 4 giocatori simultanei con sincronizzazione di stato.',
+      },
+      orm: {
+        title: 'Integrazione ORM per Database',
+        desc: 'Schema Prisma con PostgreSQL, migrazioni tracciate e relazioni tipizzate.',
+      },
+      i18n: {
+        title: 'Supporto Multi-Lingua (3+ lingue)',
+        desc: 'Sistema di internazionalizzazione completo in inglese, spagnolo e italiano.',
+      },
+      customization: {
+        title: 'Personalizzazione e Power-Up',
+        desc: 'Potenziamenti dinamici (raggio di esplosione, bombe extra, stivali di velocità).',
+      },
+      stats: {
+        title: 'Statistiche e Cronologia Partite',
+        desc: 'Storico degli scontri, tracciamento vittorie/sconfitte e classifica competitiva.',
+      },
+      spectator: {
+        title: 'Modalità Spettatore',
+        desc: 'Visualizzazione in diretta delle partite in corso senza influenzare il gameplay.',
+      },
+    },
   },
   aboutGame: {
     title: 'Regole del Gioco',
