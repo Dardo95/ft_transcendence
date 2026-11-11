@@ -1,4 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
+
 import type { GameMode } from '../types';
 
 interface Props {
@@ -7,68 +8,81 @@ interface Props {
   disabled?: boolean;
 }
 
+interface ModeOption {
+  id: GameMode;
+  icon: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+}
+
 export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
   const { t } = useLanguage();
 
-  const MODES: Array<{
-    id: GameMode;
-    title: string;
-    subtitle: string;
-  }> = [
+  const modes: ModeOption[] = [
     {
       id: 'practice',
-      title: t('app.lobby.modePracticeTitle') || 'Práctica',
-      subtitle: t('app.lobby.modePracticeSub') || '1 vs Bot',
+      icon: '🎮',
+      title: t('app.lobby.modePracticeTitle') || 'PRÁCTICA',
+      subtitle: t('app.lobby.modePracticeSub') || '1 jugador + Bot pasivo',
+      badge: t('app.lobby.modePracticeBadge') || 'IDEAL PARA PROBAR',
     },
     {
       id: 'private',
-      title: t('app.lobby.modePrivateTitle') || 'Partida Privada',
-      subtitle: t('app.lobby.modePrivateSub') || 'Solo miembros de la sala',
+      icon: '👥',
+      title: t('app.lobby.modePrivateTitle') || 'PRIVADA',
+      subtitle:
+        t('app.lobby.modePrivateSub') || 'Solo los miembros de tu lobby (2–4).',
+      badge: t('app.lobby.modePrivateBadge') || 'SIN RANDOMS',
     },
     {
       id: 'public',
-      title: t('app.lobby.modePublicTitle') || 'Partida Pública',
-      subtitle: t('app.lobby.modePublicSub') || 'Matchmaking abierto',
+      icon: '🌐',
+      title: t('app.lobby.modePublicTitle') || 'PÚBLICA',
+      subtitle: t('app.lobby.modePublicSub') || 'Tu lobby contra otros grupos.',
+      badge: t('app.lobby.modePublicBadge') || 'MATCHMAKING',
     },
   ];
 
   return (
-    <div className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 shadow-2xl backdrop-blur-md">
-      <span className="mb-2 block text-xs font-bold tracking-wider text-orange-400 uppercase">
-        {t('app.lobby.modeLabel') || 'Modo de Juego'}
-      </span>
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-        {MODES.map((mode) => {
+    <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
+      <div className="mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider text-orange-400">
+        <span>01 / {t('app.lobby.modeLabel') || 'MODO DE JUEGO'}</span>
+        <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
+          {t('app.lobby.modeHint') || 'Selecciona tu desafío'}
+        </small>
+      </div>
+
+      <div className="grid gap-2.5 sm:grid-cols-3">
+        {modes.map((mode) => {
           const isSelected = selectedMode === mode.id;
+
           return (
             <button
               key={mode.id}
               type="button"
               disabled={disabled}
               onClick={() => onChange(mode.id)}
-              className={`flex flex-col rounded-xl border p-3 text-left transition-all ${
+              className={`min-w-0 cursor-pointer rounded-xl border p-3 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
                 isSelected
-                  ? 'border-zinc-100 bg-zinc-950/30 text-white shadow-md shadow-zinc-500/10'
-                  : 'border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
-              } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                  ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
+                  : 'border-white/10 bg-white/[0.025]'
+              }`}
             >
-              <div className="mb-1 flex items-center justify-between">
-                <span className="mb-2 text-xl"> </span>
-                {isSelected && (
-                  <span className="h-2 w-2 rounded-full bg-orange-500" />
-                )}
-              </div>
-              <p className="text-center text-sm font-semibold text-zinc-200">
+              <span className="mb-2 block text-2xl">{mode.icon}</span>
+              <strong className="block text-[0.72rem] font-black tracking-wider">
                 {mode.title}
-              </p>
-              <p className="text-center text-[11px] text-zinc-400">
+              </strong>
+              <small className="mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug text-zinc-400">
                 {mode.subtitle}
-              </p>
-              <span className="mb-2 text-xl"> </span>
+              </small>
+              <span className="mt-2 inline-block text-[0.53rem] font-black tracking-wider text-orange-300">
+                {mode.badge}
+              </span>
             </button>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

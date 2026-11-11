@@ -1,36 +1,34 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../locales/useLanguage';
-import { useLobbyStore } from '../features/chat/store/useLobbyStore';
+
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
-
-import { Card } from '@/components/ui/card';
-
-import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
-import { LobbyChat } from '../features/chat/components/LobbyChat';
 import { FriendList } from '@/features/friends/components/FriendListCard';
-import { GameSettingsCard } from '../features/lobby/components/GameSettingsCard';
-
+import { LobbyChat } from '@/features/chat/components/LobbyChat';
+import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
+import { Card } from '@/components/ui/card';
 import { gameSocket } from '@/lib/socket';
+import { useLanguage } from '@/locales/useLanguage';
 
-import type { GameMode, MapId, GameSettings } from '../features/lobby/types';
+import { GameConfig } from '@/features/lobby/components/GameConfig';
+import { LobbyNotifications } from '@/features/lobby/components/LobbyNotifications';
+import { LobbyTopBanner } from '@/features/lobby/components/LobbyTopBanner';
+import { MatchmakingStatusBanner } from '@/features/lobby/components/MatchmakingStatusBanner';
 
-type MatchmakingStatus =
-  'REQUESTING' | 'SEARCHING' | 'COUNTDOWN' | 'CANCELLED' | 'CREATED';
+import {
+  DEFAULT_GAME_SETTINGS,
+  type GameMode,
+  type GameSettings,
+  type MapId,
+  type MatchmakingPayload,
+  type MatchmakingState,
+  type MatchmakingStatus,
+} from '@/features/lobby/types';
 
 interface MatchmakingStatusPayload {
   mode?: string;
   status?: MatchmakingStatus;
   gameId?: string;
-  playerCount?: number;
-  playersInCurrentMatch?: number;
-  countdownEndsAt?: number;
-}
-
-interface MatchmakingState {
-  mode: string;
-  status: MatchmakingStatus;
   playerCount?: number;
   playersInCurrentMatch?: number;
   countdownEndsAt?: number;
@@ -44,12 +42,6 @@ interface SocketErrorPayload {
   message?: string | string[];
   error?: string;
 }
-
-const MAPS: Array<{ id: MapId; name: string; subtitle: string}> = [
-  { id: 'map1', name: 'ARENA 01', subtitle: '13 × 11 · clásico' },
-  { id: 'map2', name: 'ARENA 02', subtitle: '13 × 11 · abierto' },
-  { id: 'map3', name: 'ARENA 03', subtitle: '13 × 11 · laberinto' },
-];
 
 function socketErrorMessage(payload: unknown): string {
   if (typeof payload === 'string') return payload;
@@ -65,17 +57,6 @@ function socketErrorMessage(payload: unknown): string {
   return 'No se pudo iniciar la partida.';
 }
 
-function modeLabel(mode: string): string {
-  switch (mode.toUpperCase()) {
-    case 'PUBLIC':
-      return 'PÚBLICA';
-    case 'PRIVATE':
-      return 'PRIVADA';
-    default:
-      return 'PRÁCTICA';
-  }
-}
-
 export function LobbyPage() {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -85,6 +66,8 @@ export function LobbyPage() {
   const error = useLobbyStore((state) => state.error);
   const notice = useLobbyStore((state) => state.notice);
   const noticeData = useLobbyStore((state) => state.noticeData);
+  const clearError = useLobbyStore((state) => state.clearError);
+  const clearNotice = useLobbyStore((state) => state.clearNotice);
 
   const lobbyListeners = useLobbyStore((state) => state.initListeners);
   const friendsListeners = useFriendsStore((state) => state.initListeners);
@@ -99,11 +82,7 @@ export function LobbyPage() {
   // Game settings state
   const [selectedMode, setSelectedMode] = useState<GameMode>('practice');
   const [selectedMap, setSelectedMap] = useState<MapId>('map1');
-  const [settings, setSettings] = useState<GameSettings>({
-    initialBombs: 1,
-    initialSpeed: 1,
-    fuseTime: 3,
-  });
+  const [settings, setSettings] = useState<GameSettings>(DEFAULT_GAME_SETTINGS);
 
   // Host and player count in lobby
   const user = useAuthStore((state) => state.user);
@@ -113,7 +92,8 @@ export function LobbyPage() {
 
   const isSearching = matchmaking !== null;
   const canStartPrivate = isHost && playersCount > 1;
-  const canStartMatch = selectedMode === 'private' ? canStartPrivate : true;
+
+  const dismissGameError = useCallback(() => setGameError(null), []);
 
   const goToGame = useCallback(
     (gameId?: string) => {
@@ -229,27 +209,37 @@ export function LobbyPage() {
     ? Math.max(0, Math.ceil((matchmaking.countdownEndsAt - clockNow) / 1000))
     : null;
 
-  const handleStartMatchmaking = () => {
+  const handleModeChange = (mode: GameMode) => {
+    setSelectedMode(mode);
+
+    // Public matches always use the server-fixed values. Keep the UI in sync
+    // with what the backend will actually apply.
+    if (mode === 'public') {
+      setSettings({ ...DEFAULT_GAME_SETTINGS });
+    }
+  };
+
+  const handleStartMatchmaking = (payload: MatchmakingPayload) => {
     if (!gameSocket.connected) {
       setGameError('El servidor de juego todavía no está conectado.');
       return;
     }
 
-    if (selectedMode === 'private' && !canStartPrivate) {
+    if (payload.mode === 'private' && !canStartPrivate) {
       return;
     }
 
     setGameError(null);
     navigatedGameId.current = null;
     setMatchmaking({
-      mode: selectedMode.toUpperCase(),
+      mode: payload.mode.toUpperCase(),
       status: 'REQUESTING',
     });
 
     gameSocket.emit('game:matchmaking', {
-      mode: selectedMode.toUpperCase(),
-      mapId: selectedMap,
-      settings,
+      mode: payload.mode.toUpperCase(),
+      mapId: payload.mapId,
+      settings: payload.settings,
     });
   };
 
@@ -260,298 +250,55 @@ export function LobbyPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1440px] text-[#f6f1e9]">
-      {/* Top Banner */}
-      <div className="relative my-6 grid min-h-[250px] items-center gap-6 overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_80%_50%,rgba(255,137,68,0.16),transparent_30%),linear-gradient(115deg,rgba(40,43,46,0.96),rgba(19,22,26,0.96))] p-[clamp(1.3rem,4vw,2.5rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.9fr)]">
-        {/* Badge anclado arriba a la derecha */}
-        <div className="absolute top-6 right-6 z-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[0.65rem] font-extrabold tracking-wider text-zinc-300 backdrop-blur-sm">
-            <span
-              className={`h-[0.48rem] w-[0.48rem] rounded-full shadow-[0_0_10px_currentColor] ${
-                isGameConnected ? 'bg-emerald-400' : 'bg-red-400'
-              }`}
-            />
-            {isGameConnected ? 'SOCKET ONLINE' : 'SOCKET OFFLINE'}
-          </div>
-        </div>
-        {/* Columna izquierda (Texto) */}
-        <div className="relative z-10">
-          <span className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
-            CONFIGURACIÓN DE PARTIDA
-          </span>
+      <LobbyTopBanner isGameConnected={isGameConnected} />
 
-          <h2 className="mt-2 mb-3 text-[clamp(2.5rem,6vw,4.4rem)] leading-[0.92] font-black tracking-[-0.075em] text-[#fff4e6]">
-            Entra al 
-            <em className="text-orange-400 not-italic"> Lobby</em>
-          </h2>
-          <p className="max-w-[520px] text-sm leading-relaxed text-zinc-400">
-            Configura tu partida. El servidor controla movimiento, bombas,
-            explosiones, mejoras y victoria.
-          </p>
-        </div>
-
-        {/* Columna derecha (Elemento decorativo) */}
-        <div
-          className="relative w-[min(100%,370px)] justify-self-center"
-          aria-hidden="true"
-        >
-          <span className="absolute inset-[15%] rounded-full bg-orange-500/20 blur-[45px]" />
-          {/* Add a decorative element here */}
-        </div>
-      </div>
-
-      {/* Messages */}
-      {error && (
-        <div
-          role="alert"
-          className="mb-4 rounded-[0.65rem] border border-red-700/30 bg-red-900/15 px-3.5 py-3 text-[0.78rem] text-red-200"
-        >
-          {t(`app.lobby.${error}`) || error}
-        </div>
-      )}
-
-      {gameError && (
-        <div
-          role="alert"
-          className="mb-4 rounded-[0.65rem] border border-red-700/30 bg-red-900/15 px-3.5 py-3 text-[0.78rem] text-red-200"
-        >
-          {gameError}
-        </div>
-      )}
-
-      {notice && (
-        <div
-          role="status"
-          className="mb-4 rounded-[0.65rem] border border-emerald-700/25 bg-emerald-900/15 px-3.5 py-3 text-[0.78rem] text-emerald-200"
-        >
-          {t(`app.lobby.${notice}`) || notice}
-          {notice === 'noticeInvitationSent' && noticeData && (
-            <span className="ms-2 text-sm">a {noticeData}</span>
-          )}
-        </div>
-      )}
+      <LobbyNotifications
+        error={error}
+        gameError={gameError}
+        notice={notice}
+        noticeData={noticeData}
+        onDismissError={clearError}
+        onDismissGameError={dismissGameError}
+        onDismissNotice={clearNotice}
+      />
 
       {matchmaking && (
-        <div className="my-4 flex flex-wrap items-center gap-4 rounded-2xl border border-orange-400/25 bg-orange-400/5 p-4">
-          <div className="h-8 w-8 shrink-0 animate-spin rounded-full border-[3px] border-orange-400/20 border-t-orange-400" />
-          <div className="min-w-0 flex-1">
-            <span className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
-              BUSCANDO PARTIDA · {modeLabel(matchmaking.mode)}
-            </span>
-            <strong className="mt-1 block text-[0.95rem] text-[#fff0df]">
-              {matchmaking.status === 'COUNTDOWN'
-                ? `La partida comienza en ${countdown ?? 0}s`
-                : matchmaking.status === 'SEARCHING'
-                  ? 'Buscando jugadores...'
-                  : matchmaking.status === 'CREATED'
-                    ? 'Creando partida...'
-                    : 'Preparando búsqueda...'}
-            </strong>
-            <span className="mt-0.5 block text-[0.7rem] text-zinc-400">
-              {matchmaking.status === 'COUNTDOWN'
-                ? `${matchmaking.playersInCurrentMatch ?? 0} jugadores confirmados · máximo 4`
-                : matchmaking.status === 'SEARCHING'
-                  ? `${matchmaking.playerCount ?? 1} jugador(es) en tu grupo · la búsqueda no caduca`
-                  : 'Conectando con el motor del servidor'}
-            </span>
-          </div>
-          {(matchmaking.status === 'SEARCHING' ||
-            matchmaking.status === 'COUNTDOWN') && (
-            <button
-              type="button"
-              className="rounded-[0.7rem] border border-red-500/30 bg-red-900/20 px-4 py-3 text-[0.68rem] font-black tracking-wider text-red-300 transition hover:bg-red-900/30"
-              onClick={handleCancelSearch}
-            >
-              Cancelar búsqueda
-            </button>
-          )}
-        </div>
+        <MatchmakingStatusBanner
+          matchmaking={matchmaking}
+          countdown={countdown}
+          onCancel={handleCancelSearch}
+        />
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(290px,0.9fr)]">
-        <div className="grid min-w-0 content-start gap-4">
-          <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
-            <div className="mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider text-orange-400">
-              <span>01 / MODO DE JUEGO</span>
-              <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
-                Selecciona tu desafío
-              </small>
-            </div>
-            <div className="grid gap-2.5 sm:grid-cols-3">
-              <button
-                type="button"
-                className={`min-w-0 cursor-pointer rounded-xl border p-3 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
-                  selectedMode === 'practice'
-                    ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
-                    : 'border-white/10 bg-white/[0.025]'
-                }`}
-                onClick={() => setSelectedMode('practice')}
-                disabled={isSearching}
-              >
-                <span className="mb-2 block text-2xl">🎮</span>
-                <strong className="block text-[0.72rem] font-black tracking-wider">
-                  PRÁCTICA
-                </strong>
-                <small className="mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug text-zinc-400">
-                  1 jugador + Bot pasivo
-                </small>
-                <span className="mt-2 inline-block text-[0.53rem] font-black tracking-wider text-orange-300">
-                  IDEAL PARA PROBAR
-                </span>
-              </button>
-              <button
-                type="button"
-                className={`min-w-0 cursor-pointer rounded-xl border p-3 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
-                  selectedMode === 'private'
-                    ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
-                    : 'border-white/10 bg-white/[0.025]'
-                }`}
-                onClick={() => setSelectedMode('private')}
-                disabled={isSearching}
-              >
-                <span className="mb-2 block text-2xl">👥</span>
-                <strong className="block text-[0.72rem] font-black tracking-wider">
-                  PRIVADA
-                </strong>
-                <small className="mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug text-zinc-400">
-                  Solo los miembros de tu lobby (2–4).
-                </small>
-                <span className="mt-2 inline-block text-[0.53rem] font-black tracking-wider text-orange-300">
-                  SIN RANDOMS
-                </span>
-              </button>
-              <button
-                type="button"
-                className={`min-w-0 cursor-pointer rounded-xl border p-3 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
-                  selectedMode === 'public'
-                    ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
-                    : 'border-white/10 bg-white/[0.025]'
-                }`}
-                onClick={() => setSelectedMode('public')}
-                disabled={isSearching}
-              >
-                <span className="mb-2 block text-2xl">🌐</span>
-                <strong className="block text-[0.72rem] font-black tracking-wider">
-                  PÚBLICA
-                </strong>
-                <small className="mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug text-zinc-400">
-                  Tu lobby contra otros grupos.
-                </small>
-                <span className="mt-2 inline-block text-[0.53rem] font-black tracking-wider text-orange-300">
-                  MATCHMAKING
-                </span>
-              </button>
-            </div>
-          </section>
+      <GameConfig
+        selectedMode={selectedMode}
+        onModeChange={handleModeChange}
+        selectedMap={selectedMap}
+        onMapChange={setSelectedMap}
+        settings={settings}
+        onSettingsChange={setSettings}
+        isHost={isHost}
+        playersCount={playersCount}
+        isSearching={isSearching}
+        countdown={countdown}
+        onStart={handleStartMatchmaking}
+        onCancelSearch={handleCancelSearch}
+      >
+        <FriendList
+          onSpectate={(gameId) => {
+            navigate(`/game/${gameId}?mode=spectator`);
+          }}
+        />
 
-          <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
-            <div className="mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider text-orange-400">
-              <span>02 / ESCENARIO</span>
-              <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
-                Elige el mapa
-              </small>
-            </div>
-            <div className="grid grid-cols-3 gap-2.5">
-              {MAPS.map((map, index) => (
-                <button
-                  type="button"
-                  key={map.id}
-                  className={`min-w-0 cursor-pointer rounded-xl border p-2.5 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
-                    selectedMap === map.id
-                      ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
-                      : 'border-white/10 bg-white/[0.025]'
-                  }`}
-                  onClick={() => setSelectedMap(map.id)}
-                  disabled={isSearching}
-                >
-                  <span
-                    className={`relative mb-2 grid aspect-[1.5] grid-cols-5 gap-0.5 overflow-hidden rounded-[0.4rem] bg-[#1c2828] ${
-                      index === 1
-                        ? '[filter:hue-rotate(18deg)]'
-                        : index === 2
-                          ? '[filter:hue-rotate(-20deg)_saturate(0.8)]'
-                          : ''
-                    }`}
-                  >
-                  </span>
-                  <strong className="block text-[0.72rem] font-black tracking-wider">
-                    {map.name}
-                  </strong>
-                  <small className="mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug text-zinc-400">
-                    {map.subtitle}
-                  </small>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="min-w-0">
-            <div className="mb-2 flex items-center justify-between px-1 text-[0.68rem] font-black tracking-wider text-orange-400">
-              <span>03 / AJUSTES</span>
-              <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
-                Personaliza la partida
-              </small>
-            </div>
-            <GameSettingsCard
-              settings={settings}
-              onChange={setSettings}
-              isHost={isHost}
-              isPublicMode={selectedMode === 'public'}
-            />
-          </section>
-
-          <div className="flex flex-col items-stretch gap-4 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <strong className="block text-xs tracking-wider text-[#e8e0d4]">
-                LISTO PARA JUGAR
-              </strong>
-              <span className="mt-1 block text-[0.68rem] text-zinc-400">
-                Controles: WASD / flechas · ESPACIO para bomba
-              </span>
-              {selectedMode === 'private' && !canStartPrivate && (
-                <span className="mt-1 block text-[0.62rem] text-amber-300/80">
-                  {isHost
-                    ? 'Necesitas al menos 2 jugadores en la lobby para empezar.'
-                    : 'Solo el anfitrión puede iniciar la partida privada.'}
-                </span>
-              )}
-            </div>
-            <button
-              type="button"
-              className="min-w-[210px] rounded-[0.7rem] bg-gradient-to-br from-orange-300 to-orange-600 px-4 py-3 text-[0.68rem] font-black tracking-wider text-[#231710] shadow-[0_8px_22px_rgba(237,113,55,0.17)] transition hover:-translate-y-0.5 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45"
-              onClick={handleStartMatchmaking}
-              disabled={
-                !isGameConnected || Boolean(matchmaking) || !canStartMatch
-              }
-            >
-              {matchmaking
-                ? 'BUSCANDO...'
-                : selectedMode === 'private' && !isHost
-                  ? 'ESPERANDO AL ANFITRIÓN...'
-                  : 'INICIAR PARTIDA'}{' '}
-              <span>↗</span>
-            </button>
-          </div>
-        </div>
-
-        <aside className="grid min-w-0 content-start gap-4">
-          <LobbyStatusCard />
-
-          <FriendList
-            onSpectate={(gameId) => {
-              navigate(`/game/${gameId}?mode=spectator`);
-            }}
-          />
-
-          {lobby ? (
-            <LobbyChat />
-          ) : (
-            <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
-              {t('app.lobby.joinLobbyToChat') ||
-                'Join a lobby to use private chat with its members.'}
-            </Card>
-          )}
-        </aside>
-      </div>
+        {lobby ? (
+          <LobbyChat />
+        ) : (
+          <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
+            {t('app.lobby.joinLobbyToChat') ||
+              'Join a lobby to use private chat with its members.'}
+          </Card>
+        )}
+      </GameConfig>
     </div>
   );
 }

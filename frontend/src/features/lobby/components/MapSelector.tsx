@@ -1,7 +1,8 @@
 import { useLanguage } from '@/locales/useLanguage';
-import type { MapId } from '../types';
 
 import mapUrl from '@/assets/map1_lobby.png';
+
+import type { MapId } from '../types';
 
 interface Props {
   selectedMap: MapId;
@@ -9,64 +10,83 @@ interface Props {
   disabled?: boolean;
 }
 
+interface MapOption {
+  id: MapId;
+  name: string;
+  subtitle: string;
+}
+
 export function MapSelector({ selectedMap, onChange, disabled }: Props) {
   const { t } = useLanguage();
 
-  const MAPS: Array<{ id: MapId; name: string; asset: string }> = [
+  // Todos los mapas muestran el mismo arte por ahora. El id que se envía al
+  // backend sigue siendo map1, map2 o map3 y determina el .txt cargado.
+  const maps: MapOption[] = [
     {
       id: 'map1',
-      name: t('app.lobby.map1Name') || 'Red Map',
-      asset: mapUrl,
+      name: t('app.lobby.map1Name') || 'ARENA 01',
+      subtitle: '13 × 11 · clásico',
     },
     {
       id: 'map2',
-      name: t('app.lobby.map2Name') || 'Orange Map',
-      asset: mapUrl,
+      name: t('app.lobby.map2Name') || 'ARENA 02',
+      subtitle: '13 × 11 · abierto',
     },
     {
       id: 'map3',
-      name: t('app.lobby.map3Name') || 'Yellow Map',
-      asset: mapUrl,
+      name: t('app.lobby.map3Name') || 'ARENA 03',
+      subtitle: '13 × 11 · laberinto',
     },
   ];
 
   return (
-    <div className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 shadow-2xl backdrop-blur-md">
-      <span className="mb-2 block text-xs font-bold tracking-wider text-orange-400 uppercase">
-        {t('app.lobby.mapLabel') || 'Mapa Seleccionado'}
-      </span>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {MAPS.map((map) => {
+    <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
+      <div className="mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider text-orange-400">
+        <span>02 / {t('app.lobby.mapLabel') || 'ESCENARIO'}</span>
+        <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
+          {t('app.lobby.mapHint') || 'Elige el mapa'}
+        </small>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+        {maps.map((map) => {
           const isSelected = selectedMap === map.id;
+
           return (
             <button
               key={map.id}
               type="button"
               disabled={disabled}
               onClick={() => onChange(map.id)}
-              className={`relative flex h-24 flex-col justify-end overflow-hidden rounded-xl border p-3 text-left transition-all ${
+              className={`min-w-0 cursor-pointer rounded-xl border p-2.5 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
                 isSelected
-                  ? 'border-orange-500 shadow-lg ring-2 shadow-orange-500/20 ring-orange-500/50'
-                  : 'border-zinc-800 opacity-70 hover:border-zinc-700 hover:opacity-100'
-              } ${disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
+                  ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
+                  : 'border-white/10 bg-white/[0.025]'
+              }`}
             >
-              <img
-                src={map.asset}
-                alt={map.name}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <span className="relative z-10 text-xs font-bold text-white drop-shadow">
-                {map.name}
+              <span className="relative mb-2 block aspect-[1.5] overflow-hidden rounded-[0.4rem] bg-[#1c2828]">
+                <img
+                  src={mapUrl}
+                  alt={map.name}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                {isSelected && (
+                  <span className="absolute top-1.5 right-1.5 rounded bg-orange-500/90 px-1.5 py-0.5 text-[0.52rem] font-black tracking-wider text-[#231710]">
+                    {t('app.lobby.activeLabel') || 'ACTIVO'}
+                  </span>
+                )}
               </span>
-              {isSelected && (
-                <span className="absolute top-2 right-2 rounded bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  {t('app.lobby.activeLabel') || 'Activo'}
-                </span>
-              )}
+              <strong className="block text-[0.72rem] font-black tracking-wider">
+                {map.name}
+              </strong>
+              <small className="mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug text-zinc-400">
+                {map.subtitle}
+              </small>
             </button>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

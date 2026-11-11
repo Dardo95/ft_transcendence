@@ -37,6 +37,8 @@ interface LobbyState {
   inviteFriendToLobby: (username: string) => void;
   acceptLobbyInvitation: (invitationId: string) => void;
   rejectLobbyInvitation: (invitationId: string) => void;
+  clearError: () => void;
+  clearNotice: () => void;
   clearFeedback: () => void;
 }
 
@@ -209,6 +211,14 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     if (chatSocket.connected) {
       chatSocket.emit('lobby:reject', { invitationId });
     }
+  },
+
+  clearError: () => {
+    set({ error: null });
+  },
+
+  clearNotice: () => {
+    set({ notice: null, noticeData: null });
   },
 
   clearFeedback: () => {
