@@ -4,7 +4,6 @@ import { useLanguage } from '../locales/useLanguage';
 import { useLobbyStore } from '../features/chat/store/useLobbyStore';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
-import { gameSocket } from '@/lib/socket';
 
 import { Card } from '@/components/ui/card';
 
@@ -12,6 +11,8 @@ import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
 import { LobbyChat } from '../features/chat/components/LobbyChat';
 import { FriendList } from '@/features/friends/components/FriendListCard';
 import { GameSettingsCard } from '../features/lobby/components/GameSettingsCard';
+
+import { gameSocket } from '@/lib/socket';
 
 import type { GameMode, MapId, GameSettings } from '../features/lobby/types';
 
@@ -44,29 +45,11 @@ interface SocketErrorPayload {
   error?: string;
 }
 
-const MAPS: Array<{ id: MapId; name: string; subtitle: string }> = [
+const MAPS: Array<{ id: MapId; name: string; subtitle: string}> = [
   { id: 'map1', name: 'ARENA 01', subtitle: '13 × 11 · clásico' },
   { id: 'map2', name: 'ARENA 02', subtitle: '13 × 11 · abierto' },
   { id: 'map3', name: 'ARENA 03', subtitle: '13 × 11 · laberinto' },
 ];
-
-const MENU_ART_CELLS = [
-  '✦',
-  '▦',
-  '✹',
-  '▦',
-  '✦',
-  '▦',
-  '●',
-  '▦',
-  '●',
-  '▦',
-  '✹',
-  '▦',
-  '●',
-  '▦',
-  '✹',
-] as const;
 
 function socketErrorMessage(payload: unknown): string {
   if (typeof payload === 'string') return payload;
@@ -91,16 +74,6 @@ function modeLabel(mode: string): string {
     default:
       return 'PRÁCTICA';
   }
-}
-
-function artCellClass(index: number): string {
-  if ((index + 1) % 3 === 0) {
-    return 'bg-[linear-gradient(145deg,#71452b,#3a281e)] text-[#ffc36f]';
-  }
-  if (index === 6 || index === 8 || index === 12) {
-    return 'text-[#ff7844]';
-  }
-  return 'bg-[linear-gradient(145deg,#363b3e,#1b2024)] text-[#d8a06c]';
 }
 
 export function LobbyPage() {
@@ -287,40 +260,28 @@ export function LobbyPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1440px] text-[#f6f1e9]">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pt-1 pb-5">
-        <div>
-          <p className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
-            BOMB ARENA · LOBBY
-          </p>
-          <h1 className="mt-0.5 text-[clamp(1.65rem,4vw,2.4rem)] leading-none font-black tracking-[-0.065em] text-[#fff4e5]">
-            GAME LAB<span className="text-orange-400">.</span>
-          </h1>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-end gap-4">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[0.65rem] font-extrabold tracking-wider text-zinc-300">
+      {/* Top Banner */}
+      <div className="relative my-6 grid min-h-[250px] items-center gap-6 overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_80%_50%,rgba(255,137,68,0.16),transparent_30%),linear-gradient(115deg,rgba(40,43,46,0.96),rgba(19,22,26,0.96))] p-[clamp(1.3rem,4vw,2.5rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.9fr)]">
+        {/* Badge anclado arriba a la derecha */}
+        <div className="absolute top-6 right-6 z-20">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[0.65rem] font-extrabold tracking-wider text-zinc-300 backdrop-blur-sm">
             <span
               className={`h-[0.48rem] w-[0.48rem] rounded-full shadow-[0_0_10px_currentColor] ${
                 isGameConnected ? 'bg-emerald-400' : 'bg-red-400'
               }`}
             />
             {isGameConnected ? 'SOCKET ONLINE' : 'SOCKET OFFLINE'}
-          </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[0.65rem] font-extrabold text-zinc-300">
-            🎮 {user?.username ?? 'Jugador'}
-          </span>
+          </div>
         </div>
-      </header>
-
-      <div className="relative my-6 grid min-h-[250px] items-center gap-6 overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_80%_50%,rgba(255,137,68,0.16),transparent_30%),linear-gradient(115deg,rgba(40,43,46,0.96),rgba(19,22,26,0.96))] p-[clamp(1.3rem,4vw,2.5rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.9fr)]">
+        {/* Columna izquierda (Texto) */}
         <div className="relative z-10">
           <span className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
-            CONFIGURACIÓN DE PARTIDA · BACKEND AUTHORITATIVE
+            CONFIGURACIÓN DE PARTIDA
           </span>
+
           <h2 className="mt-2 mb-3 text-[clamp(2.5rem,6vw,4.4rem)] leading-[0.92] font-black tracking-[-0.075em] text-[#fff4e6]">
-            Entra en la
-            <br />
-            <em className="text-orange-400 not-italic">arena.</em>
+            Entra al 
+            <em className="text-orange-400 not-italic"> Lobby</em>
           </h2>
           <p className="max-w-[520px] text-sm leading-relaxed text-zinc-400">
             Configura tu partida. El servidor controla movimiento, bombas,
@@ -328,29 +289,17 @@ export function LobbyPage() {
           </p>
         </div>
 
+        {/* Columna derecha (Elemento decorativo) */}
         <div
-          className="relative w-[min(100%,370px)] -rotate-[4deg] justify-self-center"
+          className="relative w-[min(100%,370px)] justify-self-center"
           aria-hidden="true"
         >
-          <div className="absolute inset-[15%] rounded-full bg-orange-500/20 blur-[45px]" />
-          <div className="relative grid grid-cols-5 gap-1.5 rounded-xl border border-orange-200/25 bg-[#090c0f]/80 p-2 shadow-[0_25px_60px_rgba(0,0,0,0.4),0_0_40px_rgba(255,124,54,0.1)]">
-            {MENU_ART_CELLS.map((symbol, index) => (
-              <span
-                key={`${symbol}-${index}`}
-                className={`grid aspect-square place-items-center rounded-[0.3rem] border border-white/10 text-[clamp(1rem,3vw,2rem)] [text-shadow:0_0_12px_currentColor] ${artCellClass(
-                  index
-                )}`}
-              >
-                {symbol}
-              </span>
-            ))}
-          </div>
-          <div className="relative mt-2.5 text-right text-[0.58rem] font-black tracking-[0.23em] text-zinc-500">
-            BOMBS READY / PLAYER MODE
-          </div>
+          <span className="absolute inset-[15%] rounded-full bg-orange-500/20 blur-[45px]" />
+          {/* Add a decorative element here */}
         </div>
       </div>
 
+      {/* Messages */}
       {error && (
         <div
           role="alert"
@@ -523,11 +472,6 @@ export function LobbyPage() {
                           : ''
                     }`}
                   >
-                    <i className="bg-[#454c48] [&:nth-child(2n)]:bg-[#765037]" />
-                    <i className="bg-[#454c48] [&:nth-child(2n)]:bg-[#765037]" />
-                    <i className="bg-[#454c48] [&:nth-child(2n)]:bg-[#765037]" />
-                    <i className="bg-[#454c48] [&:nth-child(2n)]:bg-[#765037]" />
-                    <b className="absolute top-[40%] left-[42%] aspect-square w-[17%] rounded-full bg-[#ff9c51] shadow-[0_0_10px_#ff9c51]" />
                   </span>
                   <strong className="block text-[0.72rem] font-black tracking-wider">
                     {map.name}

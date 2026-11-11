@@ -43,6 +43,9 @@ const demoFriendships = [
   ['brivera', 'enogueir'],
   ['brivera', 'nsantand'],
   ['raperez-', 'enogueir'],
+  ['ozamora-', 'raperez-'],
+  ['ozamora-', 'enogueir'],
+  ['ozamora-', 'nsantand'],
 ];
 
 const achievements = [
