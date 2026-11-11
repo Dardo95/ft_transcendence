@@ -324,6 +324,7 @@ export function GameViewport() {
           scene.setPlayers(snapshot.players);
           scene.setBombs(snapshot.bombs);
           scene.setExplosions(snapshot.explosions);
+          scene.setPowerUps(snapshot.powerUps);
           // El tablero viaja en cada snapshot; la escena decide
           // si repinta (solo cuando una explosión cambia casillas).
           scene.setTiles(boardToTileMap(snapshot.board.tiles));
@@ -347,6 +348,8 @@ export function GameViewport() {
         sceneBombs = [...fixture.bombs, ...pilot.getBombs()];
         scene.setBombs(sceneBombs);
         scene.setExplosions([...fixture.explosions, ...pilot.getExplosions()]);
+        // La demo no genera power-ups.
+        scene.setPowerUps([]);
 
         scenePlayers = players;
         elapsedMs = scene.timeMs;

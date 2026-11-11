@@ -2,11 +2,13 @@ import type {
   BombSnapshot,
   ExplosionSnapshot,
   GamePlayerSnapshot,
+  PowerUpSnapshot,
 } from '@transcendence/shared';
 import { Assets, Container, Sprite, Texture } from 'pixi.js';
 
 import { BombLayer } from '../bombs/BombLayer';
 import { ExplosionLayer } from '../bombs/ExplosionLayer';
+import { PowerUpLayer } from '../bombs/PowerUpLayer';
 import { loadFxTextures } from '../bombs/textures';
 import { sameBoard } from '../map/boardConversion';
 import { getTileTexture, TILE_SIZE } from '../map/TileMap';
@@ -20,6 +22,7 @@ export class GameScene extends Container {
   private wallLayer = new Container();
   private tableLayer = new Container();
   private bombLayer = new BombLayer();
+  private powerUpLayer = new PowerUpLayer();
   private playerLayer = new PlayerLayer();
   private explosionLayer = new ExplosionLayer();
 
@@ -30,6 +33,7 @@ export class GameScene extends Container {
   private players: readonly GamePlayerSnapshot[];
   private bombs: readonly BombSnapshot[] = [];
   private explosions: readonly ExplosionSnapshot[] = [];
+  private powerUps: readonly PowerUpSnapshot[] = [];
   private nowMs = 0;
 
   constructor(map: number[][], players: readonly GamePlayerSnapshot[] = []) {
@@ -42,6 +46,9 @@ export class GameScene extends Container {
     this.addChild(this.blockLayer);
     this.addChild(this.tableLayer);
     this.addChild(this.wallLayer);
+    // Power-ups sobre el piso y bajo los jugadores: se ven al
+    // destruir la caja y se pisan para recogerlos.
+    this.addChild(this.powerUpLayer);
     this.addChild(this.bombLayer);
     this.addChild(this.playerLayer);
     this.addChild(this.explosionLayer);
@@ -66,6 +73,11 @@ export class GameScene extends Container {
   setExplosions(explosions: readonly ExplosionSnapshot[]): void {
     this.explosions = explosions;
     this.explosionLayer.setExplosions(explosions);
+  }
+
+  setPowerUps(powerUps: readonly PowerUpSnapshot[]): void {
+    this.powerUps = powerUps;
+    this.powerUpLayer.setPowerUps(powerUps);
   }
 
   /**
@@ -141,8 +153,10 @@ export class GameScene extends Container {
       this.playerLayer.setPlayers(this.players);
       this.bombLayer.setTextures(fxTextures);
       this.explosionLayer.setTextures(fxTextures);
+      this.powerUpLayer.setTextures(fxTextures);
       this.setBombs(this.bombs);
       this.setExplosions(this.explosions);
+      this.setPowerUps(this.powerUps);
       this.buildMap();
     } catch (error) {
       console.error('[GameScene] Failed to load assets:', error);

@@ -5,6 +5,9 @@ export const FX_TEXTURES = {
   explosionCenter: '/game/fx/explosion_center.png',
   explosionHorizontal: '/game/fx/explosion_horizontal.png',
   explosionVertical: '/game/fx/explosion_vertical.png',
+  powerUpExtraBomb: '/game/items/powerup_extrabomb.png',
+  powerUpBlastRadius: '/game/items/powerup_range.png',
+  powerUpSpeed: '/game/items/powerup_speed.png',
 } as const;
 
 export type FxTextureName = keyof typeof FX_TEXTURES;
