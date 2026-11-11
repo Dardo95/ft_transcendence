@@ -2,7 +2,11 @@ import type { GamePlayerSnapshot } from '@transcendence/shared';
 import { Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
 
 import { TILE_SIZE } from '../map/TileMap';
-import { exceedsSnapDistance, smoothTowards } from './interpolation';
+import {
+  exceedsSnapDistance,
+  segmentDuration,
+  segmentPosition,
+} from './interpolation';
 import { getPlayerLabel } from './types';
 
 const LABEL_GAP = 4;
@@ -19,8 +23,20 @@ export class PlayerSprite extends Container {
   private readonly namePlate = new Graphics();
   private readonly nameTag: Text;
 
-  private targetX = 0;
-  private targetY = 0;
+  // Par de snapshots en reproducción con retardo: se muestra
+  // `prev*` avanzando linealmente hacia `curr*` desde la
+  // llegada de este último. Anclar a las posiciones del
+  // servidor (y no a donde esté el sprite) mantiene la
+  // velocidad constante en tiempo real y evita el patrón de
+  // frames lentos/rápidos que se veía como tirones.
+  private prevX = 0;
+  private prevY = 0;
+  private currX = 0;
+  private currY = 0;
+  // Instante de escena en que llegó cada uno del par.
+  private prevArrivalMs = 0;
+  private currArrivalMs = 0;
+  private sceneMs = 0;
   private renderedX = 0;
   private renderedY = 0;
   private hasPosition = false;
@@ -55,26 +71,34 @@ export class PlayerSprite extends Container {
   }
 
   setPlayer(player: GamePlayerSnapshot): void {
-    this.targetX = player.position.x * TILE_SIZE;
-    this.targetY = player.position.y * TILE_SIZE;
+    const targetX = player.position.x * TILE_SIZE;
+    const targetY = player.position.y * TILE_SIZE;
 
     this.nameTag.text = getPlayerLabel(player);
     this.layoutNameTag();
 
     this.alpha = player.alive ? 1 : DEAD_ALPHA;
-    this.zIndex = this.targetY;
+    this.zIndex = targetY;
 
     if (
       !this.hasPosition ||
-      exceedsSnapDistance(
-        this.renderedX,
-        this.renderedY,
-        this.targetX,
-        this.targetY
-      )
+      exceedsSnapDistance(this.renderedX, this.renderedY, targetX, targetY)
     ) {
-      this.snapToTarget();
+      this.snapTo(targetX, targetY);
+      return;
     }
+
+    // El par se desplaza: el snapshot vigente pasa a `prev*`
+    // y el nuevo ocupa `curr*`. La reproducción arranca en la
+    // llegada (edad 0 → posición `prev*`), un snapshot por
+    // detrás, lo que deja el retraso constante y la velocidad
+    // exactamente la del servidor.
+    this.prevX = this.currX;
+    this.prevY = this.currY;
+    this.prevArrivalMs = this.currArrivalMs;
+    this.currX = targetX;
+    this.currY = targetY;
+    this.currArrivalMs = this.sceneMs;
   }
 
   setLabelsVisible(visible: boolean): void {
@@ -86,8 +110,17 @@ export class PlayerSprite extends Container {
       return;
     }
 
-    this.renderedX = smoothTowards(this.renderedX, this.targetX, deltaMs);
-    this.renderedY = smoothTowards(this.renderedY, this.targetY, deltaMs);
+    this.sceneMs += deltaMs;
+
+    // Edad desde la llegada de `curr*`: alcanza la duración
+    // (intervalo medido) justo cuando debe llegar el siguiente
+    // snapshot; si este tarda, el sprite espera en `curr*`
+    // (`segmentPosition` acota la edad a la duración).
+    const age = this.sceneMs - this.currArrivalMs;
+    const duration = segmentDuration(this.currArrivalMs - this.prevArrivalMs);
+
+    this.renderedX = segmentPosition(this.prevX, this.currX, age, duration);
+    this.renderedY = segmentPosition(this.prevY, this.currY, age, duration);
 
     this.position.set(Math.round(this.renderedX), Math.round(this.renderedY));
     this.zIndex = this.renderedY;
@@ -115,12 +148,20 @@ export class PlayerSprite extends Container {
       .stroke({ color: 0xffffff, alpha: 0.15, width: 1 });
   }
 
-  private snapToTarget(): void {
-    this.renderedX = this.targetX;
-    this.renderedY = this.targetY;
+  private snapTo(x: number, y: number): void {
+    // Par con origen y destino iguales: posición exacta y
+    // reproducción detenida en el destino.
+    this.prevX = x;
+    this.prevY = y;
+    this.currX = x;
+    this.currY = y;
+    this.prevArrivalMs = this.sceneMs;
+    this.currArrivalMs = this.sceneMs;
+    this.renderedX = x;
+    this.renderedY = y;
     this.hasPosition = true;
 
-    this.position.set(Math.round(this.renderedX), Math.round(this.renderedY));
+    this.position.set(Math.round(x), Math.round(y));
     this.zIndex = this.renderedY;
   }
 }

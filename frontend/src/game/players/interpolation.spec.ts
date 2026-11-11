@@ -1,45 +1,53 @@
 import { describe, expect, it } from 'vitest';
 
 import { TILE_SIZE } from '../map/TileMap';
-import { exceedsSnapDistance, smoothTowards } from './interpolation';
+import {
+  exceedsSnapDistance,
+  segmentDuration,
+  segmentPosition,
+} from './interpolation';
 
-function simulate(totalMs: number, frameMs: number, target = 100): number {
-  let value = 0;
-  let elapsed = 0;
-
-  while (elapsed < totalMs) {
-    value = smoothTowards(value, target, frameMs);
-    elapsed += frameMs;
-  }
-
-  return value;
-}
-
-describe('smoothTowards', () => {
-  it('approaches the target without ever overshooting', () => {
-    const value = simulate(2000, 16);
-
-    expect(value).toBeGreaterThan(99);
-    expect(value).toBeLessThanOrEqual(100);
+describe('segmentPosition', () => {
+  it('advances linearly from the start to the target', () => {
+    expect(segmentPosition(0, 100, 0, 50)).toBe(0);
+    expect(segmentPosition(0, 100, 25, 50)).toBe(50);
+    expect(segmentPosition(0, 100, 50, 50)).toBe(100);
   });
 
-  it('reaches nearly the same position at 60 and 30 fps', () => {
-    const at60 = simulate(1000, 16.67);
-    const at30 = simulate(1000, 33.33);
+  it('keeps a constant velocity inside the segment', () => {
+    // Misma distancia recorrida por cada fracción igual de tiempo:
+    // es lo que la interpolación exponencial no cumplía.
+    const first = segmentPosition(0, 12.8, 10, 50);
+    const second = segmentPosition(0, 12.8, 20, 50);
+    const third = segmentPosition(0, 12.8, 30, 50);
 
-    expect(Math.abs(at60 - at30)).toBeLessThan(1);
+    expect(second - first).toBeCloseTo(third - second);
   });
 
-  it('clamps very long deltas instead of jumping', () => {
-    const value = smoothTowards(0, 10, 10_000);
-
-    expect(value).toBeGreaterThan(9.9);
-    expect(value).toBeLessThan(10);
+  it('never overshoots when the next snapshot is late', () => {
+    expect(segmentPosition(0, 100, 500, 50)).toBe(100);
+    expect(segmentPosition(100, 0, 500, 50)).toBe(0);
   });
 
-  it('stays still when there is no elapsed time', () => {
-    expect(smoothTowards(5, 10, 0)).toBe(5);
-    expect(smoothTowards(5, 10, -50)).toBe(5);
+  it('treats a non-positive duration as a finished segment', () => {
+    expect(segmentPosition(0, 100, 0, 0)).toBe(100);
+    expect(segmentPosition(0, 100, 10, -5)).toBe(100);
+  });
+
+  it('starts at the origin when the age is negative', () => {
+    expect(segmentPosition(0, 100, -10, 50)).toBe(0);
+  });
+});
+
+describe('segmentDuration', () => {
+  it('uses the measured interval when it is within bounds', () => {
+    expect(segmentDuration(50)).toBe(50);
+    expect(segmentDuration(30)).toBe(30);
+  });
+
+  it('clamps bursts and long pauses', () => {
+    expect(segmentDuration(2)).toBe(25);
+    expect(segmentDuration(5_000)).toBe(100);
   });
 });
 
