@@ -1,11 +1,12 @@
 import type { ExplosionSnapshot } from '@transcendence/shared';
-import { Container, Sprite } from 'pixi.js';
+import { Container, Sprite, type DestroyOptions } from 'pixi.js';
 
 import { TILE_SIZE } from '../map/TileMap';
 import {
   classifyExplosionCells,
   type ExplosionCellKind,
 } from './explosionCells';
+import { spritePool } from './spritePool';
 import type { FxTextureMap, FxTextureName } from './textures';
 
 const MIN_DURATION_MS = 1;
@@ -43,7 +44,8 @@ export class ExplosionView extends Container {
         continue;
       }
 
-      const sprite = new Sprite(texture);
+      const sprite = spritePool.acquire();
+      sprite.texture = texture;
       sprite.anchor.set(0.5);
       sprite.width = TILE_SIZE;
       sprite.height = TILE_SIZE;
@@ -66,6 +68,19 @@ export class ExplosionView extends Container {
       this.durationMs = 0;
       this.hasDuration = false;
     }
+  }
+
+  override destroy(options?: DestroyOptions): void {
+    // Los sprites vuelven al pool en vez de destruirse: las
+    // explosiones son el churn más alto del juego (~500 ms).
+    for (const sprite of this.cellSprites) {
+      this.removeChild(sprite);
+      spritePool.release(sprite);
+    }
+
+    this.cellSprites.length = 0;
+
+    super.destroy(options);
   }
 
   isExpired(nowMs: number): boolean {
