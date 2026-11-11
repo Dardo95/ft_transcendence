@@ -71,6 +71,7 @@ export function GameViewport() {
     (searchParams.get('map') ?? DEFAULT_MAP_ID).toUpperCase()
   );
   const debugEnabled = searchParams.get('debug') === '1';
+  const isSpectator = searchParams.get('mode') === 'spectator';
 
   useEffect(() => {
     gameIdRef.current = routeGameId ?? 'demo';
@@ -559,7 +560,9 @@ export function GameViewport() {
     // responde, `onFailed` cae a la demo — y como ese camino es
     // asíncrono (timer/excepción), nunca hay setState síncrono
     // en el effect (regla react-hooks/set-state-in-effect).
-    connection.join(gameIdRef.current);
+    const spectatorMode =
+      new URLSearchParams(window.location.search).get('mode') === 'spectator';
+    connection.join(gameIdRef.current, { spectator: spectatorMode });
 
     const resizeObserver = new ResizeObserver(() => {
       if (destroyed || !appRef.current?.renderer) {
@@ -648,7 +651,7 @@ export function GameViewport() {
               </span>
             </div>
           )}
-          {endScreenState !== 'playing' && !endDismissed && (
+          {!isSpectator && endScreenState !== 'playing' && !endDismissed && (
             <EndScreenOverlay
               state={endScreenState}
               onReturnToLobby={() => navigate('/lobby')}

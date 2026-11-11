@@ -195,6 +195,31 @@ describe('GameConnection', () => {
     expect(joins[1]?.payload).toEqual({ gameId: 'abc' });
   });
 
+  it('requests spectator mode and never sends input', () => {
+    connection.join('abc', { spectator: true });
+
+    expect(socket.emitted('game:join')[0]?.payload).toEqual({
+      gameId: 'abc',
+      spectator: true,
+    });
+
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
+
+    connection.sendMovement({
+      up: true,
+      down: false,
+      left: false,
+      right: false,
+    });
+    connection.sendBomb();
+    connection.destroy();
+
+    expect(socket.emitted('game:input')).toHaveLength(0);
+  });
+
   it('sends movement and bombs only once joined', () => {
     connection.join('abc');
     connection.sendMovement({
