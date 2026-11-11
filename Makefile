@@ -193,9 +193,7 @@ test: node_modules
 	pnpm run test
 	@echo ""
 
-allcheck: node_modules
-	@echo "$(CYAN)Running all QA checks...$(RESET)"
-	pnpm run allcheck
+allcheck: node_modules buildcheck typecheck lint formatcheck test
 	@echo "$(GREEN)All QA checks passed successfully.$(RESET)"
 	@echo ""
 
