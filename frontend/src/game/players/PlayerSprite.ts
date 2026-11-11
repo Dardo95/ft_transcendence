@@ -40,6 +40,9 @@ export class PlayerSprite extends Container {
   private renderedX = 0;
   private renderedY = 0;
   private hasPosition = false;
+  // Última etiqueta pintada en la placa: si no cambia, no se
+  // redibuja el Graphics (se haría en cada snapshot, 20 Hz).
+  private lastLabel = '';
 
   constructor(player: GamePlayerSnapshot, texture: Texture) {
     super();
@@ -74,8 +77,13 @@ export class PlayerSprite extends Container {
     const targetX = player.position.x * TILE_SIZE;
     const targetY = player.position.y * TILE_SIZE;
 
-    this.nameTag.text = getPlayerLabel(player);
-    this.layoutNameTag();
+    const label = getPlayerLabel(player);
+
+    if (label !== this.lastLabel) {
+      this.lastLabel = label;
+      this.nameTag.text = label;
+      this.layoutNameTag();
+    }
 
     this.alpha = player.alive ? 1 : DEAD_ALPHA;
     this.zIndex = targetY;

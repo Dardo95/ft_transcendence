@@ -40,6 +40,7 @@ export class DemoPilot {
   private explosions: ExplosionSnapshot[] = [];
   private lastNowMs = 0;
   private moved = false;
+  private changed = false;
   private nextBombIndex = 0;
 
   constructor(
@@ -94,6 +95,7 @@ export class DemoPilot {
       detonateAt: this.lastNowMs + FUSE_MS,
       blastRadius: this.localPlayer.blastRadius,
     });
+    this.changed = true;
   }
 
   getBombs(): readonly BombSnapshot[] {
@@ -108,6 +110,17 @@ export class DemoPilot {
     const moved = this.moved;
     this.moved = false;
     return moved;
+  }
+
+  /**
+   * true si desde el último consumo cambió alguna de las listas
+   * (colocación, detonación o expiración): permite a la vista
+   * repintar solo cuando hay algo nuevo.
+   */
+  consumeChanged(): boolean {
+    const changed = this.changed;
+    this.changed = false;
+    return changed;
   }
 
   update(
@@ -231,6 +244,10 @@ export class DemoPilot {
       return true;
     });
 
+    if (detonated.length > 0) {
+      this.changed = true;
+    }
+
     for (const bomb of detonated) {
       this.explosions.push({
         id: `${bomb.id}:explosion`,
@@ -239,8 +256,14 @@ export class DemoPilot {
       });
     }
 
+    const explosionsBefore = this.explosions.length;
+
     this.explosions = this.explosions.filter(
       (explosion) => nowMs < explosion.expiresAt
     );
+
+    if (this.explosions.length < explosionsBefore) {
+      this.changed = true;
+    }
   }
 }

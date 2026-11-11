@@ -5,6 +5,7 @@ import type {
 import { describe, expect, it } from 'vitest';
 
 import { testMap } from '../map/TileMap';
+import { FUSE_MS } from '../bombs/demoBombs';
 import { DemoPilot } from './demoPilot';
 
 function createPilot(
@@ -50,6 +51,20 @@ describe('DemoPilot', () => {
 
     expect(players[0].position.x).toBe(1.5);
     expect(pilot.consumeMoved()).toBe(false);
+  });
+
+  it('reports bomb list changes once per change', () => {
+    const { pilot } = createPilot(1.5, 1.5);
+
+    // Colocación.
+    pilot.placeBomb();
+    expect(pilot.consumeChanged()).toBe(true);
+    expect(pilot.consumeChanged()).toBe(false);
+
+    // Detonación al vencer la mecha (bomba → explosión).
+    pilot.update(FUSE_MS + 1, 16);
+    expect(pilot.consumeChanged()).toBe(true);
+    expect(pilot.consumeChanged()).toBe(false);
   });
 
   it('normalizes diagonal speed like the backend', () => {

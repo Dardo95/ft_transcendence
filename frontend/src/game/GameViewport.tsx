@@ -30,6 +30,8 @@ const DEFAULT_MAP_ID = 'map1';
 // Suavizado de la cámara (mismo enfoque exponencial que la
 // interpolación de jugadores): estable a 60 y 120 fps.
 const CAMERA_FOLLOW = 8;
+// Cadencia del muestreo del overlay de FPS (?debug=1).
+const FPS_SAMPLE_MS = 1000;
 
 /**
  * Fases de la vista:
@@ -52,6 +54,8 @@ export function GameViewport() {
   const [endScreenState, setEndScreenState] =
     useState<EndScreenState>('playing');
   const [endDismissed, setEndDismissed] = useState(false);
+  // Overlay de rendimiento: solo con ?debug=1 en la URL.
+  const [debugFps, setDebugFps] = useState<number | null>(null);
   const navigate = useNavigate();
 
   // El id vive en la ruta (/game/:id); una ref permite que el
@@ -62,6 +66,7 @@ export function GameViewport() {
   const mapIdRef = useRef(
     (searchParams.get('map') ?? DEFAULT_MAP_ID).toUpperCase()
   );
+  const debugEnabled = searchParams.get('debug') === '1';
 
   useEffect(() => {
     gameIdRef.current = routeGameId ?? 'demo';
@@ -148,12 +153,28 @@ export function GameViewport() {
       resolveAppReady = () => resolve();
     });
 
-    // Último estado del HUD ya pintado: solo re-renderizamos
-    // React cuando el modelo cambia (el reloj, 1 vez/s).
-    let lastHudKey = '';
+    // Debug (?debug=1): muestreo del FPS a 1 Hz.
+    const debugFpsEnabled =
+      new URLSearchParams(window.location.search).get('debug') === '1';
+    let lastFpsAt = 0;
+
+    // Último estado del HUD aplicado: el modelo solo se
+    // reconstruye cuando cambia algo visible (reloj, bombas
+    // propias, jugadores en pie o stats) en vez de a 60 Hz.
+    let lastHudSecond = -1;
+    let lastHudOwnBombs = -1;
+    let lastHudAlive = -1;
+    let lastHudLocalId = '';
+    let lastHudLocalAlive = false;
+    let lastHudCapacity = -1;
+    let lastHudBlast = -1;
+    let lastHudSpeed = -1;
     // Último estado de fin de partida aplicado: solo cambiamos
     // el estado de React cuando cambia el resultado.
     let lastEndScreen: EndScreenState = 'playing';
+    // Fases del fixture de demo ya aplicadas a la escena.
+    let lastFixtureBombs = -1;
+    let lastFixtureExplosions = -1;
 
     // Cámara: viewport visible + desplazamiento actual de la
     // escena. El objetivo se recalcula cada tick siguiendo al
@@ -308,6 +329,15 @@ export function GameViewport() {
     keyboard.attach();
 
     const tick = (ticker: Ticker) => {
+      if (debugFpsEnabled) {
+        const now = performance.now();
+
+        if (now - lastFpsAt >= FPS_SAMPLE_MS) {
+          lastFpsAt = now;
+          setDebugFps(Math.round(app.ticker.FPS));
+        }
+      }
+
       const scene = sceneRef.current;
 
       if (!scene) {
@@ -330,9 +360,15 @@ export function GameViewport() {
           return;
         }
 
+        const isNewSnapshot = snapshot !== appliedSnapshot;
+        // Mismo fallback que la cámara: si la identidad local no
+        // está disponible aún, se pinta con el primer jugador en
+        // vez de dejar el HUD vacío.
+        hudLocalId = serverLocalId() ?? snapshot.players[0]?.id ?? null;
+
         // Aplicar el snapshot solo cuando llega uno nuevo: el
         // resto de frames se encarga la interpolación.
-        if (snapshot !== appliedSnapshot) {
+        if (isNewSnapshot) {
           appliedSnapshot = snapshot;
           scene.setPlayers(snapshot.players);
           scene.setBombs(snapshot.bombs);
@@ -341,16 +377,15 @@ export function GameViewport() {
           // El tablero viaja en cada snapshot; la escena decide
           // si repinta (solo cuando una explosión cambia casillas).
           scene.setTiles(boardToTileMap(snapshot.board.tiles));
+          nextEndScreen = deriveEndScreen(snapshot, hudLocalId);
+        } else {
+          // Sin snapshot nuevo no hay nada nuevo que derivar.
+          nextEndScreen = lastEndScreen;
         }
 
         scenePlayers = snapshot.players;
         sceneBombs = snapshot.bombs;
         elapsedMs = snapshot.elapsedMs;
-        // Mismo fallback que la cámara: si la identidad local no
-        // está disponible aún, se pinta con el primer jugador en
-        // vez de dejar el HUD vacío.
-        hudLocalId = serverLocalId() ?? snapshot.players[0]?.id ?? null;
-        nextEndScreen = deriveEndScreen(snapshot, hudLocalId);
       } else {
         const fixture = demoBombStateAt(scene.timeMs);
         pilot.update(scene.timeMs, ticker.deltaMS, fixture.explosions);
@@ -359,12 +394,26 @@ export function GameViewport() {
           scene.setPlayers(players);
         }
 
-        sceneBombs = [...fixture.bombs, ...pilot.getBombs()];
-        scene.setBombs(sceneBombs);
-        scene.setExplosions([...fixture.explosions, ...pilot.getExplosions()]);
-        // La demo no genera power-ups.
-        scene.setPowerUps([]);
+        // Repintar bombas/explosiones solo cuando las listas
+        // cambian (fases del fixture o bombas del piloto). La
+        // demo no genera power-ups y la escena arranca vacía.
+        const pilotChanged = pilot.consumeChanged();
+        const pilotBombs = pilot.getBombs();
+        const pilotExplosions = pilot.getExplosions();
+        const fixtureChanged =
+          fixture.bombs.length !== lastFixtureBombs ||
+          fixture.explosions.length !== lastFixtureExplosions;
 
+        if (pilotChanged || fixtureChanged) {
+          lastFixtureBombs = fixture.bombs.length;
+          lastFixtureExplosions = fixture.explosions.length;
+          scene.setBombs([...fixture.bombs, ...pilotBombs]);
+          scene.setExplosions([...fixture.explosions, ...pilotExplosions]);
+        }
+
+        // Para el HUD solo cuentan las bombas del piloto (las
+        // del fixture son de otro propietario).
+        sceneBombs = pilotBombs;
         scenePlayers = players;
         elapsedMs = scene.timeMs;
         hudLocalId = LOCAL_PLAYER_ID;
@@ -399,22 +448,63 @@ export function GameViewport() {
         return;
       }
 
-      const model = buildHudModel(
-        scenePlayers,
-        sceneBombs,
-        hudLocalId,
-        elapsedMs,
-        {
-          map: activeMap,
-          gameId: gameIdRef.current,
-          mapId: mapIdRef.current,
-        }
-      );
-      const hudKey = JSON.stringify(model);
+      // HUD: reconstruir el modelo solo cuando cambia algo que
+      // se muestra (reloj, bombas propias, vivos o stats). El
+      // modelo y su comparación dejan de correr a 60 Hz.
+      const clockSecond = Math.floor(elapsedMs / 1000);
+      let ownBombs = 0;
+      let aliveCount = 0;
+      let localAlive = false;
+      let localCapacity = 0;
+      let localBlast = 0;
+      let localSpeed = 0;
 
-      if (hudKey !== lastHudKey) {
-        lastHudKey = hudKey;
-        setHudModel(model);
+      for (const player of scenePlayers) {
+        if (player.alive) {
+          aliveCount++;
+        }
+
+        if (player.id === hudLocalId) {
+          localAlive = player.alive;
+          localCapacity = player.bombCapacity;
+          localBlast = player.blastRadius;
+          localSpeed = player.speed;
+        }
+      }
+
+      for (const bomb of sceneBombs) {
+        if (bomb.ownerId === hudLocalId) {
+          ownBombs++;
+        }
+      }
+
+      const hudChanged =
+        clockSecond !== lastHudSecond ||
+        ownBombs !== lastHudOwnBombs ||
+        aliveCount !== lastHudAlive ||
+        hudLocalId !== lastHudLocalId ||
+        localAlive !== lastHudLocalAlive ||
+        localCapacity !== lastHudCapacity ||
+        localBlast !== lastHudBlast ||
+        localSpeed !== lastHudSpeed;
+
+      if (hudChanged) {
+        lastHudSecond = clockSecond;
+        lastHudOwnBombs = ownBombs;
+        lastHudAlive = aliveCount;
+        lastHudLocalId = hudLocalId;
+        lastHudLocalAlive = localAlive;
+        lastHudCapacity = localCapacity;
+        lastHudBlast = localBlast;
+        lastHudSpeed = localSpeed;
+
+        setHudModel(
+          buildHudModel(scenePlayers, sceneBombs, hudLocalId, elapsedMs, {
+            map: activeMap,
+            gameId: gameIdRef.current,
+            mapId: mapIdRef.current,
+          })
+        );
       }
 
       if (nextEndScreen !== lastEndScreen) {
@@ -525,8 +615,8 @@ export function GameViewport() {
   }, []);
 
   return (
-    <div className="flex w-full flex-col gap-3 p-3 lg:h-[calc(100dvh-80px)] lg:flex-row lg:overflow-hidden">
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
+    <div className="flex w-full flex-col gap-2 p-2 lg:h-[calc(100dvh-80px)] lg:flex-row lg:overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         {hudModel && (
           <GameTopBar
             model={hudModel}
@@ -540,7 +630,7 @@ export function GameViewport() {
           className={`relative overflow-hidden bg-zinc-950 ${
             isFullscreen
               ? 'h-screen w-screen rounded-none'
-              : 'h-[55vh] min-h-[320px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
+              : 'h-[70vh] min-h-[320px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
           }`}
           style={{ imageRendering: 'pixelated' }}
           aria-label="Game viewport"
@@ -558,6 +648,11 @@ export function GameViewport() {
               onReturnToLobby={() => navigate('/lobby')}
               onKeepWatching={() => setEndDismissed(true)}
             />
+          )}
+          {debugEnabled && debugFps !== null && (
+            <div className="absolute right-2 bottom-2 z-10 rounded bg-zinc-950/80 px-2 py-1 font-mono text-xs text-amber-300">
+              FPS {debugFps}
+            </div>
           )}
         </div>
       </div>
