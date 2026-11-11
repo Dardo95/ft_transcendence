@@ -4,12 +4,14 @@ import type {
   GameSnapshot,
 } from '@transcendence/shared';
 import { Application, type Ticker } from 'pixi.js';
+
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { useLanguage } from '../locales/useLanguage';
+
 import { gameSocket } from '../lib/socket';
+
 import { approach, computeSceneOffset, type CameraViewport } from './camera';
 import { demoBombStateAt } from './bombs/demoBombs';
 import { EndScreenOverlay } from './EndScreenOverlay';
@@ -42,6 +44,8 @@ const FPS_SAMPLE_MS = 1000;
 type ViewMode = 'connecting' | 'server' | 'demo';
 
 export function GameViewport() {
+  // The page is intentionally a thin route shell; all game lifecycle and
+  // rendering state belongs to this component and its focused collaborators.
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
@@ -276,6 +280,8 @@ export function GameViewport() {
       fitMap();
     };
 
+    // GameConnection owns join/reconnect/input protocol details. This
+    // component translates its snapshots into the Pixi scene and HUD.
     const connection = new GameConnection(gameSocket, {
       onJoined: (snapshot) => {
         if (destroyed) {
