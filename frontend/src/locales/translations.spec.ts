@@ -4,7 +4,7 @@ import { translations } from './translations';
 
 describe('hud translations', () => {
   const LANGUAGES = ['es', 'en', 'it'] as const;
-  const SECTIONS = ['hud', 'topbar', 'sidebar', 'legend'] as const;
+  const SECTIONS = ['hud', 'topbar', 'sidebar', 'legend', 'endScreen'] as const;
 
   it('defines every hud section key in all three languages', () => {
     for (const section of SECTIONS) {

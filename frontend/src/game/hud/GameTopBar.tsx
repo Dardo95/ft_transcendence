@@ -1,5 +1,6 @@
 import {
   ClockIcon,
+  LogOutIcon,
   MapIcon,
   type LucideIcon,
   Maximize2Icon,
@@ -21,17 +22,20 @@ interface GameTopBarProps {
   model: HudModel;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
+  onLeave: () => void;
 }
 
 /**
  * Cabecera de la partida sobre el canvas: identidad del juego
  * (modo, dimensiones e id), fila de estadísticas generales
- * (tiempo, supervivientes y mapa) y botón de pantalla completa.
+ * (tiempo, supervivientes y mapa), salir de la partida y
+ * botón de pantalla completa.
  */
 export function GameTopBar({
   model,
   isFullscreen,
   onToggleFullscreen,
+  onLeave,
 }: GameTopBarProps) {
   const { t } = useLanguage();
   const totalPlayers = 1 + model.rivals.length;
@@ -67,23 +71,44 @@ export function GameTopBar({
           </p>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={onToggleFullscreen}
-          aria-pressed={isFullscreen}
-          className="h-9 gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0 aria-pressed:border-orange-500 aria-pressed:bg-orange-500 aria-pressed:text-white"
-        >
-          {isFullscreen ? (
-            <Minimize2Icon className="h-4 w-4 text-white" aria-hidden="true" />
-          ) : (
-            <Maximize2Icon
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onLeave}
+            aria-label={t('app.topbar.leave')}
+            title={t('app.topbar.leave')}
+            className="h-9 gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0"
+          >
+            <LogOutIcon
               className="h-4 w-4 text-orange-500"
               aria-hidden="true"
             />
-          )}
-        </Button>
+            <span>{t('app.topbar.leave')}</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onToggleFullscreen}
+            aria-pressed={isFullscreen}
+            className="h-9 gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0 aria-pressed:border-orange-500 aria-pressed:bg-orange-500 aria-pressed:text-white"
+          >
+            {isFullscreen ? (
+              <Minimize2Icon
+                className="h-4 w-4 text-white"
+                aria-hidden="true"
+              />
+            ) : (
+              <Maximize2Icon
+                className="h-4 w-4 text-orange-500"
+                aria-hidden="true"
+              />
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-x-8 gap-y-2 border-t border-zinc-800 pt-3">

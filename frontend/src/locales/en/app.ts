@@ -143,6 +143,14 @@ export const appEn = {
     survivors: 'Survivors',
     map: 'Map',
     exitFullscreen: 'Exit fullscreen',
+    leave: 'Leave',
+  },
+  endScreen: {
+    deadTitle: 'bye bye goodbye',
+    victoryTitle: 'You win',
+    defeatTitle: 'You lose',
+    returnLobby: 'Back to lobby',
+    keepWatching: 'Keep watching',
   },
   sidebar: {
     inKitchen: 'In the kitchen',

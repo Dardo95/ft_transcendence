@@ -144,6 +144,14 @@ export const appIt = {
     survivors: 'Sopravvissuti',
     map: 'Mappa',
     exitFullscreen: 'Esci da schermo intero',
+    leave: 'Esci',
+  },
+  endScreen: {
+    deadTitle: 'ciao ciao arrivederci',
+    victoryTitle: 'Hai vinto',
+    defeatTitle: 'Hai perso',
+    returnLobby: 'Torna alla lobby',
+    keepWatching: 'Continua a guardare',
   },
   sidebar: {
     inKitchen: 'In cucina',

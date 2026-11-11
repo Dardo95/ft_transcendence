@@ -5,13 +5,15 @@ import type {
 } from '@transcendence/shared';
 import { Application, type Ticker } from 'pixi.js';
 import { useEffect, useRef, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { useLanguage } from '../locales/useLanguage';
 import { gameSocket } from '../lib/socket';
 import { approach, computeSceneOffset, type CameraViewport } from './camera';
 import { demoBombStateAt } from './bombs/demoBombs';
+import { EndScreenOverlay } from './EndScreenOverlay';
+import { deriveEndScreen, type EndScreenState } from './endScreen';
 import { GameSidebar } from './hud/GameSidebar';
 import { buildHudModel, type HudModel } from './hud/hudModel';
 import { GameTopBar } from './hud/GameTopBar';
@@ -45,6 +47,12 @@ export function GameViewport() {
   const [hudModel, setHudModel] = useState<HudModel | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('connecting');
+  // Pantalla de fin (muerte/victoria/derrota) y su descarte
+  // manual ("seguir viendo") hasta que cambie el resultado.
+  const [endScreenState, setEndScreenState] =
+    useState<EndScreenState>('playing');
+  const [endDismissed, setEndDismissed] = useState(false);
+  const navigate = useNavigate();
 
   // El id vive en la ruta (/game/:id); una ref permite que el
   // tick lea el valor actual sin recrear el effect completo.
@@ -143,6 +151,9 @@ export function GameViewport() {
     // Último estado del HUD ya pintado: solo re-renderizamos
     // React cuando el modelo cambia (el reloj, 1 vez/s).
     let lastHudKey = '';
+    // Último estado de fin de partida aplicado: solo cambiamos
+    // el estado de React cuando cambia el resultado.
+    let lastEndScreen: EndScreenState = 'playing';
 
     // Cámara: viewport visible + desplazamiento actual de la
     // escena. El objetivo se recalcula cada tick siguiendo al
@@ -309,6 +320,8 @@ export function GameViewport() {
       let sceneBombs: readonly BombSnapshot[];
       let elapsedMs: number;
       let hudLocalId: string | null;
+      // La demo nunca termina: solo la rama servidor la calcula.
+      let nextEndScreen: EndScreenState = 'playing';
 
       if (currentMode === 'server') {
         const snapshot = latestSnapshot;
@@ -337,6 +350,7 @@ export function GameViewport() {
         // está disponible aún, se pinta con el primer jugador en
         // vez de dejar el HUD vacío.
         hudLocalId = serverLocalId() ?? snapshot.players[0]?.id ?? null;
+        nextEndScreen = deriveEndScreen(snapshot, hudLocalId);
       } else {
         const fixture = demoBombStateAt(scene.timeMs);
         pilot.update(scene.timeMs, ticker.deltaMS, fixture.explosions);
@@ -401,6 +415,14 @@ export function GameViewport() {
       if (hudKey !== lastHudKey) {
         lastHudKey = hudKey;
         setHudModel(model);
+      }
+
+      if (nextEndScreen !== lastEndScreen) {
+        lastEndScreen = nextEndScreen;
+        setEndScreenState(nextEndScreen);
+        // Un resultado nuevo vuelve a mostrar la pantalla (si
+        // el jugador había descartado la de muerte).
+        setEndDismissed(false);
       }
     };
 
@@ -510,6 +532,7 @@ export function GameViewport() {
             model={hudModel}
             isFullscreen={isFullscreen}
             onToggleFullscreen={toggleFullscreen}
+            onLeave={() => navigate('/lobby')}
           />
         )}
         <div
@@ -528,6 +551,13 @@ export function GameViewport() {
                 {t('app.general.connecting') || 'Connecting...'}
               </span>
             </div>
+          )}
+          {endScreenState !== 'playing' && !endDismissed && (
+            <EndScreenOverlay
+              state={endScreenState}
+              onReturnToLobby={() => navigate('/lobby')}
+              onKeepWatching={() => setEndDismissed(true)}
+            />
           )}
         </div>
       </div>

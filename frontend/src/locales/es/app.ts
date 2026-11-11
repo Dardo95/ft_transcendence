@@ -145,6 +145,14 @@ export const appEs = {
     survivors: 'Supervivientes',
     map: 'Mapa',
     exitFullscreen: 'Salir de pantalla completa',
+    leave: 'Salir',
+  },
+  endScreen: {
+    deadTitle: 'chau chao adios',
+    victoryTitle: 'Ganaste',
+    defeatTitle: 'Perdiste',
+    returnLobby: 'Volver al lobby',
+    keepWatching: 'Seguir viendo',
   },
   sidebar: {
     inKitchen: 'En la cocina',
