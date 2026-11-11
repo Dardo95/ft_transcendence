@@ -1,4 +1,12 @@
 import { Link } from 'react-router-dom';
+import {
+  BookOpenIcon,
+  ChefHatIcon,
+  GamepadIcon,
+  PackageIcon,
+  TrophyIcon,
+  XIcon,
+} from 'lucide-react';
 import { useLanguage } from '../../../locales/useLanguage';
 
 interface SideDrawerProps {
@@ -32,7 +40,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               className="p-1 text-lg font-bold text-zinc-400 hover:text-white"
               aria-label="Close navigation drawer"
             >
-              ✕
+              <XIcon className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
 
@@ -43,7 +51,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               onClick={onClose}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
-              <span>🍳</span>
+              <GamepadIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.lobby') || 'Lobby'}</span>
             </Link>
             <Link
@@ -51,7 +59,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               onClick={onClose}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
-              <span>🏆</span>
+              <TrophyIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.general.stats') || 'Game Statistics'}</span>
             </Link>
             <Link
@@ -59,7 +67,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               onClick={onClose}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
-              <span>📖</span>
+              <BookOpenIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.general.aboutGame') || 'Rules'}</span>
             </Link>
 
@@ -68,7 +76,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               onClick={onClose}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
-              <span>📦</span>
+              <PackageIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.general.aboutProject') || 'Project'}</span>
             </Link>
 
@@ -77,7 +85,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               onClick={onClose}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
             >
-              <span>👨‍🍳</span>
+              <ChefHatIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.general.aboutUs') || 'About Us'}</span>
             </Link>
           </nav>

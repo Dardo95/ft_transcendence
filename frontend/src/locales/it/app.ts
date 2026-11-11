@@ -93,6 +93,9 @@ export const appIt = {
       'Sono necessari almeno 2 giocatori per iniziare in pubblico.',
     practiceInfoText:
       'Puoi iniziare la pratica in qualsiasi momento, poiché è un gioco 1v1 contro un bot.',
+    matchmakingFailed: 'Impossibile avviare la partita. Riprova.',
+    matchmakingActiveGame:
+      'Hai già una partita in corso. Falla terminare prima di iniziarne una nuova.',
   },
   friends: {
     friendList: 'Lista amici',
@@ -122,5 +125,47 @@ export const appIt = {
     sent: 'Inviata',
     add: '+ Aggiungi',
     noResults: 'Nessun risultato trovato.',
+  },
+  hud: {
+    health: 'Vite',
+    bombs: 'Pentole',
+    blast: 'Vapore',
+    speed: 'Caffè',
+    time: 'Tempo',
+    rivals: 'Avversari',
+    remaining: 'Rimanenti',
+    alive: 'In piedi',
+    down: 'Fuori',
+  },
+
+  topbar: {
+    practiceMatch: 'Partita pratica',
+    time: 'Tempo',
+    survivors: 'Sopravvissuti',
+    map: 'Mappa',
+    exitFullscreen: 'Esci da schermo intero',
+    leave: 'Esci',
+  },
+  endScreen: {
+    deadTitle: 'ciao ciao arrivederci',
+    victoryTitle: 'Hai vinto',
+    defeatTitle: 'Hai perso',
+    returnLobby: 'Torna alla lobby',
+    keepWatching: 'Continua a guardare',
+  },
+  sidebar: {
+    inKitchen: 'In cucina',
+    yourStats: 'Le tue statistiche',
+    you: 'Tu',
+    bombs: 'Bombe',
+    blast: 'Raggio',
+    speed: 'Velocità',
+  },
+  legend: {
+    title: 'Informazioni',
+    wall: 'Muro indivisibile',
+    crate: 'Muro distruttibile',
+    bomb: 'Bomba',
+    powerUp: 'Power-up',
   },
 } as const;

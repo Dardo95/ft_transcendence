@@ -11,7 +11,7 @@ import { Bubble, BubbleContent } from '@/components/ui/bubble';
 import { Message, MessageContent } from '@/components/ui/message';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SendIcon } from 'lucide-react';
+import { MessageSquareIcon, SendIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
@@ -104,7 +104,7 @@ export function LobbyChat() {
       {/* Chat header */}
       <div className="mb-2 flex items-center justify-between border-b border-zinc-800 pb-2">
         <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-zinc-300 uppercase">
-          <span>💬</span>
+          <MessageSquareIcon className="h-3.5 w-3.5" aria-hidden="true" />
           <span>{t('app.lobby.lobbyChat') || 'Lobby Chat'}</span>
         </h4>
 

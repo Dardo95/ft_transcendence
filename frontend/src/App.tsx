@@ -13,7 +13,7 @@
  * - Manage feature-specific state.
  */
 
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './features/auth/store/useAuthStore';
 
@@ -26,7 +26,6 @@ import { AppLayoutPublic } from './components/layout/public/AppLayoutPublic';
 
 import { LandingPage } from './pages/LandingPage';
 import { LobbyPage } from './pages/LobbyPage';
-import { GamePage } from './pages/GamePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { StatsPage } from './pages/StatsPage';
 import { RulesPage } from './pages/RulesPage';
@@ -35,6 +34,11 @@ import { ProjectPage } from './pages/ProjectPage';
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+
+const GamePage = lazy(async () => {
+  const module = await import('./pages/GamePage');
+  return { default: module.GamePage };
+});
 
 export default function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -74,7 +78,16 @@ export default function App() {
             <Route path="/lobby" element={<LobbyPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/stats" element={<StatsPage />} />
-            <Route path="/game/:id?" element={<GamePage />} />
+            <Route
+              path="/game/:id"
+              element={
+                <Suspense
+                  fallback={<div className="fixed inset-0 bg-slate-950" />}
+                >
+                  <GamePage />
+                </Suspense>
+              }
+            />
           </Route>
         </Route>
 

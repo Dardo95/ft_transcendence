@@ -37,14 +37,28 @@ export const useSocketStore = create<SocketState>((set, get) => {
     socket: chatSocket,
 
     connect: () => {
-      if (!chatSocket.connected && !get().sessionReplaced) {
+      if (get().sessionReplaced) {
+        return;
+      }
+
+      if (!chatSocket.connected) {
         chatSocket.connect();
+      }
+
+      // El gateway /game vive en un socket aparte: sin esto
+      // nadie lo conecta nunca (autoConnect: false).
+      if (!gameSocket.connected) {
+        gameSocket.connect();
       }
     },
 
     disconnect: () => {
       if (chatSocket.connected) {
         chatSocket.disconnect();
+      }
+
+      if (gameSocket.connected) {
+        gameSocket.disconnect();
       }
     },
   };
