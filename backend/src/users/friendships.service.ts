@@ -5,11 +5,17 @@ import {
 } from '@nestjs/common';
 import type { UserPublic } from '@transcendence/shared';
 import { PrismaService } from '../database/prisma.service.js';
+import { GameManagerService } from '../game/sessions/game-manager.service.js';
+import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 import { toUserPublic } from './user.mapper.js';
 
 @Injectable()
 export class FriendshipsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly gameManager: GameManagerService,
+    private readonly registry: SocketRegistryService
+  ) {}
 
   private async getUserOrThrow(username: string) {
     const user = await this.prisma.user.findUnique({
@@ -197,11 +203,6 @@ export class FriendshipsService {
             isOnline: true,
             createdAt: true,
             avatarUrl: true,
-            matchPlayers: {
-              where: { match: { status: 'IN_PROGRESS' } },
-              include: { match: { select: { id: true } } },
-              take: 1,
-            },
           },
         },
         addressee: {
@@ -212,23 +213,25 @@ export class FriendshipsService {
             isOnline: true,
             avatarUrl: true,
             createdAt: true,
-            matchPlayers: {
-              where: { match: { status: 'IN_PROGRESS' } },
-              include: { match: { select: { id: true } } },
-              take: 1,
-            },
           },
         },
       },
     });
     return rows.map((r: any) => {
       const user = r.requesterId === meId ? r.addressee : r.requester;
-      const playing = user.matchPlayers.length > 0;
-      const status = playing ? 'in_game' : user.isOnline ? 'online' : 'offline';
+      const currentGameId = this.gameManager.getActiveGameIdForUser(user.id);
+      // La presencia se deriva de las conexiones vivas (y de las partidas en
+      // memoria) en vez de `User.isOnline`, que puede quedar obsoleto tras un
+      // reinicio o una desconexión no limpia del backend.
+      const status = currentGameId
+        ? 'in_game'
+        : this.registry.isOnline('chat', user.id)
+          ? 'online'
+          : 'offline';
       return {
         ...toUserPublic(user),
         status,
-        currentGameId: playing ? String(user.matchPlayers[0].match.id) : null,
+        currentGameId,
       };
     });
   }

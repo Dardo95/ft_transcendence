@@ -50,4 +50,13 @@ export class SocketRegistryService {
   isCurrent(namespace: string, userId: number, socketId: string): boolean {
     return this.sockets.get(namespace)?.get(userId)?.id === socketId;
   }
+
+  /**
+   * Presencia autoritativa mientras el proceso está vivo. A diferencia de
+   * `User.isOnline`, no se queda obsoleta tras un reinicio del backend: si
+   * no hay socket registrado, el usuario está offline.
+   */
+  isOnline(namespace: string, userId: number): boolean {
+    return this.sockets.get(namespace)?.has(userId) ?? false;
+  }
 }

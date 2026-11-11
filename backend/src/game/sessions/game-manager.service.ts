@@ -105,6 +105,15 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
    * para mantener compatible el motor con sus identificadores.
    */
   hasActiveSessionForUser(userId: number | string): boolean {
+    return this.getActiveGameIdForUser(userId) !== null;
+  }
+
+  /**
+   * Devuelve el id de la partida activa del usuario, o `null` si no está
+   * jugando. La presencia `in_game` se basa en las sesiones en memoria
+   * porque las partidas vivas todavía no se persisten como `Match`.
+   */
+  getActiveGameIdForUser(userId: number | string): string | null {
     const targetId = String(userId);
 
     for (const session of this.sessions.values()) {
@@ -116,12 +125,12 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
         const playerIdentity = player.userId ?? player.id;
 
         if (playerIdentity === targetId) {
-          return true;
+          return session.id;
         }
       }
     }
 
-    return false;
+    return null;
   }
 
   getNowMs(): number {

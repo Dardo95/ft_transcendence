@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import type { UserPrivate, UserPublic } from '@transcendence/shared';
 import { PrismaService } from '../database/prisma.service.js';
+import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
 import { randomUUID } from 'node:crypto';
 import { unlink, writeFile } from 'node:fs/promises';
@@ -21,7 +22,10 @@ import { toUserPrivate, toUserPublic } from './user.mapper.js';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly registry: SocketRegistryService
+  ) {}
 
   async findPrivateById(id: number): Promise<UserPrivate> {
     const user = await this.prisma.user.findUnique({
@@ -59,7 +63,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return toUserPublic(user);
+    return this.withLivePresence(toUserPublic(user));
   }
 
   async search(dto: SearchUsersDto) {
@@ -85,7 +89,24 @@ export class UsersService {
         take: limit,
       }),
     ]);
-    return { data: data.map(toUserPublic), total, page, limit };
+    return {
+      data: data.map((row) => this.withLivePresence(toUserPublic(row))),
+      total,
+      page,
+      limit,
+    };
+  }
+
+  /**
+   * `User.isOnline` se actualiza en la BD al conectar/desconectar, pero puede
+   * quedar obsoleto si el backend se reinicia. Para perfiles públicos usamos
+   * el registro de sockets, que es la fuente autoritativa en caliente.
+   */
+  private withLivePresence(user: UserPublic): UserPublic {
+    return {
+      ...user,
+      isOnline: this.registry.isOnline('chat', user.id),
+    };
   }
 
   async updateAvatar(

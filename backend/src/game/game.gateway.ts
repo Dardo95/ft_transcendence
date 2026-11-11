@@ -22,6 +22,7 @@ import { randomUUID } from 'node:crypto';
 import type { Namespace, Socket } from 'socket.io';
 
 import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
+import { ChatGateway } from '../chat/chat.gateway.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
 
 import { placeBomb } from './engine/bomb-system.js';
@@ -40,6 +41,7 @@ import { GameManagerService } from './sessions/game-manager.service.js';
 type GameSocketData = {
   user?: WsUser;
   gameId?: string;
+  spectator?: boolean;
 };
 
 type Direction = 'up' | 'down' | 'left' | 'right';
@@ -79,7 +81,8 @@ export class GameGateway
   constructor(
     private readonly wsAuth: WsJwtAuthService,
     private readonly matchmaking: MatchmakingService,
-    private readonly gameManager: GameManagerService
+    private readonly gameManager: GameManagerService,
+    private readonly chatGateway: ChatGateway
   ) {}
 
   afterInit(server: Namespace): void {
@@ -170,6 +173,7 @@ export class GameGateway
   ): Promise<void> {
     const user = this.getAuthenticatedUser(client);
     const gameId = this.readString(body, 'gameId');
+    const spectator = this.readBoolean(body, 'spectator');
 
     if (!gameId) {
       throw new WsException('A valid game ID is required');
@@ -183,14 +187,16 @@ export class GameGateway
 
     const player = this.findHumanPlayer(session, user.id);
 
-    if (!player) {
+    if (!spectator && !player) {
       throw new WsException('You are not a participant in this game');
     }
 
     const data = client.data as GameSocketData;
 
     if (data.gameId && data.gameId !== gameId) {
-      this.stopPlayerMovement(data.gameId, user.id);
+      if (!data.spectator) {
+        this.stopPlayerMovement(data.gameId, user.id);
+      }
 
       await client.leave(`match:${data.gameId}`);
     }
@@ -198,17 +204,21 @@ export class GameGateway
     await client.join(`match:${gameId}`);
 
     data.gameId = gameId;
+    data.spectator = spectator;
 
     client.emit('game:joined', {
       gameId,
+      spectator,
       snapshot: this.toGameSnapshot(session),
     });
 
-    this.server.to(`match:${gameId}`).emit('game:playerJoined', {
-      gameId,
-      userId: user.id,
-      username: user.username,
-    });
+    if (!spectator) {
+      this.server.to(`match:${gameId}`).emit('game:playerJoined', {
+        gameId,
+        userId: user.id,
+        username: user.username,
+      });
+    }
   }
 
   // --------------------------------------------------
@@ -304,6 +314,12 @@ export class GameGateway
       return;
     }
 
+    // Un espectador no participa en la partida: no movemos ni anunciamos
+    // su salida como si fuera un jugador.
+    if (data.spectator) {
+      return;
+    }
+
     // Si el usuario tiene otra conexión activa en esta
     // misma partida, no detenemos su movimiento.
     const anotherSocketIsConnected = [...this.server.sockets.values()].some(
@@ -372,6 +388,13 @@ export class GameGateway
         snapshot,
       });
     }
+
+    // La partida acaba de empezar: los amigos deben pasar a `in_game`.
+    await Promise.all(
+      userIds.map((userId) =>
+        this.chatGateway.notifyFriendsStatus(userId, true)
+      )
+    );
   }
 
   // --------------------------------------------------
@@ -429,6 +452,17 @@ export class GameGateway
         winnerId: session.winnerId,
         snapshot,
       });
+
+      // La sesión ya está FINISHED: los jugadores vuelven a `online`.
+      const userIds = [...session.players.values()]
+        .filter((player) => !player.isBot && player.userId)
+        .map((player) => Number(player.userId));
+
+      void Promise.all(
+        userIds.map((userId) =>
+          this.chatGateway.notifyFriendsStatus(userId, true)
+        )
+      );
     }
   }
 
@@ -627,5 +661,13 @@ export class GameGateway
     const value = (body as Record<string, unknown>)[key];
 
     return typeof value === 'string' ? value.trim() : '';
+  }
+
+  private readBoolean(body: unknown, key: string): boolean {
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+      return false;
+    }
+
+    return (body as Record<string, unknown>)[key] === true;
   }
 }
