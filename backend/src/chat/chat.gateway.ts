@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import type { OnModuleInit } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -23,7 +24,8 @@ import { SocketRegistryService } from '../realtime/socket-registry.service.js';
   ...websocketOptions,
 })
 export class ChatGateway
-  implements OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection
+  implements OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection,
+  OnModuleInit
 {
   @WebSocketServer()
   server!: Namespace;
@@ -34,6 +36,19 @@ export class ChatGateway
     private readonly prisma: PrismaService,
     private readonly registry: SocketRegistryService
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    // Al arrancar no hay nadie conectado: limpiamos la presencia
+    // que pudo quedar colgada si el backend se cerró sin desconectar a nadie.
+    try {
+      await this.prisma.user.updateMany({
+        where: { isOnline: true },
+        data: { isOnline: false },
+      });
+    } catch {
+      // Si la BD falla aquí no impedimos que arranque el backend.
+    }
+  }
 
   async handleConnection(client: Socket): Promise<void> {
     const user = client.data.user as WsUser | undefined;
