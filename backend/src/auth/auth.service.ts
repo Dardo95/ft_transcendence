@@ -10,7 +10,7 @@ import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { OAuth2Client } from 'google-auth-library';
 import type { UserPrivate } from '@transcendence/shared';
-import { toUserPrivate } from '../users/user.mapper.js';
+import { toUserPrivate, userPrivateSelect } from '../users/user.mapper.js';
 
 @Injectable()
 export class AuthService {
@@ -197,16 +197,7 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync<{ sub: number }>(token);
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
-        select: {
-          id: true,
-          username: true,
-          email: true,
-          xp: true,
-          isOnline: true,
-          twoFaEnabled: true,
-          oauthProvider: true,
-          createdAt: true,
-        },
+        select: userPrivateSelect,
       });
       return { user: user ? toUserPrivate(user) : null };
     } catch {

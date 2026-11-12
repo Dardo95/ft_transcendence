@@ -7,7 +7,7 @@ import type { UserPublic } from '@transcendence/shared';
 import { PrismaService } from '../database/prisma.service.js';
 import { GameManagerService } from '../game/sessions/game-manager.service.js';
 import { SocketRegistryService } from '../realtime/socket-registry.service.js';
-import { toUserPublic } from './user.mapper.js';
+import { toUserPublic, userPublicSelect } from './user.mapper.js';
 
 @Injectable()
 export class FriendshipsService {
@@ -136,14 +136,7 @@ export class FriendshipsService {
       where: { addresseeId: meId, status: 'PENDING' },
       include: {
         requester: {
-          select: {
-            id: true,
-            username: true,
-            xp: true,
-            isOnline: true,
-            avatarUrl: true,
-            createdAt: true,
-          },
+          select: userPublicSelect,
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -162,14 +155,7 @@ export class FriendshipsService {
       where: { requesterId: meId, status: 'PENDING' },
       include: {
         addressee: {
-          select: {
-            id: true,
-            username: true,
-            xp: true,
-            isOnline: true,
-            avatarUrl: true,
-            createdAt: true,
-          },
+          select: userPublicSelect,
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -197,22 +183,12 @@ export class FriendshipsService {
       include: {
         requester: {
           select: {
-            id: true,
-            username: true,
-            xp: true,
-            isOnline: true,
-            createdAt: true,
-            avatarUrl: true,
+            ...userPublicSelect,
           },
         },
         addressee: {
           select: {
-            id: true,
-            username: true,
-            xp: true,
-            isOnline: true,
-            avatarUrl: true,
-            createdAt: true,
+            ...userPublicSelect,
           },
         },
       },
