@@ -17,7 +17,7 @@ endif
 
 export HOST_IP
 export ACCESS_HOST
-export FRONTEND_URL ?= https://$(ACCESS_HOST):8443
+export FRONTEND_URL ?= https://$(ACCESS_HOST):8443,https://localhost:8443
 
 # **************************************************************************** #
 # COLORS AND ASCII ART
@@ -138,7 +138,7 @@ dev: prep-env
 	docker compose rm -sf nginx 2>/dev/null || true
 	@echo ""
 	@echo "$(CYAN)Building and starting development containers...$(RESET)"
-	FRONTEND_URL=http://$(ACCESS_HOST):5173 \
+	FRONTEND_URL=http://$(ACCESS_HOST):5173,http://localhost:5173 \
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend -d
 	@printf "$$ASCII_ART\n"
 	@echo "$(GREEN)Infrastructure in $(RESET)Development Mode$(GREEN) is up!$(RESET)"
