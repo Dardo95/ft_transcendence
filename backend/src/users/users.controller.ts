@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -18,6 +19,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
 import { SendFriendRequestDto } from './dto/send-friend-request.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { FriendshipsService } from './friendships.service.js';
 import { UsersService } from './users.service.js';
 import { ChatGateway } from '../chat/chat.gateway.js';
@@ -42,6 +44,12 @@ export class UsersController {
   @Get('me')
   me(@CurrentUser('sub') userId: number) {
     return this.usersService.findPrivateById(userId);
+  }
+
+  @Patch('me')
+  @HttpCode(HttpStatus.OK)
+  updateMe(@CurrentUser('sub') userId: number, @Body() dto: UpdateProfileDto) {
+    return this.usersService.updatePrivate(userId, dto);
   }
 
   @Post('me/avatar')
