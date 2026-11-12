@@ -11,6 +11,9 @@ ifeq ($(IS_WSL),yes)
   ACCESS_HOST := localhost
 else
   HOST_IP     := $(shell hostname -I 2>/dev/null | awk '{print $$1}')
+  ifeq ($(HOST_IP),)
+    HOST_IP   := $(shell ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i=1; i<NF; i++) if ($$i == "src") print $$(i+1)}')
+  endif
   CERT_IP     := $(if $(HOST_IP),$(HOST_IP),127.0.0.1)
   ACCESS_HOST := $(if $(HOST_IP),$(HOST_IP),localhost)
 endif
