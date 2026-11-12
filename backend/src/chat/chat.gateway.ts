@@ -24,8 +24,11 @@ import { SocketRegistryService } from '../realtime/socket-registry.service.js';
   ...websocketOptions,
 })
 export class ChatGateway
-  implements OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection,
-  OnModuleInit
+  implements
+    OnGatewayInit,
+    OnGatewayDisconnect,
+    OnGatewayConnection,
+    OnModuleInit
 {
   @WebSocketServer()
   server!: Namespace;
