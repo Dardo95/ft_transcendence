@@ -20,6 +20,7 @@ import { useLanguage } from '../../../locales/useLanguage';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
 import logoUrl from '@/assets/ui_logo.svg';
+import defaultAvatar from '@/assets/default.jpg';
 
 interface HeaderProps {
   onOpenDrawer: () => void;
@@ -89,7 +90,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
             aria-label="User menu"
           >
             <img
-              src={user?.avatarUrl || '/default-chef.png'}
+              src={user?.avatarUrl || defaultAvatar}
               alt={user?.username || 'Avatar'}
               className="h-full w-full rounded-full border border-zinc-700 bg-zinc-800 object-cover"
               onError={(e) => {

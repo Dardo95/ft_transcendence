@@ -13,9 +13,18 @@ export interface FriendRequestItem {
   to?: FriendUser;
 }
 
+export type SendFriendRequestOutcome =
+  'created' | 'already_exists' | 'not_found' | 'self' | 'blocked';
+
+export interface SendFriendRequestResult {
+  outcome: SendFriendRequestOutcome;
+  status?: string;
+  message?: string;
+}
+
 export async function sendFriendRequest(
   username: string
-): Promise<{ message: string }> {
+): Promise<SendFriendRequestResult> {
   return apiFetch('/users/me/friend-requests', {
     method: 'POST',
     body: JSON.stringify({ username: username.trim() }),

@@ -185,12 +185,11 @@ export function ProjectPage() {
   const bonusTotal = BONUS_MODULES.reduce((sum, item) => sum + item.points, 0);
 
   return (
-    <div className="flex w-full justify-center px-4 py-8 md:py-12">
+    <div className="flex w-full justify-center px-4 py-8">
       <div className="w-full max-w-5xl space-y-8">
         {/* Header Section */}
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase">
-            <span>⚙️</span>
             <span>42 Transcendence v21.2</span>
           </div>
 

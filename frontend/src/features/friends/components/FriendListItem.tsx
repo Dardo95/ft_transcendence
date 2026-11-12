@@ -1,6 +1,11 @@
 import { useState } from 'react';
-import { ChefHatIcon, EyeIcon, XIcon } from 'lucide-react';
 import { useLanguage } from '@/locales/useLanguage';
+
+import { Link } from 'react-router-dom';
+
+import { EyeIcon, XIcon } from 'lucide-react';
+import defaultAvatar from '@/assets/default.jpg';
+
 
 import { Button } from '@/components/ui/button';
 import {
@@ -43,22 +48,17 @@ export function FriendListItem({
 
   return (
     <div className="flex items-center justify-between rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 transition-colors hover:bg-zinc-800/40">
-      <div className="flex items-center gap-2.5">
+      <Link
+        to={`/profile/${encodeURIComponent(friend.username)}`}
+        title={t('profile.publicProfile')}
+        className="flex min-w-0 items-center gap-2.5 rounded-lg transition-opacity hover:opacity-80"
+      >
         <div className="relative">
-          {friend.avatarUrl ? (
-            <img
-              src={friend.avatarUrl}
-              alt={friend.username}
-              className="h-8 w-8 rounded-full border border-zinc-700 object-cover"
-            />
-          ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs">
-              <ChefHatIcon
-                className="h-4 w-4 text-zinc-400"
-                aria-hidden="true"
-              />
-            </div>
-          )}
+          <img
+            src={friend.avatarUrl || defaultAvatar}
+            alt={friend.username}
+            className="h-8 w-8 rounded-full border border-zinc-700 bg-zinc-800 object-cover"
+          />
           <span
             className={`absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-zinc-900 ${
               isPlaying
@@ -75,7 +75,7 @@ export function FriendListItem({
           </p>
           <p className="text-[10px] text-zinc-400">{statusLabel}</p>
         </div>
-      </div>
+      </Link>
 
       <div className="flex items-center gap-1.5">
         {/* Botón Espectador */}

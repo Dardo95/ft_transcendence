@@ -1,5 +1,6 @@
 import { useLanguage } from '../locales/useLanguage';
 import { Icons } from '../components/ui/icons';
+import { Bomb } from 'lucide-react';
 
 import member1Avatar from '../assets/member1.jpg';
 import member2Avatar from '../assets/member2.png';
@@ -19,6 +20,9 @@ interface TeamMember {
   githubName: string;
   linkedinUrl: string;
   linkedinName: string;
+  school42Name: string;
+  bombermanUrl: string;
+  bombermanName: string;
 }
 
 const TEAM_MEMBERS: TeamMember[] = [
@@ -35,6 +39,9 @@ const TEAM_MEMBERS: TeamMember[] = [
     githubName: 'OliverKingz',
     linkedinUrl: 'https://linkedin.com/in/oliver-king-zamora',
     linkedinName: 'Oliver King Zamora',
+    school42Name: 'ozamora-',
+    bombermanUrl: '/profile/ozamora-',
+    bombermanName: 'ozamora-',
   },
   {
     id: 'member-2',
@@ -49,6 +56,9 @@ const TEAM_MEMBERS: TeamMember[] = [
     githubName: 'briveraarg',
     linkedinUrl: 'https://linkedin.com/in/brenrivera',
     linkedinName: 'Brenda Rivera',
+    school42Name: 'brivera',
+    bombermanUrl: '/profile/brivera',
+    bombermanName: 'brivera',
   },
   {
     id: 'member-3',
@@ -63,6 +73,9 @@ const TEAM_MEMBERS: TeamMember[] = [
     githubName: 'RaulPerezDEV',
     linkedinUrl: 'https://linkedin.com/in/raúl-pérez-5b530114a',
     linkedinName: 'Raúl Pérez',
+    school42Name: 'raperez-',
+    bombermanUrl: '/profile/raperez-',
+    bombermanName: 'raperez-',
   },
   {
     id: 'member-4',
@@ -78,6 +91,9 @@ const TEAM_MEMBERS: TeamMember[] = [
     linkedinUrl:
       'https://linkedin.com/in/eduardo-nogueira-santo-tomás-68b691144/',
     linkedinName: 'Eduardo Nogueira',
+    school42Name: 'enogueir',
+    bombermanUrl: '/profile/enogueir',
+    bombermanName: 'enogueir',
   },
 ];
 
@@ -85,7 +101,7 @@ export function AboutUsPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex w-full justify-center px-4 py-8 md:py-12">
+    <div className="flex w-full justify-center px-4 py-8 ">
       <div className="w-full max-w-5xl space-y-8">
         {/* Header Section */}
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
@@ -142,8 +158,8 @@ export function AboutUsPage() {
                 </p>
               </div>
 
-              {/* Social Links (GitHub & LinkedIn) */}
-              <div className="flex items-center gap-3 border-t border-zinc-800/80 pt-4">
+              {/* Social Links (GitHub, LinkedIn, School42, Bomberman Account) */}
+              <div className="grid grid-cols-2 gap-3 border-t border-zinc-800/80 pt-4">
                 <a
                   href={member.githubUrl}
                   target="_blank"
@@ -151,8 +167,8 @@ export function AboutUsPage() {
                   aria-label={`${member.name} GitHub`}
                   className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700 hover:text-white"
                 >
-                  <Icons.gitHub className="size-4 fill-current" />
-                  <span>{member.githubName}</span>
+                  <Icons.gitHub className="size-4 shrink-0 fill-current" />
+                  <span className="truncate">{member.githubName}</span>
                 </a>
 
                 <a
@@ -162,8 +178,30 @@ export function AboutUsPage() {
                   aria-label={`${member.name} LinkedIn`}
                   className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700 hover:text-white"
                 >
-                  <Icons.linkedIn className="size-4 fill-current" />
-                  <span>{member.linkedinName}</span>
+                  <Icons.linkedIn className="size-4 shrink-0 fill-current" />
+                  <span className="truncate">{member.linkedinName}</span>
+                </a>
+
+                <a
+                  href={member.bombermanUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={`${member.name} Bomberman Account`}
+                  className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700 hover:text-white"
+                >
+                  <Bomb className="size-4 shrink-0" />
+                  <span className="truncate">{member.bombermanName}</span>
+                </a>
+
+                <a
+                  href={`https://profile.intra.42.fr/users/${member.school42Name}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={`${member.name} 42 School Profile`}
+                  className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700 hover:text-white"
+                >
+                  <Icons.school42 className="size-4 shrink-0 fill-current" />
+                  <span className="truncate">{member.school42Name}</span>
                 </a>
               </div>
             </div>

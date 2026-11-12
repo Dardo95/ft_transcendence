@@ -3,6 +3,7 @@ import { chatSocket } from '@/lib/socket';
 import {
   type FriendUser,
   type FriendRequestItem,
+  type SendFriendRequestResult,
   fetchFriends,
   fetchIncomingRequests,
   sendFriendRequest,
@@ -19,7 +20,7 @@ interface FriendsState {
 
   initListeners: () => () => void;
   loadFriendsData: () => Promise<void>;
-  sendFriendRequest: (username: string) => Promise<void>;
+  sendFriendRequest: (username: string) => Promise<SendFriendRequestResult>;
   acceptFriendRequest: (requestId: number) => Promise<void>;
   rejectFriendRequest: (requestId: number) => Promise<void>;
   deleteFriend: (username: string) => Promise<void>;
@@ -69,8 +70,11 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
   sendFriendRequest: async (username: string) => {
     set({ error: null });
-    await sendFriendRequest(username);
-    await get().loadFriendsData();
+    const result = await sendFriendRequest(username);
+    if (result.outcome === 'created' || result.outcome === 'already_exists') {
+      await get().loadFriendsData();
+    }
+    return result;
   },
 
   acceptFriendRequest: async (requestId: number) => {
