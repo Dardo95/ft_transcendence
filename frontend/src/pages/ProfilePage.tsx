@@ -1,12 +1,27 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import type { UserPrivate, UserPublic } from '@transcendence/shared';
+import { Link, useParams } from 'react-router-dom';
+import type {
+  UpdateProfileInput,
+  UpdateProfileResponse,
+  UserPrivate,
+  UserPublic,
+} from '@transcendence/shared';
+import { ArrowLeft, Loader2, UserX } from 'lucide-react';
+import { apiFetch } from '../api/api';
+import {
+  updateMyAvatar,
+  updateMyProfile,
+} from '../features/auth/service/authService';
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { PrivateProfileView } from '../features/auth/components/PrivateProfileView';
 import { PublicProfileView } from '../features/auth/components/PublicProfileView';
-import { apiFetch } from '../api/api';
 import { useLanguage } from '../locales/useLanguage';
-import { Loader2, ArrowLeft, UserX } from 'lucide-react';
+
+type PublicProfileState = {
+  username: string;
+  user: UserPublic | null;
+  notFound: boolean;
+};
 
 export function ProfilePage() {
   const { t } = useLanguage();
@@ -14,16 +29,15 @@ export function ProfilePage() {
   const currentUser = useAuthStore((state) => state.user) as UserPrivate | null;
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
-  const [profileState, setProfileState] = useState<{
-    username: string;
-    user: UserPublic | null;
-    notFound: boolean;
-  } | null>(null);
+  const [profileState, setProfileState] = useState<PublicProfileState | null>(
+    null
+  );
 
-  // Check if viewing authenticated user's own profile or a public user's profile
+  // Own profile when there is no username or it matches the session user.
   const isOwnProfile =
     !username || (currentUser && currentUser.username === username);
 
+  // Derived state: never show the previous user's data while loading.
   const loading =
     !isOwnProfile && Boolean(username) && profileState?.username !== username;
   const publicUser =
@@ -61,25 +75,28 @@ export function ProfilePage() {
   }, [username, isOwnProfile]);
 
   const handleAvatarUpload = async (blob: Blob) => {
-    const formData = new FormData();
-    formData.append('avatar', blob, 'avatar.jpg');
-
-    await fetch('/api/users/me/avatar', {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
-    });
-
-    // Refresh global auth state to propagate the new avatar throughout the app
+    await updateMyAvatar(blob);
+    // Refresh global auth state to propagate the new avatar throughout the app.
     await checkAuth();
   };
 
-  // 1. Own profile (Private view)
+  const handleUpdateProfile = async (
+    input: UpdateProfileInput
+  ): Promise<UpdateProfileResponse> => {
+    const result = await updateMyProfile(input);
+    if (result.outcome === 'updated') {
+      await checkAuth();
+    }
+    return result;
+  };
+
+  // 1. Own profile (private view)
   if (isOwnProfile && currentUser) {
     return (
       <PrivateProfileView
         user={currentUser}
         onAvatarUpload={handleAvatarUpload}
+        onUpdateProfile={handleUpdateProfile}
       />
     );
   }
@@ -117,13 +134,13 @@ export function ProfilePage() {
             className="inline-flex items-center gap-2 rounded-xl bg-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-200 transition-colors hover:bg-zinc-700"
           >
             <ArrowLeft className="size-4" />
-            {t('app.general.lobby') || 'Back to Lobby'}
+            {t('profile.backToLobby') || 'Back to Lobby'}
           </Link>
         </div>
       </div>
     );
   }
 
-  // 4. Other user's profile (Public view)
+  // 4. Other user's profile (public view)
   return <PublicProfileView user={publicUser} />;
 }

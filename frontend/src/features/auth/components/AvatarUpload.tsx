@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { cropImageToSquare } from '../../../lib/imageCrop';
+import defaultAvatar from '../../../assets/default.jpg';
 
 interface AvatarUploadProps {
   currentAvatarUrl?: string | null;
@@ -38,7 +39,7 @@ export function AvatarUpload({
     <div className="group relative size-28 shrink-0">
       <div className="size-28 overflow-hidden rounded-2xl border-2 border-orange-500/50 bg-zinc-800 shadow-lg">
         <img
-          src={preview || currentAvatarUrl || '/default-avatar.png'}
+          src={preview || currentAvatarUrl || defaultAvatar}
           alt={username}
           className="size-full object-cover"
           onError={(e) => {

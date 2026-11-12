@@ -1,9 +1,14 @@
 import type { UserPublic } from '@transcendence/shared';
+
 import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
+
 import { useFriendsStore } from '../../friends/store/useFriendsStore';
 import { useLanguage } from '../../../locales/useLanguage';
+
 import { UserPlus, UserCheck } from 'lucide-react';
+import defaultAvatar from '../../../assets/default.jpg';
+
 
 interface PublicProfileViewProps {
   user: UserPublic;
@@ -21,7 +26,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
         {/* Read-only Avatar */}
         <div className="relative size-28 shrink-0 overflow-hidden rounded-2xl border-2 border-zinc-700 bg-zinc-800">
           <img
-            src={user.avatarUrl || '/default-avatar.png'}
+            src={user.avatarUrl || defaultAvatar}
             alt={user.username}
             className="size-full object-cover"
           />
