@@ -53,6 +53,10 @@ prep: prep-env prep-tls
 prep-env:
 	@cp -n .env.example .env 2>/dev/null || true
 	@chmod 600 .env
+	@if grep -q '^JWT_SECRET=changeme' .env; then \
+		sed -i.bak "s|^JWT_SECRET=.*|JWT_SECRET=$$(openssl rand -hex 32)|" .env && rm -f .env.bak; \
+		echo "$(GREEN)Generated a random JWT_SECRET.$(RESET)"; \
+	fi
 	@echo "$(GREEN)Environment variables initialized.$(RESET)"
 	@echo ""
 
