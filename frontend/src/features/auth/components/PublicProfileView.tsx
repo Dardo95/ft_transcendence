@@ -9,7 +9,6 @@ import { useLanguage } from '../../../locales/useLanguage';
 import { UserPlus, UserCheck } from 'lucide-react';
 import defaultAvatar from '../../../assets/default.jpg';
 
-
 interface PublicProfileViewProps {
   user: UserPublic;
 }

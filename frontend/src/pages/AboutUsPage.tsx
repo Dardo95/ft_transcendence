@@ -101,7 +101,7 @@ export function AboutUsPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex w-full justify-center px-4 py-8 ">
+    <div className="flex w-full justify-center px-4 py-8">
       <div className="w-full max-w-5xl space-y-8">
         {/* Header Section */}
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">

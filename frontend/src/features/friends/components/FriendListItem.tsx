@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { EyeIcon, XIcon } from 'lucide-react';
 import defaultAvatar from '@/assets/default.jpg';
 
-
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,

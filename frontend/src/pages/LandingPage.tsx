@@ -34,7 +34,6 @@ export function LandingPage() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-orange-600/10 via-transparent to-transparent blur-3xl" />
       <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-orange-500/10 blur-[120px]" />
       {/* Main content area: Responsive 2-column layout on full screen, stacked on split screen */}
       <main className="z-10 flex flex-1 items-center justify-center px-4 py-8 md:px-8 lg:px-12">

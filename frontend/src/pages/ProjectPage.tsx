@@ -284,7 +284,7 @@ export function ProjectPage() {
         </section>
 
         {/* Bonus Modules Table */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg backdrop-blur-sm">
+        <section className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg backdrop-blur-sm">
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-bold text-white">
               {t('app.aboutProject.bonusHeading') ||
