@@ -106,6 +106,12 @@ export class FriendshipsService {
     if (other.id === meId) throw new ConflictException('Cannot block yourself');
     const existing = await this.findBetween(meId, other.id);
     if (existing) {
+      if (existing.status === 'BLOCKED') {
+        // Ya lo había bloqueado yo: no hay nada que cambiar.
+        if (existing.requesterId === meId) return existing;
+        // Me bloqueó la otra persona: no puedo sobrescribir su bloqueo.
+        throw new ForbiddenException('Interaction not allowed');
+      }
       return this.prisma.friendship.update({
         where: { id: existing.id },
         data: {

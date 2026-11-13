@@ -11,13 +11,16 @@ ifeq ($(IS_WSL),yes)
   ACCESS_HOST := localhost
 else
   HOST_IP     := $(shell hostname -I 2>/dev/null | awk '{print $$1}')
+  ifeq ($(HOST_IP),)
+    HOST_IP   := $(shell ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i=1; i<NF; i++) if ($$i == "src") print $$(i+1)}')
+  endif
   CERT_IP     := $(if $(HOST_IP),$(HOST_IP),127.0.0.1)
   ACCESS_HOST := $(if $(HOST_IP),$(HOST_IP),localhost)
 endif
 
 export HOST_IP
 export ACCESS_HOST
-export FRONTEND_URL ?= https://$(ACCESS_HOST):8443
+export FRONTEND_URL ?= https://$(ACCESS_HOST):8443,https://localhost:8443
 
 # **************************************************************************** #
 # COLORS AND ASCII ART
@@ -53,6 +56,10 @@ prep: prep-env prep-tls
 prep-env:
 	@cp -n .env.example .env 2>/dev/null || true
 	@chmod 600 .env
+	@if grep -q '^JWT_SECRET=changeme' .env; then \
+		sed -i.bak "s|^JWT_SECRET=.*|JWT_SECRET=$$(openssl rand -hex 32)|" .env && rm -f .env.bak; \
+		echo "$(GREEN)Generated a random JWT_SECRET.$(RESET)"; \
+	fi
 	@echo "$(GREEN)Environment variables initialized.$(RESET)"
 	@echo ""
 
@@ -143,7 +150,7 @@ dev: prep-env
 	docker compose rm -sf nginx 2>/dev/null || true
 	@echo ""
 	@echo "$(CYAN)Building and starting development containers...$(RESET)"
-	FRONTEND_URL=http://$(ACCESS_HOST):5173 \
+	FRONTEND_URL=http://$(ACCESS_HOST):5173,http://localhost:5173 \
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -V postgres backend frontend -d
 	@printf "$$ASCII_ART\n"
 	@echo "$(GREEN)Infrastructure in $(RESET)Development Mode$(GREEN) is up!$(RESET)"

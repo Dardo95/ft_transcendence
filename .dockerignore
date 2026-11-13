@@ -1,0 +1,21 @@
+# Dependencias y builds del host (se generan dentro de la imagen)
+**/node_modules
+**/dist
+**/coverage
+**/*.tsbuildinfo
+.pnpm-store
+
+# Secretos y certificados (se montan en runtime, no van en la imagen)
+.env
+.env.*
+!.env.example
+certs
+
+# Datos de usuario (se montan como volumen)
+backend/uploads/avatars/*
+
+# Git y herramientas locales
+.git
+.claude
+.vscode
+.idea
