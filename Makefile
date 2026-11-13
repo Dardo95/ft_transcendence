@@ -182,17 +182,22 @@ node_modules: pnpm-lock.yaml
 	pnpm install --frozen-lockfile --ignore-scripts
 	@touch node_modules
 
-buildcheck: node_modules
+prisma-generate: node_modules
+	@echo "$(CYAN)Generating Prisma client...$(RESET)"
+	cd backend && ./node_modules/.bin/prisma generate
+	@echo ""
+
+buildcheck: prisma-generate
 	@echo "$(CYAN)Running build check...$(RESET)"
 	pnpm run build
 	@echo ""
 
-typecheck: node_modules
+typecheck: prisma-generate
 	@echo "$(CYAN)Checking TypeScript types...$(RESET)"
 	pnpm run typecheck
 	@echo ""
 
-lint: node_modules
+lint: prisma-generate
 	@echo "$(CYAN)Running linter...$(RESET)"
 	pnpm run lint
 	@echo ""
@@ -202,12 +207,12 @@ formatcheck: node_modules
 	pnpm run format:check
 	@echo ""
 
-test: node_modules
+test: prisma-generate
 	@echo "$(CYAN)Running tests...$(RESET)"
 	pnpm run test
 	@echo ""
 
-allcheck: node_modules buildcheck typecheck lint formatcheck test
+allcheck: node_modules prisma-generate buildcheck typecheck lint formatcheck test
 	@echo "$(GREEN)All QA checks passed successfully.$(RESET)"
 	@echo ""
 
@@ -391,13 +396,13 @@ help:
 	@echo "  make seed           - Load demo users and friendships"
 	@echo ""
 	@echo "  $(CYAN)QA & Testing:$(RESET)"
-	@echo "  make typecheck      - Verify TypeScript types in backend and frontend"
-	@echo "  make lint           - Run linters in backend and frontend"
-	@echo "  make test           - Run backend E2E tests"
-	@echo "  make buildcheck     - Run build check in backend and frontend"
-	@echo "  make check          - Run full pipeline: typecheck, lint, and test"
+	@echo "  make typecheck      - Verify TypeScript types in shared, backend and frontend"
+	@echo "  make lint           - Run linters in shared, backend and frontend"
+	@echo "  make test           - Run shared, backend and frontend tests"
+	@echo "  make buildcheck     - Run build check in shared, backend and frontend"
+	@echo "  make formatcheck    - Check code formatting in shared, backend and frontend"
+	@echo "  make allcheck       - Run the full QA pipeline (build, typecheck, lint, format, test)"
 	@echo "  make envcheck       - Check environment variables in host and backend container"
-	@echo "  make sharedcheck    - Check shared code quality"
 	@echo ""
 	@echo "  $(CYAN)Inspection:$(RESET)"
 	@echo "  make ps             - Status of every container"
@@ -431,8 +436,8 @@ help:
 	@echo ""
 
 .PHONY: all prep prep-env prep-tls build up down \
-		re clean fclean \
+		re clean fclean clean-db \
 		dev studio seed \
-		typecheck lint buildcheck test allcheck envcheck sharedcheck \
+		typecheck lint buildcheck formatcheck test allcheck envcheck prisma-generate \
 		ps config volumes images stats logs f \
 		help FORCE assets atlas game-assets
