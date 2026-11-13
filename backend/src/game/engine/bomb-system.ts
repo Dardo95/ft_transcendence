@@ -1,6 +1,5 @@
 import type { Position } from '@transcendence/shared';
 
-import { GAME_DEFAULTS } from '../config/game-defaults.js';
 import { getTerrainAt } from './game-board.js';
 import { overlapsTile } from './collision-geometry.js';
 import type { BombState, GameSession } from './game-state.js';
@@ -121,7 +120,7 @@ export function placeBomb(
     position: tilePosition,
 
     placedAtMs: nowMs,
-    detonateAtMs: nowMs + GAME_DEFAULTS.bombFuseMs,
+    detonateAtMs: nowMs + session.settings.bombFuseMs,
 
     // El alcance queda fijado al colocar la bomba.
     blastRadius: player.blastRadius,

@@ -8,6 +8,8 @@ import type {
   WorldPosition,
 } from '@transcendence/shared';
 
+import type { ResolvedGameSettings } from '../config/game-settings.js';
+
 export interface GameBoard {
   id: string;
   width: number;
@@ -72,6 +74,8 @@ export interface GameSession {
   bombs: Map<string, BombState>;
   explosions: Map<string, ActiveExplosionState>;
   powerUps: Map<string, PowerUpState>;
+
+  settings: ResolvedGameSettings;
 
   createdAtMs: number;
   startedAtMs: number | null;

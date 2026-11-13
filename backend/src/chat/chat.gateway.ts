@@ -109,7 +109,7 @@ export class ChatGateway
     });
   }
 
-  private async notifyFriendsStatus(userId: number, isOnline: boolean) {
+  async notifyFriendsStatus(userId: number, isOnline: boolean) {
     try {
       const friendships = await this.prisma.friendship.findMany({
         where: {

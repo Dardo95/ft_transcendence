@@ -1,9 +1,7 @@
+import type { UserPublic } from '@transcendence/shared';
 import { apiFetch } from '../../../api/api';
 
-export interface FriendUser {
-  id: number;
-  username: string;
-  avatarUrl?: string | null;
+export interface FriendUser extends UserPublic {
   status?: 'online' | 'in_game' | 'offline';
   currentGameId?: string | null;
 }
@@ -15,9 +13,18 @@ export interface FriendRequestItem {
   to?: FriendUser;
 }
 
+export type SendFriendRequestOutcome =
+  'created' | 'already_exists' | 'not_found' | 'self' | 'blocked';
+
+export interface SendFriendRequestResult {
+  outcome: SendFriendRequestOutcome;
+  status?: string;
+  message?: string;
+}
+
 export async function sendFriendRequest(
   username: string
-): Promise<{ message: string }> {
+): Promise<SendFriendRequestResult> {
   return apiFetch('/users/me/friend-requests', {
     method: 'POST',
     body: JSON.stringify({ username: username.trim() }),

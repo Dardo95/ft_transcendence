@@ -26,8 +26,8 @@
     /* Path mapping */
     "paths": {
       "@/*": ["./src/*"],
-      "@transcendence/shared": ["../../shared/src/index.ts"],
-      "@transcendence/shared/*": ["../../shared/src/*"]
+      "@transcendence/shared": ["../../shared/dist/index.d.ts", "../../shared/src/index.ts"],
+      "@transcendence/shared/*": ["../../shared/dist/*", "../../shared/src/*"]
     }
   },
   "include": ["src"]

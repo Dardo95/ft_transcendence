@@ -71,6 +71,7 @@ export class GameConnection {
 
   private gameId: string | null = null;
   private joined = false;
+  private spectator = false;
   /** El intento actual terminó (éxito o fallo): evita dobles avisos. */
   private settled = false;
   private active = false;
@@ -88,10 +89,11 @@ export class GameConnection {
   }
 
   /** Se une a `gameId` y arranca la espera del snapshot inicial. */
-  join(gameId: string): void {
+  join(gameId: string, options: { spectator?: boolean } = {}): void {
     this.removeListeners();
     this.gameId = gameId;
     this.joined = false;
+    this.spectator = options.spectator === true;
     this.active = true;
     this.needsRejoin = false;
     this.addListeners();
@@ -104,7 +106,7 @@ export class GameConnection {
   }
 
   sendMovement(movement: MovementInput): void {
-    if (!this.joined) {
+    if (!this.joined || this.spectator) {
       return;
     }
 
@@ -112,7 +114,7 @@ export class GameConnection {
   }
 
   sendBomb(): void {
-    if (!this.joined) {
+    if (!this.joined || this.spectator) {
       return;
     }
 
@@ -129,12 +131,13 @@ export class GameConnection {
     this.clearTimer();
     this.gameId = null;
     this.joined = false;
+    this.spectator = false;
     this.active = false;
     this.needsRejoin = false;
   }
 
   private sendStop(): void {
-    if (!this.joined || !this.socket.connected) {
+    if (!this.joined || this.spectator || !this.socket.connected) {
       return;
     }
 
@@ -148,7 +151,12 @@ export class GameConnection {
 
     this.settled = false;
     this.clearTimer();
-    this.socket.emit('game:join', { gameId: this.gameId });
+    this.socket.emit(
+      'game:join',
+      this.spectator
+        ? { gameId: this.gameId, spectator: true }
+        : { gameId: this.gameId }
+    );
     this.timer = setTimeout(() => this.fail('timeout'), JOIN_TIMEOUT_MS);
   }
 

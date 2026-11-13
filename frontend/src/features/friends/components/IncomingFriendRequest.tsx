@@ -3,22 +3,32 @@ import { useLanguage } from '@/locales/useLanguage';
 
 import { Button } from '@/components/ui/button';
 
-export function IncomingFriendRequest() {
+type IncomingFriendRequestVariant = 'lobby' | 'profile';
+
+interface IncomingFriendRequestProps {
+  variant?: IncomingFriendRequestVariant;
+}
+
+export function IncomingFriendRequest({
+  variant = 'lobby',
+}: IncomingFriendRequestProps) {
   const { t } = useLanguage();
   const { incomingFriendRequests, acceptFriendRequest, rejectFriendRequest } =
     useFriendsStore();
 
   if (incomingFriendRequests.length === 0) return null;
 
+  const cardClass =
+    variant === 'profile'
+      ? 'space-y-2 rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 text-zinc-100'
+      : 'space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl';
+
   return (
     <div className="space-y-3">
       {incomingFriendRequests.map((req) => (
-        <div
-          key={req.id}
-          className="space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl"
-        >
+        <div key={req.id} className={cardClass}>
           <p className="text-center text-sm">
-            <strong>{req.from?.username || 'Alguien'}</strong>{' '}
+            <strong>{req.from?.username || t('profile.someone')}</strong>{' '}
             {t('app.friends.friendRequestText') ||
               'te envió una solicitud de amistad.'}
           </p>

@@ -13,17 +13,18 @@
     }
   },
   "scripts": {
-    "build": "pnpm exec tsc -b",
+    "build": "pnpm exec tsc -p tsconfig.json",
+    "dev": "pnpm exec tsc -p tsconfig.json --watch --preserveWatchOutput",
     "format": "pnpm exec prettier --write \"src/**/*.ts\"",
     "format:check": "pnpm exec prettier --check \"src/**/*.ts\"",
     "typecheck": "pnpm exec tsc --noEmit --incremental false -p tsconfig.json",
     "lint": "oxlint --type-aware src/",
     "test": "echo 'No tests configured for shared package'"
   },
-  "dependencies": {},
   "devDependencies": {
+    "oxlint": "^1.58.0",
+    "oxlint-tsgolint": "^7.0.2005",
     "prettier": "^3.4.2",
-    "typescript": "^6.0.2",
-    "oxlint": "^1.58.0"
+    "typescript": "^6.0.2"
   }
 }

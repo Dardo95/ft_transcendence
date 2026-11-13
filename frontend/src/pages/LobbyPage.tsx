@@ -1,98 +1,114 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../locales/useLanguage';
-import { useSocketStore } from '../stores/useSocketStore';
-import { useLobbyStore } from '../features/chat/store/useLobbyStore';
+
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
+import { FriendList } from '@/features/friends/components/FriendListCard';
+import { LobbyChat } from '@/features/chat/components/LobbyChat';
+import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
+import { Card } from '@/components/ui/card';
 import { gameSocket } from '@/lib/socket';
-import { toServerMatchmakingRequest } from '../features/lobby/matchmakingRequest';
-import { resolveMatchmakingErrorKey } from '../features/lobby/matchmakingErrorMessage';
+import { useLanguage } from '@/locales/useLanguage';
 import {
   countdownSeconds,
   gameRoute,
   readCancelResult,
   readGameFoundId,
   readMatchmakingStatus,
-} from '../features/lobby/matchmakingEvents';
-import type { TranslationKey } from '@/locales/translations';
+} from '@/features/lobby/matchmakingEvents';
+import { toServerMatchmakingRequest } from '@/features/lobby/matchmakingRequest';
 
-import { Card } from '@/components/ui/card';
+import { GameConfig } from '@/features/lobby/components/GameConfig';
+import { LobbyNotifications } from '@/features/lobby/components/LobbyNotifications';
+import { LobbyTopBanner } from '@/features/lobby/components/LobbyTopBanner';
+import { MatchmakingStatusBanner } from '@/features/lobby/components/MatchmakingStatusBanner';
 
-import { LobbyStatusCard } from '../features/lobby/components/LobbyStatusCard';
-import { LobbyChat } from '../features/chat/components/LobbyChat';
-import { FriendsListCard } from '@/features/friends/components/FriendListCard';
-import { GameModeSelector } from '../features/lobby/components/GameModeSelector';
-import { MapSelector } from '../features/lobby/components/MapSelector';
-import { GameSettingsCard } from '../features/lobby/components/GameSettingsCard';
-import { MatchmakingButton } from '../features/lobby/components/MatchmakingButton';
+import {
+  DEFAULT_GAME_SETTINGS,
+  type GameMode,
+  type GameSettings,
+  type MapId,
+  type MatchmakingPayload,
+  type MatchmakingState,
+  type MatchmakingStatus,
+} from '@/features/lobby/types';
 
-import type {
-  GameMode,
-  MapId,
-  GameSettings,
-  MatchmakingPayload,
-} from '../features/lobby/types';
+interface MatchmakingStatusPayload {
+  mode?: string;
+  status?: MatchmakingStatus;
+  playerCount?: number;
+  playersInCurrentMatch?: number;
+  countdownEndsAt?: number;
+}
+
+interface SocketErrorPayload {
+  message?: string | string[];
+  error?: string;
+}
+
+function socketErrorMessage(payload: unknown): string {
+  if (typeof payload === 'string') return payload;
+
+  if (payload && typeof payload === 'object') {
+    const value = payload as SocketErrorPayload;
+
+    if (Array.isArray(value.message)) return value.message.join(', ');
+    if (typeof value.message === 'string') return value.message;
+    if (typeof value.error === 'string') return value.error;
+  }
+
+  return 'No se pudo iniciar la partida.';
+}
 
 export function LobbyPage() {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  // Socket connection state
-  const isConnected = useSocketStore((state) => state.isConnected);
-
   // Lobby state
   const lobby = useLobbyStore((state) => state.lobby);
   const error = useLobbyStore((state) => state.error);
   const notice = useLobbyStore((state) => state.notice);
+  const noticeData = useLobbyStore((state) => state.noticeData);
+  const clearError = useLobbyStore((state) => state.clearError);
+  const clearNotice = useLobbyStore((state) => state.clearNotice);
 
   const lobbyListeners = useLobbyStore((state) => state.initListeners);
   const friendsListeners = useFriendsStore((state) => state.initListeners);
 
+  // Matchmaking state
+  const [isGameConnected, setIsGameConnected] = useState(gameSocket.connected);
+  const [matchmaking, setMatchmaking] = useState<MatchmakingState | null>(null);
+  const [clockNow, setClockNow] = useState(() => Date.now());
+  const [gameError, setGameError] = useState<string | null>(null);
+  const navigatedGameId = useRef<string | null>(null);
+  const requestedMap = useRef<MapId>('map1');
+
   // Game settings state
   const [selectedMode, setSelectedMode] = useState<GameMode>('practice');
   const [selectedMap, setSelectedMap] = useState<MapId>('map1');
-  const [settings, setSettings] = useState<GameSettings>({
-    initialBombs: 1,
-    initialSpeed: 1,
-    fuseTime: 3,
-  });
-
-  // Search states
-  const [isSearching, setIsSearching] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
-  // Fallo de `game:matchmaking` (clave i18n, no texto: el
-  // idioma se resuelve al renderizar).
-  const [matchmakingErrorKey, setMatchmakingErrorKey] =
-    useState<TranslationKey | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  // Mapa elegido al pedir la partida: la respuesta del backend
-  // no lo trae, así que se guarda aquí para la navegación.
-  const pendingMapRef = useRef<MapId>('map1');
-  // `game:found` y `game:matchmakingStatus CREATED` llegan para
-  // la misma partida: solo la primera navegación debe actuar.
-  const navigatedRef = useRef(false);
-
-  const navigateToGame = useCallback(
-    (gameId: string) => {
-      if (navigatedRef.current) {
-        return;
-      }
-
-      navigatedRef.current = true;
-
-      if (timerRef.current) clearInterval(timerRef.current);
-
-      navigate(gameRoute(gameId, pendingMapRef.current));
-    },
-    [navigate]
-  );
+  const [settings, setSettings] = useState<GameSettings>(DEFAULT_GAME_SETTINGS);
 
   // Host and player count in lobby
   const user = useAuthStore((state) => state.user);
   const isHost =
     !!lobby?.hostUserId && !!user?.id && lobby.hostUserId === user.id;
   const playersCount = lobby?.members?.length ?? 1;
+
+  const isSearching = matchmaking !== null;
+  const canStartPrivate = isHost && playersCount > 1;
+
+  const dismissGameError = useCallback(() => setGameError(null), []);
+
+  const goToGame = useCallback(
+    (gameId?: string) => {
+      if (!gameId || navigatedGameId.current === gameId) return;
+
+      navigatedGameId.current = gameId;
+      setMatchmaking(null);
+      navigate(gameRoute(gameId, requestedMap.current));
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     const cleanupLobbyListeners = lobbyListeners();
@@ -101,253 +117,205 @@ export function LobbyPage() {
     return () => {
       cleanupLobbyListeners();
       cleanupFriendsListeners();
-      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [lobbyListeners, friendsListeners]);
 
-  // Estado del matchmaking público: el servidor manda
-  // (SEARCHING → COUNTDOWN con fecha fin → CANCELLED/CREATED).
-  // El countdown no se inventa localmente: se deriva de
-  // `countdownEndsAt` (epoch del servidor) con un ticker de 1 s.
+  // Keep the game namespace ready while the player configures a match.
   useEffect(() => {
-    const handleStatus = (payload: unknown) => {
+    const handleConnect = () => {
+      setIsGameConnected(true);
+      setGameError(null);
+    };
+
+    const handleDisconnect = () => {
+      setIsGameConnected(false);
+      setMatchmaking(null);
+    };
+
+    gameSocket.on('connect', handleConnect);
+    gameSocket.on('disconnect', handleDisconnect);
+
+    if (!gameSocket.connected) {
+      gameSocket.connect();
+    }
+
+    return () => {
+      gameSocket.off('connect', handleConnect);
+      gameSocket.off('disconnect', handleDisconnect);
+
+      // GameViewport owns the game socket lifecycle while a match is open.
+      if (!window.location.pathname.startsWith('/game')) {
+        gameSocket.disconnect();
+      }
+    };
+  }, []);
+
+  // The backend confirms the session for every mode. Practice and private
+  // matches report CREATED immediately; public matches report SEARCHING until
+  // game:found is emitted for the whole lobby.
+  useEffect(() => {
+    const handleMatchmakingStatus = (payload: unknown) => {
       const update = readMatchmakingStatus(payload);
 
       if (!update) {
         return;
       }
 
+      if (update.type === 'cancelled') {
+        setMatchmaking(null);
+        return;
+      }
+
       if (update.type === 'created') {
-        navigateToGame(update.gameId);
+        goToGame(update.gameId);
         return;
       }
 
+      const statusPayload = payload as MatchmakingStatusPayload;
       if (update.type === 'countdown') {
-        const { endsAt } = update;
-
-        setIsSearching(true);
-        setCountdown(countdownSeconds(endsAt, Date.now()));
-
-        if (timerRef.current) clearInterval(timerRef.current);
-        timerRef.current = setInterval(() => {
-          const remaining = countdownSeconds(endsAt, Date.now());
-          setCountdown(remaining);
-
-          if (remaining <= 0 && timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-          }
-        }, 1000);
-        return;
+        setClockNow(Date.now());
       }
 
-      if (update.type === 'searching') {
-        if (timerRef.current) clearInterval(timerRef.current);
-        setIsSearching(true);
-        setCountdown(null);
-        return;
-      }
-
-      // cancelled
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIsSearching(false);
-      setCountdown(null);
+      setMatchmaking({
+        mode: statusPayload.mode ?? 'PUBLIC',
+        status: update.type === 'countdown' ? 'COUNTDOWN' : 'SEARCHING',
+        playerCount: statusPayload.playerCount,
+        playersInCurrentMatch: statusPayload.playersInCurrentMatch,
+        countdownEndsAt:
+          update.type === 'countdown'
+            ? update.endsAt
+            : statusPayload.countdownEndsAt,
+      });
     };
 
-    gameSocket.on('game:matchmakingStatus', handleStatus);
-    return () => {
-      gameSocket.off('game:matchmakingStatus', handleStatus);
-    };
-  }, [navigateToGame]);
-
-  // La partida creada llega a todos los miembros del grupo (y a
-  // la práctica y al privado): es el disparador único de
-  // navegación. El CREATED del status queda como red por si este
-  // evento no llegara; `navigatedRef` evita la doble navegación.
-  useEffect(() => {
     const handleGameFound = (payload: unknown) => {
       const gameId = readGameFoundId(payload);
-
       if (gameId) {
-        navigateToGame(gameId);
+        goToGame(gameId);
       }
     };
 
-    gameSocket.on('game:found', handleGameFound);
-    return () => {
-      gameSocket.off('game:found', handleGameFound);
-    };
-  }, [navigateToGame]);
-
-  // Confirmación directa de `game:cancelMatchmaking`. El mismo
-  // reset también llega vía status CANCELLED (idempotente).
-  useEffect(() => {
-    const handleCancelled = (payload: unknown) => {
-      if (!readCancelResult(payload)) {
-        return;
-      }
-
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIsSearching(false);
-      setCountdown(null);
-    };
-
-    gameSocket.on('game:matchmakingCancelled', handleCancelled);
-    return () => {
-      gameSocket.off('game:matchmakingCancelled', handleCancelled);
-    };
-  }, []);
-
-  // El backend rechaza `game:matchmaking` con un `exception`
-  // (p. ej. al reintentar una partida que sigue viva). Sin este
-  // listener el fallo era un clic silencioso. Se guarda la clave
-  // y no el texto: así el idioma se resuelve al renderizar.
-  useEffect(() => {
     const handleException = (payload: unknown) => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIsSearching(false);
-      setCountdown(null);
-      setMatchmakingErrorKey(resolveMatchmakingErrorKey(payload));
+      setGameError(socketErrorMessage(payload));
+      setMatchmaking(null);
     };
 
+    const handleMatchmakingCancelled = (payload: unknown) => {
+      if (readCancelResult(payload)) {
+        setMatchmaking(null);
+      }
+    };
+
+    gameSocket.on('game:matchmakingStatus', handleMatchmakingStatus);
+    gameSocket.on('game:found', handleGameFound);
     gameSocket.on('exception', handleException);
+    gameSocket.on('game:matchmakingCancelled', handleMatchmakingCancelled);
+
     return () => {
+      gameSocket.off('game:matchmakingStatus', handleMatchmakingStatus);
+      gameSocket.off('game:found', handleGameFound);
       gameSocket.off('exception', handleException);
+      gameSocket.off('game:matchmakingCancelled', handleMatchmakingCancelled);
     };
-  }, []);
+  }, [goToGame]);
 
-  const handleStartMatchmaking = (payload: MatchmakingPayload) => {
-    setMatchmakingErrorKey(null);
-    pendingMapRef.current = payload.mapId;
+  useEffect(() => {
+    if (!matchmaking?.countdownEndsAt) return;
 
-    // Público, privado y práctica hablan el mismo evento: el
-    // servidor responde con status (SEARCHING/COUNTDOWN) o con
-    // `game:found` en cuanto la partida existe.
-    gameSocket.emit('game:matchmaking', toServerMatchmakingRequest(payload));
+    const timer = window.setInterval(() => setClockNow(Date.now()), 250);
+    return () => window.clearInterval(timer);
+  }, [matchmaking?.countdownEndsAt]);
 
-    if (payload.mode === 'public') {
-      // Estado optimista: el SEARCHING del servidor llega en el
-      // mismo tick y este evita el parpadeo del botón.
-      setIsSearching(true);
-      setCountdown(null);
+  const countdown = matchmaking?.countdownEndsAt
+    ? countdownSeconds(matchmaking.countdownEndsAt, clockNow)
+    : null;
+
+  const handleModeChange = (mode: GameMode) => {
+    setSelectedMode(mode);
+
+    // Public matches always use the server-fixed values. Keep the UI in sync
+    // with what the backend will actually apply.
+    if (mode === 'public') {
+      setSettings({ ...DEFAULT_GAME_SETTINGS });
     }
   };
 
+  const handleStartMatchmaking = (payload: MatchmakingPayload) => {
+    if (!gameSocket.connected) {
+      setGameError('El servidor de juego todavía no está conectado.');
+      return;
+    }
+
+    if (payload.mode === 'private' && !canStartPrivate) {
+      return;
+    }
+
+    setGameError(null);
+    navigatedGameId.current = null;
+    requestedMap.current = payload.mapId;
+    setMatchmaking({
+      mode: payload.mode.toUpperCase(),
+      status: 'REQUESTING',
+    });
+
+    gameSocket.emit('game:matchmaking', toServerMatchmakingRequest(payload));
+  };
+
   const handleCancelSearch = () => {
-    // El estado se limpia con la confirmación
-    // `game:matchmakingCancelled` (o con el status CANCELLED
-    // que también llega a este socket): no se resetea aquí para
-    // no ocultar un fallo del servidor.
     gameSocket.emit('game:cancelMatchmaking');
   };
 
-  const currentPayload: MatchmakingPayload = {
-    mode: selectedMode,
-    mapId: selectedMap,
-    settings,
-  };
-
   return (
-    <div className="w-full max-w-7xl rounded-xl border border-zinc-700 bg-zinc-900 p-6">
-      <h1 className="mb-6 text-center text-2xl font-bold text-orange-400">
-        {t('app.lobby.lobbyTitle') || 'Lobby'}
-      </h1>
+    <div className="mx-auto w-full max-w-[1440px] text-[#f6f1e9]">
+      <LobbyTopBanner isGameConnected={isGameConnected} />
 
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <span className="text-sm text-zinc-400">
-          {isConnected
-            ? t('app.general.connected') || 'Connected to server'
-            : t('app.general.connecting') || 'Connecting...'}
-        </span>
+      <LobbyNotifications
+        error={error}
+        gameError={gameError}
+        notice={notice}
+        noticeData={noticeData}
+        onDismissError={clearError}
+        onDismissGameError={dismissGameError}
+        onDismissNotice={clearNotice}
+      />
 
-        <span
-          className={`h-2.5 w-2.5 rounded-full ${
-            isConnected ? 'bg-emerald-500' : 'bg-red-500'
-          }`}
+      {matchmaking && (
+        <MatchmakingStatusBanner
+          matchmaking={matchmaking}
+          countdown={countdown}
+          onCancel={handleCancelSearch}
         />
-      </div>
-
-      {error && (
-        <div
-          role="alert"
-          className="mb-4 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300"
-        >
-          {error}
-        </div>
       )}
 
-      {matchmakingErrorKey && (
-        <div
-          role="alert"
-          className="mb-4 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300"
-        >
-          {t(matchmakingErrorKey)}
-        </div>
-      )}
+      <GameConfig
+        selectedMode={selectedMode}
+        onModeChange={handleModeChange}
+        selectedMap={selectedMap}
+        onMapChange={setSelectedMap}
+        settings={settings}
+        onSettingsChange={setSettings}
+        isHost={isHost}
+        playersCount={playersCount}
+        isSearching={isSearching}
+        countdown={countdown}
+        onStart={handleStartMatchmaking}
+        onCancelSearch={handleCancelSearch}
+      >
+        <FriendList
+          onSpectate={(gameId) => {
+            navigate(`/game/${gameId}?mode=spectator`);
+          }}
+        />
 
-      {notice && (
-        <div
-          role="status"
-          className="mb-4 rounded-lg border border-emerald-800 bg-emerald-950/40 p-3 text-sm text-emerald-300"
-        >
-          {notice}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Columna principal: estado de sala + configuración y play */}
-        <div className="space-y-4 lg:col-span-2">
-          <GameModeSelector
-            selectedMode={selectedMode}
-            onChange={setSelectedMode}
-            disabled={isSearching}
-          />
-
-          <MapSelector
-            selectedMap={selectedMap}
-            onChange={setSelectedMap}
-            disabled={isSearching}
-          />
-
-          <GameSettingsCard
-            settings={settings}
-            onChange={setSettings}
-            isHost={isHost}
-            isPublicMode={selectedMode === 'public'}
-          />
-
-          <LobbyStatusCard />
-
-          <MatchmakingButton
-            mode={selectedMode}
-            payload={currentPayload}
-            playersCount={playersCount}
-            isHost={isHost}
-            isSearching={isSearching}
-            countdown={countdown}
-            onStart={handleStartMatchmaking}
-            onCancelSearch={handleCancelSearch}
-          />
-        </div>
-
-        {/* Columna lateral: amigos y chat */}
-        <div className="space-y-4">
-          <FriendsListCard
-            onSpectate={(gameId) => {
-              navigate(`/game/${gameId}?mode=spectator`);
-            }}
-          />
-
-          {lobby ? (
-            <LobbyChat />
-          ) : (
-            <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
-              {t('app.lobby.joinLobbyToChat') ||
-                'Join a lobby to use private chat with its members.'}
-            </Card>
-          )}
-        </div>
-      </div>
+        {lobby ? (
+          <LobbyChat />
+        ) : (
+          <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
+            {t('app.lobby.joinLobbyToChat') ||
+              'Join a lobby to use private chat with its members.'}
+          </Card>
+        )}
+      </GameConfig>
     </div>
   );
 }

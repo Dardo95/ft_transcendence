@@ -83,6 +83,18 @@ export const appEn = {
     matchmakingPublicText: 'Search Players for Match Start',
     searchingText: 'Searching players...',
     cancelText: 'Cancel',
+
+    // Notices
+    noticeLobbyCreated: 'Lobby created successfully',
+    noticeJoinedLobby: 'You joined the lobby',
+    noticeLeftLobby: 'You left the lobby',
+    noticeInvitationSent: 'Invitation sent to',
+
+    // Error texts
+    errorNotConnected: 'You are not connected to the server',
+    errorEnterUsername: 'Enter a username',
+
+    // Info texts
     searchInfoText:
       'Waiting for public players (auto start at 4 players or timeout if >=2 players).',
     needPrivateText:
@@ -123,6 +135,117 @@ export const appEn = {
     sent: 'Sent',
     add: '+ Add',
     noResults: 'No results found.',
+
+    // Info texts
+    friendSearchError: 'Error searching users',
+    networkError: 'Could not connect to the server.',
+    friendRequestSentTo: 'Request sent to {username}',
+    friendAlreadySent: 'Friend request already sent to {username}',
+    friendNotFound: 'User {username} not found',
+    friendSelfRequest: 'You cannot add yourself as a friend',
+    friendBlocked: 'You cannot interact with this user',
+    sendRequestError: 'Error sending request',
+  },
+  aboutUs: {
+    title: 'About Us',
+    subtitle:
+      'Four 42 Madrid developers building a real-time multiplayer arcade experience driven by modern software architecture.',
+    contributionsLabel: 'Assigned Work & Highlights',
+    roles: {
+      frontendLead: 'Project Manager QA & Frontend Lead Developer',
+      frontendArchitect: 'Product Owner & Frontend Architect/Designer',
+      backendLead: 'Backend Lead Developer & Real-time/Game Engine',
+      devopsLead: 'Technical Architect & DevOps Engineer',
+    },
+    contributions: {
+      member1:
+        'Frontend implementation, client-side routing and page development, i18n multi-language engine, User/friendship management interface and Chat',
+      member2:
+        'Frontend architecture, illustration creation, page development, i18n multi-language engine and game frontend design.',
+      member3:
+        'User authentication + JWT and Google, WebSocket implementation, chat functionality, live matchmaking and game engine',
+      member4:
+        'Docker Compose deployment orchestration, Nginx reverse proxy, prisma ORM with seed, user authentification, friend relationship management, and avatar management.',
+    },
+  },
+  aboutProject: {
+    title: 'About the Project',
+    subtitle:
+      'Technical specification, system architecture, and module breakdown evaluated under the official 42 guidelines (v21.2).',
+    summaryMandatory: 'Mandatory',
+    summaryBonus: 'Bonus',
+    mandatoryHeading: 'Mandatory Core Modules',
+    bonusHeading: 'Bonus Modules (Max 5 pts)',
+    pointsLabel: 'Points Claimed',
+    colModule: 'Module',
+    colCategory: 'Category',
+    colType: 'Type',
+    colPoints: 'Points',
+    categories: {
+      web: 'Web',
+      userMgmt: 'User Management',
+      gaming: 'Gaming & UX',
+      a11y: 'Accessibility & i18n',
+    },
+    types: {
+      major: 'Major (2 pts)',
+      minor: 'Minor (1 pt)',
+    },
+    modules: {
+      frameworks: {
+        title: 'Frontend & Backend Frameworks',
+        desc: 'React + Vite on client and NestJS modular architecture on server.',
+      },
+      websockets: {
+        title: 'Real-time WebSockets',
+        desc: 'Low-latency Socket.io server-authoritative ticks and event loop.',
+      },
+      interaction: {
+        title: 'User Interaction & Social',
+        desc: 'Global and lobby chat, public profiles, and live friend status.',
+      },
+      userMgmt: {
+        title: 'Standard User Management & Auth',
+        desc: 'Argon2id password hashing, JWT HTTP-only cookies, and avatar upload.',
+      },
+      game: {
+        title: 'Complete Web-Based Game',
+        desc: 'Real-time 2D Bomberman arena with clear rules and win/loss states.',
+      },
+      remote: {
+        title: 'Remote Players Support',
+        desc: 'Synchronized remote gameplay across separate devices with reconnect logic.',
+      },
+      multiplayer: {
+        title: 'Multiplayer 3+ Players',
+        desc: 'Concurrent 4-player deathmatch with real-time state synchronization.',
+      },
+      orm: {
+        title: 'Database ORM Integration',
+        desc: 'Prisma ORM schema, strong typings, migrations, and PostgreSQL relations.',
+      },
+      i18n: {
+        title: 'Multi-Language Support (3+)',
+        desc: 'Internationalization engine supporting English, Spanish, and Italian.',
+      },
+      customization: {
+        title: 'Game Customization & Power-ups',
+        desc: 'Dynamic power-up pickups (blast radius, extra bombs, speed boots).',
+      },
+      stats: {
+        title: 'Game Statistics & Match History',
+        desc: 'Player match records, win/loss tracking, and leaderboard rankings.',
+      },
+      spectator: {
+        title: 'Spectator Mode',
+        desc: 'Live spectator view for ongoing arena matches without player input lag.',
+      },
+    },
+  },
+  aboutGame: {
+    title: 'Rules of the Game',
+    subtitle:
+      'Tactical guide on movement mechanics, bomb placement, block types and upgrade catalog.',
   },
 
   hud: {

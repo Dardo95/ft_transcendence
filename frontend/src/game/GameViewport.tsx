@@ -4,12 +4,14 @@ import type {
   GameSnapshot,
 } from '@transcendence/shared';
 import { Application, type Ticker } from 'pixi.js';
+
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 import { useLanguage } from '../locales/useLanguage';
+
 import { gameSocket } from '../lib/socket';
+
 import { approach, computeSceneOffset, type CameraViewport } from './camera';
 import { demoBombStateAt } from './bombs/demoBombs';
 import { EndScreenOverlay } from './EndScreenOverlay';
@@ -42,6 +44,8 @@ const FPS_SAMPLE_MS = 1000;
 type ViewMode = 'connecting' | 'server' | 'demo';
 
 export function GameViewport() {
+  // The page is intentionally a thin route shell; all game lifecycle and
+  // rendering state belongs to this component and its focused collaborators.
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
@@ -67,6 +71,7 @@ export function GameViewport() {
     (searchParams.get('map') ?? DEFAULT_MAP_ID).toUpperCase()
   );
   const debugEnabled = searchParams.get('debug') === '1';
+  const isSpectator = searchParams.get('mode') === 'spectator';
 
   useEffect(() => {
     gameIdRef.current = routeGameId ?? 'demo';
@@ -276,6 +281,8 @@ export function GameViewport() {
       fitMap();
     };
 
+    // GameConnection owns join/reconnect/input protocol details. This
+    // component translates its snapshots into the Pixi scene and HUD.
     const connection = new GameConnection(gameSocket, {
       onJoined: (snapshot) => {
         if (destroyed) {
@@ -553,7 +560,9 @@ export function GameViewport() {
     // responde, `onFailed` cae a la demo — y como ese camino es
     // asíncrono (timer/excepción), nunca hay setState síncrono
     // en el effect (regla react-hooks/set-state-in-effect).
-    connection.join(gameIdRef.current);
+    const spectatorMode =
+      new URLSearchParams(window.location.search).get('mode') === 'spectator';
+    connection.join(gameIdRef.current, { spectator: spectatorMode });
 
     const resizeObserver = new ResizeObserver(() => {
       if (destroyed || !appRef.current?.renderer) {
@@ -642,7 +651,7 @@ export function GameViewport() {
               </span>
             </div>
           )}
-          {endScreenState !== 'playing' && !endDismissed && (
+          {!isSpectator && endScreenState !== 'playing' && !endDismissed && (
             <EndScreenOverlay
               state={endScreenState}
               onReturnToLobby={() => navigate('/lobby')}

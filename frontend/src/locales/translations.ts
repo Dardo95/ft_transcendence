@@ -18,11 +18,14 @@ import { authIt } from './it/auth';
 import { appEs } from './es/app';
 import { appEn } from './en/app';
 import { appIt } from './it/app';
+import { profileEs } from './es/profile';
+import { profileEn } from './en/profile';
+import { profileIt } from './it/profile';
 
 export const translations = {
-  es: { app: appEs, auth: authEs },
-  en: { app: appEn, auth: authEn },
-  it: { app: appIt, auth: authIt },
+  es: { app: appEs, auth: authEs, profile: profileEs },
+  en: { app: appEn, auth: authEn, profile: profileEn },
+  it: { app: appIt, auth: authIt, profile: profileIt },
 } as const;
 
 export type SupportedLanguage = keyof typeof translations;

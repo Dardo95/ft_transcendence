@@ -85,6 +85,18 @@ export const appIt = {
     matchmakingPublicText: 'Cerca giocatori per iniziare la partita',
     searchingText: 'Ricerca giocatori...',
     cancelText: 'Annulla',
+
+    // Notices
+    noticeLobbyCreated: 'Lobby creato correttamente',
+    noticeJoinedLobby: 'Ti sei unito al lobby',
+    noticeLeftLobby: 'Hai lasciato il lobby',
+    noticeInvitationSent: 'Invitazione inviata a',
+
+    // Error texts
+    errorNotConnected: 'Non sei connesso al server',
+    errorEnterUsername: 'Inserisci un nome utente',
+
+    // Info texts
     searchInfoText:
       'In attesa di giocatori pubblici (avvio automatico con 4 giocatori o al timeout se >=2 giocatori).',
     needPrivateText:
@@ -99,7 +111,7 @@ export const appIt = {
   },
   friends: {
     friendList: 'Lista amici',
-    addFriendPlaceholder: 'Aggiungi amico: inserisci il nome utente',
+    addFriendPlaceholder: 'Aggiungi amico: Inserisci il nome utente esatto',
     addFriendButton: 'Invia',
     friendRequestSent: 'Richiesta inviata a',
     requestSendError: "Errore nell'invio della richiesta",
@@ -122,9 +134,120 @@ export const appIt = {
     onlineStatus: 'Online',
     inGameStatus: 'In partita',
     offlineStatus: 'Offline',
-    sent: 'Inviata',
     add: '+ Aggiungi',
+    sent: 'Inviata',
     noResults: 'Nessun risultato trovato.',
+
+    // Info texts
+    friendSearchError: 'Errore nella ricerca di utenti',
+    networkError: 'Impossibile connettersi al server.',
+    friendRequestSentTo: 'Richiesta inviata a {username}',
+    friendAlreadySent: 'Richiesta già inviata a {username}',
+    friendNotFound: 'Utente {username} non trovato',
+    friendSelfRequest: 'Non puoi aggiungere te stesso come amico',
+    friendBlocked: 'Non puoi interagire con questo utente',
+    sendRequestError: "Errore nell'invio della richiesta",
+  },
+  aboutUs: {
+    title: 'Informazioni su di noi',
+    subtitle:
+      "Quattro sviluppatori di 42 Madrid che costruiscono un'esperienza arcade multiplayer in tempo reale guidata da un'architettura software moderna.",
+    contributionsLabel: 'Lavoro Assegnato e Punti Salienti',
+    roles: {
+      frontendLead: 'Project Manager QA & Frontend Lead Developer',
+      frontendArchitect: 'Product Owner & Frontend Architect/Designer',
+      backendLead: 'Backend Lead Developer & Real-time/Game Engine',
+      devopsLead: 'Technical Architect & DevOps Engineer',
+    },
+    contributions: {
+      member1:
+        'Implementazione frontend, routing lato client e sviluppo delle pagine, motore multilingua (i18n), interfaccia per la gestione degli utenti e delle amicizie, chat.',
+      member2:
+        'Architettura frontend, creazione di illustrazioni, sviluppo delle pagine, motore multilingua (i18n) e progettazione del frontend di gioco.',
+      member3:
+        "Autenticazione utente (inclusa l'integrazione con Google e JWT), implementazione di WebSocket, funzionalità di chat, matchmaking in tempo reale e motore di gioco.",
+      member4:
+        'Orchestrazione del deployment tramite Docker Compose, reverse proxy Nginx, utilizzo di Prisma ORM con seed, gestione delle relazioni di amicizia, autenticazione utente e gestione degli avatar.',
+    },
+  },
+  aboutProject: {
+    title: 'Sul Progetto',
+    subtitle:
+      'Specifiche tecniche, architettura di sistema e suddivisione dei moduli valutati secondo il regolamento ufficiale di 42 (v21.2).',
+    summaryMandatory: 'Obbligatorio',
+    summaryBonus: 'Bonus',
+    mandatoryHeading: 'Moduli Obbligatori di Base',
+    bonusHeading: 'Moduli Bonus (Max 5 pts)',
+    pointsLabel: 'Punti Dichiarati',
+    colModule: 'Modulo',
+    colCategory: 'Categoria',
+    colType: 'Tipo',
+    colPoints: 'Punti',
+    categories: {
+      web: 'Web',
+      userMgmt: 'Gestione Utenti',
+      gaming: 'Gioco e UX',
+      a11y: 'Accessibilità e i18n',
+    },
+    types: {
+      major: 'Mayor (2 pts)',
+      minor: 'Menor (1 pt)',
+    },
+    modules: {
+      frameworks: {
+        title: 'Framework Frontend e Backend',
+        desc: 'React + Vite sul client e architettura modulare NestJS sul server.',
+      },
+      websockets: {
+        title: 'Funzionalità Real-Time con WebSockets',
+        desc: 'Ciclo di gioco autoritativo con Socket.io e bassa latenza.',
+      },
+      interaction: {
+        title: 'Interazione Utente e Social',
+        desc: 'Chat globale e di lobby, profili pubblici e stato amici in tempo reale.',
+      },
+      userMgmt: {
+        title: 'Gestione Utente Standard e Autenticazione',
+        desc: 'Hashing password con Argon2id, cookie JWT HTTP-only e caricamento avatar.',
+      },
+      game: {
+        title: 'Gioco Completo basato su Web',
+        desc: 'Arena Bomberman 2D in tempo reale con regole chiare e condizioni di vittoria/sconfitta.',
+      },
+      remote: {
+        title: 'Supporto Giocatori Remoti',
+        desc: 'Gameplay sincronizzato tra dispositivi diversi con gestione riconnessioni.',
+      },
+      multiplayer: {
+        title: 'Partite Multigiocatore (3+ Giocatori)',
+        desc: 'Deathmatch fino a 4 giocatori simultanei con sincronizzazione di stato.',
+      },
+      orm: {
+        title: 'Integrazione ORM per Database',
+        desc: 'Schema Prisma con PostgreSQL, migrazioni tracciate e relazioni tipizzate.',
+      },
+      i18n: {
+        title: 'Supporto Multi-Lingua (3+ lingue)',
+        desc: 'Sistema di internazionalizzazione completo in inglese, spagnolo e italiano.',
+      },
+      customization: {
+        title: 'Personalizzazione e Power-Up',
+        desc: 'Potenziamenti dinamici (raggio di esplosione, bombe extra, stivali di velocità).',
+      },
+      stats: {
+        title: 'Statistiche e Cronologia Partite',
+        desc: 'Storico degli scontri, tracciamento vittorie/sconfitte e classifica competitiva.',
+      },
+      spectator: {
+        title: 'Modalità Spettatore',
+        desc: 'Visualizzazione in diretta delle partite in corso senza influenzare il gameplay.',
+      },
+    },
+  },
+  aboutGame: {
+    title: 'Regole del Gioco',
+    subtitle:
+      'Guida tattica su meccaniche di movimento, posizionamento delle bombe, tipi di blocchi e catalogo di potenziamenti.',
   },
   hud: {
     health: 'Vite',

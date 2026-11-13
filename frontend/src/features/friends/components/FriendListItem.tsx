@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { ChefHatIcon, EyeIcon, XIcon } from 'lucide-react';
 import { useLanguage } from '@/locales/useLanguage';
+
+import { Link } from 'react-router-dom';
+
+import { EyeIcon, XIcon } from 'lucide-react';
+import defaultAvatar from '@/assets/default.jpg';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,11 +20,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import type { FriendUser } from '../service/friendsService';
 
+type FriendListItemVariant = 'lobby' | 'profile';
+
 interface FriendListItemProps {
   friend: FriendUser;
   onInviteToLobby?: (friend: FriendUser) => void;
   onSpectate?: (gameId: string) => void;
   onRemove?: (username: string) => void;
+  variant?: FriendListItemVariant;
 }
 
 export function FriendListItem({
@@ -28,57 +35,72 @@ export function FriendListItem({
   onInviteToLobby,
   onSpectate,
   onRemove,
+  variant = 'lobby',
 }: FriendListItemProps) {
   const { t } = useLanguage();
-  const isPlaying = friend.status?.toLowerCase() === 'in_game';
-  const isOnline = friend.status?.toLowerCase() === 'online';
+  const status = friend.status?.toLowerCase();
+  const isPlaying = status === 'in_game';
+  const isOnline = status === 'online';
+  const statusLabel = isPlaying
+    ? t('app.friends.inGameStatus') || 'En partida'
+    : isOnline
+      ? t('app.friends.onlineStatus') || 'Online'
+      : t('app.friends.offlineStatus') || 'Desconectado';
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const isProfile = variant === 'profile';
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 transition-colors hover:bg-zinc-800/40">
-      <div className="flex items-center gap-2.5">
+    <div
+      className={`flex items-center justify-between transition-colors ${
+        isProfile
+          ? 'rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 hover:bg-zinc-900/60'
+          : 'rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 hover:bg-zinc-800/40'
+      }`}
+    >
+      <Link
+        to={`/profile/${encodeURIComponent(friend.username)}`}
+        title={t('profile.publicProfile')}
+        className="flex min-w-0 items-center gap-2.5 rounded-lg transition-opacity hover:opacity-80"
+      >
         <div className="relative">
-          {friend.avatarUrl ? (
-            <img
-              src={friend.avatarUrl}
-              alt={friend.username}
-              className="h-8 w-8 rounded-full border border-zinc-700 object-cover"
-            />
-          ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs">
-              <ChefHatIcon
-                className="h-4 w-4 text-zinc-400"
-                aria-hidden="true"
-              />
-            </div>
-          )}
+          <img
+            src={friend.avatarUrl || defaultAvatar}
+            alt={friend.username}
+            className={`rounded-full border border-zinc-700 bg-zinc-800 object-cover ${
+              isProfile ? 'size-10' : 'h-8 w-8'
+            }`}
+          />
           <span
             className={`absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-zinc-900 ${
-              isOnline
-                ? 'bg-emerald-500'
-                : isPlaying
-                  ? 'bg-amber-500'
+              isPlaying
+                ? 'bg-amber-500'
+                : isOnline
+                  ? 'bg-emerald-500'
                   : 'bg-zinc-600'
             }`}
           />
         </div>
         <div>
-          <p className="text-xs font-semibold text-zinc-200">
+          <p
+            className={`font-semibold text-zinc-100 ${
+              isProfile ? 'text-sm' : 'text-xs'
+            }`}
+          >
             {friend.username}
           </p>
-          <p className="text-[10px] text-zinc-400 capitalize">
-            {isPlaying
-              ? t('app.friends.inGameStatus') || 'En partida'
-              : friend.status ||
-                t('app.friends.offlineStatus') ||
-                'Desconectado'}
+          <p
+            className={`text-zinc-400 ${
+              isProfile ? 'text-[11px]' : 'text-[10px]'
+            }`}
+          >
+            {statusLabel}
           </p>
         </div>
-      </div>
+      </Link>
 
       <div className="flex items-center gap-1.5">
-        {/* Botón Espectador */}
+        {/* Spectate button */}
         {isPlaying && friend.currentGameId && (
           <Button
             type="button"
@@ -92,7 +114,7 @@ export function FriendListItem({
           </Button>
         )}
 
-        {/* Botón Invitar a Lobby (+) */}
+        {/* Invite to lobby button (+) */}
         {onInviteToLobby && isOnline && (
           <Button
             type="button"
@@ -106,7 +128,7 @@ export function FriendListItem({
           </Button>
         )}
 
-        {/* Boton Eliminar amigo */}
+        {/* Remove friend button */}
         {onRemove && (
           <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
             <AlertDialogTrigger asChild>

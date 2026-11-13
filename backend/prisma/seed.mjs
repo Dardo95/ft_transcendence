@@ -7,42 +7,92 @@ const DEMO_PASSWORD = 'Demo1234!';
 
 const demoUsers = [
   {
-    username: 'brivera',
-    email: 'brivera@example.com',
-    legacyEmail: 'demo1@example.com',
-    xp: 0,
-  },
-  {
     username: 'ozamora-',
     email: 'ozamora-@example.com',
     legacyEmail: 'demo2@example.com',
     xp: 120,
+    avatarUrl: '/api/uploads/avatars/member1.jpg',
+    twoFaEnabled: false,
+    twoFaSecret: null,
+    oauthProvider: null,
+    oauthId: null,
+    createdAt: new Date('2026-10-20T18:00:00.000Z'),
+  },
+  {
+    username: 'brivera',
+    email: 'brivera@example.com',
+    legacyEmail: 'demo1@example.com',
+    xp: 0,
+    avatarUrl: '/api/uploads/avatars/member2.png',
+    twoFaEnabled: false,
+    twoFaSecret: null,
+    oauthProvider: null,
+    oauthId: null,
+    createdAt: new Date('2026-10-20T18:00:00.000Z'),
   },
   {
     username: 'raperez-',
     email: 'raperez-@example.com',
     legacyEmail: 'demo3@example.com',
     xp: 340,
+    avatarUrl: '/api/uploads/avatars/member3.jpg',
+    twoFaEnabled: false,
+    twoFaSecret: null,
+    oauthProvider: null,
+    oauthId: null,
+    createdAt: new Date('2026-10-20T18:00:00.000Z'),
   },
   {
     username: 'enogueir',
     email: 'enogueir@example.com',
     legacyEmail: 'demo4@example.com',
     xp: 75,
+    avatarUrl: '/api/uploads/avatars/member4.jpg',
+    twoFaEnabled: false,
+    twoFaSecret: null,
+    oauthProvider: null,
+    oauthId: null,
+    createdAt: new Date('2026-10-20T18:00:00.000Z'),
   },
   {
     username: 'nsantand',
     email: 'nsantand@example.com',
+    legacyEmail: 'demo5@example.com',
     xp: 0,
+    avatarUrl: '/api/uploads/avatars/default.jpg',
+    twoFaEnabled: false,
+    twoFaSecret: null,
+    oauthProvider: null,
+    oauthId: null,
+    createdAt: new Date('2026-11-01T18:00:00.000Z'),
+  },
+  {
+    username: 'testuser',
+    email: 'testuser@example.com',
+    legacyEmail: 'demo6@example.com',
+    xp: 0,
+    avatarUrl: '/api/uploads/avatars/default.jpg',
+    twoFaEnabled: false,
+    twoFaSecret: null,
+    oauthProvider: null,
+    oauthId: null,
+    createdAt: new Date('2026-11-01T18:00:00.000Z'),
   },
 ];
 
 const demoFriendships = [
-  ['brivera', 'ozamora-'],
+  ['ozamora-', 'brivera'],
+  ['ozamora-', 'raperez-'],
+  ['ozamora-', 'enogueir'],
+  ['ozamora-', 'nsantand'],
+  ['ozamora-', 'testuser'],
   ['brivera', 'raperez-'],
   ['brivera', 'enogueir'],
   ['brivera', 'nsantand'],
+  ['brivera', 'testuser'],
   ['raperez-', 'enogueir'],
+  ['raperez-', 'testuser'],
+  ['enogueir', 'testuser'],
 ];
 
 const achievements = [
@@ -136,7 +186,18 @@ const demoMatches = [
   },
 ];
 
-async function upsertUser({ username, email, legacyEmail, xp }) {
+async function upsertUser({
+  username,
+  email,
+  legacyEmail,
+  xp,
+  avatarUrl,
+  twoFaEnabled,
+  twoFaSecret,
+  oauthProvider,
+  oauthId,
+  createdAt
+}) {
   const password = await argon2.hash(DEMO_PASSWORD);
 
   // Rename the previous demo account in place (same id, xp, friendships and
@@ -152,13 +213,13 @@ async function upsertUser({ username, email, legacyEmail, xp }) {
   if (existing) {
     return prisma.user.update({
       where: { id: existing.id },
-      data: { username, email, password },
+      data: { username, email, password, avatarUrl, xp, twoFaEnabled, twoFaSecret, oauthProvider, oauthId, createdAt },
       select: { id: true, username: true },
     });
   }
 
   return prisma.user.create({
-    data: { username, email, password, xp },
+    data: { username, email, password, xp, avatarUrl, twoFaEnabled, twoFaSecret, oauthProvider, oauthId, createdAt },
     select: { id: true, username: true },
   });
 }

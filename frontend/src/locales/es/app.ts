@@ -85,6 +85,18 @@ export const appEs = {
     matchmakingPublicText: 'Buscar jugadores para empezar partida',
     searchingText: 'Buscando jugadores...',
     cancelText: 'Cancelar',
+
+    // Notices
+    noticeLobbyCreated: 'Lobby creado correctamente',
+    noticeJoinedLobby: 'Te has unido al lobby',
+    noticeLeftLobby: 'Has salido del lobby',
+    noticeInvitationSent: 'Invitación enviada a',
+
+    // Error texts
+    errorNotConnected: 'No estás conectado al servidor',
+    errorEnterUsername: 'Introduce un nombre de usuario',
+
+    // Info texts
     searchInfoText:
       'Esperando jugadores públicos (arranque automático con 4 jugadores o al agotar el tiempo si hay al menos 2 jugadores).',
     needPrivateText:
@@ -122,9 +134,120 @@ export const appEs = {
     onlineStatus: 'En línea',
     inGameStatus: 'En partida',
     offlineStatus: 'Desconectado',
-    sent: 'Enviada',
     add: '+ Añadir',
-    noResults: 'No se encontraron resultados.',
+    sent: 'Enviada',
+    noResults: 'No se encontraron usuarios.',
+
+    // Info texts
+    friendSearchError: 'Error buscando usuarios',
+    networkError: 'No se pudo conectar con el servidor.',
+    friendRequestSentTo: 'Solicitud enviada a {username}',
+    friendAlreadySent: 'Solicitud ya enviada a {username}',
+    friendNotFound: 'Usuario {username} no encontrado',
+    friendSelfRequest: 'No puedes añadirte a ti mismo como amigo',
+    friendBlocked: 'No puedes interactuar con este usuario',
+    sendRequestError: 'Error al enviar solicitud',
+  },
+  aboutUs: {
+    title: 'Sobre Nosotros',
+    subtitle:
+      'Cuatro desarrolladores de 42 Madrid creando una experiencia arcade multijugador en tiempo real impulsada por arquitectura de software moderna.',
+    contributionsLabel: 'Trabajo Asignado y Logros',
+    roles: {
+      frontendLead: 'Project Manager QA & Líder de Desarrollo Frontend',
+      frontendArchitect: 'Product Owner y Arquitecto/Diseñador Frontend',
+      backendLead: 'Líder Backend y Motor en Tiempo Real',
+      devopsLead: 'Arquitecto Técnico y Ingeniero de DevOps',
+    },
+    contributions: {
+      member1:
+        'Implementación de diseño frontend, enrutamiento del lado del cliente y desarrollo de páginas, motor i18n multilenguaje, interfaz de gestión de usuarios/amistades y chat.',
+      member2:
+        'Arquitectura frontend, creación de ilustraciones, desarrollo de páginas, motor i18n multilenguaje y diseño frontend del juego.',
+      member3:
+        'Autenticación de usuarios + JWT y Google, implementación de WebSocket, funcionalidad de chat, matchmaking en vivo y motor del juego.',
+      member4:
+        'Despliegue y orquestación de contenedores Docker, nginx, prisma ORM con seed, gestión de relaciones de amistad, autenticación de usuarios y gestión de avatares.',
+    },
+  },
+  aboutProject: {
+    title: 'Sobre el Proyecto',
+    subtitle:
+      'Especificación técnica, arquitectura del sistema y desglose de módulos evaluados según la normativa oficial (v21.2).',
+    summaryMandatory: 'Obligatorio',
+    summaryBonus: 'Bonus',
+    mandatoryHeading: 'Módulos Obligatorios de Base',
+    bonusHeading: 'Módulos Bonus (Máx 5 pts)',
+    pointsLabel: 'Puntos Declarados',
+    colModule: 'Módulo',
+    colCategory: 'Categoría',
+    colType: 'Tipo',
+    colPoints: 'Puntos',
+    categories: {
+      web: 'Web',
+      userMgmt: 'Gestión de Usuarios',
+      gaming: 'Juego y UX',
+      a11y: 'Accesibilidad e i18n',
+    },
+    types: {
+      major: 'Mayor (2 pts)',
+      minor: 'Menor (1 pt)',
+    },
+    modules: {
+      frameworks: {
+        title: 'Frameworks en Frontend y Backend',
+        desc: 'React + Vite en cliente y arquitectura modular NestJS en servidor.',
+      },
+      websockets: {
+        title: 'Funcionalidades en Tiempo Real (WebSockets)',
+        desc: 'Bucle de juego autoritativo en servidor mediante Socket.io a baja latencia.',
+      },
+      interaction: {
+        title: 'Interacción de Usuarios y Social',
+        desc: 'Chat global y en lobby, perfiles públicos y estado de amigos en tiempo real.',
+      },
+      userMgmt: {
+        title: 'Gestión de Usuarios Estándar y Autenticación',
+        desc: 'Hashing con Argon2id, cookies HTTP-only JWT y subida de avatares.',
+      },
+      game: {
+        title: 'Juego Completo Basado en Web',
+        desc: 'Arena Bomberman 2D en tiempo real con reglas y condiciones de victoria claras.',
+      },
+      remote: {
+        title: 'Soporte de Jugadores Remotos',
+        desc: 'Partidas sincronizadas entre equipos separados y reconexión gestionada.',
+      },
+      multiplayer: {
+        title: 'Multijugador de 3 o más Jugadores',
+        desc: 'Arena simultánea para hasta 4 jugadores con sincronización de estado.',
+      },
+      orm: {
+        title: 'Uso de un ORM para la Base de Datos',
+        desc: 'Esquema relacional en PostgreSQL gestionado con Prisma y migraciones.',
+      },
+      i18n: {
+        title: 'Soporte Multilingüe (3+ idiomas)',
+        desc: 'Motor de internacionalización completo para inglés, español e italiano.',
+      },
+      customization: {
+        title: 'Opciones de Personalización y Power-ups',
+        desc: 'Objetos en mapa: mayor radio de bomba, bombas adicionales y botas de velocidad.',
+      },
+      stats: {
+        title: 'Estadísticas e Historial de Partidas',
+        desc: 'Historial de encuentros, registro de victorias/derrotas y tabla clasificatoria.',
+      },
+      spectator: {
+        title: 'Modo Espectador',
+        desc: 'Transmisión de partidas activas en tiempo real en modo sólo lectura.',
+      },
+    },
+  },
+  aboutGame: {
+    title: 'Reglas del Juego',
+    subtitle:
+      'Guía táctica sobre mecánicas de movimiento, colocación de bombas, tipos de bloques y catálogo de mejoras.',
   },
 
   hud: {

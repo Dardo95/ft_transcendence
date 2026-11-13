@@ -4,13 +4,14 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
-  HttpCode,
-  HttpStatus,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
 import { SendFriendRequestDto } from './dto/send-friend-request.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { FriendshipsService } from './friendships.service.js';
 import { UsersService } from './users.service.js';
 import { ChatGateway } from '../chat/chat.gateway.js';
@@ -41,7 +43,13 @@ export class UsersController {
 
   @Get('me')
   me(@CurrentUser('sub') userId: number) {
-    return this.usersService.findById(userId);
+    return this.usersService.findPrivateById(userId);
+  }
+
+  @Patch('me')
+  @HttpCode(HttpStatus.OK)
+  updateMe(@CurrentUser('sub') userId: number, @Body() dto: UpdateProfileDto) {
+    return this.usersService.updatePrivate(userId, dto);
   }
 
   @Post('me/avatar')
@@ -69,12 +77,19 @@ export class UsersController {
   }
 
   @Post('me/friend-requests')
+  @HttpCode(HttpStatus.OK)
   async requestFriend(
     @CurrentUser('sub') userId: number,
     @Body() dto: SendFriendRequestDto
   ) {
     const result = await this.friendships.request(userId, dto.username);
-    if (result && typeof result === 'object' && 'addresseeId' in result) {
+    if (
+      result &&
+      typeof result === 'object' &&
+      'outcome' in result &&
+      result.outcome === 'created' &&
+      'addresseeId' in result
+    ) {
       this.emitToUser(
         Number(result.addresseeId),
         'friend:incoming_request',

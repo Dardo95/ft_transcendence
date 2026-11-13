@@ -22,14 +22,14 @@ export function Footer() {
         {/* Year and Application Title */}
         <span>© 2026 {t('app.general.title') || 'ft_boomberman'}</span>
 
-        <span>•</span>
+        <span>✦</span>
 
         {/* Links to legal pages */}
         <Link to="/terms" className="transition-colors hover:text-zinc-300">
           {t('app.general.termsOfService') || 'Terms of Service'}
         </Link>
 
-        <span>•</span>
+        <span>✦</span>
 
         <Link to="/privacy" className="transition-colors hover:text-zinc-300">
           {t('app.general.privacyPolicy') || 'Privacy Policy'}

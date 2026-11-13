@@ -29,6 +29,7 @@ interface LobbyState {
   lobbyInvitations: LobbyInvitation[];
   error: string | null;
   notice: string | null;
+  noticeData: string | null;
 
   initListeners: () => () => void;
   createLobby: () => void;
@@ -36,6 +37,8 @@ interface LobbyState {
   inviteFriendToLobby: (username: string) => void;
   acceptLobbyInvitation: (invitationId: string) => void;
   rejectLobbyInvitation: (invitationId: string) => void;
+  clearError: () => void;
+  clearNotice: () => void;
   clearFeedback: () => void;
 }
 
@@ -44,6 +47,7 @@ export const useLobbyStore = create<LobbyState>((set) => ({
   lobbyInvitations: [],
   error: null,
   notice: null,
+  noticeData: null,
 
   initListeners: () => {
     const handleConnect = () => {
@@ -64,7 +68,8 @@ export const useLobbyStore = create<LobbyState>((set) => ({
       set({
         lobby,
         error: null,
-        notice: 'Lobby creado correctamente',
+        notice: 'noticeLobbyCreated',
+        noticeData: null,
       });
     };
 
@@ -73,7 +78,8 @@ export const useLobbyStore = create<LobbyState>((set) => ({
         lobby,
         lobbyInvitations: [],
         error: null,
-        notice: 'Te has unido al lobby',
+        notice: 'noticeJoinedLobby',
+        noticeData: null,
       });
     };
 
@@ -85,7 +91,8 @@ export const useLobbyStore = create<LobbyState>((set) => ({
       set({
         lobby: null,
         error: null,
-        notice: 'Has salido del lobby',
+        notice: 'noticeLeftLobby',
+        noticeData: null,
       });
     };
 
@@ -103,7 +110,8 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     const handleInvitationSent = (data: { username: string }) => {
       set({
         error: null,
-        notice: `Invitación enviada a ${data.username}`,
+        notice: 'noticeInvitationSent',
+        noticeData: data.username,
       });
     };
 
@@ -112,11 +120,13 @@ export const useLobbyStore = create<LobbyState>((set) => ({
         lobbyInvitations: state.lobbyInvitations.filter(
           (item) => item.id !== data.invitationId
         ),
+        notice: null,
+        noticeData: null,
       }));
     };
 
     const handleError = (data: { message: string }) => {
-      set({ error: data.message, notice: null });
+      set({ error: data.message, notice: null, noticeData: null });
     };
 
     chatSocket.on('connect', handleConnect);
@@ -150,10 +160,10 @@ export const useLobbyStore = create<LobbyState>((set) => ({
   },
 
   createLobby: () => {
-    set({ error: null, notice: null });
+    set({ error: null, notice: null, noticeData: null });
 
     if (!chatSocket.connected) {
-      set({ error: 'No estás conectado al servidor' });
+      set({ error: 'errorNotConnected' });
       return;
     }
 
@@ -161,49 +171,57 @@ export const useLobbyStore = create<LobbyState>((set) => ({
   },
 
   leaveLobby: () => {
-    set({ error: null, notice: null });
+    set({ error: null, notice: null, noticeData: null });
 
     if (chatSocket.connected) {
       chatSocket.emit('lobby:leave');
     }
   },
 
-  inviteFriendToLobby: (username) => {
+  inviteFriendToLobby: (username: string) => {
     const cleanUsername = username.trim();
 
     if (!cleanUsername) {
-      set({ error: 'Introduce un nombre de usuario' });
+      set({ error: 'errorEnterUsername' });
       return;
     }
 
     if (!chatSocket.connected) {
-      set({ error: 'No estás conectado al servidor' });
+      set({ error: 'errorNotConnected' });
       return;
     }
 
-    set({ error: null, notice: null });
+    set({ error: null, notice: null, noticeData: null });
     chatSocket.emit('lobby:invite', {
       username: cleanUsername,
     });
   },
 
-  acceptLobbyInvitation: (invitationId) => {
-    set({ error: null, notice: null });
+  acceptLobbyInvitation: (invitationId: string) => {
+    set({ error: null, notice: null, noticeData: null });
 
     if (chatSocket.connected) {
       chatSocket.emit('lobby:accept', { invitationId });
     }
   },
 
-  rejectLobbyInvitation: (invitationId) => {
-    set({ error: null });
+  rejectLobbyInvitation: (invitationId: string) => {
+    set({ error: null, notice: null, noticeData: null });
 
     if (chatSocket.connected) {
       chatSocket.emit('lobby:reject', { invitationId });
     }
   },
 
+  clearError: () => {
+    set({ error: null });
+  },
+
+  clearNotice: () => {
+    set({ notice: null, noticeData: null });
+  },
+
   clearFeedback: () => {
-    set({ error: null, notice: null });
+    set({ error: null, notice: null, noticeData: null });
   },
 }));

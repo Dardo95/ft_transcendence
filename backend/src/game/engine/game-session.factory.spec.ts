@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { parseMapText } from '../maps/map-loader.js';
+import { placeBomb } from './bomb-system.js';
 import { createGameSession } from './game-session.factory.js';
 
 const MAP_TEXT = [
@@ -87,6 +88,51 @@ describe('createGameSession', () => {
 
     expect(session.players.size).toBe(4);
     expect([...session.players.values()].every((p) => !p.isBot)).toBe(true);
+  });
+
+  it('applies lobby settings to players and bomb fuses', () => {
+    const session = createGameSession({
+      id: 'private-settings',
+      mode: 'PRIVATE',
+      map: map(),
+      players: [player('alice'), player('bob')],
+      settings: {
+        initialBombs: 2,
+        initialSpeed: 3,
+        fuseTime: 5,
+      },
+      nowMs: 1000,
+    });
+
+    for (const participant of session.players.values()) {
+      expect(participant.bombCapacity).toBe(2);
+      expect(participant.speedTilesPerSecond).toBe(6);
+    }
+
+    expect(session.settings.bombFuseMs).toBe(5_000);
+
+    session.status = 'RUNNING';
+    const placement = placeBomb(session, 'alice', 'bomb-settings', 2_000);
+
+    expect(placement.success).toBe(true);
+
+    if (placement.success) {
+      expect(placement.detonateAtMs).toBe(7_000);
+    }
+  });
+
+  it('keeps backend defaults when no lobby settings are provided', () => {
+    const session = createGameSession({
+      id: 'private-defaults',
+      mode: 'PRIVATE',
+      map: map(),
+      players: [player('alice'), player('bob')],
+      nowMs: 1000,
+    });
+
+    expect(session.players.get('alice')?.bombCapacity).toBe(1);
+    expect(session.players.get('alice')?.speedTilesPerSecond).toBe(4);
+    expect(session.settings.bombFuseMs).toBe(2_500);
   });
 
   it('rejects a private match with only one player', () => {

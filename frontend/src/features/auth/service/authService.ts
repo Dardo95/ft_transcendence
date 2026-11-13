@@ -17,7 +17,12 @@
  */
 
 import { apiFetch } from '../../../api/api';
-import type { AuthCredentials, AuthResponse } from '@transcendence/shared';
+import type {
+  AuthCredentials,
+  UpdateProfileInput,
+  UpdateProfileResponse,
+  UserPrivate,
+} from '@transcendence/shared';
 
 // Sends the registration HTTP request for a new user.
 export async function registerUser(
@@ -44,8 +49,49 @@ export async function logoutUser(): Promise<void> {
   });
 }
 
-export async function getMe(): Promise<AuthResponse> {
-  return await apiFetch<AuthResponse>('/users/me', {
+// Public session bootstrap. Returns null when there is no active session.
+export async function fetchSession(): Promise<UserPrivate | null> {
+  const response = await apiFetch<{ user: UserPrivate | null }>(
+    '/auth/session',
+    {
+      method: 'GET',
+    }
+  );
+  return response.user ?? null;
+}
+
+// Protected private profile. Throws 401 when there is no valid session.
+export async function getMyProfile(): Promise<UserPrivate> {
+  return apiFetch<UserPrivate>('/users/me', {
     method: 'GET',
+  });
+}
+
+// Updates the editable fields of the authenticated user's profile.
+// Business errors are returned as `outcome` values with HTTP 200.
+export async function updateMyProfile(
+  input: UpdateProfileInput
+): Promise<UpdateProfileResponse> {
+  return apiFetch<UpdateProfileResponse>('/users/me', {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+function avatarFilename(blob: Blob): string {
+  if (blob.type === 'image/png') return 'avatar.png';
+  if (blob.type === 'image/webp') return 'avatar.webp';
+  return 'avatar.jpg';
+}
+
+// Uploads the cropped avatar as multipart/form-data. The backend stores the
+// file on disk and persists the resulting `/api/uploads/avatars/...` URL.
+export async function updateMyAvatar(blob: Blob): Promise<UserPrivate> {
+  const formData = new FormData();
+  formData.append('avatar', blob, avatarFilename(blob));
+
+  return apiFetch<UserPrivate>('/users/me/avatar', {
+    method: 'POST',
+    body: formData,
   });
 }

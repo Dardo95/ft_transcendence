@@ -1,4 +1,4 @@
-import type { UserPublic } from "./users.js";
+import type { UserPrivate } from "./users.js";
 
 export interface AuthCredentials {
   email: string;
@@ -7,5 +7,5 @@ export interface AuthCredentials {
 }
 
 export interface AuthResponse {
-  user: UserPublic;
+  user: UserPrivate;
 }

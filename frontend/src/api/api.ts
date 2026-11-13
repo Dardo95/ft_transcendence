@@ -28,11 +28,15 @@ export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  // Browsers must set the multipart boundary themselves for FormData bodies.
+  const isFormData =
+    typeof FormData !== 'undefined' && options.body instanceof FormData;
+
   const config: RequestInit = {
     ...options,
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...options.headers,
     },
   };

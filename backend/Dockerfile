@@ -43,27 +43,25 @@ RUN ./node_modules/.bin/prisma generate
 # ---- Production ----
 FROM node:20-alpine
 
-RUN apk add --no-cache curl openssl libstdc++
+RUN apk add --no-cache curl openssl libstdc++ python3 make g++
 RUN npm install -g pnpm@12.5.1
 
 ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --chown=node:node --from=production-dependencies /app/node_modules ./node_modules
-COPY --chown=node:node --from=production-dependencies /app/backend/node_modules ./backend/node_modules
-
-# Compiled backend
+COPY --chown=node:node --from=builder /app/node_modules ./node_modules
+COPY --chown=node:node --from=builder /app/backend/node_modules ./backend/node_modules
 COPY --chown=node:node --from=builder /app/backend/dist ./backend/dist
+COPY --chown=node:node --from=builder /app/backend/package*.json ./backend/
+COPY --chown=node:node --from=builder /app/backend/tsconfig*.json ./backend/
+COPY --chown=node:node --from=builder /app/backend/prisma ./backend/prisma
+COPY --chown=node:node --from=builder /app/backend/src ./backend/src
+COPY --chown=node:node backend/maps ./backend/maps
 
-# Compiled shared package
 COPY --chown=node:node --from=builder /app/shared/package.json ./shared/package.json
 COPY --chown=node:node --from=builder /app/shared/dist ./shared/dist
-
-# Backend runtime files
-COPY --chown=node:node --from=builder /app/backend/package*.json ./backend/
-COPY --chown=node:node --from=builder /app/backend/prisma ./backend/prisma
-COPY --chown=node:node --from=builder /app/backend/maps ./backend/maps
+COPY --chown=node:node pnpm-workspace.yaml pnpm-lock.yaml ./
 
 WORKDIR /app/backend
 

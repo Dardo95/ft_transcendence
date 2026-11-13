@@ -4,7 +4,15 @@ import { useSocketStore } from '@/stores/useSocketStore';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useLanguage } from '@/locales/useLanguage';
 
-export function IncomingLobbyRequest() {
+type IncomingLobbyRequestVariant = 'lobby' | 'profile';
+
+interface IncomingLobbyRequestProps {
+  variant?: IncomingLobbyRequestVariant;
+}
+
+export function IncomingLobbyRequest({
+  variant = 'lobby',
+}: IncomingLobbyRequestProps) {
   const { t } = useLanguage();
   const isConnected = useSocketStore((state) => state.isConnected);
   const lobby = useLobbyStore((state) => state.lobby);
@@ -18,13 +26,15 @@ export function IncomingLobbyRequest() {
 
   if (invitations.length === 0) return null;
 
+  const cardClass =
+    variant === 'profile'
+      ? 'space-y-2 rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 text-zinc-100'
+      : 'space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl';
+
   return (
     <div className="space-y-3">
       {invitations.map((invitation) => (
-        <div
-          key={invitation.id}
-          className="space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl"
-        >
+        <div key={invitation.id} className={cardClass}>
           <p className="text-center text-sm">
             <strong>{invitation.inviterUsername}</strong>{' '}
             {t('app.lobby.invitesYou') || 'te invita a su lobby.'}
@@ -59,6 +69,5 @@ export function IncomingLobbyRequest() {
         </div>
       ))}
     </div>
-    // </Card>
   );
 }

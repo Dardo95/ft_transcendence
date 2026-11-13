@@ -9,6 +9,8 @@ import { PrismaService } from '../database/prisma.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { OAuth2Client } from 'google-auth-library';
+import type { UserPrivate } from '@transcendence/shared';
+import { toUserPrivate, userPrivateSelect } from '../users/user.mapper.js';
 
 @Injectable()
 export class AuthService {
@@ -185,6 +187,24 @@ export class AuthService {
 
     return this.sign({ id: user.id, username: user.username });
   }
+
+  async getSession(token?: string): Promise<{ user: UserPrivate | null }> {
+    if (!token) {
+      return { user: null };
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync<{ sub: number }>(token);
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+        select: userPrivateSelect,
+      });
+      return { user: user ? toUserPrivate(user) : null };
+    } catch {
+      return { user: null };
+    }
+  }
+
   /*----------utils-----------*/
 
   private sign(user: { id: number; username: string }) {
