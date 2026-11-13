@@ -138,6 +138,13 @@ prune:
 	fi
 	@echo ""
 
+clean-db:
+	@echo "$(YELLOW)Cleaning database volume...$(RESET)"
+	docker compose down --volumes --remove-orphans
+	docker volume rm ft_postgres_data 2>/dev/null || true
+	@echo "$(GREEN)Database volume cleaned!$(RESET)"
+	@echo ""
+
 # **************************************************************************** #
 # DEVELOPMENT MODE
 # Hot reload, code mounted from the host, no nginx
@@ -340,6 +347,23 @@ exec-%: check-% FORCE
 	@echo ""
 
 # **************************************************************************** #
+# GAME ASSETS
+
+assets:
+	@echo "$(CYAN)Syncing sprites to public/game...$(RESET)"
+	docker compose exec -T frontend pnpm assets:sync
+	@echo ""
+
+atlas:
+	@echo "$(CYAN)Generating sprite atlas...$(RESET)"
+	docker compose exec -T frontend pnpm atlas:build
+	@echo ""
+
+game-assets: assets atlas
+	@echo "$(GREEN)Game assets ready.$(RESET)"
+	@echo ""
+
+# **************************************************************************** #
 # HELP
 
 help:
@@ -358,6 +382,8 @@ help:
 	@echo "  make clean          - Remove containers and anonymous volumes"
 	@echo "  make fclean         - Remove this project's containers, database volume and certs"
 	@echo "  make re             - Start from scratch and rebuild the database"
+	@echo "  make prune          - Remove all Docker resources and volumes (use with caution!)"
+	@echo "  make clean-db       - Remove the database volume only (data will be lost!)"
 	@echo ""
 	@echo "  $(CYAN)Development:$(RESET)"
 	@echo "  make dev            - Dev mode: hot reload at http://localhost:5173"
@@ -398,6 +424,11 @@ help:
 	@echo "  make images-<srvc>  - Images of that service"
 	@echo "  make exec-<srvc>    - Shell inside that service, add CMD=\"...\" to run another command"
 	@echo ""
+	@echo " $(CYAN)Game Assets:$(RESET)"
+	@echo "  make assets         - Sync sprites to public/game"
+	@echo "  make atlas          - Generate sprite atlas"
+	@echo "  make game-assets    - Sync sprites and generate atlas. Use this before building the frontend image."
+	@echo ""
 
 .PHONY: all prep prep-env prep-tls build up down \
 		re clean fclean \
@@ -405,17 +436,3 @@ help:
 		typecheck lint buildcheck test allcheck envcheck sharedcheck \
 		ps config volumes images stats logs f \
 		help FORCE assets atlas game-assets
-
-assets:
-	@echo "$(CYAN)Syncing sprites to public/game...$(RESET)"
-	docker compose exec -T frontend pnpm assets:sync
-	@echo ""
-
-atlas:
-	@echo "$(CYAN)Generating sprite atlas...$(RESET)"
-	docker compose exec -T frontend pnpm atlas:build
-	@echo ""
-
-game-assets: assets atlas
-	@echo "$(GREEN)Game assets ready.$(RESET)"
-	@echo ""

@@ -62,4 +62,8 @@ coverage/
 
 # Uploads (User Avatars)
 backend/uploads/avatars/*
-!backend/uploads/avatars/.gitkeep
+!backend/uploads/avatars/default.jpg
+!backend/uploads/avatars/member1.jpg
+!backend/uploads/avatars/member2.png
+!backend/uploads/avatars/member3.jpg
+!backend/uploads/avatars/member4.jpg
