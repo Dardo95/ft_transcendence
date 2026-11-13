@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -107,9 +108,9 @@ export class FriendshipsService {
     const existing = await this.findBetween(meId, other.id);
     if (existing) {
       if (existing.status === 'BLOCKED') {
-        // Ya lo había bloqueado yo: no hay nada que cambiar.
+        // Already blocked by me: there is nothing to change.
         if (existing.requesterId === meId) return existing;
-        // Me bloqueó la otra persona: no puedo sobrescribir su bloqueo.
+        // Blocked by the other user: I cannot overwrite their block.
         throw new ForbiddenException('Interaction not allowed');
       }
       return this.prisma.friendship.update({
@@ -202,9 +203,9 @@ export class FriendshipsService {
     return rows.map((r: any) => {
       const user = r.requesterId === meId ? r.addressee : r.requester;
       const currentGameId = this.gameManager.getActiveGameIdForUser(user.id);
-      // La presencia se deriva de las conexiones vivas (y de las partidas en
-      // memoria) en vez de `User.isOnline`, que puede quedar obsoleto tras un
-      // reinicio o una desconexión no limpia del backend.
+      // Presence is derived from live connections (and in-memory matches)
+      // instead of `User.isOnline`, which can become stale after a restart or
+      // an unclean backend disconnect.
       const status = currentGameId
         ? 'in_game'
         : this.registry.isOnline('chat', user.id)

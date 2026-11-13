@@ -5,13 +5,7 @@ import type {
   UpdateProfileResponse,
   UserPrivate,
 } from '@transcendence/shared';
-import {
-  Check,
-  CheckCircle2,
-  Pencil,
-  UserRound,
-  X,
-} from 'lucide-react';
+import { Check, CheckCircle2, Pencil, UserRound, X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { AvatarUpload } from './AvatarUpload';
@@ -218,16 +212,17 @@ export function PrivateProfileView({
       type: 'email' as const,
       maxLength: undefined,
     },
-    {
-      key: 'password' as const,
-      label: t('profile.password') || 'Password',
-      value: '********',
-      canEdit: !emailManagedByOAuth,
-      // draft: passwordDraft, TO DO: Implement password change functionality
-      // setDraft: setPasswordDraft,
-      type: 'password' as const,
-      maxLength: undefined,
-    },
+    // TO DO: Implement password change functionality
+    // {
+    //   key: 'password' as const,
+    //   label: t('profile.password') || 'Password',
+    //   value: '********',
+    //   canEdit: !emailManagedByOAuth,
+    //   draft: passwordDraft,
+    //   setDraft: setPasswordDraft,
+    //   type: 'password' as const,
+    //   maxLength: undefined,
+    // },
   ];
 
   const readOnlyFields = [

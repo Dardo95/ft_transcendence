@@ -43,7 +43,6 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
     : t('profile.statusOffline') || 'Offline';
 
   const details = [
-
     {
       label: t('profile.joined') || 'Registered on',
       value: registrationDate,
