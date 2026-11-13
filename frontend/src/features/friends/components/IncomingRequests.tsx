@@ -4,7 +4,13 @@ import { IncomingFriendRequest } from './IncomingFriendRequest';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
 
-export function IncomingRequests() {
+type IncomingRequestsVariant = 'lobby' | 'profile';
+
+interface IncomingRequestsProps {
+  variant?: IncomingRequestsVariant;
+}
+
+export function IncomingRequests({ variant = 'lobby' }: IncomingRequestsProps) {
   const lobbyInvitations = useLobbyStore((state) => state.lobbyInvitations);
   const friendRequests = useFriendsStore(
     (state) => state.incomingFriendRequests
@@ -17,13 +23,13 @@ export function IncomingRequests() {
     <>
       {hasLobbyInvitations && (
         <div className="mb-1">
-          <IncomingLobbyRequest />
+          <IncomingLobbyRequest variant={variant} />
         </div>
       )}
 
       {hasFriendRequests && (
         <div className="mb-1">
-          <IncomingFriendRequest />
+          <IncomingFriendRequest variant={variant} />
         </div>
       )}
     </>

@@ -20,11 +20,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import type { FriendUser } from '../service/friendsService';
 
+type FriendListItemVariant = 'lobby' | 'profile';
+
 interface FriendListItemProps {
   friend: FriendUser;
   onInviteToLobby?: (friend: FriendUser) => void;
   onSpectate?: (gameId: string) => void;
   onRemove?: (username: string) => void;
+  variant?: FriendListItemVariant;
 }
 
 export function FriendListItem({
@@ -32,6 +35,7 @@ export function FriendListItem({
   onInviteToLobby,
   onSpectate,
   onRemove,
+  variant = 'lobby',
 }: FriendListItemProps) {
   const { t } = useLanguage();
   const status = friend.status?.toLowerCase();
@@ -44,9 +48,16 @@ export function FriendListItem({
       : t('app.friends.offlineStatus') || 'Desconectado';
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const isProfile = variant === 'profile';
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 transition-colors hover:bg-zinc-800/40">
+    <div
+      className={`flex items-center justify-between transition-colors ${
+        isProfile
+          ? 'rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 hover:bg-zinc-900/60'
+          : 'rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 hover:bg-zinc-800/40'
+      }`}
+    >
       <Link
         to={`/profile/${encodeURIComponent(friend.username)}`}
         title={t('profile.publicProfile')}
@@ -56,7 +67,9 @@ export function FriendListItem({
           <img
             src={friend.avatarUrl || defaultAvatar}
             alt={friend.username}
-            className="h-8 w-8 rounded-full border border-zinc-700 bg-zinc-800 object-cover"
+            className={`rounded-full border border-zinc-700 bg-zinc-800 object-cover ${
+              isProfile ? 'size-10' : 'h-8 w-8'
+            }`}
           />
           <span
             className={`absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-zinc-900 ${
@@ -69,15 +82,25 @@ export function FriendListItem({
           />
         </div>
         <div>
-          <p className="text-xs font-semibold text-zinc-200">
+          <p
+            className={`font-semibold text-zinc-100 ${
+              isProfile ? 'text-sm' : 'text-xs'
+            }`}
+          >
             {friend.username}
           </p>
-          <p className="text-[10px] text-zinc-400">{statusLabel}</p>
+          <p
+            className={`text-zinc-400 ${
+              isProfile ? 'text-[11px]' : 'text-[10px]'
+            }`}
+          >
+            {statusLabel}
+          </p>
         </div>
       </Link>
 
       <div className="flex items-center gap-1.5">
-        {/* Botón Espectador */}
+        {/* Spectate button */}
         {isPlaying && friend.currentGameId && (
           <Button
             type="button"
@@ -91,7 +114,7 @@ export function FriendListItem({
           </Button>
         )}
 
-        {/* Botón Invitar a Lobby (+) */}
+        {/* Invite to lobby button (+) */}
         {onInviteToLobby && isOnline && (
           <Button
             type="button"
@@ -105,7 +128,7 @@ export function FriendListItem({
           </Button>
         )}
 
-        {/* Boton Eliminar amigo */}
+        {/* Remove friend button */}
         {onRemove && (
           <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
             <AlertDialogTrigger asChild>

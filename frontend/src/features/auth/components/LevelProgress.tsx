@@ -15,10 +15,11 @@ export function LevelProgress({ xp }: LevelProgressProps) {
   const remaining = 100 - progress;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-bold tracking-wider text-orange-400 uppercase">
-          {t('profile.level') || 'Level'} {level}
+        <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
+          {t('profile.level') || 'Level'}{' '}
+          <span className="font-extrabold text-orange-400">{level}</span>
         </span>
         <span className="text-xs font-semibold text-zinc-300">
           {xp} {t('profile.totalXp') || 'XP'}

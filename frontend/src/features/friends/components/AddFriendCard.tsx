@@ -17,26 +17,33 @@ interface ApiResponse {
   limit: number;
 }
 
-export function AddFriendCard() {
+type AddFriendCardVariant = 'lobby' | 'profile';
+
+interface AddFriendCardProps {
+  variant?: AddFriendCardVariant;
+}
+
+export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
   const { t } = useLanguage();
+  const isProfile = variant === 'profile';
 
   const [targetUsername, setTargetUsername] = useState('');
   const [results, setResults] = useState<UserPublic[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  // Estados para el envío de solicitud por usuario
+  // Per-user friend request submission state
   const [sendingUser, setSendingUser] = useState<string | null>(null);
   const [sentMap, setSentMap] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState<FeedbackState | null>(null);
 
-  // Referencia para cancelar la petición en vuelo
+  // Reference used to cancel an in-flight search request
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const query = targetUsername.trim();
 
-    // Requisito: Mínimo 2 caracteres; si está vacío, limpiar y no buscar
+    // Require at least 2 characters; clear results when the query is empty
     if (query.length < 2) {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -49,9 +56,9 @@ export function AddFriendCard() {
       return;
     }
 
-    // Debounce de ~300 ms
+    // Debounce of about 300 ms
     const timer = setTimeout(async () => {
-      // 1. Cancelar petición anterior si existía
+      // Cancel the previous request if there was one
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -80,7 +87,7 @@ export function AddFriendCard() {
         setResults(data.data || []);
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === 'AbortError') {
-          return; // Cancelada de forma intencional por nueva pulsación
+          return; // Intentionally cancelled by a newer keystroke
         }
         setSearchError(t('app.friends.networkError'));
       } finally {
@@ -95,7 +102,7 @@ export function AddFriendCard() {
     };
   }, [targetUsername, t]);
 
-  // Enviar solicitud POST /api/users/me/friend-requests
+  // Send the request to POST /api/users/me/friend-requests
   async function handleSendRequest(username: string) {
     if (!username.trim() || sendingUser) return;
 
@@ -196,7 +203,13 @@ export function AddFriendCard() {
   const showDropdown = queryTrimmed.length >= 2;
 
   return (
-    <Card className="flex justify-between rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 transition-colors hover:bg-zinc-800/40">
+    <Card
+      className={
+        isProfile
+          ? 'flex flex-col gap-2 rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 transition-colors'
+          : 'flex justify-between rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 transition-colors hover:bg-zinc-800/40'
+      }
+    >
       <form onSubmit={handleFormSubmit} className="relative flex gap-2">
         <div className="relative flex-1">
           <Input
@@ -207,7 +220,9 @@ export function AddFriendCard() {
               t('app.friends.addFriendPlaceholder') ||
               'Añadir amigo: Introducir nombre de usuario'
             }
-            className="border-zinc-700 bg-zinc-950 pr-7 text-xs text-white"
+            className={`border-zinc-700 bg-zinc-950 pr-7 text-white ${
+              isProfile ? 'text-sm' : 'text-xs'
+            }`}
           />
 
           {isLoading && (
@@ -226,10 +241,10 @@ export function AddFriendCard() {
         </Button>
       </form>
 
-      {/* Feedback general de éxito o error */}
+      {/* General success or error feedback */}
       {feedback && (
         <p
-          className={`my-2 flex items-center justify-center rounded-xl bg-white p-2.5 text-center text-xs font-semibold text-orange-500 ${
+          className={`my-2 flex items-center justify-center rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-2.5 text-center text-xs font-semibold ${
             feedback.isError ? 'text-red-400' : 'text-emerald-400'
           }`}
         >
@@ -237,7 +252,7 @@ export function AddFriendCard() {
         </p>
       )}
 
-      {/* Resultados de búsqueda con autocompletado flotante */}
+      {/* Floating autocomplete search results */}
       {showDropdown && (
         <div className="mt-2 max-h-56 w-full divide-y divide-zinc-900 overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-950 p-1.5 shadow-2xl">
           {searchError && (

@@ -104,11 +104,15 @@ export function ProfilePage() {
   // 2. Loading state
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 p-12 text-zinc-400">
-        <Loader2 className="size-8 animate-spin text-orange-500" />
-        <p className="text-sm">
-          {t('profile.loading') || 'Loading user profile...'}
-        </p>
+      <div className="flex w-full justify-center px-4 py-8">
+        <div className="w-full max-w-5xl space-y-8">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/90 p-12 text-zinc-400 shadow-xl backdrop-blur-sm">
+            <Loader2 className="size-8 animate-spin text-orange-500" />
+            <p className="text-sm">
+              {t('profile.loading') || 'Loading user profile...'}
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -116,26 +120,30 @@ export function ProfilePage() {
   // 3. User not found (404)
   if (notFound || !publicUser) {
     return (
-      <div className="mx-auto my-12 max-w-md space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center shadow-xl">
-        <div className="flex justify-center">
-          <UserX className="size-12 text-zinc-500" />
-        </div>
-        <h3 className="text-xl font-bold text-red-400">
-          {t('profile.userNotFound') || 'User Not Found (404)'}
-        </h3>
-        <p className="text-sm text-zinc-400">
-          {t('profile.userNotFoundDesc') || 'The user'}{' '}
-          <span className="font-mono text-white">@{username}</span>{' '}
-          {t('profile.doesNotExist') || 'does not exist.'}
-        </p>
-        <div className="pt-2">
-          <Link
-            to="/lobby"
-            className="inline-flex items-center gap-2 rounded-xl bg-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-200 transition-colors hover:bg-zinc-700"
-          >
-            <ArrowLeft className="size-4" />
-            {t('profile.backToLobby') || 'Back to Lobby'}
-          </Link>
+      <div className="flex w-full justify-center px-4 py-8">
+        <div className="w-full max-w-5xl space-y-8">
+          <div className="mx-auto w-full max-w-md space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/90 p-8 text-center shadow-xl backdrop-blur-sm">
+            <div className="flex justify-center">
+              <UserX className="size-12 text-zinc-500" />
+            </div>
+            <h3 className="text-xl font-bold text-red-400">
+              {t('profile.userNotFound') || 'User Not Found (404)'}
+            </h3>
+            <p className="text-sm text-zinc-400">
+              {t('profile.userNotFoundDesc') || 'The user'}{' '}
+              <span className="font-mono text-white">@{username}</span>{' '}
+              {t('profile.doesNotExist') || 'does not exist.'}
+            </p>
+            <div className="pt-2">
+              <Link
+                to="/lobby"
+                className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950/60 px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:border-orange-500/40 hover:text-orange-400"
+              >
+                <ArrowLeft className="size-4" />
+                {t('profile.backToLobby') || 'Back to Lobby'}
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );

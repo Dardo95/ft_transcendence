@@ -43,4 +43,13 @@ export const profileEs = {
   twoFactorEnabled: 'Activada',
   twoFactorDisabled: 'Desactivada',
   managedByGoogle: 'Gestionado por Google',
+  privateProfileBadge: 'Mi perfil',
+  publicProfileBadge: 'Perfil de jugador',
+  statistics: 'Estadísticas',
+  edit: 'Editar',
+  editField: 'Editar {field}',
+  avatar: 'Avatar',
+  avatarHint: 'Imagen cuadrada · JPG, PNG o WebP',
+  uploadAvatar: 'Subir avatar',
+  someone: 'Alguien',
 };

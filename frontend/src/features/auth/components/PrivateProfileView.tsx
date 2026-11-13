@@ -5,14 +5,21 @@ import type {
   UpdateProfileResponse,
   UserPrivate,
 } from '@transcendence/shared';
-import { CheckCircle2, Save } from 'lucide-react';
-import { Card } from '../../../components/ui/card';
+import {
+  Check,
+  CheckCircle2,
+  Pencil,
+  UserRound,
+  X,
+} from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { AvatarUpload } from './AvatarUpload';
 import { LevelProgress } from './LevelProgress';
 import { FriendList } from '../../friends/components/FriendListCard';
 import { useLanguage } from '../../../locales/useLanguage';
+
+type EditableField = 'username' | 'email';
 
 interface PrivateProfileViewProps {
   user: UserPrivate;
@@ -22,21 +29,39 @@ interface PrivateProfileViewProps {
   ) => Promise<UpdateProfileResponse>;
 }
 
+const SECTION_CARD =
+  'rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl backdrop-blur-sm sm:p-8';
+const INNER_BOX = 'rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5';
+const LABEL =
+  'text-[11px] font-semibold tracking-wider text-zinc-400 uppercase';
+const ORANGE_BADGE =
+  'inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase';
+
+/**
+ * Private profile view.
+ * Read-first layout: values stay visible as text and only the targeted field
+ * switches to an inline form when its pencil button is pressed.
+ */
 export function PrivateProfileView({
   user,
   onAvatarUpload,
   onUpdateProfile,
 }: PrivateProfileViewProps) {
   const { t } = useLanguage();
-  const [username, setUsername] = useState(user.username);
-  const [email, setEmail] = useState(user.email);
+  const [editingField, setEditingField] = useState<EditableField | null>(null);
+  const [usernameDraft, setUsernameDraft] = useState(user.username);
+  const [emailDraft, setEmailDraft] = useState(user.email);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const emailManagedByOAuth = user.oauthProvider !== null;
   const registrationDate = user.createdAt
-    ? new Date(user.createdAt).toLocaleDateString()
+    ? new Date(user.createdAt).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
     : '—';
   const authenticationMethod = emailManagedByOAuth
     ? t('profile.googleOAuth') || 'Google OAuth'
@@ -63,30 +88,96 @@ export function PrivateProfileView({
     }
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const editLabel = (label: string) =>
+    (t('profile.editField') || 'Edit {field}').replace('{field}', label);
+
+  const startEditing = (field: EditableField) => {
+    setError(null);
+    setSuccess(null);
+    setEditingField(field);
+
+    if (field === 'username') {
+      setUsernameDraft(user.username);
+    } else {
+      setEmailDraft(user.email);
+    }
+  };
+
+  const cancelEditing = () => {
+    setEditingField(null);
+    setError(null);
+  };
+
+  const submitField = async (field: EditableField) => {
     setError(null);
     setSuccess(null);
 
-    const nextUsername = username.trim();
-    const nextEmail = email.trim();
+    if (field === 'username') {
+      const nextUsername = usernameDraft.trim();
 
-    if (!nextUsername || (!emailManagedByOAuth && !nextEmail)) {
+      if (
+        !nextUsername ||
+        nextUsername.length < 3 ||
+        nextUsername.length > 20 ||
+        /\s/.test(nextUsername)
+      ) {
+        setError(
+          t('profile.invalidUsername') ||
+            'Username must be 3-20 characters with no spaces.'
+        );
+        return;
+      }
+
+      if (nextUsername === user.username) {
+        setEditingField(null);
+        return;
+      }
+
+      setIsSaving(true);
+      try {
+        const result = await onUpdateProfile({ username: nextUsername });
+        if (result.outcome === 'updated') {
+          setSuccess(t('profile.updated') || 'Profile updated successfully.');
+          setEditingField(null);
+        } else {
+          setError(outcomeMessage(result.outcome));
+        }
+      } catch {
+        setError(
+          t('profile.updateFailed') ||
+            'Could not update your profile. Try again.'
+        );
+      } finally {
+        setIsSaving(false);
+      }
+      return;
+    }
+
+    const nextEmail = emailDraft.trim();
+
+    if (!nextEmail) {
       setError(
         t('profile.fieldsRequired') || 'Username and email are required.'
       );
       return;
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
+      setError(t('profile.invalidEmail') || 'Enter a valid email address.');
+      return;
+    }
+
+    if (nextEmail === user.email) {
+      setEditingField(null);
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const result = await onUpdateProfile({
-        username: nextUsername,
-        ...(emailManagedByOAuth ? {} : { email: nextEmail }),
-      });
-
+      const result = await onUpdateProfile({ email: nextEmail });
       if (result.outcome === 'updated') {
         setSuccess(t('profile.updated') || 'Profile updated successfully.');
+        setEditingField(null);
       } else {
         setError(outcomeMessage(result.outcome));
       }
@@ -99,134 +190,223 @@ export function PrivateProfileView({
     }
   };
 
-  const readOnlyFields = [
+  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (editingField) {
+      void submitField(editingField);
+    }
+  };
+
+  const editableFields = [
     {
-      label: t('profile.userId') || 'User ID',
-      value: `#${user.id}`,
-      accent: true,
+      key: 'username' as const,
+      label: t('profile.username') || 'Username',
+      value: user.username,
+      canEdit: true,
+      draft: usernameDraft,
+      setDraft: setUsernameDraft,
+      type: 'text' as const,
+      maxLength: 20,
     },
+    {
+      key: 'email' as const,
+      label: t('profile.email') || 'Email',
+      value: user.email,
+      canEdit: !emailManagedByOAuth,
+      draft: emailDraft,
+      setDraft: setEmailDraft,
+      type: 'email' as const,
+      maxLength: undefined,
+    },
+    {
+      key: 'password' as const,
+      label: t('profile.password') || 'Password',
+      value: '********',
+      canEdit: !emailManagedByOAuth,
+      // draft: passwordDraft, TO DO: Implement password change functionality
+      // setDraft: setPasswordDraft,
+      type: 'password' as const,
+      maxLength: undefined,
+    },
+  ];
+
+  const readOnlyFields = [
     {
       label: t('profile.joined') || 'Registered on',
       value: registrationDate,
+      tone: 'text-white',
     },
     {
       label: t('profile.authentication') || 'Authentication',
       value: authenticationMethod,
+      tone: 'text-white',
     },
     {
       label: t('profile.twoFactor') || 'Two-factor authentication',
       value: twoFactorStatus,
+      tone: user.twoFaEnabled ? 'text-emerald-400' : 'text-zinc-400',
     },
   ];
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6">
-      {/* Block A: editable profile data */}
-      <Card className="rounded-2xl border-zinc-800 bg-zinc-900 p-6 shadow-xl">
-        <h3 className="text-xs font-bold tracking-wider text-zinc-300 uppercase">
-          {t('profile.profileDetails') || 'Profile details'}
-        </h3>
+    <div className="flex w-full justify-center px-4 py-8">
+      <div className="w-full max-w-5xl space-y-8">
+        {/* Editable profile details */}
+        <section className={SECTION_CARD}>
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xl font-bold text-white">
+              {t('profile.myProfile') || 'My Profile'}
+              <span className="text-s ml-3 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 font-semibold text-zinc-300">
+                #{user.id}
+              </span>
+            </h2>
+            <span className={ORANGE_BADGE}>
+              <UserRound className="size-3.5" aria-hidden="true" />
+              {t('profile.privateProfileBadge') || 'Editable Data'}
+            </span>
+          </div>
 
-        <div className="mt-5 flex flex-col items-center gap-6 md:flex-row md:items-start">
-          <AvatarUpload
-            currentAvatarUrl={user.avatarUrl}
-            username={user.username}
-            onAvatarUpdated={onAvatarUpload}
-          />
-
-          <form
-            onSubmit={handleSubmit}
-            className="w-full flex-1 space-y-4 text-left"
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <label className="space-y-1 text-xs font-semibold tracking-wide text-zinc-400 uppercase">
-                {t('profile.username') || 'Username'}
-                <Input
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                  maxLength={20}
-                  autoComplete="username"
-                  disabled={isSaving}
-                />
-              </label>
-
-              <label className="space-y-1 text-xs font-semibold tracking-wide text-zinc-400 uppercase">
-                {t('profile.email') || 'Email'}
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  autoComplete="email"
-                  disabled={isSaving || emailManagedByOAuth}
-                />
-              </label>
+          <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,220px)_1fr]">
+            {/* Avatar selector */}
+            <div className="flex flex-col items-center gap-3 text-center">
+              <AvatarUpload
+                currentAvatarUrl={user.avatarUrl}
+                username={user.username}
+                onAvatarUpdated={onAvatarUpload}
+              />
             </div>
 
-            {emailManagedByOAuth && (
-              <p className="text-xs text-zinc-500">
-                {t('profile.managedByGoogle') || 'Managed by Google'}
-              </p>
-            )}
+            {/* Editable username and email */}
+            <div className="space-y-3">
+              {editableFields.map((field) => {
+                const isEditing = editingField === field.key;
 
-            {error && (
-              <p className="text-xs font-medium text-red-400" role="alert">
-                {error}
-              </p>
-            )}
+                return (
+                  <div key={field.key} className={INNER_BOX}>
+                    {isEditing ? (
+                      <form onSubmit={handleFormSubmit} className="space-y-2.5">
+                        <label className={`block ${LABEL}`}>
+                          {field.label}
+                          <Input
+                            autoFocus
+                            type={field.type}
+                            value={field.draft}
+                            onChange={(event) =>
+                              field.setDraft(event.target.value)
+                            }
+                            maxLength={field.maxLength}
+                            autoComplete={field.key}
+                            disabled={isSaving}
+                            className="mt-1.5 border-zinc-800 bg-zinc-900 text-sm text-white"
+                          />
+                        </label>
 
-            {success && (
-              <p className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400">
-                <CheckCircle2 className="size-4" />
-                {success}
-              </p>
-            )}
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="submit"
+                            size="sm"
+                            disabled={isSaving}
+                            className="gap-1.5 bg-orange-600 text-xs font-semibold text-white hover:bg-orange-500"
+                          >
+                            <Check className="size-3.5" aria-hidden="true" />
+                            {isSaving
+                              ? t('profile.saving') || 'Saving...'
+                              : t('profile.save') || 'Save changes'}
+                          </Button>
 
-            <Button type="submit" size="sm" disabled={isSaving}>
-              <Save className="size-4" />
-              {isSaving
-                ? t('profile.saving') || 'Saving...'
-                : t('profile.save') || 'Save changes'}
-            </Button>
-          </form>
-        </div>
-      </Card>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            disabled={isSaving}
+                            onClick={cancelEditing}
+                            className="gap-1.5 text-xs"
+                          >
+                            <X className="size-3.5" aria-hidden="true" />
+                            {t('profile.cancel') || 'Cancel'}
+                          </Button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className={LABEL}>{field.label}</p>
+                          <p className="mt-1 text-sm font-medium break-all text-white">
+                            {field.value}
+                          </p>
 
-      {/* Block B: read-only account data */}
-      <Card className="rounded-2xl border-zinc-800 bg-zinc-900 p-6 shadow-xl">
-        <h3 className="text-xs font-bold tracking-wider text-zinc-300 uppercase">
-          {t('profile.accountInformation') || 'Account information'}
-        </h3>
+                          {field.key === 'email' && emailManagedByOAuth && (
+                            <span className="mt-2 inline-flex rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[11px] font-semibold tracking-wider text-orange-400 uppercase">
+                              {t('profile.managedByGoogle') ||
+                                'Managed by Google'}
+                            </span>
+                          )}
+                        </div>
 
-        <div className="mt-4">
-          <LevelProgress xp={user.xp} />
-        </div>
+                        {field.canEdit && (
+                          <button
+                            type="button"
+                            onClick={() => startEditing(field.key)}
+                            title={editLabel(field.label)}
+                            aria-label={editLabel(field.label)}
+                            className="rounded-lg border border-zinc-800 bg-zinc-900 p-2 text-zinc-400 transition-colors hover:border-orange-500/40 hover:text-orange-400"
+                          >
+                            <Pencil className="size-3.5" aria-hidden="true" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
 
-        <dl className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {readOnlyFields.map((field) => (
-            <div
-              key={field.label}
-              className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-3"
-            >
-              <dt className="text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
-                {field.label}
-              </dt>
-              <dd
-                className={`mt-0.5 text-sm break-all ${
-                  field.accent
-                    ? 'font-semibold text-orange-400'
-                    : 'text-zinc-200'
-                }`}
-              >
-                {field.value}
-              </dd>
+              {error && (
+                <p className="text-xs font-medium text-red-400" role="alert">
+                  {error}
+                </p>
+              )}
+
+              {success && (
+                <p className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400">
+                  <CheckCircle2 className="size-4" aria-hidden="true" />
+                  {success}
+                </p>
+              )}
             </div>
-          ))}
-        </dl>
-      </Card>
+          </div>
+        </section>
 
-      {/* Friends & Social Management */}
-      <div className="gap-6">
-        <FriendList />
+        {/* Read-only account information */}
+        <section className={SECTION_CARD}>
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xl font-bold text-white">
+              {t('profile.accountInformation') || 'Account information'}
+            </h2>
+            <span className={ORANGE_BADGE}>
+              {t('profile.authentication') || 'Authentication'}
+            </span>
+          </div>
+
+          <div className={`${INNER_BOX} mt-5`}>
+            <LevelProgress xp={user.xp} />
+          </div>
+
+          <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {readOnlyFields.map((field) => (
+              <div key={field.label} className={INNER_BOX}>
+                <dt className={LABEL}>{field.label}</dt>
+                <dd
+                  className={`mt-1 text-sm font-semibold break-all ${field.tone}`}
+                >
+                  {field.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {/* Friends and social management */}
+        <FriendList variant="profile" />
       </div>
     </div>
   );

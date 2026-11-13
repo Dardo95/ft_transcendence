@@ -42,4 +42,13 @@ export const profileEn = {
   twoFactorEnabled: 'Enabled',
   twoFactorDisabled: 'Disabled',
   managedByGoogle: 'Managed by Google',
+  privateProfileBadge: 'Editable Data',
+  publicProfileBadge: 'Player Profile',
+  statistics: 'Statistics',
+  edit: 'Edit',
+  editField: 'Edit {field}',
+  avatar: 'Avatar',
+  avatarHint: 'Square image · JPG, PNG or WebP',
+  uploadAvatar: 'Upload avatar',
+  someone: 'Someone',
 };

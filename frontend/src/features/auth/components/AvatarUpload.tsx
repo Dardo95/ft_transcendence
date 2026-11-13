@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { cropImageToSquare } from '../../../lib/imageCrop';
+import { useLanguage } from '../../../locales/useLanguage';
 import defaultAvatar from '../../../assets/default.jpg';
 
 interface AvatarUploadProps {
@@ -14,6 +15,7 @@ export function AvatarUpload({
   username,
   onAvatarUpdated,
 }: AvatarUploadProps) {
+  const { t } = useLanguage();
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -36,8 +38,8 @@ export function AvatarUpload({
   };
 
   return (
-    <div className="group relative size-28 shrink-0">
-      <div className="size-28 overflow-hidden rounded-2xl border-2 border-orange-500/50 bg-zinc-800 shadow-lg">
+    <div className="group relative size-55 shrink-0">
+      <div className="size-55 overflow-hidden rounded-2xl border-2 border-orange-500/50 bg-zinc-800 shadow-lg">
         <img
           src={preview || currentAvatarUrl || defaultAvatar}
           alt={username}
@@ -54,7 +56,7 @@ export function AvatarUpload({
         type="button"
         disabled={isUploading}
         onClick={() => fileInputRef.current?.click()}
-        aria-label="Upload avatar"
+        aria-label={t('profile.uploadAvatar') || 'Upload avatar'}
         className="absolute right-0 bottom-0 rounded-xl bg-orange-600 p-2 text-white shadow-md transition-transform hover:bg-orange-500 active:scale-95 disabled:opacity-50"
       >
         {isUploading ? (
