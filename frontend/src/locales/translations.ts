@@ -24,11 +24,32 @@ import { profileIt } from './it/profile';
 import { projectEs } from './es/project';
 import { projectEn } from './en/project';
 import { projectIt } from './it/project';
+import { legalEs } from './es/legal';
+import { legalEn } from './en/legal';
+import { legalIt } from './it/legal';
 
 export const translations = {
-  es: { app: appEs, auth: authEs, profile: profileEs, project: projectEs },
-  en: { app: appEn, auth: authEn, profile: profileEn, project: projectEn },
-  it: { app: appIt, auth: authIt, profile: profileIt, project: projectIt },
+  es: {
+    app: appEs,
+    auth: authEs,
+    profile: profileEs,
+    project: projectEs,
+    legal: legalEs,
+  },
+  en: {
+    app: appEn,
+    auth: authEn,
+    profile: profileEn,
+    project: projectEn,
+    legal: legalEn,
+  },
+  it: {
+    app: appIt,
+    auth: authIt,
+    profile: profileIt,
+    project: projectIt,
+    legal: legalIt,
+  },
 } as const;
 
 export type SupportedLanguage = keyof typeof translations;
