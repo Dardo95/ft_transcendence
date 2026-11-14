@@ -12,7 +12,7 @@
 
 export const authIt = {
   login: {
-    tag: 'Accedi',
+    tab: 'Accedi',
     heading: 'Bentornato!',
     subheading: 'Accedi per continuare la tua partita.',
     connecting: 'Connessione...',
@@ -29,7 +29,7 @@ export const authIt = {
     registerInstead: 'Registrati',
   },
   register: {
-    tag: 'Crea un account',
+    tab: 'Crea un account',
     heading: 'Unisciti a noi per divertirti con il gioco!',
     subheading: 'Registrati per iniziare a giocare.',
     connecting: 'Registrando...',

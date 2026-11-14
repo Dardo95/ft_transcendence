@@ -21,23 +21,28 @@ import { appIt } from './it/app';
 import { profileEs } from './es/profile';
 import { profileEn } from './en/profile';
 import { profileIt } from './it/profile';
+import { projectEs } from './es/project';
+import { projectEn } from './en/project';
+import { projectIt } from './it/project';
 
 export const translations = {
-  es: { app: appEs, auth: authEs, profile: profileEs },
-  en: { app: appEn, auth: authEn, profile: profileEn },
-  it: { app: appIt, auth: authIt, profile: profileIt },
+  es: { app: appEs, auth: authEs, profile: profileEs, project: projectEs },
+  en: { app: appEn, auth: authEn, profile: profileEn, project: projectEn },
+  it: { app: appIt, auth: authIt, profile: profileIt, project: projectIt },
 } as const;
 
 export type SupportedLanguage = keyof typeof translations;
 
 // Type helpers to infer dotted paths (e.g. "auth.login.title")
 type TranslationTree = typeof translations.es;
-type Leaves<T> = T extends object
-  ? {
-      [K in keyof T]: T[K] extends object
-        ? `${Extract<K, string>}.${Leaves<T[K]>}`
-        : Extract<K, string>;
-    }[keyof T]
-  : '';
+type Leaves<T> = T extends readonly unknown[]
+  ? ''
+  : T extends object
+    ? {
+        [K in keyof T]: T[K] extends object
+          ? `${Extract<K, string>}.${Leaves<T[K]>}`
+          : Extract<K, string>;
+      }[keyof T]
+    : '';
 
 export type TranslationKey = Leaves<TranslationTree>;
