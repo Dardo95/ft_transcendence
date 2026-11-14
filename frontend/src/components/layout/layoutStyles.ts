@@ -5,7 +5,7 @@
  */
 
 /* Containers */
-export const PAGE_SHELL = 'flex w-full justify-center px-4 py-8 md:py-12';
+export const PAGE_SHELL = 'flex w-full justify-center px-4 py-4';
 export const PAGE_CONTAINER = 'w-full max-w-5xl space-y-8';
 export const PAGE_CONTAINER_COMPACT = 'w-full max-w-4xl space-y-8';
 
