@@ -5,7 +5,7 @@ import {
   PAGE_SHELL,
   PAGE_SUBTITLE,
   PAGE_TITLE,
-} from '../components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 
 export function NotFoundPage() {
   const { t } = useLanguage();

@@ -126,7 +126,6 @@ export default function App() {
               <Route path="/game/:id?" element={<GamePage />} />
             </Route>
           </Route>
-
         </Routes>
       </Suspense>
     </BrowserRouter>

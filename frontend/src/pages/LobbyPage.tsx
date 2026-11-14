@@ -7,7 +7,7 @@ import { FriendList } from '@/features/friends/components/FriendListCard';
 import { LobbyChat } from '@/features/chat/components/LobbyChat';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { Card } from '@/components/ui/card';
-import { CARD } from '@/components/ui/layoutStyles';
+import { CARD } from '@/components/layout/layoutStyles';
 import { gameSocket } from '@/lib/socket';
 import { useLanguage } from '@/locales/useLanguage';
 import {

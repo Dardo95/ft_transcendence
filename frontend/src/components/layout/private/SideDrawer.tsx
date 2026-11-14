@@ -8,6 +8,7 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useLanguage } from '../../../locales/useLanguage';
+import { Button } from '@/components/ui/button';
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -35,13 +36,16 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             <h2 className="text-lg font-bold tracking-wider text-orange-400">
               {t('app.general.title') || 'ft_boomberman'}
             </h2>
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
               onClick={onClose}
-              className="p-1 text-lg font-bold text-zinc-400 hover:text-white"
+              className="text-zinc-400 hover:text-white"
               aria-label="Close navigation drawer"
             >
               <XIcon className="h-5 w-5" aria-hidden="true" />
-            </button>
+            </Button>
           </div>
 
           {/* Navigation links */}

@@ -9,7 +9,7 @@ import {
   CARD,
   HEADER_BADGE,
   PAGE_SUBTITLE,
-} from '../components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 
 import logoUrl from '../assets/ui_logo.svg';
 import backgroundImage from '../assets/ui_login_bg.svg';

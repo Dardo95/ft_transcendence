@@ -22,7 +22,7 @@ import {
   INNER_BOX,
   PAGE_CONTAINER,
   PAGE_SHELL,
-} from '../components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 
 type PublicProfileState = {
   username: string;

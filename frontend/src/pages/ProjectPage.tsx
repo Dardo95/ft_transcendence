@@ -13,7 +13,7 @@ import {
   TABLE_HEAD,
   TABLE_ROW,
   TABLE_WRAPPER,
-} from '../components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 
 interface ModuleItem {
   id: string;

@@ -21,7 +21,7 @@ import {
   SECTION_SUBLABEL,
   SECTION_TITLE,
   TAG_CHIP,
-} from '../../../components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 
 type EditableField = 'username' | 'email';
 

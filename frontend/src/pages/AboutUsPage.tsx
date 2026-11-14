@@ -10,7 +10,7 @@ import {
   SECTION_CARD,
   SECTION_SUBLABEL,
   SECTION_TEXT,
-} from '../components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 import { Bomb } from 'lucide-react';
 
 import member1Avatar from '../assets/member1.jpg';

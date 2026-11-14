@@ -3,7 +3,11 @@ import type { UserPublic } from '@transcendence/shared';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { INNER_BOX } from '@/components/ui/layoutStyles';
+import {
+  ALERT_ERROR,
+  ALERT_SUCCESS,
+  INNER_BOX,
+} from '@/components/layout/layoutStyles';
 import { useLanguage } from '@/locales/useLanguage';
 
 type FeedbackState = {
@@ -245,8 +249,8 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
       {/* General success or error feedback */}
       {feedback && (
         <p
-          className={`my-2 flex items-center justify-center p-2.5 text-center text-xs font-semibold ${INNER_BOX} ${
-            feedback.isError ? 'text-red-400' : 'text-emerald-400'
+          className={`my-2 flex items-center justify-center text-center font-semibold ${
+            feedback.isError ? ALERT_ERROR : ALERT_SUCCESS
           }`}
         >
           {feedback.text}

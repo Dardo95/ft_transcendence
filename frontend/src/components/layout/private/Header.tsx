@@ -17,6 +17,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogOutIcon, MenuIcon, UserIcon } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/store/useAuthStore';
 import { useLanguage } from '../../../locales/useLanguage';
+import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
 import logoUrl from '@/assets/ui_logo.svg';
@@ -58,14 +59,16 @@ export function Header({ onOpenDrawer }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 flex w-full items-center justify-between border-b border-zinc-800 bg-zinc-950/90 py-3 backdrop-blur-md md:px-4">
       {/* Left section: Drawer toggle button */}
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-lg"
         onClick={onOpenDrawer}
-        className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-white focus:outline-none"
+        className="text-zinc-400 hover:bg-zinc-900 hover:text-white"
         aria-label="Open sidebar menu"
       >
         <MenuIcon className="h-5 w-5" aria-hidden="true" />
-      </button>
+      </Button>
 
       {/* Center section: logo */}
       <div className="flex gap-2">

@@ -1,5 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
-import { CARD } from '@/components/ui/layoutStyles';
+import { CARD } from '@/components/layout/layoutStyles';
 
 import type { GameMode, MatchmakingPayload } from '../types';
 

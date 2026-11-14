@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { useLanguage } from '@/locales/useLanguage';
+import { ALERT_ERROR, ALERT_SUCCESS } from '@/components/layout/layoutStyles';
 
 const AUTO_DISMISS_MS = 5_000;
 
@@ -50,28 +51,19 @@ export function LobbyNotifications({
   return (
     <div className="mb-4 grid gap-2" aria-live="polite">
       {error && (
-        <div
-          role="alert"
-          className="rounded-[0.65rem] border border-red-700/30 bg-red-900/15 px-3.5 py-3 text-[0.78rem] text-red-200"
-        >
+        <div role="alert" className={ALERT_ERROR}>
           {t(`app.lobby.${error}`) || error}
         </div>
       )}
 
       {gameError && (
-        <div
-          role="alert"
-          className="rounded-[0.65rem] border border-red-700/30 bg-red-900/15 px-3.5 py-3 text-[0.78rem] text-red-200"
-        >
+        <div role="alert" className={ALERT_ERROR}>
           {gameError}
         </div>
       )}
 
       {notice && (
-        <div
-          role="status"
-          className="rounded-[0.65rem] border border-emerald-700/25 bg-emerald-900/15 px-3.5 py-3 text-[0.78rem] text-emerald-200"
-        >
+        <div role="status" className={ALERT_SUCCESS}>
           {t(`app.lobby.${notice}`) || notice}
           {notice === 'noticeInvitationSent' && noticeData && (
             <span className="ms-2 text-sm">a {noticeData}</span>

@@ -7,7 +7,7 @@ import { useLanguage } from '@/locales/useLanguage';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CARD, SECTION_TITLE } from '@/components/ui/layoutStyles';
+import { CARD, SECTION_TITLE } from '@/components/layout/layoutStyles';
 
 export function InviteFriendToLobbyForm() {
   const { t } = useLanguage();

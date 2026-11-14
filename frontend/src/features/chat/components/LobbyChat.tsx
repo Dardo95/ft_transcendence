@@ -13,7 +13,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageSquareIcon, SendIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { CARD, SECTION_SUBLABEL } from '@/components/ui/layoutStyles';
+import {
+  CARD,
+  SECTION_SUBLABEL,
+  STATUS_DOT,
+} from '@/components/layout/layoutStyles';
 
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useSocketStore } from '@/stores/useSocketStore';
@@ -110,7 +114,7 @@ export function LobbyChat() {
         </h4>
 
         <span
-          className={`h-2 w-2 rounded-full ${
+          className={`${STATUS_DOT} ${
             isConnected
               ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50'
               : 'bg-red-500'

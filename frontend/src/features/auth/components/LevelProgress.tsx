@@ -1,5 +1,5 @@
 import { useLanguage } from '../../../locales/useLanguage';
-import { SECTION_SUBLABEL } from '../../../components/ui/layoutStyles';
+import { SECTION_SUBLABEL } from '@/components/layout/layoutStyles';
 
 interface LevelProgressProps {
   xp: number;

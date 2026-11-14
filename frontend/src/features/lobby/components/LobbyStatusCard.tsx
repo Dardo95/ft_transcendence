@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useLanguage } from '@/locales/useLanguage';
-import { CARD, INNER_BOX } from '@/components/ui/layoutStyles';
+import { CARD, INNER_BOX } from '@/components/layout/layoutStyles';
 
 export function LobbyStatusCard() {
   const { t } = useLanguage();

@@ -11,8 +11,9 @@ import {
   SECTION_CARD,
   SECTION_SUBLABEL,
   SECTION_TITLE,
+  STATUS_DOT,
   TAG_CHIP,
-} from '../../../components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 
 import { UserCheck, UserPlus, UserRound } from 'lucide-react';
 import defaultAvatar from '../../../assets/default.jpg';
@@ -99,7 +100,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                     }`}
                   >
                     <span
-                      className={`size-2 rounded-full ${
+                      className={`${STATUS_DOT} ${
                         user.isOnline ? 'bg-emerald-500' : 'bg-zinc-500'
                       }`}
                     />

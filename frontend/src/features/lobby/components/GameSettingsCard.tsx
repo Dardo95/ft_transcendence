@@ -1,5 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
-import { CARD, INNER_BOX } from '@/components/ui/layoutStyles';
+import { CARD, INNER_BOX } from '@/components/layout/layoutStyles';
 
 import type { GameSettings } from '../types';
 

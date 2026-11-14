@@ -9,7 +9,7 @@ import {
   CARD,
   SECTION_SUBLABEL,
   SECTION_TITLE,
-} from '@/components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 
 import { FriendListItem } from './FriendListItem';
 import { AddFriendCard } from './AddFriendCard';

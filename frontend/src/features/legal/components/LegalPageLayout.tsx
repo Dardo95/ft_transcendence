@@ -20,7 +20,7 @@ import {
   SECTION_CARD,
   SECTION_TEXT,
   SECTION_TITLE,
-} from '@/components/ui/layoutStyles';
+} from '@/components/layout/layoutStyles';
 import type { LegalPageContent, LegalSection } from '../types';
 
 function LegalSectionCard({ section }: { section: LegalSection }) {

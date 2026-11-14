@@ -50,6 +50,13 @@ export const HIGHLIGHT_HEADER =
 export const HIGHLIGHT_TITLE =
   'text-xs font-bold tracking-wider text-white uppercase';
 
+/* Feedback */
+export const ALERT_ERROR =
+  'rounded-xl border border-red-700/30 bg-red-900/15 px-3.5 py-3 text-[0.78rem] text-red-200';
+export const ALERT_SUCCESS =
+  'rounded-xl border border-emerald-700/25 bg-emerald-900/15 px-3.5 py-3 text-[0.78rem] text-emerald-200';
+export const STATUS_DOT = 'inline-block size-2 shrink-0 rounded-full';
+
 /* Tables */
 export const TABLE_WRAPPER = 'overflow-x-auto';
 export const TABLE_BASE = 'w-full text-left text-sm';
