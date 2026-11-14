@@ -3,6 +3,16 @@ import { useLanguage } from '../../../locales/useLanguage';
 import { useFriendsStore } from '../../friends/store/useFriendsStore';
 import { LevelProgress } from './LevelProgress';
 import { Button } from '../../../components/ui/button';
+import {
+  INNER_BOX,
+  PAGE_CONTAINER,
+  PAGE_SHELL,
+  PILL_BADGE,
+  SECTION_CARD,
+  SECTION_SUBLABEL,
+  SECTION_TITLE,
+  TAG_CHIP,
+} from '../../../components/ui/layoutStyles';
 
 import { UserCheck, UserPlus, UserRound } from 'lucide-react';
 import defaultAvatar from '../../../assets/default.jpg';
@@ -11,13 +21,9 @@ interface PublicProfileViewProps {
   user: UserPublic;
 }
 
-const SECTION_CARD =
-  'rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl backdrop-blur-sm sm:p-8';
-const INNER_BOX = 'rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5';
-const LABEL =
-  'text-[11px] font-semibold tracking-wider text-zinc-400 uppercase';
-const ORANGE_BADGE =
-  'inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase';
+const SECTION_SURFACE = `${SECTION_CARD} sm:p-8`;
+const INNER = `${INNER_BOX} p-3.5`;
+const LABEL = SECTION_SUBLABEL;
 
 /**
  * Public profile view.
@@ -51,10 +57,10 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
   ];
 
   return (
-    <div className="flex w-full justify-center px-4 py-8">
-      <div className="w-full max-w-5xl space-y-8">
+    <div className={PAGE_SHELL}>
+      <div className={PAGE_CONTAINER}>
         {/* Public identity */}
-        <section className={SECTION_CARD}>
+        <section className={SECTION_SURFACE}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
               <div className="relative size-28 shrink-0">
@@ -74,7 +80,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
               </div>
 
               <div className="min-w-0">
-                <span className={ORANGE_BADGE}>
+                <span className={PILL_BADGE}>
                   <UserRound className="size-3.5" aria-hidden="true" />
                   {t('profile.publicProfileBadge') || 'Player Profile'}
                 </span>
@@ -84,9 +90,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                 </h1>
 
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                  <span className="rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-300">
-                    #{user.id}
-                  </span>
+                  <span className={TAG_CHIP}>#{user.id}</span>
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${
                       user.isOnline
@@ -129,23 +133,23 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
         </section>
 
         {/* Statistics and public properties */}
-        <section className={SECTION_CARD}>
+        <section className={SECTION_SURFACE}>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className={SECTION_TITLE}>
               {t('profile.statistics') || 'Statistics'}
             </h2>
-            <span className={ORANGE_BADGE}>
+            <span className={PILL_BADGE}>
               {t('profile.level') || 'Level'} {level}
             </span>
           </div>
 
-          <div className={`${INNER_BOX} mt-5`}>
+          <div className={`${INNER} mt-5`}>
             <LevelProgress xp={user.xp} />
           </div>
 
           <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {details.map((field) => (
-              <div key={field.label} className={INNER_BOX}>
+              <div key={field.label} className={INNER}>
                 <dt className={LABEL}>{field.label}</dt>
                 <dd
                   className={`mt-1 text-sm font-semibold break-all ${field.tone}`}

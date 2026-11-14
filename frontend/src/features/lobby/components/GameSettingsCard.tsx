@@ -1,4 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
+import { CARD, INNER_BOX } from '@/components/ui/layoutStyles';
 
 import type { GameSettings } from '../types';
 
@@ -29,7 +30,7 @@ function SettingRow({
   onChange,
 }: SettingRowProps) {
   return (
-    <label className="block rounded-xl border border-white/10 bg-white/[0.025] px-3 py-3">
+    <label className={`block px-3 py-3 ${INNER_BOX}`}>
       <span className="flex items-center justify-between gap-3 text-[0.68rem] font-bold tracking-wider text-zinc-300">
         {label}
         <b className="text-orange-300">{value}</b>
@@ -58,7 +59,7 @@ export function GameSettingsCard({
 
   return (
     <section
-      className={`min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4 transition-opacity ${
+      className={`min-w-0 p-4 transition-opacity ${CARD} ${
         isDisabled ? 'opacity-60 select-none' : 'opacity-100'
       }`}
     >

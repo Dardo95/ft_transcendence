@@ -5,6 +5,11 @@ import { useAuthStore } from '../features/auth/store/useAuthStore';
 
 import { LoginForm } from '../features/auth/components/LoginForm';
 import { RegisterForm } from '../features/auth/components/RegisterForm';
+import {
+  CARD,
+  HEADER_BADGE,
+  PAGE_SUBTITLE,
+} from '../components/ui/layoutStyles';
 
 import logoUrl from '../assets/ui_logo.svg';
 import backgroundImage from '../assets/ui_login_bg.svg';
@@ -49,7 +54,7 @@ export function LandingPage() {
             </div>
 
             {/* Subtitle / Battle Badge */}
-            <div className="mb-3 flex items-center gap-2 text-sm font-black tracking-widest text-orange-400 uppercase sm:text-base">
+            <div className={HEADER_BADGE}>
               <span className="text-orange-500">❖</span>
               <span>
                 {t('app.general.battlefield') ||
@@ -58,7 +63,7 @@ export function LandingPage() {
               <span className="text-orange-500">❖</span>
             </div>
 
-            <p className="max-w-md text-xs font-medium text-zinc-400 sm:text-sm">
+            <p className={`${PAGE_SUBTITLE} lg:mx-0`}>
               {t('app.general.subTitle') ||
                 'Fine cuisine, destruction, pressure cookers, and unleashed steam. Sign up or log in to enter the service.'}
             </p>
@@ -66,7 +71,7 @@ export function LandingPage() {
 
           {/* Right side: Floating card with Tabs and Forms */}
           <div className="w-full lg:col-span-5">
-            <div className="mx-auto w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 shadow-2xl backdrop-blur-md sm:p-8">
+            <div className={`mx-auto w-full max-w-md p-6 sm:p-8 ${CARD}`}>
               <div className="mb-6 flex pb-1">
                 <button
                   type="button"

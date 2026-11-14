@@ -1,4 +1,5 @@
 import { useLanguage } from '../../../locales/useLanguage';
+import { SECTION_SUBLABEL } from '../../../components/ui/layoutStyles';
 
 interface LevelProgressProps {
   xp: number;
@@ -17,7 +18,7 @@ export function LevelProgress({ xp }: LevelProgressProps) {
   return (
     <div className="space-y-2.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
+        <span className={SECTION_SUBLABEL}>
           {t('profile.level') || 'Level'}{' '}
           <span className="font-extrabold text-orange-400">{level}</span>
         </span>

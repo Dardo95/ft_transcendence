@@ -5,6 +5,11 @@ import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useLanguage } from '@/locales/useLanguage';
 
 import { Card } from '@/components/ui/card';
+import {
+  CARD,
+  SECTION_SUBLABEL,
+  SECTION_TITLE,
+} from '@/components/ui/layoutStyles';
 
 import { FriendListItem } from './FriendListItem';
 import { AddFriendCard } from './AddFriendCard';
@@ -18,22 +23,19 @@ interface FriendListProps {
 }
 
 const CARD_STYLES: Record<FriendListVariant, string> = {
-  lobby:
-    'flex flex-col gap-3 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 shadow-xl',
-  profile:
-    'flex flex-col gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl backdrop-blur-sm sm:p-8',
+  lobby: `flex flex-col gap-3 p-5 ${CARD}`,
+  profile: `flex flex-col gap-4 p-6 sm:p-8 ${CARD}`,
 };
 
 const HEADER_STYLES: Record<FriendListVariant, string> = {
-  lobby: 'flex items-center justify-between border-b border-zinc-700 pb-2',
+  lobby: 'flex items-center justify-between border-b border-zinc-800 pb-2',
   profile:
     'flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/80 pb-4',
 };
 
 const TITLE_STYLES: Record<FriendListVariant, string> = {
-  lobby:
-    'flex items-center gap-2 text-xs font-bold tracking-wider text-zinc-300 uppercase',
-  profile: 'flex items-center gap-2 text-xl font-bold text-white',
+  lobby: `flex items-center gap-2 ${SECTION_SUBLABEL}`,
+  profile: `flex items-center gap-2 ${SECTION_TITLE}`,
 };
 
 export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {

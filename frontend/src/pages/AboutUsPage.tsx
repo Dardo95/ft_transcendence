@@ -1,5 +1,16 @@
 import { useLanguage } from '../locales/useLanguage';
 import { Icons } from '../components/ui/icons';
+import {
+  HEADER_BADGE,
+  HEADER_CARD,
+  PAGE_CONTAINER,
+  PAGE_SHELL,
+  PAGE_SUBTITLE,
+  PAGE_TITLE,
+  SECTION_CARD,
+  SECTION_SUBLABEL,
+  SECTION_TEXT,
+} from '../components/ui/layoutStyles';
 import { Bomb } from 'lucide-react';
 
 import member1Avatar from '../assets/member1.jpg';
@@ -101,30 +112,28 @@ export function AboutUsPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex w-full justify-center px-4 py-8">
-      <div className="w-full max-w-5xl space-y-8">
+    <div className={PAGE_SHELL}>
+      <div className={PAGE_CONTAINER}>
         {/* Header Section */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase">
+        <header className={HEADER_CARD}>
+          <div className={HEADER_BADGE}>
             <span>👥</span>
             <span>42 Madrid Team</span>
           </div>
 
-          <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-            {t('app.aboutUs.title') || 'About Us'}
-          </h1>
-          <p className="mx-auto max-w-2xl text-xs leading-relaxed text-zinc-400 sm:text-sm">
+          <h1 className={PAGE_TITLE}>{t('app.aboutUs.title') || 'About Us'}</h1>
+          <p className={PAGE_SUBTITLE}>
             {t('app.aboutUs.subtitle') ||
               'Four 42 Madrid developers building a real-time multiplayer arcade experience driven by modern software architecture.'}
           </p>
-        </section>
+        </header>
 
         {/* Team Members Grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {TEAM_MEMBERS.map((member) => (
             <div
               key={member.id}
-              className="flex flex-col justify-between rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900"
+              className={`flex flex-col justify-between hover:bg-zinc-900 ${SECTION_CARD}`}
             >
               {/* Member Top Area: Avatar & Name */}
               <div className="flex items-start gap-4">
@@ -149,11 +158,11 @@ export function AboutUsPage() {
 
               {/* Contributions & Assigned Work */}
               <div className="my-4 flex-1">
-                <h3 className="mb-1 text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+                <h3 className={`mb-1 ${SECTION_SUBLABEL}`}>
                   {t('app.aboutUs.contributionsLabel') ||
                     'Work & Contributions'}
                 </h3>
-                <p className="text-xs leading-relaxed text-zinc-300">
+                <p className={SECTION_TEXT}>
                   {t(member.contributionsKey) || member.defaultContributions}
                 </p>
               </div>

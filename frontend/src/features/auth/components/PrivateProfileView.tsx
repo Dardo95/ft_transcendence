@@ -12,6 +12,16 @@ import { AvatarUpload } from './AvatarUpload';
 import { LevelProgress } from './LevelProgress';
 import { FriendList } from '../../friends/components/FriendListCard';
 import { useLanguage } from '../../../locales/useLanguage';
+import {
+  INNER_BOX,
+  PAGE_CONTAINER,
+  PAGE_SHELL,
+  PILL_BADGE,
+  SECTION_CARD,
+  SECTION_SUBLABEL,
+  SECTION_TITLE,
+  TAG_CHIP,
+} from '../../../components/ui/layoutStyles';
 
 type EditableField = 'username' | 'email';
 
@@ -23,13 +33,9 @@ interface PrivateProfileViewProps {
   ) => Promise<UpdateProfileResponse>;
 }
 
-const SECTION_CARD =
-  'rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl backdrop-blur-sm sm:p-8';
-const INNER_BOX = 'rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5';
-const LABEL =
-  'text-[11px] font-semibold tracking-wider text-zinc-400 uppercase';
-const ORANGE_BADGE =
-  'inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase';
+const SECTION_SURFACE = `${SECTION_CARD} sm:p-8`;
+const INNER = `${INNER_BOX} p-3.5`;
+const LABEL = SECTION_SUBLABEL;
 
 /**
  * Private profile view.
@@ -244,18 +250,16 @@ export function PrivateProfileView({
   ];
 
   return (
-    <div className="flex w-full justify-center px-4 py-8">
-      <div className="w-full max-w-5xl space-y-8">
+    <div className={PAGE_SHELL}>
+      <div className={PAGE_CONTAINER}>
         {/* Editable profile details */}
-        <section className={SECTION_CARD}>
+        <section className={SECTION_SURFACE}>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className={SECTION_TITLE}>
               {t('profile.myProfile') || 'My Profile'}
-              <span className="text-s ml-3 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 font-semibold text-zinc-300">
-                #{user.id}
-              </span>
+              <span className={`ml-3 ${TAG_CHIP}`}>#{user.id}</span>
             </h2>
-            <span className={ORANGE_BADGE}>
+            <span className={PILL_BADGE}>
               <UserRound className="size-3.5" aria-hidden="true" />
               {t('profile.privateProfileBadge') || 'Editable Data'}
             </span>
@@ -277,7 +281,7 @@ export function PrivateProfileView({
                 const isEditing = editingField === field.key;
 
                 return (
-                  <div key={field.key} className={INNER_BOX}>
+                  <div key={field.key} className={INNER}>
                     {isEditing ? (
                       <form onSubmit={handleFormSubmit} className="space-y-2.5">
                         <label className={`block ${LABEL}`}>
@@ -372,23 +376,23 @@ export function PrivateProfileView({
         </section>
 
         {/* Read-only account information */}
-        <section className={SECTION_CARD}>
+        <section className={SECTION_SURFACE}>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className={SECTION_TITLE}>
               {t('profile.accountInformation') || 'Account information'}
             </h2>
-            <span className={ORANGE_BADGE}>
+            <span className={PILL_BADGE}>
               {t('profile.authentication') || 'Authentication'}
             </span>
           </div>
 
-          <div className={`${INNER_BOX} mt-5`}>
+          <div className={`${INNER} mt-5`}>
             <LevelProgress xp={user.xp} />
           </div>
 
           <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {readOnlyFields.map((field) => (
-              <div key={field.label} className={INNER_BOX}>
+              <div key={field.label} className={INNER}>
                 <dt className={LABEL}>{field.label}</dt>
                 <dd
                   className={`mt-1 text-sm font-semibold break-all ${field.tone}`}

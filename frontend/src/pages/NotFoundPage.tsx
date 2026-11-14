@@ -1,14 +1,25 @@
 import { useLanguage } from '../locales/useLanguage';
+import {
+  HEADER_CARD,
+  PAGE_CONTAINER_COMPACT,
+  PAGE_SHELL,
+  PAGE_SUBTITLE,
+  PAGE_TITLE,
+} from '../components/ui/layoutStyles';
 
 export function NotFoundPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="w-full max-w-4xl rounded-xl border border-zinc-700 bg-zinc-900 p-6 text-center">
-      <h1 className="mb-2 text-2xl font-bold text-orange-400">
-        {t('app.general.notFound') || '404 Not Found'}
-      </h1>
-      <p className="text-sm text-zinc-400">Vista en construcción.</p>
+    <div className={PAGE_SHELL}>
+      <div className={PAGE_CONTAINER_COMPACT}>
+        <header className={HEADER_CARD}>
+          <h1 className={PAGE_TITLE}>
+            {t('app.general.notFound') || '404 Not Found'}
+          </h1>
+          <p className={PAGE_SUBTITLE}>Vista en construcción.</p>
+        </header>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
+import { CARD } from '@/components/ui/layoutStyles';
 
 import type { GameMode, MatchmakingPayload } from '../types';
 
@@ -60,7 +61,9 @@ export function MatchmakingButton({
     mode === 'practice' ? true : mode === 'private' ? canStartPrivate : true;
 
   return (
-    <div className="flex flex-col items-stretch gap-4 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div
+      className={`flex flex-col items-stretch gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between ${CARD}`}
+    >
       <div>
         <strong className="block text-xs tracking-wider text-[#e8e0d4]">
           {t('app.lobby.readyLabel') || 'LISTO PARA JUGAR'}

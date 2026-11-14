@@ -1,4 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
+import { CARD, INNER_BOX } from '@/components/ui/layoutStyles';
 
 interface Props {
   isGameConnected: boolean;
@@ -8,9 +9,17 @@ export function LobbyTopBanner({ isGameConnected }: Props) {
   const { t } = useLanguage();
 
   return (
-    <div className="relative my-6 grid min-h-[250px] items-center gap-6 overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_80%_50%,rgba(255,137,68,0.16),transparent_30%),linear-gradient(115deg,rgba(40,43,46,0.96),rgba(19,22,26,0.96))] p-[clamp(1.3rem,4vw,2.5rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.9fr)]">
+    <div
+      className={`relative my-6 grid min-h-[250px] items-center gap-6 overflow-hidden p-[clamp(1.3rem,4vw,2.5rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.9fr)] ${CARD}`}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(255,137,68,0.16),transparent_30%),linear-gradient(115deg,rgba(40,43,46,0.96),rgba(19,22,26,0.96))]"
+        aria-hidden="true"
+      />
       <div className="absolute top-6 right-6 z-20">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[0.65rem] font-extrabold tracking-wider text-zinc-300 backdrop-blur-sm">
+        <div
+          className={`inline-flex items-center gap-2 px-3 py-2 text-[0.65rem] font-extrabold tracking-wider text-zinc-300 backdrop-blur-sm ${INNER_BOX}`}
+        >
           <span
             className={`h-[0.48rem] w-[0.48rem] rounded-full shadow-[0_0_10px_currentColor] ${
               isGameConnected ? 'bg-emerald-400' : 'bg-red-400'

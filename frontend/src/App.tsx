@@ -113,6 +113,7 @@ export default function App() {
             <Route path="/project" element={<ProjectPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
 
           {/* Group 3: Private pages (Mandatory login; use AppLayout with normal Header and Footer) */}
@@ -126,8 +127,6 @@ export default function App() {
             </Route>
           </Route>
 
-          {/* 404 Not Found */}
-          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

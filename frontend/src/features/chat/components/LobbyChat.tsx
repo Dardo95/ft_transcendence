@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageSquareIcon, SendIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { CARD, SECTION_SUBLABEL } from '@/components/ui/layoutStyles';
 
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useSocketStore } from '@/stores/useSocketStore';
@@ -100,10 +101,10 @@ export function LobbyChat() {
   };
 
   return (
-    <Card className="flex h-104 flex-col rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 shadow-xl">
+    <Card className={`flex h-104 flex-col p-4 ${CARD}`}>
       {/* Chat header */}
       <div className="mb-2 flex items-center justify-between border-b border-zinc-800 pb-2">
-        <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-zinc-300 uppercase">
+        <h4 className={`flex items-center gap-2 ${SECTION_SUBLABEL}`}>
           <MessageSquareIcon className="h-3.5 w-3.5" aria-hidden="true" />
           <span>{t('app.lobby.lobbyChat') || 'Lobby Chat'}</span>
         </h4>

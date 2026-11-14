@@ -1,4 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
+import { CARD, INNER_BOX } from '@/components/ui/layoutStyles';
 
 import type { GameMode } from '../types';
 
@@ -45,7 +46,7 @@ export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
   ];
 
   return (
-    <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
+    <section className={`min-w-0 p-4 ${CARD}`}>
       <div className="mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider text-orange-400">
         <span>01 / {t('app.lobby.modeLabel') || 'MODO DE JUEGO'}</span>
         <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
@@ -66,7 +67,7 @@ export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
               className={`min-w-0 cursor-pointer rounded-xl border p-3 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
                 isSelected
                   ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
-                  : 'border-white/10 bg-white/[0.025]'
+                  : INNER_BOX
               }`}
             >
               <span className="mb-2 block text-2xl">{mode.icon}</span>

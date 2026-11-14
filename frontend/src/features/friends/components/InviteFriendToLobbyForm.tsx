@@ -7,6 +7,7 @@ import { useLanguage } from '@/locales/useLanguage';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CARD, SECTION_TITLE } from '@/components/ui/layoutStyles';
 
 export function InviteFriendToLobbyForm() {
   const { t } = useLanguage();
@@ -32,8 +33,8 @@ export function InviteFriendToLobbyForm() {
   };
 
   return (
-    <Card className="space-y-3 rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-zinc-100 shadow-xl">
-      <h2 className="font-bold">
+    <Card className={`space-y-3 p-5 text-zinc-100 ${CARD}`}>
+      <h2 className={SECTION_TITLE}>
         {t('app.friends.inviteLobbyTitle') || 'Invitar amigo a lobby'}
       </h2>
 

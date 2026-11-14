@@ -3,6 +3,7 @@ import type { UserPublic } from '@transcendence/shared';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { INNER_BOX } from '@/components/ui/layoutStyles';
 import { useLanguage } from '@/locales/useLanguage';
 
 type FeedbackState = {
@@ -204,11 +205,11 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
 
   return (
     <Card
-      className={
+      className={`transition-colors ${INNER_BOX} ${
         isProfile
-          ? 'flex flex-col gap-2 rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 transition-colors'
-          : 'flex justify-between rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 transition-colors hover:bg-zinc-800/40'
-      }
+          ? 'flex flex-col gap-2 p-3.5'
+          : 'flex justify-between p-2.5 hover:bg-zinc-800/40'
+      }`}
     >
       <form onSubmit={handleFormSubmit} className="relative flex gap-2">
         <div className="relative flex-1">
@@ -244,7 +245,7 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
       {/* General success or error feedback */}
       {feedback && (
         <p
-          className={`my-2 flex items-center justify-center rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-2.5 text-center text-xs font-semibold ${
+          className={`my-2 flex items-center justify-center p-2.5 text-center text-xs font-semibold ${INNER_BOX} ${
             feedback.isError ? 'text-red-400' : 'text-emerald-400'
           }`}
         >
@@ -254,7 +255,9 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
 
       {/* Floating autocomplete search results */}
       {showDropdown && (
-        <div className="mt-2 max-h-56 w-full divide-y divide-zinc-900 overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-950 p-1.5 shadow-2xl">
+        <div
+          className={`mt-2 max-h-56 w-full divide-y divide-zinc-900 overflow-y-auto p-1.5 shadow-2xl ${INNER_BOX}`}
+        >
           {searchError && (
             <p className="p-2 text-center text-xs text-red-400">
               {searchError}

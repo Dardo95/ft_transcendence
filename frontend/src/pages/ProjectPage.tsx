@@ -1,4 +1,19 @@
 import { useLanguage } from '../locales/useLanguage';
+import {
+  HEADER_BADGE,
+  HEADER_CARD,
+  META_PILL,
+  PAGE_CONTAINER,
+  PAGE_SHELL,
+  PAGE_SUBTITLE,
+  PAGE_TITLE,
+  SECTION_CARD,
+  SECTION_TITLE,
+  TABLE_BASE,
+  TABLE_HEAD,
+  TABLE_ROW,
+  TABLE_WRAPPER,
+} from '../components/ui/layoutStyles';
 
 interface ModuleItem {
   id: string;
@@ -185,9 +200,9 @@ function ModuleTable({ modules, accent }: ModuleTableProps) {
   const { t, tList } = useLanguage();
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm">
-        <thead className="border-b border-zinc-800 bg-zinc-950/60 text-xs tracking-wider text-zinc-400 uppercase">
+    <div className={TABLE_WRAPPER}>
+      <table className={TABLE_BASE}>
+        <thead className={TABLE_HEAD}>
           <tr>
             <th className="px-4 py-3">{t('project.colModule') || 'Module'}</th>
             <th className="px-4 py-3">
@@ -204,10 +219,7 @@ function ModuleTable({ modules, accent }: ModuleTableProps) {
             const requirements = tList(item.requirementsKey);
 
             return (
-              <tr
-                key={item.id}
-                className="align-top transition-colors hover:bg-zinc-800/40"
-              >
+              <tr key={item.id} className={TABLE_ROW}>
                 <td className="px-4 py-4">
                   <div className="text-sm font-semibold text-white">
                     {t(item.nameKey) || item.defaultName}
@@ -252,25 +264,25 @@ export function ProjectPage() {
   const bonusTotal = BONUS_MODULES.reduce((sum, item) => sum + item.points, 0);
 
   return (
-    <div className="flex w-full justify-center px-4 py-8">
-      <div className="w-full max-w-5xl space-y-8">
+    <div className={PAGE_SHELL}>
+      <div className={PAGE_CONTAINER}>
         {/* Header Section */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase">
+        <header className={HEADER_CARD}>
+          <div className={HEADER_BADGE}>
             <span>42 Transcendence v21.2</span>
           </div>
 
-          <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+          <h1 className={PAGE_TITLE}>
             {t('project.title') || 'About the Project'}
           </h1>
-          <p className="mx-auto max-w-3xl text-xs leading-relaxed text-zinc-400 sm:text-sm">
+          <p className={PAGE_SUBTITLE}>
             {t('project.subtitle') ||
               'Technical specification, system architecture, and module breakdown evaluated under the official 42 guidelines (v21.2).'}
           </p>
 
           {/* Quick Score Counter */}
           <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs font-semibold">
-            <div className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2 text-zinc-300">
+            <div className={META_PILL}>
               <span className="text-zinc-400">
                 {t('project.summaryMandatory') || 'Mandatory'}:{' '}
               </span>
@@ -281,7 +293,7 @@ export function ProjectPage() {
                 ({t('project.minPoints') || 'Min 14 pts'})
               </span>
             </div>
-            <div className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2 text-zinc-300">
+            <div className={META_PILL}>
               <span className="text-zinc-400">
                 {t('project.summaryBonus') || 'Bonus'}:{' '}
               </span>
@@ -293,12 +305,12 @@ export function ProjectPage() {
               </span>
             </div>
           </div>
-        </section>
+        </header>
 
         {/* Mandatory Modules Table */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg backdrop-blur-sm">
+        <section className={SECTION_CARD}>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className={SECTION_TITLE}>
               {t('project.mandatoryHeading') || 'Mandatory Core Modules'}
             </h2>
             <span className="text-xs font-semibold text-orange-400">
@@ -310,9 +322,9 @@ export function ProjectPage() {
         </section>
 
         {/* Bonus Modules Table */}
-        <section className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg backdrop-blur-sm">
+        <section className={`mb-8 ${SECTION_CARD}`}>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className={SECTION_TITLE}>
               {t('project.bonusHeading') || 'Bonus Modules (Max 5 pts)'}
             </h2>
             <span className="text-xs font-semibold text-amber-400">
@@ -324,8 +336,8 @@ export function ProjectPage() {
         </section>
 
         {/* Extra Modules */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg backdrop-blur-sm">
-          <h2 className="mb-4 text-xl font-bold text-white">
+        <section className={SECTION_CARD}>
+          <h2 className={SECTION_TITLE}>
             {t('project.extraHeading') || 'Extra Modules'}
           </h2>
           <p className="text-sm text-zinc-400">

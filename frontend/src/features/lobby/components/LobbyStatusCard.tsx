@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useLanguage } from '@/locales/useLanguage';
+import { CARD, INNER_BOX } from '@/components/ui/layoutStyles';
 
 export function LobbyStatusCard() {
   const { t } = useLanguage();
@@ -15,7 +16,7 @@ export function LobbyStatusCard() {
   const isHost = lobby?.hostUserId === user?.id;
 
   return (
-    <div className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-slate-100 shadow-2xl backdrop-blur-md">
+    <div className={`p-5 text-slate-100 ${CARD}`}>
       {lobby ? (
         <div className="space-y-5">
           <div>
@@ -44,7 +45,7 @@ export function LobbyStatusCard() {
             {lobby.members.map((member) => (
               <div
                 key={member.userId}
-                className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900/70 p-3"
+                className={`flex items-center justify-between p-3 ${INNER_BOX}`}
               >
                 <div>
                   <p className="font-medium">

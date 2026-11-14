@@ -7,6 +7,7 @@ import { FriendList } from '@/features/friends/components/FriendListCard';
 import { LobbyChat } from '@/features/chat/components/LobbyChat';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { Card } from '@/components/ui/card';
+import { CARD } from '@/components/ui/layoutStyles';
 import { gameSocket } from '@/lib/socket';
 import { useLanguage } from '@/locales/useLanguage';
 import {
@@ -310,7 +311,7 @@ export function LobbyPage() {
         {lobby ? (
           <LobbyChat />
         ) : (
-          <Card className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-4 text-center text-sm text-zinc-400">
+          <Card className={`p-4 text-center text-sm text-zinc-400 ${CARD}`}>
             {t('app.lobby.joinLobbyToChat') ||
               'Join a lobby to use private chat with its members.'}
           </Card>
