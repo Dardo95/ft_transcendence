@@ -7,7 +7,7 @@
  */
 
 /* Containers */
-export const PAGE_SHELL = 'flex w-full justify-center px-4 py-4 md:py-8';
+export const PAGE_SHELL = 'flex w-full justify-center px-4 py-4';
 export const PAGE_CONTAINER = 'w-full max-w-5xl space-y-8';
 export const PAGE_CONTAINER_COMPACT = 'w-full max-w-4xl space-y-8';
 
@@ -66,3 +66,12 @@ export const TABLE_BASE = 'w-full text-left text-sm';
 export const TABLE_HEAD =
   'border-b border-border bg-background/60 text-xs tracking-wider text-muted-foreground uppercase';
 export const TABLE_ROW = 'align-top transition-colors hover:bg-muted/40';
+
+/* Modals & Overlays */
+export const MODAL_BACKDROP =
+  'fixed inset-0 z-[9999] flex items-center justify-center bg-background/85 p-6 backdrop-blur-xl';
+export const MODAL_CARD = `${HEADER_CARD} w-full max-w-md border-input shadow-[0_0_50px_rgba(0,0,0,0.9)]`;
+
+/* Actions */
+export const BTN_DEFAULT_PLUS =
+  'inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold tracking-wide text-primary-foreground uppercase shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50';
