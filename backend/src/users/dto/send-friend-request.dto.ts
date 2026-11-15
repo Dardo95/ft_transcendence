@@ -1,8 +1,6 @@
-import { IsString, MaxLength, MinLength } from 'class-validator';
+import { IsUsername } from '../username.rules.js';
 
 export class SendFriendRequestDto {
-  @IsString()
-  @MinLength(3)
-  @MaxLength(20)
+  @IsUsername()
   username!: string;
 }

@@ -11,6 +11,7 @@ import { LoginDto } from './dto/login.dto.js';
 import { OAuth2Client } from 'google-auth-library';
 import type { UserPrivate } from '@transcendence/shared';
 import { toUserPrivate, userPrivateSelect } from '../users/user.mapper.js';
+import { toUsernameBase, withUsernameSuffix } from '../users/username.rules.js';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,10 @@ export class AuthService {
 
     const existingUser = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email }, { username }],
+        OR: [
+          { email },
+          { username: { equals: username, mode: 'insensitive' } },
+        ],
       },
       select: { id: true },
     });
@@ -158,19 +162,17 @@ export class AuthService {
     }
 
     if (!user) {
-      let username = payload.name?.trim() || email.split('@')[0];
-
-      username = username.replace(/\s+/g, '_');
-
-      const originalUsername = username;
+      const base = toUsernameBase(payload.name?.trim() || email.split('@')[0]);
+      let username = base;
       let suffix = 2;
 
       while (
-        await this.prisma.user.findUnique({
-          where: { username },
+        await this.prisma.user.findFirst({
+          where: { username: { equals: username, mode: 'insensitive' } },
+          select: { id: true },
         })
       ) {
-        username = `${originalUsername}_${suffix}`;
+        username = withUsernameSuffix(base, suffix);
         suffix++;
       }
 

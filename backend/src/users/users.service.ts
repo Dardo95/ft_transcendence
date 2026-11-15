@@ -17,6 +17,7 @@ import { PrismaService } from '../database/prisma.service.js';
 import * as argon2 from 'argon2';
 import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
+import { isValidUsername } from './username.rules.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import {
   toUserPrivate,
@@ -33,7 +34,6 @@ const AVATAR_EXTENSIONS: Record<string, string> = {
 
 const AVATAR_URL_PREFIX = '/api/uploads/avatars/';
 
-const USERNAME_PATTERN = /^\S{3,20}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -118,7 +118,7 @@ export class UsersService {
 
     if (input.username !== undefined) {
       const username = input.username.trim();
-      if (!USERNAME_PATTERN.test(username)) {
+      if (!isValidUsername(username)) {
         return { outcome: 'invalid_username' };
       }
       data.username = username;
@@ -134,7 +134,10 @@ export class UsersService {
 
     if (data.username !== undefined) {
       const existing = await this.prisma.user.findFirst({
-        where: { username: data.username, NOT: { id } },
+        where: {
+          username: { equals: data.username, mode: 'insensitive' },
+          NOT: { id },
+        },
         select: { id: true },
       });
       if (existing) return { outcome: 'username_taken' };

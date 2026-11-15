@@ -13,7 +13,7 @@ const NEW = 'new-password-123';
 
 function createPrismaMock() {
   return {
-    user: { findUnique: vi.fn(), update: vi.fn() },
+    user: { findUnique: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
   };
 }
 
@@ -85,5 +85,41 @@ describe('UsersService.changePassword', () => {
     await expect(
       service.changePassword(1, { currentPassword: CURRENT, newPassword: NEW })
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe('UsersService.updatePrivate (username rules)', () => {
+  let prisma: ReturnType<typeof createPrismaMock>;
+  let service: UsersService;
+
+  beforeEach(() => {
+    prisma = createPrismaMock();
+    service = new UsersService(
+      prisma as unknown as PrismaService,
+      { isOnline: vi.fn() } as unknown as SocketRegistryService
+    );
+  });
+
+  it('rejects usernames with spaces', async () => {
+    await expect(
+      service.updatePrivate(1, { username: 'john doe' })
+    ).resolves.toEqual({ outcome: 'invalid_username' });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('checks username uniqueness case-insensitively', async () => {
+    prisma.user.findFirst.mockResolvedValue({ id: 2 });
+
+    await expect(
+      service.updatePrivate(1, { username: 'BRIVERA' })
+    ).resolves.toEqual({ outcome: 'username_taken' });
+    expect(prisma.user.findFirst).toHaveBeenCalledWith({
+      where: {
+        username: { equals: 'BRIVERA', mode: 'insensitive' },
+        NOT: { id: 1 },
+      },
+      select: { id: true },
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
   });
 });
