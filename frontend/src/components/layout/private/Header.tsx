@@ -75,7 +75,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         <img
           src={logoUrl}
           alt="ft_bomberman Logo"
-          className="h-12 cursor-pointer object-contain"
+          className="h-12 cursor-pointer object-contain top-1/2 -translate-y-1/2 absolute left-1/2 -translate-x-1/2 m-0"
           onClick={() => navigate('/lobby')}
         />
       </div>

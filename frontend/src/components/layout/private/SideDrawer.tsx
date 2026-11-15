@@ -94,11 +94,6 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             </Link>
           </nav>
         </div>
-
-        {/* Footer info inside drawer */}
-        <div className="border-t border-zinc-900 pt-4 text-xs text-zinc-600">
-          ft_transcendence — v1.0.0
-        </div>
       </div>
     </div>
   );
