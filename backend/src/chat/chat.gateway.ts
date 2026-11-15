@@ -113,6 +113,12 @@ export class ChatGateway
   refreshUserIdentity(userId: number, username: string): void {
     this.registry.renameUser(userId, username);
 
+    // Friends reload their list on 'friend:status', which now has the new name.
+    this.notifyFriendsStatus(
+      userId,
+      this.registry.isOnline('chat', userId)
+    ).catch(() => undefined);
+
     const lobby = this.lobbyService.renameMember(userId, username);
     if (!lobby) return;
 
