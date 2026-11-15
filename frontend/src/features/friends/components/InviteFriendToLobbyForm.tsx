@@ -7,7 +7,7 @@ import { useLanguage } from '@/locales/useLanguage';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CARD, SECTION_TITLE } from '@/components/layout/layoutStyles';
+import { UI } from '@/components/layout/layoutStyles';
 
 export function InviteFriendToLobbyForm() {
   const { t } = useLanguage();
@@ -33,8 +33,8 @@ export function InviteFriendToLobbyForm() {
   };
 
   return (
-    <Card className={`space-y-3 p-5 text-zinc-100 ${CARD}`}>
-      <h2 className={SECTION_TITLE}>
+    <Card className="text-foreground space-y-3 p-5">
+      <h2 className={UI.text.sectionTitle}>
         {t('app.friends.inviteLobbyTitle') || 'Invitar amigo a lobby'}
       </h2>
 
@@ -52,13 +52,13 @@ export function InviteFriendToLobbyForm() {
         <Button
           type="submit"
           disabled={!isConnected || isFull || !isHost || !friendUsername.trim()}
-          className="bg-orange-600 text-white hover:bg-orange-500"
+          className="text-xs"
         >
           {t('app.friends.inviteLobbyButton') || 'Invitar'}
         </Button>
       </form>
 
-      <p className="text-xs text-zinc-400">
+      <p className="text-muted-foreground text-xs">
         {isFull
           ? t('app.friends.lobbyFull') || 'El lobby está completo.'
           : t('app.friends.inviteOnlyFriends') ||

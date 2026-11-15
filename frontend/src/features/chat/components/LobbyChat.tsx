@@ -13,11 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageSquareIcon, SendIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import {
-  CARD,
-  SECTION_SUBLABEL,
-  STATUS_DOT,
-} from '@/components/layout/layoutStyles';
+import { UI } from '@/components/layout/layoutStyles';
 
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useSocketStore } from '@/stores/useSocketStore';
@@ -105,19 +101,19 @@ export function LobbyChat() {
   };
 
   return (
-    <Card className={`flex h-104 flex-col p-4 ${CARD}`}>
+    <Card className="flex h-104 flex-col p-4">
       {/* Chat header */}
-      <div className="mb-2 flex items-center justify-between border-b border-zinc-800 pb-2">
-        <h4 className={`flex items-center gap-2 ${SECTION_SUBLABEL}`}>
+      <div className="border-border mb-2 flex items-center justify-between border-b pb-2">
+        <h4 className={`flex items-center gap-2 ${UI.text.sublabel}`}>
           <MessageSquareIcon className="h-3.5 w-3.5" aria-hidden="true" />
           <span>{t('app.lobby.lobbyChat') || 'Lobby Chat'}</span>
         </h4>
 
         <span
-          className={`${STATUS_DOT} ${
+          className={`${UI.feedback.dot} ${
             isConnected
-              ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50'
-              : 'bg-red-500'
+              ? 'bg-success shadow-success/50 shadow-sm'
+              : 'bg-destructive'
           }`}
           title={
             isConnected
@@ -157,7 +153,7 @@ export function LobbyChat() {
                           {/* User info and time aligned to the right if it's mine */}
                           <span
                             className={cn(
-                              'mb-1 flex items-center gap-1.5 text-[10px] text-zinc-400',
+                              'text-muted-foreground mb-1 flex items-center gap-1.5 text-[10px]',
                               isSystem
                                 ? 'justify-center text-center'
                                 : isMe
@@ -168,7 +164,9 @@ export function LobbyChat() {
                             <span
                               className={cn(
                                 'font-semibold',
-                                isMe ? 'text-orange-400' : 'text-zinc-300'
+                                isMe
+                                  ? 'text-primary'
+                                  : 'text-secondary-foreground'
                               )}
                             >
                               {msg.sender}
@@ -221,7 +219,7 @@ export function LobbyChat() {
           }
           disabled={!lobbyId || !isConnected}
           maxLength={500}
-          className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500"
+          className="h-8 text-xs"
         />
 
         <Button
@@ -233,7 +231,7 @@ export function LobbyChat() {
             !inputValue.trim() ||
             inputValue.trim().length > 500
           }
-          className="h-8 bg-orange-600 px-3 text-white hover:bg-orange-500"
+          className="h-8 px-3"
         >
           <SendIcon className="size-3.5" />
 

@@ -1,5 +1,6 @@
 import { useLanguage } from '@/locales/useLanguage';
-import { CARD, INNER_BOX } from '@/components/layout/layoutStyles';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 
 import type { GameSettings } from '../types';
 
@@ -30,10 +31,10 @@ function SettingRow({
   onChange,
 }: SettingRowProps) {
   return (
-    <label className={`block px-3 py-3 ${INNER_BOX}`}>
-      <span className="flex items-center justify-between gap-3 text-[0.68rem] font-bold tracking-wider text-zinc-300">
+    <label className={`block px-3 py-3 ${UI.card.inner}`}>
+      <span className="text-secondary-foreground flex items-center justify-between gap-3 text-[0.68rem] font-bold tracking-wider">
         {label}
-        <b className="text-orange-300">{value}</b>
+        <b className="text-primary">{value}</b>
       </span>
       <input
         type="range"
@@ -42,7 +43,7 @@ function SettingRow({
         disabled={disabled}
         value={current}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-2 w-full accent-orange-500 disabled:cursor-not-allowed"
+        className="accent-primary mt-2 w-full disabled:cursor-not-allowed"
       />
     </label>
   );
@@ -58,14 +59,14 @@ export function GameSettingsCard({
   const isDisabled = isPublicMode || !isHost;
 
   return (
-    <section
-      className={`min-w-0 p-4 transition-opacity ${CARD} ${
+    <Card
+      className={`min-w-0 p-4 transition-opacity ${
         isDisabled ? 'opacity-60 select-none' : 'opacity-100'
       }`}
     >
-      <div className="mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider text-orange-400">
+      <div className="text-primary mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider">
         <span>03 / {t('app.lobby.settingsLabel') || 'AJUSTES'}</span>
-        <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
+        <small className="text-muted-foreground text-[0.68rem] font-medium tracking-normal">
           {isPublicMode
             ? t('app.lobby.fixedPublicLabel') || 'Valores fijos en público'
             : !isHost
@@ -105,6 +106,6 @@ export function GameSettingsCard({
           onChange={(fuseTime) => onChange({ ...settings, fuseTime })}
         />
       </div>
-    </section>
+    </Card>
   );
 }

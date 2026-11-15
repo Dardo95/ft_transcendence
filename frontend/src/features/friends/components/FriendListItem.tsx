@@ -54,8 +54,8 @@ export function FriendListItem({
     <div
       className={`flex items-center justify-between transition-colors ${
         isProfile
-          ? 'rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 hover:bg-zinc-900/60'
-          : 'rounded-xl border border-zinc-700 bg-zinc-950/40 p-2.5 hover:bg-zinc-800/40'
+          ? 'border-border/80 bg-background/60 hover:bg-muted/40 rounded-xl border p-3.5'
+          : 'border-input bg-background/40 hover:bg-muted/40 rounded-xl border p-2.5'
       }`}
     >
       <Link
@@ -67,30 +67,30 @@ export function FriendListItem({
           <img
             src={friend.avatarUrl || defaultAvatar}
             alt={friend.username}
-            className={`rounded-full border border-zinc-700 bg-zinc-800 object-cover ${
+            className={`border-input bg-secondary rounded-full border object-cover ${
               isProfile ? 'size-10' : 'h-8 w-8'
             }`}
           />
           <span
-            className={`absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-zinc-900 ${
+            className={`border-background absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 ${
               isPlaying
-                ? 'bg-amber-500'
+                ? 'bg-accent'
                 : isOnline
-                  ? 'bg-emerald-500'
-                  : 'bg-zinc-600'
+                  ? 'bg-success'
+                  : 'bg-muted-foreground'
             }`}
           />
         </div>
         <div>
           <p
-            className={`font-semibold text-zinc-100 ${
+            className={`text-foreground font-semibold ${
               isProfile ? 'text-sm' : 'text-xs'
             }`}
           >
             {friend.username}
           </p>
           <p
-            className={`text-zinc-400 ${
+            className={`text-muted-foreground ${
               isProfile ? 'text-[11px]' : 'text-[10px]'
             }`}
           >
@@ -106,7 +106,7 @@ export function FriendListItem({
             type="button"
             size="sm"
             variant="outline"
-            className="h-7 w-7 cursor-pointer border-zinc-700 bg-zinc-900 p-0 text-xs text-amber-400 hover:bg-amber-950/40"
+            className="border-input bg-card text-accent hover:bg-accent/10 h-7 w-7 cursor-pointer p-0 text-xs"
             onClick={() => onSpectate?.(friend.currentGameId!)}
             title={t('app.friends.spectateTitle') || 'Espectar partida'}
           >
@@ -120,7 +120,7 @@ export function FriendListItem({
             type="button"
             size="sm"
             variant="outline"
-            className="h-7 w-7 cursor-pointer border-zinc-700 bg-zinc-900 p-0 text-xs font-bold text-zinc-200 hover:bg-orange-600 hover:text-white"
+            className="border-input bg-card text-secondary-foreground hover:bg-primary hover:text-primary-foreground h-7 w-7 cursor-pointer p-0 text-xs font-bold"
             onClick={() => onInviteToLobby(friend)}
             title={t('app.friends.inviteToLobby') || 'Invitar a lobby'}
           >
@@ -136,7 +136,7 @@ export function FriendListItem({
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="h-7 w-7 cursor-pointer p-0 text-xs text-zinc-500 hover:text-red-400"
+                className="text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer p-0 text-xs"
                 title={t('app.friends.deleteFriendTitle') || 'Eliminar amigo'}
               >
                 <XIcon className="h-3.5 w-3.5" aria-hidden="true" />

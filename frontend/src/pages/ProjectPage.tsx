@@ -1,19 +1,6 @@
 import { useLanguage } from '../locales/useLanguage';
-import {
-  HEADER_BADGE,
-  HEADER_CARD,
-  META_PILL,
-  PAGE_CONTAINER,
-  PAGE_SHELL,
-  PAGE_SUBTITLE,
-  PAGE_TITLE,
-  SECTION_CARD,
-  SECTION_TITLE,
-  TABLE_BASE,
-  TABLE_HEAD,
-  TABLE_ROW,
-  TABLE_WRAPPER,
-} from '@/components/layout/layoutStyles';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 
@@ -188,9 +175,9 @@ const EXTRA_MODULES: ModuleItem[] = [
 type ModuleAccent = 'orange' | 'amber' | 'gray';
 
 const ACCENT_CLASSES: Record<ModuleAccent, string> = {
-  orange: 'border-orange-500/30 bg-orange-500/10 text-orange-400',
-  amber: 'border-amber-500/30 bg-amber-500/10 text-amber-400',
-  gray: 'border-gray-500/30 bg-gray-500/10 text-gray-400',
+  orange: 'border-primary/30 bg-primary/10 text-primary',
+  amber: 'border-accent/30 bg-accent/10 text-accent',
+  gray: 'border-input bg-secondary text-muted-foreground',
 };
 
 interface ModuleTableProps {
@@ -202,39 +189,41 @@ function ModuleTable({ modules, accent }: ModuleTableProps) {
   const { t, tList } = useLanguage();
 
   return (
-    <div className={TABLE_WRAPPER}>
-      <table className={TABLE_BASE}>
-        <thead className={TABLE_HEAD}>
+    <div className={UI.table.wrapper}>
+      <table className={UI.table.base}>
+        <thead className={UI.table.head}>
           <tr>
-            <th className="px-4 py-3">{t('project.colModule') || 'Module'}</th>
-            <th className="px-4 py-3">
+            <th className={UI.table.cell}>
+              {t('project.colModule') || 'Module'}
+            </th>
+            <th className={UI.table.cell}>
               {t('project.colCategory') || 'Category'}
             </th>
-            <th className="px-4 py-3">{t('project.colType') || 'Type'}</th>
-            <th className="px-4 py-3 text-right">
+            <th className={UI.table.cell}>{t('project.colType') || 'Type'}</th>
+            <th className={`${UI.table.cell} text-right`}>
               {t('project.colPoints') || 'Points'}
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
+        <tbody className="divide-border/60 text-secondary-foreground divide-y">
           {modules.map((item) => {
             const requirements = tList(item.requirementsKey);
 
             return (
-              <tr key={item.id} className={TABLE_ROW}>
+              <tr key={item.id} className={UI.table.row}>
                 <td className="px-4 py-4">
-                  <div className="text-sm font-semibold text-white">
+                  <div className="text-foreground text-sm font-semibold">
                     {t(item.nameKey) || item.defaultName}
                   </div>
                   {requirements.length > 0 && (
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-zinc-400">
+                    <ul className="text-muted-foreground mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed">
                       {requirements.map((requirement) => (
                         <li key={requirement}>{requirement}</li>
                       ))}
                     </ul>
                   )}
                 </td>
-                <td className="px-4 py-4 align-top whitespace-nowrap text-zinc-400">
+                <td className="text-muted-foreground px-4 py-4 align-top whitespace-nowrap">
                   {t(item.categoryKey) || item.defaultCategory}
                 </td>
                 <td className="px-4 py-4 align-top whitespace-nowrap">
@@ -244,7 +233,7 @@ function ModuleTable({ modules, accent }: ModuleTableProps) {
                     {t(item.typeKey) || item.defaultType}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-right align-top font-bold whitespace-nowrap text-white">
+                <td className="text-foreground px-4 py-4 text-right align-top font-bold whitespace-nowrap">
                   {item.points} {t('project.pts') || 'pts'}
                 </td>
               </tr>
@@ -266,43 +255,43 @@ export function ProjectPage() {
   const bonusTotal = BONUS_MODULES.reduce((sum, item) => sum + item.points, 0);
 
   return (
-    <div className={PAGE_SHELL}>
-      <div className={PAGE_CONTAINER}>
+    <div className={UI.shell.page}>
+      <div className={UI.shell.container}>
         {/* Header Section */}
-        <header className={HEADER_CARD}>
-          <div className={HEADER_BADGE}>
+        <Card className={UI.card.header}>
+          <div className={UI.badge.header}>
             <span>42 Transcendence v21.2</span>
           </div>
 
-          <h1 className={PAGE_TITLE}>
+          <h1 className={UI.text.pageTitle}>
             {t('project.title') || 'About the Project'}
           </h1>
-          <p className={PAGE_SUBTITLE}>
+          <p className={UI.text.pageSubtitle}>
             {t('project.subtitle') ||
               'Technical specification, system architecture, and module breakdown evaluated under the official 42 guidelines (v21.2).'}
           </p>
 
           {/* Quick Score Counter */}
           <div className="mt-4 mb-6 flex w-full flex-wrap justify-center gap-4 text-xs font-semibold">
-            <div className={META_PILL}>
-              <span className="text-zinc-400">
+            <div className={UI.badge.metaPill}>
+              <span className="text-muted-foreground">
                 {t('project.summaryMandatory') || 'Mandatory'}:{' '}
               </span>
-              <span className="text-orange-400">
+              <span className="text-primary">
                 {mandatoryTotal} {t('project.pts') || 'pts'}
               </span>{' '}
-              <span className="text-zinc-500">
+              <span className="text-muted-foreground/70">
                 ({t('project.minPoints') || 'Min 14 pts'})
               </span>
             </div>
-            <div className={META_PILL}>
-              <span className="text-zinc-400">
+            <div className={UI.badge.metaPill}>
+              <span className="text-muted-foreground">
                 {t('project.summaryBonus') || 'Bonus'}:{' '}
               </span>
-              <span className="text-amber-400">
+              <span className="text-accent">
                 +{bonusTotal} {t('project.pts') || 'pts'}
               </span>{' '}
-              <span className="text-zinc-500">
+              <span className="text-muted-foreground/70">
                 ({t('project.maxPoints') || 'Max 5 pts'})
               </span>
             </div>
@@ -325,42 +314,42 @@ export function ProjectPage() {
               Repository
             </a>
           </Button>
-        </header>
+        </Card>
 
         {/* Mandatory Modules Table */}
-        <section className={SECTION_CARD}>
+        <Card className={UI.card.section}>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className={SECTION_TITLE}>
+            <h2 className={UI.text.sectionTitle}>
               {t('project.mandatoryHeading') || 'Mandatory Core Modules'}
             </h2>
-            <span className="text-xs font-semibold text-orange-400">
+            <span className="text-primary text-xs font-semibold">
               {mandatoryTotal} {t('project.pointsLabel') || 'Points Claimed'}
             </span>
           </div>
 
           <ModuleTable modules={MANDATORY_MODULES} accent="orange" />
-        </section>
+        </Card>
 
         {/* Bonus Modules Table */}
-        <section className={`mb-8 ${SECTION_CARD}`}>
+        <Card className={`mb-8 ${UI.card.section}`}>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className={SECTION_TITLE}>
+            <h2 className={UI.text.sectionTitle}>
               {t('project.bonusHeading') || 'Bonus Modules (Max 5 pts)'}
             </h2>
-            <span className="text-xs font-semibold text-amber-400">
+            <span className="text-accent text-xs font-semibold">
               {bonusTotal} {t('project.pointsLabel') || 'Points Claimed'}
             </span>
           </div>
 
           <ModuleTable modules={BONUS_MODULES} accent="amber" />
-        </section>
+        </Card>
 
         {/* Extra Modules */}
-        <section className={SECTION_CARD}>
-          <h2 className={SECTION_TITLE}>
+        <Card className={UI.card.section}>
+          <h2 className={UI.text.sectionTitle}>
             {t('project.extraHeading') || 'Extra Modules'}
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-muted-foreground text-sm">
             {t('project.extraDesc') ||
               'Additional modules or features that are not part of the mandatory or bonus criteria but may enhance the project.'}
           </p>
@@ -368,7 +357,7 @@ export function ProjectPage() {
           <div className="mt-4">
             <ModuleTable modules={EXTRA_MODULES} accent="gray" />
           </div>
-        </section>
+        </Card>
       </div>
     </div>
   );

@@ -7,21 +7,13 @@ import type {
 } from '@transcendence/shared';
 import { Check, CheckCircle2, Pencil, UserRound, X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
+import { Card } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
 import { AvatarUpload } from './AvatarUpload';
 import { LevelProgress } from './LevelProgress';
 import { FriendList } from '../../friends/components/FriendListCard';
 import { useLanguage } from '../../../locales/useLanguage';
-import {
-  INNER_BOX,
-  PAGE_CONTAINER,
-  PAGE_SHELL,
-  PILL_BADGE,
-  SECTION_CARD,
-  SECTION_SUBLABEL,
-  SECTION_TITLE,
-  TAG_CHIP,
-} from '@/components/layout/layoutStyles';
+import { UI } from '@/components/layout/layoutStyles';
 
 type EditableField = 'username' | 'email';
 
@@ -32,10 +24,6 @@ interface PrivateProfileViewProps {
     input: UpdateProfileInput
   ) => Promise<UpdateProfileResponse>;
 }
-
-const SECTION_SURFACE = `${SECTION_CARD} sm:p-8`;
-const INNER = `${INNER_BOX} p-3.5`;
-const LABEL = SECTION_SUBLABEL;
 
 /**
  * Private profile view.
@@ -235,31 +223,33 @@ export function PrivateProfileView({
     {
       label: t('profile.joined') || 'Registered on',
       value: registrationDate,
-      tone: 'text-white',
+      tone: 'text-foreground',
     },
     {
       label: t('profile.authentication') || 'Authentication',
       value: authenticationMethod,
-      tone: 'text-white',
+      tone: 'text-foreground',
     },
     {
       label: t('profile.twoFactor') || 'Two-factor authentication',
       value: twoFactorStatus,
-      tone: user.twoFaEnabled ? 'text-emerald-400' : 'text-zinc-400',
+      tone: user.twoFaEnabled
+        ? 'text-success-foreground'
+        : 'text-muted-foreground',
     },
   ];
 
   return (
-    <div className={PAGE_SHELL}>
-      <div className={PAGE_CONTAINER}>
+    <div className={UI.shell.page}>
+      <div className={UI.shell.container}>
         {/* Editable profile details */}
-        <section className={SECTION_SURFACE}>
+        <Card className={`${UI.card.section} sm:p-8`}>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className={SECTION_TITLE}>
+            <h2 className={UI.text.sectionTitle}>
               {t('profile.myProfile') || 'My Profile'}
-              <span className={`ml-3 ${TAG_CHIP}`}>#{user.id}</span>
+              <span className={`ml-3 ${UI.badge.tag}`}>#{user.id}</span>
             </h2>
-            <span className={PILL_BADGE}>
+            <span className={UI.badge.pill}>
               <UserRound className="size-3.5" aria-hidden="true" />
               {t('profile.privateProfileBadge') || 'Editable Data'}
             </span>
@@ -281,10 +271,10 @@ export function PrivateProfileView({
                 const isEditing = editingField === field.key;
 
                 return (
-                  <div key={field.key} className={INNER}>
+                  <div key={field.key} className={`p-3.5 ${UI.card.inner}`}>
                     {isEditing ? (
                       <form onSubmit={handleFormSubmit} className="space-y-2.5">
-                        <label className={`block ${LABEL}`}>
+                        <label className={`block ${UI.text.sublabel}`}>
                           {field.label}
                           <Input
                             autoFocus
@@ -296,7 +286,7 @@ export function PrivateProfileView({
                             maxLength={field.maxLength}
                             autoComplete={field.key}
                             disabled={isSaving}
-                            className="mt-1.5 border-zinc-800 bg-zinc-900 text-sm text-white"
+                            className="mt-1.5 text-sm"
                           />
                         </label>
 
@@ -305,7 +295,7 @@ export function PrivateProfileView({
                             type="submit"
                             size="sm"
                             disabled={isSaving}
-                            className="gap-1.5 bg-orange-600 text-xs font-semibold text-white hover:bg-orange-500"
+                            className="gap-1.5 text-xs font-semibold"
                           >
                             <Check className="size-3.5" aria-hidden="true" />
                             {isSaving
@@ -329,13 +319,13 @@ export function PrivateProfileView({
                     ) : (
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className={LABEL}>{field.label}</p>
-                          <p className="mt-1 text-sm font-medium break-all text-white">
+                          <p className={UI.text.sublabel}>{field.label}</p>
+                          <p className="text-foreground mt-1 text-sm font-medium break-all">
                             {field.value}
                           </p>
 
                           {field.key === 'email' && emailManagedByOAuth && (
-                            <span className="mt-2 inline-flex rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[11px] font-semibold tracking-wider text-orange-400 uppercase">
+                            <span className="border-primary/30 bg-primary/10 text-primary mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wider uppercase">
                               {t('profile.managedByGoogle') ||
                                 'Managed by Google'}
                             </span>
@@ -343,15 +333,17 @@ export function PrivateProfileView({
                         </div>
 
                         {field.canEdit && (
-                          <button
+                          <Button
                             type="button"
+                            variant="outline"
+                            size="icon-sm"
                             onClick={() => startEditing(field.key)}
                             title={editLabel(field.label)}
                             aria-label={editLabel(field.label)}
-                            className="rounded-lg border border-zinc-800 bg-zinc-900 p-2 text-zinc-400 transition-colors hover:border-orange-500/40 hover:text-orange-400"
+                            className="text-muted-foreground hover:text-primary"
                           >
                             <Pencil className="size-3.5" aria-hidden="true" />
-                          </button>
+                          </Button>
                         )}
                       </div>
                     )}
@@ -360,40 +352,43 @@ export function PrivateProfileView({
               })}
 
               {error && (
-                <p className="text-xs font-medium text-red-400" role="alert">
+                <p
+                  className="text-destructive text-xs font-medium"
+                  role="alert"
+                >
                   {error}
                 </p>
               )}
 
               {success && (
-                <p className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400">
+                <p className="text-success-foreground inline-flex items-center gap-1 text-xs font-medium">
                   <CheckCircle2 className="size-4" aria-hidden="true" />
                   {success}
                 </p>
               )}
             </div>
           </div>
-        </section>
+        </Card>
 
         {/* Read-only account information */}
-        <section className={SECTION_SURFACE}>
+        <Card className={`${UI.card.section} sm:p-8`}>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className={SECTION_TITLE}>
+            <h2 className={UI.text.sectionTitle}>
               {t('profile.accountInformation') || 'Account information'}
             </h2>
-            <span className={PILL_BADGE}>
+            <span className={UI.badge.pill}>
               {t('profile.authentication') || 'Authentication'}
             </span>
           </div>
 
-          <div className={`${INNER} mt-5`}>
+          <div className={`mt-5 p-3.5 ${UI.card.inner}`}>
             <LevelProgress xp={user.xp} />
           </div>
 
           <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {readOnlyFields.map((field) => (
-              <div key={field.label} className={INNER}>
-                <dt className={LABEL}>{field.label}</dt>
+              <div key={field.label} className={`p-3.5 ${UI.card.inner}`}>
+                <dt className={UI.text.sublabel}>{field.label}</dt>
                 <dd
                   className={`mt-1 text-sm font-semibold break-all ${field.tone}`}
                 >
@@ -402,7 +397,7 @@ export function PrivateProfileView({
               </div>
             ))}
           </dl>
-        </section>
+        </Card>
 
         {/* Friends and social management */}
         <FriendList variant="profile" />

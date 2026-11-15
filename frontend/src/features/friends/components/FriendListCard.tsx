@@ -5,11 +5,7 @@ import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useLanguage } from '@/locales/useLanguage';
 
 import { Card } from '@/components/ui/card';
-import {
-  CARD,
-  SECTION_SUBLABEL,
-  SECTION_TITLE,
-} from '@/components/layout/layoutStyles';
+import { UI } from '@/components/layout/layoutStyles';
 
 import { FriendListItem } from './FriendListItem';
 import { AddFriendCard } from './AddFriendCard';
@@ -23,19 +19,19 @@ interface FriendListProps {
 }
 
 const CARD_STYLES: Record<FriendListVariant, string> = {
-  lobby: `flex flex-col gap-3 p-5 ${CARD}`,
-  profile: `flex flex-col gap-4 p-6 sm:p-8 ${CARD}`,
+  lobby: 'flex flex-col gap-3 p-5',
+  profile: 'flex flex-col gap-4 p-6 sm:p-8',
 };
 
 const HEADER_STYLES: Record<FriendListVariant, string> = {
-  lobby: 'flex items-center justify-between border-b border-zinc-800 pb-2',
+  lobby: 'flex items-center justify-between border-b border-border pb-2',
   profile:
-    'flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/80 pb-4',
+    'flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-4',
 };
 
 const TITLE_STYLES: Record<FriendListVariant, string> = {
-  lobby: `flex items-center gap-2 ${SECTION_SUBLABEL}`,
-  profile: `flex items-center gap-2 ${SECTION_TITLE}`,
+  lobby: `flex items-center gap-2 ${UI.text.sublabel}`,
+  profile: `flex items-center gap-2 ${UI.text.sectionTitle}`,
 };
 
 export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
@@ -62,7 +58,7 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
           </span>
         </h4>
         {isLoading && (
-          <span className="animate-pulse text-[10px] text-zinc-500">
+          <span className="text-muted-foreground animate-pulse text-[10px]">
             {t('app.general.connecting') || 'Cargando...'}
           </span>
         )}
@@ -81,7 +77,7 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
         }`}
       >
         {friends.length === 0 && !isLoading ? (
-          <p className="py-4 text-center text-xs text-zinc-500">
+          <p className="text-muted-foreground py-4 text-center text-xs">
             {t('app.friends.noFriendsYet') || 'No tienes amigos añadidos aún.'}
           </p>
         ) : (

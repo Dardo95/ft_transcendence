@@ -1,11 +1,5 @@
 import { createPortal } from 'react-dom'; // createPortal is used to render the overlay outside of the main app hierarchy, ensuring it appears above all other content.
-import {
-  BTN_DEFAULT_PLUS,
-  MODAL_BACKDROP,
-  MODAL_CARD,
-  SECTION_TEXT,
-  SECTION_TITLE,
-} from '@/components/layout/layoutStyles';
+import { UI } from '@/components/layout/layoutStyles';
 import { Button } from '@/components/ui/button';
 
 import { useSocketStore } from '@/stores/useSocketStore';
@@ -18,12 +12,12 @@ export function SessionReplacedOverlay() {
   if (!sessionReplaced) return null;
 
   return createPortal(
-    <div role="alertdialog" aria-modal="true" className={MODAL_BACKDROP}>
-      <div className={MODAL_CARD}>
-        <h2 className={SECTION_TITLE}>
+    <div role="alertdialog" aria-modal="true" className={UI.ui.dialogOverlay}>
+      <section className={UI.ui.dialogContent}>
+        <h2 className={UI.text.sectionTitle}>
           {t('app.general.openSession') || 'Sesión abierta en otra ventana'}
         </h2>
-        <p className={SECTION_TEXT}>
+        <p className={UI.text.body}>
           {t('app.general.sessionReplaced') ||
             'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.'}
         </p>
@@ -31,11 +25,11 @@ export function SessionReplacedOverlay() {
           type="button"
           variant="default"
           onClick={() => window.location.reload()}
-          className={`mt-5 w-full cursor-pointer ${BTN_DEFAULT_PLUS}`}
+          className="mt-2 w-full"
         >
           {t('app.general.reloadSession') || 'Recuperar sesión'}
         </Button>
-      </div>
+      </section>
     </div>,
     document.body
   );

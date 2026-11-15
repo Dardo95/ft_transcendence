@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { cropImageToSquare } from '../../../lib/imageCrop';
 import { useLanguage } from '../../../locales/useLanguage';
+import { Button } from '../../../components/ui/button';
 import defaultAvatar from '../../../assets/default.jpg';
 
 interface AvatarUploadProps {
@@ -39,7 +40,7 @@ export function AvatarUpload({
 
   return (
     <div className="group relative size-55 shrink-0">
-      <div className="size-55 overflow-hidden rounded-2xl border-2 border-orange-500/50 bg-zinc-800 shadow-lg">
+      <div className="border-primary/50 bg-secondary size-55 overflow-hidden rounded-2xl border-2 shadow-lg">
         <img
           src={preview || currentAvatarUrl || defaultAvatar}
           alt={username}
@@ -52,19 +53,20 @@ export function AvatarUpload({
         />
       </div>
 
-      <button
+      <Button
         type="button"
+        size="icon"
         disabled={isUploading}
         onClick={() => fileInputRef.current?.click()}
         aria-label={t('profile.uploadAvatar') || 'Upload avatar'}
-        className="absolute right-0 bottom-0 rounded-xl bg-orange-600 p-2 text-white shadow-md transition-transform hover:bg-orange-500 active:scale-95 disabled:opacity-50"
+        className="absolute right-0 bottom-0 shadow-md active:scale-95"
       >
         {isUploading ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
           <Camera className="size-4" />
         )}
-      </button>
+      </Button>
 
       <input
         type="file"

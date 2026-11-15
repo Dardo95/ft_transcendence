@@ -3,11 +3,7 @@ import type { UserPublic } from '@transcendence/shared';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  ALERT_ERROR,
-  ALERT_SUCCESS,
-  INNER_BOX,
-} from '@/components/layout/layoutStyles';
+import { UI } from '@/components/layout/layoutStyles';
 import { useLanguage } from '@/locales/useLanguage';
 
 type FeedbackState = {
@@ -209,14 +205,15 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
 
   return (
     <Card
-      className={`transition-colors ${INNER_BOX} ${
-        isProfile
-          ? 'flex flex-col gap-2 p-3.5'
-          : 'flex justify-between p-2.5 hover:bg-zinc-800/40'
+      className={`flex flex-col transition-colors ${
+        isProfile ? 'gap-2 p-3.5' : 'hover:bg-muted/40 gap-2 p-2.5'
       }`}
     >
-      <form onSubmit={handleFormSubmit} className="relative flex gap-2">
-        <div className="relative flex-1">
+      <form
+        onSubmit={handleFormSubmit}
+        className="relative flex w-full items-center gap-2"
+      >
+        <div className="relative min-w-0 flex-1">
           <Input
             type="text"
             value={targetUsername}
@@ -225,20 +222,18 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
               t('app.friends.addFriendPlaceholder') ||
               'Añadir amigo: Introducir nombre de usuario'
             }
-            className={`border-zinc-700 bg-zinc-950 pr-7 text-white ${
-              isProfile ? 'text-sm' : 'text-xs'
-            }`}
+            className={`w-full pr-7 ${isProfile ? 'text-sm' : 'text-xs'}`}
           />
 
           {isLoading && (
-            <span className="absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+            <span className="border-primary absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-t-transparent" />
           )}
         </div>
 
         <Button
           type="submit"
           disabled={!queryTrimmed || !!sendingUser}
-          className="bg-orange-600 px-4 text-xs font-semibold hover:bg-orange-500"
+          className="shrink-0 px-4 text-xs font-semibold"
         >
           {sendingUser === queryTrimmed
             ? '...'
@@ -249,27 +244,27 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
       {/* General success or error feedback */}
       {feedback && (
         <p
-          className={`my-2 flex items-center justify-center text-center font-semibold ${
-            feedback.isError ? ALERT_ERROR : ALERT_SUCCESS
+          className={`flex w-full items-center justify-center text-center font-semibold ${
+            feedback.isError ? UI.feedback.error : UI.feedback.success
           }`}
         >
           {feedback.text}
         </p>
       )}
 
-      {/* Floating autocomplete search results */}
+      {/* Autocomplete search results stacked cleanly below the form */}
       {showDropdown && (
         <div
-          className={`mt-2 max-h-56 w-full divide-y divide-zinc-900 overflow-y-auto p-1.5 shadow-2xl ${INNER_BOX}`}
+          className={`divide-border max-h-56 w-full divide-y overflow-y-auto p-1.5 shadow-2xl ${UI.card.inner}`}
         >
           {searchError && (
-            <p className="p-2 text-center text-xs text-red-400">
+            <p className="text-destructive p-2 text-center text-xs">
               {searchError}
             </p>
           )}
 
           {!isLoading && !searchError && results.length === 0 && (
-            <p className="p-2 text-center text-xs text-zinc-500">
+            <p className="text-muted-foreground p-2 text-center text-xs">
               {t('app.friends.noResults') || 'No se encontraron usuarios.'}
             </p>
           )}
@@ -281,21 +276,21 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
             return (
               <div
                 key={user.id}
-                className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-zinc-900/60"
+                className="hover:bg-muted/40 flex items-center justify-between gap-2 rounded-lg p-2 transition-colors"
               >
                 <div className="flex min-w-0 items-center gap-2.5">
                   {user.avatarUrl ? (
                     <img
                       src={user.avatarUrl}
                       alt={user.username}
-                      className="h-7 w-7 rounded-full border border-zinc-700 object-cover"
+                      className="border-input h-7 w-7 shrink-0 rounded-full border object-cover"
                     />
                   ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs font-bold text-zinc-300">
+                    <div className="border-input bg-secondary text-muted-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
                       {user.username.slice(0, 2).toUpperCase()}
                     </div>
                   )}
-                  <span className="truncate text-xs font-semibold text-zinc-200">
+                  <span className="text-foreground truncate text-xs font-semibold">
                     {user.username}
                   </span>
                 </div>
@@ -305,10 +300,10 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
                   size="sm"
                   disabled={isAlreadySent || isSubmittingThis}
                   onClick={() => handleSendRequest(user.username)}
-                  className={`h-7 px-3 text-[11px] font-semibold transition-colors ${
+                  className={`h-7 shrink-0 px-3 text-[11px] font-semibold transition-colors ${
                     isAlreadySent
-                      ? 'bg-zinc-800 text-zinc-500'
-                      : 'bg-orange-600 text-white hover:bg-orange-500'
+                      ? 'bg-muted text-muted-foreground'
+                      : 'bg-primary text-primary-foreground hover:bg-primary/80'
                   }`}
                 >
                   {isSubmittingThis

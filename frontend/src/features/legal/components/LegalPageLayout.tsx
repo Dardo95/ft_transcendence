@@ -1,51 +1,33 @@
 import { Link } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/locales/useLanguage';
-import {
-  BULLET_ICON,
-  BULLET_ITEM,
-  BULLET_LIST,
-  HEADER_BADGE,
-  HEADER_CARD,
-  HIGHLIGHT_CARD,
-  HIGHLIGHT_HEADER,
-  HIGHLIGHT_TITLE,
-  META_LINK,
-  META_PILL,
-  META_ROW,
-  PAGE_CONTAINER,
-  PAGE_SHELL,
-  PAGE_SUBTITLE,
-  PAGE_TITLE,
-  SECTION_CARD,
-  SECTION_TEXT,
-  SECTION_TITLE,
-} from '@/components/layout/layoutStyles';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 import type { LegalPageContent, LegalSection } from '../types';
 
 function LegalSectionCard({ section }: { section: LegalSection }) {
   const { t } = useLanguage();
 
   return (
-    <section className={SECTION_CARD}>
-      <h2 className={SECTION_TITLE}>
+    <Card className={UI.card.section}>
+      <h2 className={UI.text.sectionTitle}>
         {t(section.titleKey) || section.defaultTitle}
       </h2>
-      <p className={SECTION_TEXT}>
+      <p className={UI.text.body}>
         {t(section.contentKey) || section.defaultContent}
       </p>
 
       {section.bullets && section.bullets.length > 0 && (
-        <ul className={BULLET_LIST}>
+        <ul className={UI.list.ul}>
           {section.bullets.map((bullet) => (
-            <li key={bullet.key} className={BULLET_ITEM}>
-              <CheckCircle2 className={BULLET_ICON} />
+            <li key={bullet.key} className={UI.list.li}>
+              <CheckCircle2 className={UI.list.icon} />
               <span>{t(bullet.key) || bullet.fallback}</span>
             </li>
           ))}
         </ul>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -55,53 +37,53 @@ export function LegalPageLayout({ page }: { page: LegalPageContent }) {
   const CrossLinkIcon = page.crossLink.icon;
 
   return (
-    <div className={PAGE_SHELL}>
-      <div className={PAGE_CONTAINER}>
-        <header className={HEADER_CARD}>
-          <div className={HEADER_BADGE}>
+    <div className={UI.shell.page}>
+      <div className={UI.shell.container}>
+        <Card className={UI.card.header}>
+          <div className={UI.badge.header}>
             <BadgeIcon className="size-3.5" />
             <span>{t(page.badgeKey) || page.defaultBadge}</span>
           </div>
 
-          <h1 className={PAGE_TITLE}>
+          <h1 className={UI.text.pageTitle}>
             {t(page.titleKey) || page.defaultTitle}
           </h1>
 
-          <p className={PAGE_SUBTITLE}>
+          <p className={UI.text.pageSubtitle}>
             {t(page.subtitleKey) || page.defaultSubtitle}
           </p>
 
-          <div className={META_ROW}>
-            <span className={META_PILL}>
+          <div className={UI.badge.metaRow}>
+            <span className={UI.badge.metaPill}>
               {t('legal.lastUpdated') || 'Last updated: November 2026'}
             </span>
-            <Link to={page.crossLink.to} className={META_LINK}>
+            <Link to={page.crossLink.to} className={UI.badge.metaLink}>
               <CrossLinkIcon className="size-3.5" />
               <span>
                 {t(page.crossLink.labelKey) || page.crossLink.defaultLabel}
               </span>
             </Link>
           </div>
-        </header>
+        </Card>
 
         {page.highlights && page.highlights.length > 0 && (
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <section className={UI.shell.grid3}>
             {page.highlights.map((highlight) => {
               const HighlightIcon = highlight.icon;
 
               return (
-                <div key={highlight.titleKey} className={HIGHLIGHT_CARD}>
-                  <div className={HIGHLIGHT_HEADER}>
+                <Card key={highlight.titleKey} className={UI.card.highlight}>
+                  <div className={UI.list.highlightHeader}>
                     <HighlightIcon className="size-4 shrink-0" />
-                    <h2 className={HIGHLIGHT_TITLE}>
+                    <h2 className={UI.list.highlightTitle}>
                       {t(highlight.titleKey) || highlight.defaultTitle}
                     </h2>
                   </div>
-                  <p className={SECTION_TEXT}>
+                  <p className={UI.text.body}>
                     {t(highlight.descriptionKey) ||
                       highlight.defaultDescription}
                   </p>
-                </div>
+                </Card>
               );
             })}
           </section>

@@ -7,7 +7,6 @@ import { FriendList } from '@/features/friends/components/FriendListCard';
 import { LobbyChat } from '@/features/chat/components/LobbyChat';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { Card } from '@/components/ui/card';
-import { CARD } from '@/components/layout/layoutStyles';
 import { gameSocket } from '@/lib/socket';
 import { useLanguage } from '@/locales/useLanguage';
 import {
@@ -267,7 +266,7 @@ export function LobbyPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] text-[#f6f1e9]">
+    <div className="text-foreground mx-auto w-full max-w-[1440px]">
       <LobbyTopBanner isGameConnected={isGameConnected} />
 
       <LobbyNotifications
@@ -311,7 +310,7 @@ export function LobbyPage() {
         {lobby ? (
           <LobbyChat />
         ) : (
-          <Card className={`p-4 text-center text-sm text-zinc-400 ${CARD}`}>
+          <Card className="text-muted-foreground p-4 text-center text-sm">
             {t('app.lobby.joinLobbyToChat') ||
               'Join a lobby to use private chat with its members.'}
           </Card>

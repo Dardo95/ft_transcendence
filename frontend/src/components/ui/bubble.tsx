@@ -1,42 +1,39 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'cn';
+import { UI } from '@/components/layout/layoutStyles';
 
 function BubbleGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="bubble-group"
-      className={cn('flex min-w-0 flex-col gap-2', className)}
+      className={cn(UI.ui.bubbleGroup, className)}
       {...props}
     />
   );
 }
 
-const bubbleVariants = cva(
-  'w-fit max-w-[85%] rounded-2xl px-3.5 py-1 text-xs break-words shadow-sm transition-all',
-  {
-    variants: {
-      variant: {
-        // Mensajes propios: Fondo naranja vivo con texto blanco puro
-        primary: 'bg-orange-600 text-white font-medium shadow-orange-950/20',
-        // Mensajes recibidos: Acero oscuro con texto blanco/marfil
-        secondary: 'bg-zinc-800 border border-zinc-750 text-zinc-100',
-        // Mensajes del sistema: Fondo zinc muy oscuro con borde sutil y texto ámbar
-        system:
-          'bg-zinc-950/70 border border-orange-500/20 text-orange-300 italic',
-      },
-      align: {
-        start: 'self-start rounded-bl-sm',
-        end: 'self-end rounded-br-sm',
-        center: 'self-center rounded-b-sm',
-      },
+const bubbleVariants = cva(UI.ui.bubble, {
+  variants: {
+    variant: {
+      // Own messages: solid primary surface
+      primary: 'bg-primary font-medium text-primary-foreground',
+      // Received messages: secondary steel surface
+      secondary: 'border border-border bg-secondary text-secondary-foreground',
+      // System messages: recessed surface with primary accent
+      system: 'border border-primary/20 bg-background/70 text-primary italic',
     },
-    defaultVariants: {
-      variant: 'secondary',
-      align: 'start',
+    align: {
+      start: 'self-start rounded-bl-sm',
+      end: 'self-end rounded-br-sm',
+      center: 'self-center rounded-b-sm',
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: 'secondary',
+    align: 'start',
+  },
+});
 
 export interface BubbleProps
   extends
@@ -57,7 +54,7 @@ function BubbleContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="bubble-content"
-      className={cn('leading-relaxed', className)}
+      className={cn(UI.ui.bubbleContent, className)}
       {...props}
     />
   );

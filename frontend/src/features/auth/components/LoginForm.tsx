@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/ui/icons';
+import { UI } from '@/components/layout/layoutStyles';
 import { PasswordInput } from './PasswordInput';
 
 export function LoginForm() {
@@ -47,10 +48,10 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm">
       {/* Header of the Form */}
       <div className="mb-6">
-        <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+        <h2 className="text-foreground text-xl font-bold tracking-tight sm:text-2xl">
           {t('auth.login.heading') || 'Welcome back!'}{' '}
         </h2>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="text-muted-foreground mt-1 text-sm">
           {t('auth.login.subheading') || 'Log in to return to the game.'}{' '}
         </p>
       </div>
@@ -61,7 +62,7 @@ export function LoginForm() {
           tabIndex={-1}
           role="alert"
           aria-live="polite"
-          className="mb-4 flex items-center justify-center rounded-xl bg-white p-2.5 text-center text-xs font-semibold text-orange-500"
+          className={`mb-4 flex items-center justify-center text-center font-semibold ${UI.feedback.error}`}
         >
           <span>{t(authErrorKey)}</span>
         </div>
@@ -74,7 +75,7 @@ export function LoginForm() {
           </FieldLabel>
           <div className="relative">
             <MailIcon
-              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500"
+              className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
               aria-hidden="true"
             />
             <Input
@@ -109,7 +110,7 @@ export function LoginForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="h-10 w-full cursor-pointer bg-orange-600 hover:bg-orange-800"
+            className="h-10 w-full cursor-pointer"
           >
             {isSubmitting
               ? t('auth.login.connecting') || 'Connecting...'
@@ -120,24 +121,25 @@ export function LoginForm() {
 
       {/* Separator */}
       <div className="relative my-5 flex items-center">
-        <div className="grow border-t border-zinc-800" />
-        <span className="mx-3 shrink text-sm text-zinc-500 uppercase">
+        <div className="border-border grow border-t" />
+        <span className="text-muted-foreground mx-3 shrink text-sm uppercase">
           {t('auth.login.orContinueWith') || 'or continue with'}
         </span>
-        <div className="grow border-t border-zinc-800" />
+        <div className="border-border grow border-t" />
       </div>
 
       {/* Google OAuth */}
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={() => {
           window.location.href = '/api/auth/google';
         }}
-        className="hover:bg-zinc-750 flex h-10 w-full cursor-pointer items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-0 text-sm font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99]"
+        className="h-10 w-full gap-2.5 text-sm font-semibold"
       >
         <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
         <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>
-      </button>
+      </Button>
     </form>
   );
 }

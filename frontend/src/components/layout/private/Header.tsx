@@ -18,6 +18,7 @@ import { LogOutIcon, MenuIcon, UserIcon } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/store/useAuthStore';
 import { useLanguage } from '../../../locales/useLanguage';
 import { Button } from '@/components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
 import logoUrl from '@/assets/ui_logo.svg';
@@ -57,14 +58,14 @@ export function Header({ onOpenDrawer }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 flex w-full items-center justify-between border-b border-zinc-800 bg-zinc-950/90 py-3 backdrop-blur-md md:px-4">
+    <header className={UI.chrome.header}>
       {/* Left section: Drawer toggle button */}
       <Button
         type="button"
         variant="ghost"
         size="icon-lg"
         onClick={onOpenDrawer}
-        className="cursor-pointer text-zinc-400 hover:bg-zinc-900 hover:text-white"
+        className="text-muted-foreground hover:bg-muted hover:text-foreground"
         aria-label="Open sidebar menu"
       >
         <MenuIcon className="h-5 w-5" aria-hidden="true" />
@@ -75,7 +76,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         <img
           src={logoUrl}
           alt="ft_bomberman Logo"
-          className="h-12 cursor-pointer object-contain top-1/2 -translate-y-1/2 absolute left-1/2 -translate-x-1/2 m-0"
+          className="absolute top-1/2 left-1/2 m-0 h-12 -translate-x-1/2 -translate-y-1/2 cursor-pointer object-contain"
           onClick={() => navigate('/lobby')}
         />
       </div>
@@ -86,32 +87,34 @@ export function Header({ onOpenDrawer }: HeaderProps) {
 
         {/* User avatar menu */}
         <div className="relative" ref={dropdownRef}>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-lg"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
-            className="flex h-9 w-9 items-center justify-center rounded-full p-0.5 transition-all hover:ring-2 hover:ring-orange-500/60 focus:outline-none"
+            className="hover:ring-primary/60 rounded-full p-0.5 hover:ring-2"
             aria-label="User menu"
           >
             <img
               src={user?.avatarUrl || defaultAvatar}
               alt={user?.username || 'Avatar'}
-              className="h-full w-full cursor-pointer rounded-full border border-zinc-700 bg-zinc-800 object-cover"
+              className="border-input bg-secondary h-full w-full cursor-pointer rounded-full border object-cover"
               onError={(e) => {
                 // Fallback icon if image fails to load (lucide chef-hat)
                 (e.target as HTMLImageElement).src =
                   'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="%23a1a1aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/></svg>';
               }}
             />
-          </button>
+          </Button>
 
           {/* Contextual dropdown panel */}
           {isDropdownOpen && (
-            <div className="animate-in fade-in absolute right-0 z-50 mt-2 w-48 rounded-xl border border-zinc-700 bg-zinc-900 py-1.5 shadow-2xl duration-150">
-              <div className="border-b border-zinc-800 px-4 py-2">
-                <p className="text-xs font-semibold text-zinc-400">
+            <div className={UI.chrome.dropdown}>
+              <div className="border-border border-b px-4 py-2">
+                <p className="text-muted-foreground text-xs font-semibold">
                   {t('app.general.connectedAs') || 'Logged in as'}
                 </p>
-                <p className="m-2 truncate text-center text-sm font-bold text-white">
+                <p className="text-foreground m-2 truncate text-center text-sm font-bold">
                   {user?.username || 'User'}
                 </p>
               </div>
@@ -120,21 +123,22 @@ export function Header({ onOpenDrawer }: HeaderProps) {
               <Link
                 to="/profile"
                 onClick={() => setIsDropdownOpen(false)}
-                className="flex cursor-pointer items-center gap-2 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
+                className={UI.chrome.dropdownItem}
               >
                 <UserIcon className="h-4 w-4" aria-hidden="true" />
                 <span>{t('app.general.profile') || 'Profile'}</span>
               </Link>
 
               {/* Logout action */}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={handleLogout}
-                className="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-left text-sm text-red-400 transition-colors hover:bg-red-950/40 hover:text-red-300"
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive w-full justify-start rounded-none px-4 py-2 text-left"
               >
                 <LogOutIcon className="h-4 w-4" aria-hidden="true" />
                 <span>{t('app.general.logout') || 'Logout'}</span>
-              </button>
+              </Button>
             </div>
           )}
         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { EyeIcon, EyeOffIcon, LockIcon } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '../../../locales/useLanguage';
 
@@ -30,7 +31,7 @@ export function PasswordInput({
   return (
     <div className="relative">
       <LockIcon
-        className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500"
+        className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
         aria-hidden="true"
       />
       <Input
@@ -43,22 +44,24 @@ export function PasswordInput({
         placeholder={placeholder}
         required
       />
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-sm"
         onClick={() => setIsVisible((prev) => !prev)}
         aria-label={
           isVisible
             ? t('auth.login.hidePassword') || 'Hide password'
             : t('auth.login.showPassword') || 'Show password'
         }
-        className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1.5 text-zinc-500 transition-colors hover:text-zinc-300"
+        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
       >
         {isVisible ? (
           <EyeOffIcon className="h-4 w-4" aria-hidden="true" />
         ) : (
           <EyeIcon className="h-4 w-4" aria-hidden="true" />
         )}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../../locales/useLanguage';
 import { Button } from '@/components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -24,16 +25,16 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
     <div className="fixed inset-0 z-50 flex">
       {/* Backdrop overlay */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="bg-background/70 fixed inset-0 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Drawer slide-out panel */}
-      <div className="relative z-10 flex w-72 max-w-[80vw] flex-col justify-between border-r border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
+      <aside className={UI.chrome.drawer}>
         <div className="flex flex-col gap-6">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
-            <h2 className="text-lg font-bold tracking-wider text-orange-400">
+          <div className="border-border flex items-center justify-between border-b pb-4">
+            <h2 className="text-primary text-lg font-bold tracking-wider">
               {t('app.general.title') || 'ft_boomberman'}
             </h2>
             <Button
@@ -41,7 +42,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               variant="ghost"
               size="icon-sm"
               onClick={onClose}
-              className="text-zinc-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
               aria-label="Close navigation drawer"
             >
               <XIcon className="h-5 w-5" aria-hidden="true" />
@@ -50,51 +51,33 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
 
           {/* Navigation links */}
           <nav className="flex flex-col gap-2">
-            <Link
-              to="/lobby"
-              onClick={onClose}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
-            >
+            <Link to="/lobby" onClick={onClose} className={UI.chrome.navLink}>
               <GamepadIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.lobby') || 'Lobby'}</span>
             </Link>
-            <Link
-              to="/stats"
-              onClick={onClose}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
-            >
+            <Link to="/stats" onClick={onClose} className={UI.chrome.navLink}>
               <TrophyIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.general.stats') || 'Game Statistics'}</span>
             </Link>
-            <Link
-              to="/rules"
-              onClick={onClose}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
-            >
+            <Link to="/rules" onClick={onClose} className={UI.chrome.navLink}>
               <BookOpenIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.general.aboutGame') || 'Rules'}</span>
             </Link>
-
-            <Link
-              to="/project"
-              onClick={onClose}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
-            >
+            <Link to="/project" onClick={onClose} className={UI.chrome.navLink}>
               <PackageIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.general.aboutProject') || 'Project'}</span>
             </Link>
-
             <Link
               to="/about-us"
               onClick={onClose}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-white"
+              className={UI.chrome.navLink}
             >
               <ChefHatIcon className="h-4 w-4" aria-hidden="true" />
               <span>{t('app.general.aboutUs') || 'About Us'}</span>
             </Link>
           </nav>
         </div>
-      </div>
+      </aside>
     </div>
   );
 }

@@ -5,11 +5,9 @@ import { useAuthStore } from '../features/auth/store/useAuthStore';
 
 import { LoginForm } from '../features/auth/components/LoginForm';
 import { RegisterForm } from '../features/auth/components/RegisterForm';
-import {
-  CARD,
-  HEADER_BADGE,
-  PAGE_SUBTITLE,
-} from '@/components/layout/layoutStyles';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 
 import logoUrl from '../assets/ui_logo.svg';
 import backgroundImage from '../assets/ui_login_bg.svg';
@@ -31,7 +29,7 @@ export function LandingPage() {
 
   return (
     <div
-      className="relative flex h-full w-full flex-col justify-between overflow-x-hidden font-sans text-slate-100 select-none"
+      className="text-foreground relative flex h-full w-full flex-col justify-between overflow-x-hidden font-sans select-none"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -54,16 +52,16 @@ export function LandingPage() {
             </div>
 
             {/* Subtitle / Battle Badge */}
-            <div className={HEADER_BADGE}>
-              <span className="text-orange-500">❖</span>
+            <div className={UI.badge.header}>
+              <span className="text-primary">❖</span>
               <span>
                 {t('app.general.battlefield') ||
                   'LA COCINA ES UN CAMPO DE BATALLA'}
               </span>
-              <span className="text-orange-500">❖</span>
+              <span className="text-primary">❖</span>
             </div>
 
-            <p className={`${PAGE_SUBTITLE} lg:mx-0`}>
+            <p className={`${UI.text.pageSubtitle} lg:mx-0`}>
               {t('app.general.subTitle') ||
                 'Fine cuisine, destruction, pressure cookers, and unleashed steam. Sign up or log in to enter the service.'}
             </p>
@@ -71,7 +69,7 @@ export function LandingPage() {
 
           {/* Right side: Floating card with Tabs and Forms */}
           <div className="w-full lg:col-span-5">
-            <div className={`mx-auto w-full max-w-md p-6 sm:p-8 ${CARD}`}>
+            <Card className="mx-auto w-full max-w-md p-6 sm:p-8">
               <div className="mb-6 flex pb-1">
                 <button
                   type="button"
@@ -81,8 +79,8 @@ export function LandingPage() {
                   }}
                   className={`relative flex-1 cursor-pointer pb-3 text-xs font-bold transition-all sm:text-sm ${
                     authTab === 'login'
-                      ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
-                      : 'text-zinc-500 hover:text-zinc-300'
+                      ? 'text-primary after:bg-primary after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full'
+                      : 'text-muted-foreground hover:text-secondary-foreground'
                   }`}
                 >
                   {t('auth.login.tab') || 'Log in'}
@@ -95,8 +93,8 @@ export function LandingPage() {
                   }}
                   className={`relative flex-1 cursor-pointer pb-3 text-xs font-bold transition-all sm:text-sm ${
                     authTab === 'register'
-                      ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
-                      : 'text-zinc-500 hover:text-zinc-300'
+                      ? 'text-primary after:bg-primary after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full'
+                      : 'text-muted-foreground hover:text-secondary-foreground'
                   }`}
                 >
                   {t('auth.register.tab') || 'Create account'}
@@ -113,39 +111,41 @@ export function LandingPage() {
               </div>
 
               {/* Inferior Link Switch */}
-              <div className="mt-5 text-center text-sm text-zinc-500">
+              <div className="text-muted-foreground mt-5 text-center text-sm">
                 {authTab === 'login' ? (
                   <>
                     {t('auth.login.noAccount') || "Don't have an account?"}{' '}
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
                       onClick={() => {
                         setAuthTab('register');
                         useAuthStore.getState().clearError();
                       }}
-                      className="cursor-pointer font-semibold text-orange-400 hover:text-orange-300 hover:underline"
+                      className="h-auto p-0 font-semibold"
                     >
                       {t('auth.login.registerInstead') || 'Sign up'}
-                    </button>
+                    </Button>
                   </>
                 ) : (
                   <>
                     {t('auth.register.alreadyHaveAccount') ||
                       'Already have an account?'}
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
                       onClick={() => {
                         setAuthTab('login');
                         useAuthStore.getState().clearError();
                       }}
-                      className="cursor-pointer font-semibold text-orange-400 hover:text-orange-300 hover:underline"
+                      className="h-auto p-0 font-semibold"
                     >
                       {t('auth.register.loginInstead') || 'Log in'}
-                    </button>
+                    </Button>
                   </>
                 )}
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       </main>

@@ -18,10 +18,10 @@ export function LanguageSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
-          className="h-9 cursor-pointer gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0 data-[state=open]:border-orange-500 data-[state=open]:bg-orange-500 data-[state=open]:text-white"
+          size="lg"
+          className="border-border bg-card text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground data-[state=open]:border-primary data-[state=open]:bg-primary data-[state=open]:text-primary-foreground gap-2 px-4 font-black"
         >
-          <Globe className="h-4 w-4 text-orange-500 group-data-[state=open]/button:text-white" />
+          <Globe className="text-primary group-data-[state=open]/button:text-primary-foreground h-4 w-4" />
           <span className="text-xs tracking-widest uppercase">{language}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -29,24 +29,22 @@ export function LanguageSwitcher() {
       <DropdownMenuContent
         align="end"
         sideOffset={4}
-        className="flex min-w-0 flex-row items-center gap-1 rounded-md border-zinc-700 bg-zinc-900 px-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]"
+        className="border-border bg-card flex min-w-0 flex-row items-center gap-1 px-1"
       >
         {LANGUAGES.map((lang) => {
           const isSelected = language === lang;
 
           return (
-            <button
+            <Button
               key={lang}
               type="button"
+              size="sm"
+              variant={isSelected ? 'default' : 'ghost'}
               onClick={() => setLanguage(lang)}
-              className={`cursor-pointer rounded-sm border-2 px-3 py-1 text-xs font-black tracking-widest uppercase transition-none ${
-                isSelected
-                  ? 'border-orange-500 bg-orange-500 text-white'
-                  : 'border-transparent bg-zinc-800 text-zinc-300 hover:bg-orange-800 hover:text-white'
-              }`}
+              className="px-3 tracking-widest uppercase"
             >
               {lang}
-            </button>
+            </Button>
           );
         })}
       </DropdownMenuContent>

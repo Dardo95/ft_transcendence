@@ -91,12 +91,12 @@ export default function App() {
   }, [checkAuth]);
 
   if (!ready) {
-    return <div className="fixed inset-0 bg-slate-950" />;
+    return <div className="bg-background fixed inset-0" />;
   }
 
   return (
     <BrowserRouter>
-      <Suspense fallback={<div className="fixed inset-0 bg-slate-950" />}>
+      <Suspense fallback={<div className="bg-background fixed inset-0" />}>
         <Routes>
           {/* Group 1: Entrypoint (only accessible if NOT logged in) */}
           <Route element={<PublicOnlyRoute />}>

@@ -1,4 +1,6 @@
 import { useLanguage } from '@/locales/useLanguage';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 import type { MatchmakingState } from '../types';
 
@@ -55,30 +57,31 @@ export function MatchmakingStatusBanner({
     matchmaking.status === 'REQUESTING';
 
   return (
-    <div className="my-4 flex flex-wrap items-center gap-4 rounded-2xl border border-orange-400/25 bg-orange-400/5 p-4">
-      <div className="h-8 w-8 shrink-0 animate-spin rounded-full border-[3px] border-orange-400/20 border-t-orange-400" />
+    <Card className="border-primary/25 bg-primary/5 my-4 flex flex-wrap items-center gap-4 p-4">
+      <div className="border-primary/20 border-t-primary h-8 w-8 shrink-0 animate-spin rounded-full border-[3px]" />
       <div className="min-w-0 flex-1">
-        <span className="block text-[0.65rem] font-extrabold tracking-[0.19em] text-zinc-500">
+        <span className="text-muted-foreground block text-[0.65rem] font-extrabold tracking-[0.19em]">
           {t('app.lobby.searchingMatch') || 'BUSCANDO PARTIDA'} ·{' '}
           {modeLabel(matchmaking.mode)}
         </span>
-        <strong className="mt-1 block text-[0.95rem] text-[#fff0df]">
+        <strong className="text-foreground mt-1 block text-[0.95rem]">
           {title}
         </strong>
-        <span className="mt-0.5 block text-[0.7rem] text-zinc-400">
+        <span className="text-muted-foreground mt-0.5 block text-[0.7rem]">
           {detail}
         </span>
       </div>
 
       {canCancel && (
-        <button
+        <Button
           type="button"
-          className="rounded-[0.7rem] border border-red-500/30 bg-red-900/20 px-4 py-3 text-[0.68rem] font-black tracking-wider text-red-300 transition hover:bg-red-900/30"
+          variant="destructive"
+          className="px-4 py-3 text-[0.68rem] font-black tracking-wider"
           onClick={onCancel}
         >
           {t('app.lobby.cancelSearch') || 'Cancelar búsqueda'}
-        </button>
+        </Button>
       )}
-    </div>
+    </Card>
   );
 }

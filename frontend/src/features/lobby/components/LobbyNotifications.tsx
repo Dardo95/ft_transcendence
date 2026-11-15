@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useLanguage } from '@/locales/useLanguage';
-import { ALERT_ERROR, ALERT_SUCCESS } from '@/components/layout/layoutStyles';
+import { UI } from '@/components/layout/layoutStyles';
 
 const AUTO_DISMISS_MS = 5_000;
 
@@ -51,19 +51,19 @@ export function LobbyNotifications({
   return (
     <div className="mb-4 grid gap-2" aria-live="polite">
       {error && (
-        <div role="alert" className={ALERT_ERROR}>
+        <div role="alert" className={UI.feedback.error}>
           {t(`app.lobby.${error}`) || error}
         </div>
       )}
 
       {gameError && (
-        <div role="alert" className={ALERT_ERROR}>
+        <div role="alert" className={UI.feedback.error}>
           {gameError}
         </div>
       )}
 
       {notice && (
-        <div role="status" className={ALERT_SUCCESS}>
+        <div role="status" className={UI.feedback.success}>
           {t(`app.lobby.${notice}`) || notice}
           {notice === 'noticeInvitationSent' && noticeData && (
             <span className="ms-2 text-sm">a {noticeData}</span>

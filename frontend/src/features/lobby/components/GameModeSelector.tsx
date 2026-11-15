@@ -1,5 +1,6 @@
 import { useLanguage } from '@/locales/useLanguage';
-import { CARD, INNER_BOX } from '@/components/layout/layoutStyles';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 
 import type { GameMode } from '../types';
 
@@ -46,10 +47,10 @@ export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
   ];
 
   return (
-    <section className={`min-w-0 p-4 ${CARD}`}>
-      <div className="mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider text-orange-400">
+    <Card className="min-w-0 p-4">
+      <div className="text-primary mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider">
         <span>01 / {t('app.lobby.modeLabel') || 'MODO DE JUEGO'}</span>
-        <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
+        <small className="text-muted-foreground text-[0.68rem] font-medium tracking-normal">
           {t('app.lobby.modeHint') || 'Selecciona tu desafío'}
         </small>
       </div>
@@ -64,26 +65,26 @@ export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
               type="button"
               disabled={disabled}
               onClick={() => onChange(mode.id)}
-              className={`min-w-0 cursor-pointer rounded-xl border p-3 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
+              className={`text-foreground hover:border-primary/50 min-w-0 cursor-pointer rounded-xl border p-3 text-left transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
                 isSelected
-                  ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
-                  : INNER_BOX
+                  ? 'border-primary bg-primary/10 shadow-[inset_0_0_0_1px_var(--primary)]'
+                  : UI.card.inner
               }`}
             >
               <span className="mb-2 block text-2xl">{mode.icon}</span>
               <strong className="block text-[0.72rem] font-black tracking-wider">
                 {mode.title}
               </strong>
-              <small className="mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug text-zinc-400">
+              <small className="text-muted-foreground mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug">
                 {mode.subtitle}
               </small>
-              <span className="mt-2 inline-block text-[0.53rem] font-black tracking-wider text-orange-300">
+              <span className="text-primary mt-2 inline-block text-[0.53rem] font-black tracking-wider">
                 {mode.badge}
               </span>
             </button>
           );
         })}
       </div>
-    </section>
+    </Card>
   );
 }
