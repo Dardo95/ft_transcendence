@@ -149,6 +149,8 @@
   html {
     @apply bg-background font-sans;
     overflow-x: hidden;
+    /* Reserves space for the scrollbar so layout width never shifts */
+    scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: var(--border) var(--background);
   }
@@ -159,6 +161,9 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    /* Prevents Radix UI scroll-lock from shifting the page horizontally */
+    padding-right: 0 !important;
+    margin-right: 0 !important;
   }
 
   h1,

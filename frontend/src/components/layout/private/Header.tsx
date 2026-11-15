@@ -64,7 +64,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         variant="ghost"
         size="icon-lg"
         onClick={onOpenDrawer}
-        className="text-zinc-400 hover:bg-zinc-900 hover:text-white"
+        className="cursor-pointer text-zinc-400 hover:bg-zinc-900 hover:text-white"
         aria-label="Open sidebar menu"
       >
         <MenuIcon className="h-5 w-5" aria-hidden="true" />
@@ -75,7 +75,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         <img
           src={logoUrl}
           alt="ft_bomberman Logo"
-          className="h-12 object-contain"
+          className="h-12 cursor-pointer object-contain"
           onClick={() => navigate('/lobby')}
         />
       </div>
@@ -95,7 +95,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
             <img
               src={user?.avatarUrl || defaultAvatar}
               alt={user?.username || 'Avatar'}
-              className="h-full w-full rounded-full border border-zinc-700 bg-zinc-800 object-cover"
+              className="h-full w-full cursor-pointer rounded-full border border-zinc-700 bg-zinc-800 object-cover"
               onError={(e) => {
                 // Fallback icon if image fails to load (lucide chef-hat)
                 (e.target as HTMLImageElement).src =
@@ -120,7 +120,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
               <Link
                 to="/profile"
                 onClick={() => setIsDropdownOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
+                className="flex cursor-pointer items-center gap-2 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
               >
                 <UserIcon className="h-4 w-4" aria-hidden="true" />
                 <span>{t('app.general.profile') || 'Profile'}</span>
@@ -130,7 +130,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-400 transition-colors hover:bg-red-950/40 hover:text-red-300"
+                className="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-left text-sm text-red-400 transition-colors hover:bg-red-950/40 hover:text-red-300"
               >
                 <LogOutIcon className="h-4 w-4" aria-hidden="true" />
                 <span>{t('app.general.logout') || 'Logout'}</span>

@@ -31,7 +31,7 @@ export function LandingPage() {
 
   return (
     <div
-      className="relative flex min-h-screen w-full flex-col justify-between overflow-x-hidden font-sans text-slate-100 select-none"
+      className="relative flex h-full w-full flex-col justify-between overflow-x-hidden font-sans text-slate-100 select-none"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -79,7 +79,7 @@ export function LandingPage() {
                     setAuthTab('login');
                     useAuthStore.getState().clearError();
                   }}
-                  className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${
+                  className={`relative flex-1 cursor-pointer pb-3 text-xs font-bold transition-all sm:text-sm ${
                     authTab === 'login'
                       ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
                       : 'text-zinc-500 hover:text-zinc-300'
@@ -93,7 +93,7 @@ export function LandingPage() {
                     setAuthTab('register');
                     useAuthStore.getState().clearError();
                   }}
-                  className={`relative flex-1 pb-3 text-xs font-bold transition-all sm:text-sm ${
+                  className={`relative flex-1 cursor-pointer pb-3 text-xs font-bold transition-all sm:text-sm ${
                     authTab === 'register'
                       ? 'text-orange-400 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-orange-500'
                       : 'text-zinc-500 hover:text-zinc-300'
@@ -123,7 +123,7 @@ export function LandingPage() {
                         setAuthTab('register');
                         useAuthStore.getState().clearError();
                       }}
-                      className="font-semibold text-orange-400 hover:text-orange-300 hover:underline"
+                      className="cursor-pointer font-semibold text-orange-400 hover:text-orange-300 hover:underline"
                     >
                       {t('auth.login.registerInstead') || 'Sign up'}
                     </button>
@@ -138,7 +138,7 @@ export function LandingPage() {
                         setAuthTab('login');
                         useAuthStore.getState().clearError();
                       }}
-                      className="font-semibold text-orange-400 hover:text-orange-300 hover:underline"
+                      className="cursor-pointer font-semibold text-orange-400 hover:text-orange-300 hover:underline"
                     >
                       {t('auth.register.loginInstead') || 'Log in'}
                     </button>

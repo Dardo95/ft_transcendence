@@ -14,6 +14,8 @@ import {
   TABLE_ROW,
   TABLE_WRAPPER,
 } from '@/components/layout/layoutStyles';
+import { Button } from '@/components/ui/button';
+import { Icons } from '@/components/ui/icons';
 
 interface ModuleItem {
   id: string;
@@ -281,7 +283,7 @@ export function ProjectPage() {
           </p>
 
           {/* Quick Score Counter */}
-          <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs font-semibold">
+          <div className="mt-4 mb-6 flex w-full flex-wrap justify-center gap-4 text-xs font-semibold">
             <div className={META_PILL}>
               <span className="text-zinc-400">
                 {t('project.summaryMandatory') || 'Mandatory'}:{' '}
@@ -305,6 +307,24 @@ export function ProjectPage() {
               </span>
             </div>
           </div>
+
+          {/* Github Link to the project repository */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="absolute right-4 bottom-4 mt-10 gap-2"
+            asChild
+          >
+            <a
+              href="https://github.com/Dardo95/ft_transcendence"
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label="Project GitHub Repository"
+            >
+              <Icons.gitHub className="size-4 shrink-0 fill-current" />
+              Repository
+            </a>
+          </Button>
         </header>
 
         {/* Mandatory Modules Table */}

@@ -135,7 +135,7 @@ export function RegisterForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="h-10 w-full bg-orange-600 hover:bg-orange-800"
+            className="h-10 w-full cursor-pointer bg-orange-600 hover:bg-orange-800"
           >
             {isSubmitting
               ? t('auth.register.connecting') || 'Registering...'
@@ -159,7 +159,7 @@ export function RegisterForm() {
         onClick={() => {
           window.location.href = '/api/auth/google';
         }}
-        className="hover:bg-zinc-750 flex h-10 w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-0 text-sm font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99]"
+        className="hover:bg-zinc-750 flex h-10 w-full cursor-pointer items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-0 text-sm font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99]"
       >
         <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
         <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>

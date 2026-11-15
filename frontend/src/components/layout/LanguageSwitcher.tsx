@@ -19,7 +19,7 @@ export function LanguageSwitcher() {
         <Button
           variant="outline"
           size="sm"
-          className="h-9 gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0 data-[state=open]:border-orange-500 data-[state=open]:bg-orange-500 data-[state=open]:text-white"
+          className="h-9 cursor-pointer gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0 data-[state=open]:border-orange-500 data-[state=open]:bg-orange-500 data-[state=open]:text-white"
         >
           <Globe className="h-4 w-4 text-orange-500 group-data-[state=open]/button:text-white" />
           <span className="text-xs tracking-widest uppercase">{language}</span>

@@ -106,7 +106,7 @@ export function FriendListItem({
             type="button"
             size="sm"
             variant="outline"
-            className="h-7 w-7 border-zinc-700 bg-zinc-900 p-0 text-xs text-amber-400 hover:bg-amber-950/40"
+            className="h-7 w-7 cursor-pointer border-zinc-700 bg-zinc-900 p-0 text-xs text-amber-400 hover:bg-amber-950/40"
             onClick={() => onSpectate?.(friend.currentGameId!)}
             title={t('app.friends.spectateTitle') || 'Espectar partida'}
           >
@@ -120,7 +120,7 @@ export function FriendListItem({
             type="button"
             size="sm"
             variant="outline"
-            className="h-7 w-7 border-zinc-700 bg-zinc-900 p-0 text-xs font-bold text-zinc-200 hover:bg-orange-600 hover:text-white"
+            className="h-7 w-7 cursor-pointer border-zinc-700 bg-zinc-900 p-0 text-xs font-bold text-zinc-200 hover:bg-orange-600 hover:text-white"
             onClick={() => onInviteToLobby(friend)}
             title={t('app.friends.inviteToLobby') || 'Invitar a lobby'}
           >
@@ -136,7 +136,7 @@ export function FriendListItem({
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="h-7 w-7 p-0 text-xs text-zinc-500 hover:text-red-400"
+                className="h-7 w-7 cursor-pointer p-0 text-xs text-zinc-500 hover:text-red-400"
                 title={t('app.friends.deleteFriendTitle') || 'Eliminar amigo'}
               >
                 <XIcon className="h-3.5 w-3.5" aria-hidden="true" />
