@@ -43,7 +43,7 @@ export const profileIt = {
   twoFactorEnabled: 'Attiva',
   twoFactorDisabled: 'Disattivata',
   managedByGoogle: 'Gestito da Google',
-  privateProfileBadge: 'Il mio profilo',
+  privateProfileBadge: 'Dati modificabili',
   publicProfileBadge: 'Profilo giocatore',
   statistics: 'Statistiche',
   edit: 'Modifica',
