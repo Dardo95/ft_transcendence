@@ -115,3 +115,67 @@ describe('FriendshipsService.listFriends', () => {
     expect(registry.isOnline).toHaveBeenCalledWith('chat', other.id);
   });
 });
+
+describe('FriendshipsService.listBlocked', () => {
+  let prisma: ReturnType<typeof createPrismaMock>;
+  let service: FriendshipsService;
+
+  beforeEach(() => {
+    prisma = createPrismaMock();
+    service = createService(
+      prisma,
+      { getActiveGameIdForUser: vi.fn().mockReturnValue(null) },
+      { isOnline: vi.fn().mockReturnValue(false) }
+    );
+  });
+
+  it('only queries blocks created by the current user, newest first', async () => {
+    prisma.friendship.findMany.mockResolvedValue([]);
+
+    await service.listBlocked(ME.id);
+
+    expect(prisma.friendship.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { requesterId: ME.id, status: 'BLOCKED' },
+        orderBy: { createdAt: 'desc' },
+      })
+    );
+  });
+
+  it('maps the blocked user to the public contract', async () => {
+    const other = friend(2, 'ozamora-');
+    const blockedAt = new Date('2026-02-01T00:00:00.000Z');
+    prisma.friendship.findMany.mockResolvedValue([
+      {
+        id: 10,
+        requesterId: ME.id,
+        addresseeId: other.id,
+        status: 'BLOCKED',
+        createdAt: blockedAt,
+        addressee: other,
+      },
+    ]);
+
+    const [result] = await service.listBlocked(ME.id);
+
+    expect(result).toEqual({
+      id: 10,
+      createdAt: blockedAt.toISOString(),
+      user: {
+        id: other.id,
+        username: other.username,
+        xp: other.xp,
+        isOnline: other.isOnline,
+        avatarUrl: other.avatarUrl,
+        createdAt: other.createdAt.toISOString(),
+      },
+    });
+    expect(result.user).not.toHaveProperty('email');
+  });
+
+  it('returns an empty list when the user has no blocks', async () => {
+    prisma.friendship.findMany.mockResolvedValue([]);
+
+    await expect(service.listBlocked(ME.id)).resolves.toEqual([]);
+  });
+});

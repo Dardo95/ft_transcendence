@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { UserPublic } from '@transcendence/shared';
+import type { BlockedUser, UserPublic } from '@transcendence/shared';
 import { PrismaService } from '../database/prisma.service.js';
 import { GameManagerService } from '../game/sessions/game-manager.service.js';
 import { SocketRegistryService } from '../realtime/socket-registry.service.js';
@@ -171,6 +171,24 @@ export class FriendshipsService {
       id: r.id,
       createdAt: r.createdAt,
       to: toUserPublic(r.addressee),
+    }));
+  }
+
+  async listBlocked(meId: number): Promise<BlockedUser[]> {
+    // Only blocks created by me: users who blocked me must stay hidden.
+    const rows = await this.prisma.friendship.findMany({
+      where: { requesterId: meId, status: 'BLOCKED' },
+      include: {
+        addressee: {
+          select: userPublicSelect,
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      createdAt: r.createdAt.toISOString(),
+      user: toUserPublic(r.addressee),
     }));
   }
 
