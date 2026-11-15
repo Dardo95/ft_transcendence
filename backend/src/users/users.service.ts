@@ -132,6 +132,10 @@ export class UsersService {
       data.email = email;
     }
 
+    if (data.email !== undefined) {
+      await this.assertCanChangeEmail(id, data.email, input.currentPassword);
+    }
+
     if (data.username !== undefined) {
       const existing = await this.prisma.user.findFirst({
         where: {
@@ -166,6 +170,38 @@ export class UsersService {
         };
       }
       throw error;
+    }
+  }
+
+  // Email changes need the current password; Google-only accounts cannot change it.
+  private async assertCanChangeEmail(
+    id: number,
+    email: string,
+    currentPassword?: string
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { email: true, password: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Same email as now: nothing changes, no password needed.
+    if (user.email === email) return;
+
+    if (user.password === null) {
+      throw new ForbiddenException(
+        'Email is managed by Google for this account'
+      );
+    }
+
+    // 400, not 401: a 401 means "not authenticated" for the client.
+    const isValid =
+      currentPassword !== undefined &&
+      (await argon2.verify(user.password, currentPassword));
+    if (!isValid) {
+      throw new BadRequestException('Current password is incorrect');
     }
   }
 

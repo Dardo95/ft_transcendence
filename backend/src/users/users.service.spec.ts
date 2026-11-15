@@ -123,3 +123,115 @@ describe('UsersService.updatePrivate (username rules)', () => {
     expect(prisma.user.update).not.toHaveBeenCalled();
   });
 });
+
+const PRIVATE_ROW = {
+  id: 1,
+  username: 'brivera',
+  xp: 0,
+  isOnline: false,
+  avatarUrl: null,
+  createdAt: new Date('2026-01-01T00:00:00.000Z'),
+  email: 'new@example.com',
+  twoFaEnabled: false,
+  oauthProvider: null,
+  password: 'stored-hash',
+};
+
+describe('UsersService.updatePrivate (email change)', () => {
+  let currentHash: string;
+  let prisma: ReturnType<typeof createPrismaMock>;
+  let service: UsersService;
+
+  beforeAll(async () => {
+    currentHash = await argon2.hash(CURRENT);
+  });
+
+  beforeEach(() => {
+    prisma = createPrismaMock();
+    service = new UsersService(
+      prisma as unknown as PrismaService,
+      { isOnline: vi.fn() } as unknown as SocketRegistryService
+    );
+  });
+
+  it('changes the email when the current password is valid', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      email: 'old@example.com',
+      password: currentHash,
+    });
+    prisma.user.update.mockResolvedValue(PRIVATE_ROW);
+
+    const result = await service.updatePrivate(1, {
+      email: 'new@example.com',
+      currentPassword: CURRENT,
+    });
+
+    expect(result.outcome).toBe('updated');
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { email: 'new@example.com' } })
+    );
+  });
+
+  it('rejects an email change with a wrong password with 400', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      email: 'old@example.com',
+      password: currentHash,
+    });
+
+    await expect(
+      service.updatePrivate(1, {
+        email: 'new@example.com',
+        currentPassword: NEW,
+      })
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects an email change without a password with 400', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      email: 'old@example.com',
+      password: currentHash,
+    });
+
+    await expect(
+      service.updatePrivate(1, { email: 'new@example.com' })
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects an email change on a Google-only account with 403', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      email: 'old@example.com',
+      password: null,
+    });
+
+    await expect(
+      service.updatePrivate(1, { email: 'new@example.com' })
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('does not require a password when the email does not change', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      email: 'new@example.com',
+      password: currentHash,
+    });
+    prisma.user.update.mockResolvedValue(PRIVATE_ROW);
+
+    const result = await service.updatePrivate(1, { email: 'new@example.com' });
+
+    expect(result.outcome).toBe('updated');
+  });
+
+  it('does not require a password for username-only updates', async () => {
+    prisma.user.update.mockResolvedValue({
+      ...PRIVATE_ROW,
+      username: 'new_name',
+    });
+
+    const result = await service.updatePrivate(1, { username: 'new_name' });
+
+    expect(result.outcome).toBe('updated');
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+  });
+});

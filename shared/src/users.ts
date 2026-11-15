@@ -20,6 +20,7 @@ export interface UserPrivate extends UserPublic {
 export interface UpdateProfileInput {
   username?: string;
   email?: string;
+  currentPassword?: string; // required to change the email
 }
 
 // Possible outcomes of a profile update operation.

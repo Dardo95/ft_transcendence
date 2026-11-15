@@ -10,4 +10,9 @@ export class UpdateProfileDto {
   @IsString()
   @MaxLength(254)
   email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  currentPassword?: string;
 }
