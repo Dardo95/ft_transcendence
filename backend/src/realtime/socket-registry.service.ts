@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { Socket } from 'socket.io';
+import type { WsUser } from '../auth/ws-jwt-auth.service.js';
 
 @Injectable()
 export class SocketRegistryService {
@@ -58,5 +59,17 @@ export class SocketRegistryService {
    */
   isOnline(namespace: string, userId: number): boolean {
     return this.sockets.get(namespace)?.has(userId) ?? false;
+  }
+
+  /** Updates the username kept on the user's live sockets after a rename. */
+  renameUser(userId: number, username: string): void {
+    for (const byUser of this.sockets.values()) {
+      const socket = byUser.get(userId);
+      const user = socket?.data.user as WsUser | undefined;
+
+      if (socket && user) {
+        socket.data.user = { ...user, username } satisfies WsUser;
+      }
+    }
   }
 }

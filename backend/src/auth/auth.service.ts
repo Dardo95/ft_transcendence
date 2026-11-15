@@ -209,6 +209,11 @@ export class AuthService {
 
   /*----------utils-----------*/
 
+  // Public entry point to re-issue a token, e.g. after a username change.
+  issueAccessToken(user: { id: number; username: string }): string {
+    return this.sign(user);
+  }
+
   private sign(user: { id: number; username: string }) {
     const payload = {
       sub: user.id,

@@ -11,6 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Response, Request } from 'express';
+import {
+  ACCESS_TOKEN_COOKIE,
+  accessTokenCookieOptions,
+} from './auth-cookie.js';
 import { randomBytes } from 'node:crypto';
 import { AuthService } from './auth.service.js';
 import { RegisterDto } from './dto/register.dto.js';
@@ -34,13 +38,7 @@ export class AuthController {
   ) {
     const token = await this.authService.register(data);
 
-    res.cookie('access_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    res.cookie(ACCESS_TOKEN_COOKIE, token, accessTokenCookieOptions());
 
     return {
       message: 'Registration successful',
@@ -55,13 +53,7 @@ export class AuthController {
   ) {
     const token = await this.authService.login(data);
 
-    res.cookie('access_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    res.cookie(ACCESS_TOKEN_COOKIE, token, accessTokenCookieOptions());
 
     return {
       message: 'Login successful',
@@ -77,9 +69,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token', {
-      path: '/',
-    });
+    res.clearCookie(ACCESS_TOKEN_COOKIE, { path: '/' });
 
     return {
       message: 'Logout successful',
@@ -146,13 +136,7 @@ export class AuthController {
     try {
       const token = await this.authService.googleLogin(code, callbackUrl);
 
-      res.cookie('access_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 * 1000,
-        path: '/',
-      });
+      res.cookie(ACCESS_TOKEN_COOKIE, token, accessTokenCookieOptions());
 
       return res.redirect(`${frontendUrl}/lobby`);
     } catch {

@@ -109,6 +109,16 @@ export class ChatGateway
     });
   }
 
+  // Called after a username change so live features use the new name.
+  refreshUserIdentity(userId: number, username: string): void {
+    this.registry.renameUser(userId, username);
+
+    const lobby = this.lobbyService.renameMember(userId, username);
+    if (!lobby) return;
+
+    this.server.to(`lobby:${lobby.id}`).emit('lobby:updated', lobby);
+  }
+
   async notifyFriendsStatus(userId: number, isOnline: boolean) {
     try {
       const friendships = await this.prisma.friendship.findMany({
