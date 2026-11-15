@@ -4,11 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useFriendsStore } from '@/features/friends/store/useFriendsStore';
 import { FriendList } from '@/features/friends/components/FriendListCard';
-import { LobbyChat } from '@/features/chat/components/LobbyChat';
+import { GlobalChat } from '@/features/chat/components/GlobalChat';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
-import { Card } from '@/components/ui/card';
 import { gameSocket } from '@/lib/socket';
-import { useLanguage } from '@/locales/useLanguage';
 import {
   countdownSeconds,
   gameRoute,
@@ -61,7 +59,6 @@ function socketErrorMessage(payload: unknown): string {
 }
 
 export function LobbyPage() {
-  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // Lobby state
@@ -307,14 +304,7 @@ export function LobbyPage() {
           }}
         />
 
-        {lobby ? (
-          <LobbyChat />
-        ) : (
-          <Card className="text-muted-foreground p-4 text-center text-sm">
-            {t('app.lobby.joinLobbyToChat') ||
-              'Join a lobby to use private chat with its members.'}
-          </Card>
-        )}
+        <GlobalChat />
       </GameConfig>
     </div>
   );

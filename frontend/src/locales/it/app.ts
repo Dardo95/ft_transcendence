@@ -49,14 +49,13 @@ export const appIt = {
     invitesYou: 'ti invita al suo lobby.',
     leaveBeforeAccept:
       'Abbandona il tuo gruppo attuale prima di accettare un altro invito.',
-    lobbyChat: 'Chat del Lobby',
-    userEnteredLobby: 'è entrato nel Lobby',
-    userLeftLobby: 'è uscito dal Lobby',
-    sendMessagePlaceholder: 'Invia un messaggio al tuo lobby...',
+    globalChat: 'Chat Globale',
+    systemLabel: 'Sistema',
+    userJoinedGame: 'è entrato nel gioco',
+    userLeftGame: 'è uscito dal gioco',
+    sendMessagePlaceholder: 'Invia un messaggio a tutti i giocatori...',
     sendButton: 'Invia',
     acceptButton: 'Accetta',
-    joinLobbyToChat:
-      'Entra in un lobby per utilizzare la chat privata con i suoi membri.',
 
     modeLabel: 'Modalità',
     modePracticeTitle: 'Pratica',

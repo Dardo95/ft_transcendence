@@ -44,13 +44,13 @@ export const appEn = {
     invitesYou: 'invites you to their lobby.',
     leaveBeforeAccept:
       'Leave your current group before accepting another invitation.',
-    lobbyChat: 'Lobby Chat',
-    userEnteredLobby: 'has entered the Lobby',
-    userLeftLobby: 'has left the Lobby',
-    sendMessagePlaceholder: 'Send a message to your lobby...',
+    globalChat: 'Global Chat',
+    systemLabel: 'System',
+    userJoinedGame: 'has entered the game',
+    userLeftGame: 'has left the game',
+    sendMessagePlaceholder: 'Send a message to all players...',
     sendButton: 'Send',
     acceptButton: 'Accept',
-    joinLobbyToChat: 'Enter a lobby to use the private chat with its members.',
 
     // Mode selector
     modeLabel: 'Mode of Game',
