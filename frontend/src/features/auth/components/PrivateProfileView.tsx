@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import type {
+  // ChangePasswordInput,
+  // ChangePasswordResponse,
   UpdateProfileInput,
   UpdateProfileOutcome,
   UpdateProfileResponse,
@@ -8,12 +10,19 @@ import type {
 import { Check, CheckCircle2, Pencil, UserRound, X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Card } from '../../../components/ui/card';
+import { FieldError } from '../../../components/ui/field';
 import { Input } from '../../../components/ui/input';
 import { AvatarUpload } from './AvatarUpload';
+// import { ChangePasswordForm } from './ChangePasswordForm';
 import { LevelProgress } from './LevelProgress';
 import { FriendList } from '../../friends/components/FriendListCard';
 import { useLanguage } from '../../../locales/useLanguage';
 import { UI } from '@/components/layout/layoutStyles';
+import {
+  validateEmail,
+  validateUsername,
+  type ValidationErrorKey,
+} from '../utils/validation';
 
 type EditableField = 'username' | 'email';
 
@@ -23,6 +32,9 @@ interface PrivateProfileViewProps {
   onUpdateProfile: (
     input: UpdateProfileInput
   ) => Promise<UpdateProfileResponse>;
+  // onChangePassword: (
+  //   input: ChangePasswordInput
+  // ) => Promise<ChangePasswordResponse>;
 }
 
 /**
@@ -39,6 +51,9 @@ export function PrivateProfileView({
   const [editingField, setEditingField] = useState<EditableField | null>(null);
   const [usernameDraft, setUsernameDraft] = useState(user.username);
   const [emailDraft, setEmailDraft] = useState(user.email);
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<EditableField, ValidationErrorKey>>
+  >({});
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -82,6 +97,7 @@ export function PrivateProfileView({
   const startEditing = (field: EditableField) => {
     setError(null);
     setSuccess(null);
+    setFieldErrors({});
     setEditingField(field);
 
     if (field === 'username') {
@@ -93,79 +109,67 @@ export function PrivateProfileView({
 
   const cancelEditing = () => {
     setEditingField(null);
+    setFieldErrors({});
     setError(null);
   };
 
+  const clearFieldError = (field: EditableField) => {
+    if (!fieldErrors[field]) return;
+
+    setFieldErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  // Validate the input for a specific field and return any validation error key.
+  const validateField = (
+    field: EditableField,
+    value: string
+  ): ValidationErrorKey | null =>
+    field === 'username' ? validateUsername(value) : validateEmail(value);
+
+  // Submit the updated value for a specific field, handling validation, API call, and error/success state.
   const submitField = async (field: EditableField) => {
     setError(null);
     setSuccess(null);
+    setFieldErrors({});
 
-    if (field === 'username') {
-      const nextUsername = usernameDraft.trim();
+    const value = field === 'username' ? usernameDraft : emailDraft;
+    const validationError = validateField(field, value);
 
-      if (
-        !nextUsername ||
-        nextUsername.length < 3 ||
-        nextUsername.length > 20 ||
-        /\s/.test(nextUsername)
-      ) {
-        setError(
-          t('profile.invalidUsername') ||
-            'Username must be 3-20 characters with no spaces.'
-        );
-        return;
-      }
-
-      if (nextUsername === user.username) {
-        setEditingField(null);
-        return;
-      }
-
-      setIsSaving(true);
-      try {
-        const result = await onUpdateProfile({ username: nextUsername });
-        if (result.outcome === 'updated') {
-          setSuccess(t('profile.updated') || 'Profile updated successfully.');
-          setEditingField(null);
-        } else {
-          setError(outcomeMessage(result.outcome));
-        }
-      } catch {
-        setError(
-          t('profile.updateFailed') ||
-            'Could not update your profile. Try again.'
-        );
-      } finally {
-        setIsSaving(false);
-      }
+    if (validationError) {
+      setFieldErrors({ [field]: validationError });
+      document.getElementById(`profile-${field}`)?.focus();
       return;
     }
 
-    const nextEmail = emailDraft.trim();
+    const nextValue = value.trim();
 
-    if (!nextEmail) {
-      setError(
-        t('profile.fieldsRequired') || 'Username and email are required.'
-      );
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
-      setError(t('profile.invalidEmail') || 'Enter a valid email address.');
-      return;
-    }
-
-    if (nextEmail === user.email) {
+    if (
+      (field === 'username' && nextValue === user.username) ||
+      (field === 'email' && nextValue === user.email)
+    ) {
       setEditingField(null);
       return;
     }
 
     setIsSaving(true);
     try {
-      const result = await onUpdateProfile({ email: nextEmail });
+      const result = await onUpdateProfile(
+        field === 'username' ? { username: nextValue } : { email: nextValue }
+      );
+
       if (result.outcome === 'updated') {
         setSuccess(t('profile.updated') || 'Profile updated successfully.');
         setEditingField(null);
+      } else if (
+        result.outcome === 'invalid_username' ||
+        result.outcome === 'invalid_email'
+      ) {
+        setFieldErrors({
+          [field]:
+            result.outcome === 'invalid_username'
+              ? 'auth.validation.usernameInvalid'
+              : 'auth.validation.emailInvalid',
+        });
       } else {
         setError(outcomeMessage(result.outcome));
       }
@@ -178,6 +182,7 @@ export function PrivateProfileView({
     }
   };
 
+  // Handle form submission for the inline edit form, submitting the currently editing field.
   const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (editingField) {
@@ -185,6 +190,7 @@ export function PrivateProfileView({
     }
   };
 
+  // Define the editable and read-only fields for rendering, including labels, values, and editability.
   const editableFields = [
     {
       key: 'username' as const,
@@ -204,21 +210,11 @@ export function PrivateProfileView({
       draft: emailDraft,
       setDraft: setEmailDraft,
       type: 'email' as const,
-      maxLength: undefined,
+      maxLength: 254,
     },
-    // TO DO: Implement password change functionality
-    // {
-    //   key: 'password' as const,
-    //   label: t('profile.password') || 'Password',
-    //   value: '********',
-    //   canEdit: !emailManagedByOAuth,
-    //   draft: passwordDraft,
-    //   setDraft: setPasswordDraft,
-    //   type: 'password' as const,
-    //   maxLength: undefined,
-    // },
   ];
 
+  // Define the read-only fields for rendering, including labels, values, and text tone.
   const readOnlyFields = [
     {
       label: t('profile.joined') || 'Registered on',
@@ -269,26 +265,60 @@ export function PrivateProfileView({
             <div className="space-y-3">
               {editableFields.map((field) => {
                 const isEditing = editingField === field.key;
+                const fieldError = fieldErrors[field.key];
+                const inputId = `profile-${field.key}`;
+                const errorId = `${inputId}-error`;
 
                 return (
                   <div key={field.key} className={`p-3.5 ${UI.card.inner}`}>
                     {isEditing ? (
-                      <form onSubmit={handleFormSubmit} className="space-y-2.5">
-                        <label className={`block ${UI.text.sublabel}`}>
-                          {field.label}
+                      <form
+                        onSubmit={handleFormSubmit}
+                        noValidate
+                        className="space-y-2.5"
+                      >
+                        <div className="space-y-1.5">
+                          <label
+                            htmlFor={inputId}
+                            className={`block ${UI.text.sublabel}`}
+                          >
+                            {field.label}
+                          </label>
                           <Input
+                            id={inputId}
                             autoFocus
                             type={field.type}
                             value={field.draft}
-                            onChange={(event) =>
-                              field.setDraft(event.target.value)
-                            }
+                            onChange={(event) => {
+                              field.setDraft(event.target.value);
+                              clearFieldError(field.key);
+                            }}
+                            onBlur={() => {
+                              const validationError = validateField(
+                                field.key,
+                                field.draft
+                              );
+
+                              if (validationError) {
+                                setFieldErrors((current) => ({
+                                  ...current,
+                                  [field.key]: validationError,
+                                }));
+                              }
+                            }}
                             maxLength={field.maxLength}
                             autoComplete={field.key}
                             disabled={isSaving}
-                            className="mt-1.5 text-sm"
+                            aria-invalid={Boolean(fieldError) || undefined}
+                            aria-describedby={fieldError ? errorId : undefined}
+                            className="text-sm"
                           />
-                        </label>
+                          {fieldError && (
+                            <FieldError id={errorId}>
+                              {t(fieldError)}
+                            </FieldError>
+                          )}
+                        </div>
 
                         <div className="flex flex-wrap gap-2">
                           <Button
@@ -350,6 +380,63 @@ export function PrivateProfileView({
                   </div>
                 );
               })}
+
+              {/*
+                TODO(password): re-enable this row when the backend endpoint
+                `PATCH /api/users/me/password` exists. The form component is
+                already prepared in `ChangePasswordForm.tsx`.
+
+                <div className={`p-3.5 ${UI.card.inner}`}>
+                  {editingField === 'password' && !emailManagedByOAuth ? (
+                    <ChangePasswordForm
+                      onChangePassword={onChangePassword}
+                      onCancel={cancelEditing}
+                      onSuccess={() => {
+                        setEditingField(null);
+                        setError(null);
+                        setSuccess(
+                          t('profile.passwordUpdated') ||
+                            'Password updated successfully.'
+                        );
+                      }}
+                    />
+                  ) : (
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className={UI.text.sublabel}>
+                          {t('profile.password') || 'Password'}
+                        </p>
+                        <p className="text-foreground mt-1 text-sm font-medium">
+                          {emailManagedByOAuth ? '—' : '••••••••'}
+                        </p>
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          {emailManagedByOAuth
+                            ? t('profile.passwordManagedByGoogle') ||
+                              'This account uses Google and has no local password.'
+                            : t('profile.passwordHint') ||
+                              '8-128 characters.'}
+                        </p>
+                      </div>
+
+                      {!emailManagedByOAuth && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon-sm"
+                          onClick={() => startEditing('password')}
+                          title={editLabel(t('profile.password') || 'Password')}
+                          aria-label={editLabel(
+                            t('profile.password') || 'Password'
+                          )}
+                          className="text-muted-foreground hover:text-primary"
+                        >
+                          <Pencil className="size-3.5" aria-hidden="true" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              */}
 
               {error && (
                 <p

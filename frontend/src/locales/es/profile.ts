@@ -31,6 +31,18 @@ export const profileEs = {
   invalidUsername:
     'El nombre debe tener entre 3 y 20 caracteres y no contener espacios.',
   invalidEmail: 'Introduce un correo electrónico válido.',
+  password: 'Contraseña',
+  changePassword: 'Cambiar contraseña',
+  passwordHint: 'Entre 8 y 128 caracteres.',
+  currentPassword: 'Contraseña actual',
+  currentPasswordPlaceholder: 'Introduce tu contraseña actual',
+  newPassword: 'Nueva contraseña',
+  newPasswordPlaceholder: 'Introduce la nueva contraseña',
+  confirmPassword: 'Confirmar nueva contraseña',
+  confirmPasswordPlaceholder: 'Repite la nueva contraseña',
+  passwordUpdated: 'Contraseña actualizada correctamente.',
+  passwordManagedByGoogle:
+    'Esta cuenta usa Google y no tiene contraseña local.',
   level: 'Nivel',
   totalXp: 'XP total',
   xpToNextLevel: '{xp} XP para el siguiente nivel',

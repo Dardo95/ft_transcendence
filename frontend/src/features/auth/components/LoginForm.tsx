@@ -5,15 +5,22 @@ import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
 
 import { Button } from '@/components/ui/button';
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/ui/icons';
 import { UI } from '@/components/layout/layoutStyles';
 import { PasswordInput } from './PasswordInput';
+import { validateLogin, type LoginFormErrors } from '../utils/validation';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<LoginFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const authErrorKey = useAuthStore((state) => state.authErrorKey);
   const clearError = useAuthStore((state) => state.clearError);
@@ -22,13 +29,25 @@ export function LoginForm() {
   const { t } = useLanguage();
   const login = useAuthStore((state) => state.login);
 
+  // Handle form submission for user login: validate inputs, call login, and navigate on success.
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsSubmitting(true);
     clearError();
 
+    // Validate the form fields before submitting.
+    const errors = validateLogin({ email, password });
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      const firstInvalidId = errors.email ? 'login-email' : 'login-password';
+      document.getElementById(firstInvalidId)?.focus();
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      await login({ email, password });
+      await login({ email: email.trim(), password });
       const state = useAuthStore.getState();
       if (!state.authErrorKey && state.isAuthenticated) {
         navigate('/lobby', { replace: true });
@@ -37,6 +56,24 @@ export function LoginForm() {
       setIsSubmitting(false);
     }
   }
+
+  // Update the email state and clear any existing field error for email when the user types.
+  function updateEmail(value: string) {
+    setEmail(value);
+    if (fieldErrors.email) {
+      setFieldErrors((current) => ({ ...current, email: undefined }));
+    }
+  }
+
+  // Update the password state and clear any existing field error for password when the user types.
+  function updatePassword(value: string) {
+    setPassword(value);
+    if (fieldErrors.password) {
+      setFieldErrors((current) => ({ ...current, password: undefined }));
+    }
+  }
+
+  // Focus the error message when an authentication error occurs.
   const errorRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (authErrorKey && errorRef.current) {
@@ -45,7 +82,11 @@ export function LoginForm() {
   }, [authErrorKey]);
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="mx-auto w-full max-w-sm"
+    >
       {/* Header of the Form */}
       <div className="mb-6">
         <h2 className="text-foreground text-xl font-bold tracking-tight sm:text-2xl">
@@ -84,13 +125,23 @@ export function LoginForm() {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => updateEmail(e.target.value)}
               placeholder={
                 t('auth.login.emailPlaceholder') || 'Enter your email'
               }
+              aria-invalid={Boolean(fieldErrors.email) || undefined}
+              aria-describedby={
+                fieldErrors.email ? 'login-email-error' : undefined
+              }
+              disabled={isSubmitting}
               required
             />
           </div>
+          {fieldErrors.email && (
+            <FieldError id="login-email-error">
+              {t(fieldErrors.email)}
+            </FieldError>
+          )}
         </Field>
 
         <Field>
@@ -100,10 +151,20 @@ export function LoginForm() {
           <PasswordInput
             id="login-password"
             value={password}
-            onChange={setPassword}
+            onChange={updatePassword}
             autoComplete="current-password"
             placeholder={t('auth.login.passwordPlaceholder') || '********'}
+            disabled={isSubmitting}
+            invalid={Boolean(fieldErrors.password)}
+            describedBy={
+              fieldErrors.password ? 'login-password-error' : undefined
+            }
           />
+          {fieldErrors.password && (
+            <FieldError id="login-password-error">
+              {t(fieldErrors.password)}
+            </FieldError>
+          )}
         </Field>
 
         <Field orientation="horizontal" className="mt-2">

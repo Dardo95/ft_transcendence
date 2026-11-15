@@ -5,12 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '../../../locales/useLanguage';
 
+// Password input component with a lock icon on the left and a show/hide toggle button (eye icon) on the right.
+// The toggle button is of type "button" to prevent form submission when clicked.
 interface PasswordInputProps {
   id: string;
   value: string;
   onChange: (value: string) => void;
   autoComplete: string;
   placeholder: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  describedBy?: string;
 }
 
 /**
@@ -24,6 +29,9 @@ export function PasswordInput({
   onChange,
   autoComplete,
   placeholder,
+  disabled,
+  invalid,
+  describedBy,
 }: PasswordInputProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { t } = useLanguage();
@@ -42,6 +50,9 @@ export function PasswordInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        disabled={disabled}
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         required
       />
       <Button

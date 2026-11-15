@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type {
+  // ChangePasswordInput,
+  // ChangePasswordResponse,
   UpdateProfileInput,
   UpdateProfileResponse,
   UserPrivate,
@@ -9,6 +11,7 @@ import type {
 import { ArrowLeft, Loader2, UserX } from 'lucide-react';
 import { apiFetch } from '../api/api';
 import {
+  // changeMyPassword,
   updateMyAvatar,
   updateMyProfile,
 } from '../features/auth/service/authService';
@@ -93,6 +96,10 @@ export function ProfilePage() {
     return result;
   };
 
+  // const handleChangePassword = (
+  //   input: ChangePasswordInput
+  // ): Promise<ChangePasswordResponse> => changeMyPassword(input);
+
   // 1. Own profile (private view)
   if (isOwnProfile && currentUser) {
     return (
@@ -100,6 +107,7 @@ export function ProfilePage() {
         user={currentUser}
         onAvatarUpload={handleAvatarUpload}
         onUpdateProfile={handleUpdateProfile}
+        // onChangePassword={handleChangePassword}
       />
     );
   }
