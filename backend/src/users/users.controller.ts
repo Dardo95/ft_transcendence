@@ -20,6 +20,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
 import { SendFriendRequestDto } from './dto/send-friend-request.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { FriendshipsService } from './friendships.service.js';
 import { UsersService } from './users.service.js';
 import { ChatGateway } from '../chat/chat.gateway.js';
@@ -50,6 +51,15 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   updateMe(@CurrentUser('sub') userId: number, @Body() dto: UpdateProfileDto) {
     return this.usersService.updatePrivate(userId, dto);
+  }
+
+  @Patch('me/password')
+  @HttpCode(HttpStatus.OK)
+  changePassword(
+    @CurrentUser('sub') userId: number,
+    @Body() dto: ChangePasswordDto
+  ) {
+    return this.usersService.changePassword(userId, dto);
   }
 
   @Post('me/avatar')

@@ -13,6 +13,7 @@ export interface UserPrivate extends UserPublic {
   email: string;
   twoFaEnabled: boolean;
   oauthProvider: string | null;
+  hasPassword: boolean; // false for Google-only accounts
 }
 
 // Editable fields of the authenticated user's own profile.

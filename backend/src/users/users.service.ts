@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,8 +14,10 @@ import { randomUUID } from 'node:crypto';
 import { unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { PrismaService } from '../database/prisma.service.js';
+import * as argon2 from 'argon2';
 import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
 import {
   toUserPrivate,
   toUserPublic,
@@ -161,6 +164,47 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  async changePassword(
+    id: number,
+    dto: ChangePasswordDto
+  ): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { password: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Google-only accounts have no password to change.
+    if (user.password === null) {
+      throw new ForbiddenException('This account has no password to change');
+    }
+
+    // 400, not 401: a 401 means "not authenticated" for the client.
+    const isCurrentValid = await argon2.verify(
+      user.password,
+      dto.currentPassword
+    );
+    if (!isCurrentValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    if (dto.newPassword === dto.currentPassword) {
+      throw new BadRequestException(
+        'New password must be different from the current one'
+      );
+    }
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { password: await argon2.hash(dto.newPassword) },
+      select: { id: true },
+    });
+
+    return { message: 'Password updated' };
   }
 
   async updateAvatar(
