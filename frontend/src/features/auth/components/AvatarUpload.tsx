@@ -3,6 +3,7 @@ import { Camera, Loader2 } from 'lucide-react';
 import { cropImageToSquare } from '../../../lib/imageCrop';
 import { useLanguage } from '../../../locales/useLanguage';
 import { Button } from '../../../components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 import type { TranslationKey } from '../../../locales/translations';
 import { validateAvatarFile } from '../utils/validation';
 import defaultAvatar from '../../../assets/default.jpg';
@@ -85,7 +86,7 @@ export function AvatarUpload({
           <img
             src={preview || currentAvatarUrl || defaultAvatar}
             alt={username}
-            className="size-full object-cover"
+            className={UI.avatar.full}
             onError={(e) => {
               // Default placeholder svg fallback
               (e.target as HTMLImageElement).src =
@@ -103,9 +104,9 @@ export function AvatarUpload({
           className="absolute right-0 bottom-0 shadow-md active:scale-95"
         >
           {isUploading ? (
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className={`${UI.icon.sm} ${UI.icon.spinner}`} />
           ) : (
-            <Camera className="size-4" />
+            <Camera className={UI.icon.sm} />
           )}
         </Button>
 

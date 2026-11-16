@@ -19,19 +19,18 @@ interface FriendListProps {
 }
 
 const CARD_STYLES: Record<FriendListVariant, string> = {
-  lobby: 'flex flex-col gap-3 p-5',
-  profile: 'flex flex-col gap-4 p-6 sm:p-8',
+  lobby: UI.card.friendLobby,
+  profile: UI.card.friendProfile,
 };
 
 const HEADER_STYLES: Record<FriendListVariant, string> = {
-  lobby: 'flex items-center justify-between border-b border-border pb-2',
-  profile:
-    'flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-4',
+  lobby: UI.row.friendHeaderLobby,
+  profile: UI.row.friendHeaderProfile,
 };
 
 const TITLE_STYLES: Record<FriendListVariant, string> = {
-  lobby: `flex items-center gap-2 ${UI.text.sublabel}`,
-  profile: `flex items-center gap-2 ${UI.text.sectionTitle}`,
+  lobby: UI.text.friendTitleLobby,
+  profile: UI.text.friendTitleProfile,
 };
 
 export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
@@ -49,7 +48,7 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
       <div className={HEADER_STYLES[variant]}>
         <h4 className={TITLE_STYLES[variant]}>
           <UsersIcon
-            className={variant === 'profile' ? 'size-5' : 'h-4 w-4'}
+            className={variant === 'profile' ? UI.icon.md : UI.icon.sm}
             aria-hidden="true"
           />
           <span>
@@ -72,8 +71,10 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
 
       {/* Confirmed friends */}
       <div
-        className={`flex flex-col gap-2 overflow-y-auto pr-1 ${
-          variant === 'profile' ? 'max-h-96' : 'max-h-64'
+        className={`${UI.list.friendsScroll} ${
+          variant === 'profile'
+            ? UI.list.friendsScrollTall
+            : UI.list.friendsScrollShort
         }`}
       >
         {friends.length === 0 && !isLoading ? (

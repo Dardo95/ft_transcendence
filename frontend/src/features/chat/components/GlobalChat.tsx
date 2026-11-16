@@ -61,8 +61,8 @@ export function GlobalChat() {
     <Card className="flex h-104 flex-col p-4">
       {/* Chat header */}
       <div className="border-border mb-2 flex items-center justify-between border-b pb-2">
-        <h4 className={`flex items-center gap-2 ${UI.text.sublabel}`}>
-          <MessageSquareIcon className="h-3.5 w-3.5" aria-hidden="true" />
+        <h4 className={UI.text.sublabelRow}>
+          <MessageSquareIcon className={UI.icon.xs} aria-hidden="true" />
           <span>{t('app.lobby.globalChat') || 'Global Chat'}</span>
         </h4>
 
@@ -191,7 +191,7 @@ export function GlobalChat() {
       </div>
 
       {/* Input de envío */}
-      <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
+      <form onSubmit={handleSubmit} className={`mt-3 ${UI.row.actions}`}>
         <Input
           type="text"
           value={inputValue}
@@ -213,7 +213,7 @@ export function GlobalChat() {
           }
           className="h-8 px-3"
         >
-          <SendIcon className="size-3.5" />
+          <SendIcon className={UI.icon.xs} />
 
           <span className="sr-only">
             {t('app.lobby.sendButton') || 'Enviar'}

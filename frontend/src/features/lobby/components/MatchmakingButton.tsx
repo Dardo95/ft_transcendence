@@ -1,6 +1,7 @@
 import { useLanguage } from '@/locales/useLanguage';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 
 import type { GameMode, MatchmakingPayload } from '../types';
 
@@ -73,7 +74,7 @@ export function MatchmakingButton({
         </span>
 
         {mode === 'private' && !canStartPrivate && (
-          <span className="text-accent mt-1 block text-[0.62rem]">
+          <span className="text-warning mt-1 block text-[0.62rem]">
             {isHost
               ? t('app.lobby.needPrivateText') ||
                 'Necesitas al menos 2 jugadores en la lobby para empezar.'
@@ -93,7 +94,7 @@ export function MatchmakingButton({
       <Button
         type="button"
         variant={isSearching ? 'destructive' : 'default'}
-        className="min-w-[210px] px-4 py-3 text-[0.68rem] font-black tracking-wider"
+        className={`${UI.btn.action} min-w-[210px]`}
         onClick={isSearching ? onCancelSearch : () => onStart(payload)}
         disabled={!isSearching && !isEnabled}
       >

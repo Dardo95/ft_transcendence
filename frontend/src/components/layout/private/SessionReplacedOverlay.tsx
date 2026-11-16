@@ -13,7 +13,7 @@ export function SessionReplacedOverlay() {
 
   return createPortal(
     <div role="alertdialog" aria-modal="true" className={UI.ui.dialogOverlay}>
-      <section className={UI.ui.dialogContent}>
+      <section className={UI.overlay.modalCard}>
         <h2 className={UI.text.sectionTitle}>
           {t('app.general.openSession') || 'Sesión abierta en otra ventana'}
         </h2>

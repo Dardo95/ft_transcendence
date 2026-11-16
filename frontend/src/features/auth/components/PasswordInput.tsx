@@ -3,6 +3,7 @@ import { EyeIcon, EyeOffIcon, LockIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { UI } from '@/components/layout/layoutStyles';
 import { useLanguage } from '../../../locales/useLanguage';
 
 // Password input component with a lock icon on the left and a show/hide toggle button (eye icon) on the right.
@@ -38,13 +39,10 @@ export function PasswordInput({
 
   return (
     <div className="relative">
-      <LockIcon
-        className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-        aria-hidden="true"
-      />
+      <LockIcon className={UI.form.inputIcon} aria-hidden="true" />
       <Input
         id={id}
-        className="h-10 pr-10 pl-9"
+        className={UI.form.inputWithIcons}
         type={isVisible ? 'text' : 'password'}
         autoComplete={autoComplete}
         value={value}
@@ -65,12 +63,12 @@ export function PasswordInput({
             ? t('auth.login.hidePassword') || 'Hide password'
             : t('auth.login.showPassword') || 'Show password'
         }
-        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+        className={`${UI.btn.ghost} absolute top-1/2 right-2 -translate-y-1/2`}
       >
         {isVisible ? (
-          <EyeOffIcon className="h-4 w-4" aria-hidden="true" />
+          <EyeOffIcon className={UI.icon.sm} aria-hidden="true" />
         ) : (
-          <EyeIcon className="h-4 w-4" aria-hidden="true" />
+          <EyeIcon className={UI.icon.sm} aria-hidden="true" />
         )}
       </Button>
     </div>

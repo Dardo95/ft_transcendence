@@ -118,7 +118,9 @@ export function ProfilePage() {
       <div className={UI.shell.page}>
         <div className={UI.shell.container}>
           <Card className="text-muted-foreground flex flex-col items-center justify-center gap-3 p-12">
-            <Loader2 className="text-primary size-8 animate-spin" />
+            <Loader2
+              className={`text-primary ${UI.icon.lg} ${UI.icon.spinner}`}
+            />
             <p className="text-sm">
               {t('profile.loading') || 'Loading user profile...'}
             </p>
@@ -140,7 +142,7 @@ export function ProfilePage() {
             <h3 className="text-destructive text-xl font-bold">
               {t('profile.userNotFound') || 'User Not Found (404)'}
             </h3>
-            <p className="text-muted-foreground text-sm">
+            <p className={UI.text.muted}>
               {t('profile.userNotFoundDesc') || 'The user'}{' '}
               <span className="text-foreground font-mono">@{username}</span>{' '}
               {t('profile.doesNotExist') || 'does not exist.'}
@@ -148,7 +150,7 @@ export function ProfilePage() {
             <div className="pt-2">
               <Button variant="outline" size="sm" asChild>
                 <Link to="/lobby" className="gap-2 font-semibold">
-                  <ArrowLeft className="size-4" />
+                  <ArrowLeft className={UI.icon.sm} />
                   {t('profile.backToLobby') || 'Back to Lobby'}
                 </Link>
               </Button>

@@ -239,14 +239,14 @@ export function PrivateProfileView({
     <div className={UI.shell.page}>
       <div className={UI.shell.container}>
         {/* Editable profile details */}
-        <Card className={`${UI.card.section} sm:p-8`}>
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <Card className={UI.card.sectionLarge}>
+          <div className={UI.row.header}>
             <h2 className={UI.text.sectionTitle}>
               {t('profile.myProfile') || 'My Profile'}
               <span className={`ml-3 ${UI.badge.tag}`}>#{user.id}</span>
             </h2>
             <span className={UI.badge.pill}>
-              <UserRound className="size-3.5" aria-hidden="true" />
+              <UserRound className={UI.icon.xs} aria-hidden="true" />
               {t('profile.privateProfileBadge') || 'Editable Data'}
             </span>
           </div>
@@ -262,7 +262,7 @@ export function PrivateProfileView({
             </div>
 
             {/* Editable username and email */}
-            <div className="space-y-3">
+            <div className={UI.form.stack}>
               {editableFields.map((field) => {
                 const isEditing = editingField === field.key;
                 const fieldError = fieldErrors[field.key];
@@ -270,7 +270,7 @@ export function PrivateProfileView({
                 const errorId = `${inputId}-error`;
 
                 return (
-                  <div key={field.key} className={`p-3.5 ${UI.card.inner}`}>
+                  <div key={field.key} className={UI.card.innerPadded}>
                     {isEditing ? (
                       <form
                         onSubmit={handleFormSubmit}
@@ -278,10 +278,7 @@ export function PrivateProfileView({
                         className="space-y-2.5"
                       >
                         <div className="space-y-1.5">
-                          <label
-                            htmlFor={inputId}
-                            className={`block ${UI.text.sublabel}`}
-                          >
+                          <label htmlFor={inputId} className={UI.form.label}>
                             {field.label}
                           </label>
                           <Input
@@ -325,9 +322,9 @@ export function PrivateProfileView({
                             type="submit"
                             size="sm"
                             disabled={isSaving}
-                            className="gap-1.5 text-xs font-semibold"
+                            className={UI.btn.smSave}
                           >
-                            <Check className="size-3.5" aria-hidden="true" />
+                            <Check className={UI.icon.xs} aria-hidden="true" />
                             {isSaving
                               ? t('profile.saving') || 'Saving...'
                               : t('profile.save') || 'Save changes'}
@@ -339,9 +336,9 @@ export function PrivateProfileView({
                             variant="ghost"
                             disabled={isSaving}
                             onClick={cancelEditing}
-                            className="gap-1.5 text-xs"
+                            className={UI.btn.smGhost}
                           >
-                            <X className="size-3.5" aria-hidden="true" />
+                            <X className={UI.icon.xs} aria-hidden="true" />
                             {t('profile.cancel') || 'Cancel'}
                           </Button>
                         </div>
@@ -370,9 +367,9 @@ export function PrivateProfileView({
                             onClick={() => startEditing(field.key)}
                             title={editLabel(field.label)}
                             aria-label={editLabel(field.label)}
-                            className="text-muted-foreground hover:text-primary"
+                            className={UI.btn.iconGhost}
                           >
-                            <Pencil className="size-3.5" aria-hidden="true" />
+                            <Pencil className={UI.icon.xs} aria-hidden="true" />
                           </Button>
                         )}
                       </div>
@@ -428,9 +425,9 @@ export function PrivateProfileView({
                           aria-label={editLabel(
                             t('profile.password') || 'Password'
                           )}
-                          className="text-muted-foreground hover:text-primary"
+                          className={UI.btn.iconGhost}
                         >
-                          <Pencil className="size-3.5" aria-hidden="true" />
+                          <Pencil className={UI.icon.xs} aria-hidden="true" />
                         </Button>
                       )}
                     </div>
@@ -449,7 +446,7 @@ export function PrivateProfileView({
 
               {success && (
                 <p className="text-success-foreground inline-flex items-center gap-1 text-xs font-medium">
-                  <CheckCircle2 className="size-4" aria-hidden="true" />
+                  <CheckCircle2 className={UI.icon.sm} aria-hidden="true" />
                   {success}
                 </p>
               )}
@@ -458,8 +455,8 @@ export function PrivateProfileView({
         </Card>
 
         {/* Read-only account information */}
-        <Card className={`${UI.card.section} sm:p-8`}>
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <Card className={UI.card.sectionLarge}>
+          <div className={UI.row.header}>
             <h2 className={UI.text.sectionTitle}>
               {t('profile.accountInformation') || 'Account information'}
             </h2>
@@ -468,16 +465,16 @@ export function PrivateProfileView({
             </span>
           </div>
 
-          <div className={`mt-5 p-3.5 ${UI.card.inner}`}>
+          <div className={`mt-5 ${UI.card.innerPadded}`}>
             <LevelProgress xp={user.xp} />
           </div>
 
-          <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <dl className={UI.shell.detailGrid}>
             {readOnlyFields.map((field) => (
-              <div key={field.label} className={`p-3.5 ${UI.card.inner}`}>
+              <div key={field.label} className={UI.card.innerPadded}>
                 <dt className={UI.text.sublabel}>{field.label}</dt>
                 <dd
-                  className={`mt-1 text-sm font-semibold break-all ${field.tone}`}
+                  className={`text-foreground ${field.tone} ${UI.text.value}`}
                 >
                   {field.value}
                 </dd>

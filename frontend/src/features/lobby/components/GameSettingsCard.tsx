@@ -64,9 +64,9 @@ export function GameSettingsCard({
         isDisabled ? 'opacity-60 select-none' : 'opacity-100'
       }`}
     >
-      <div className="text-primary mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider">
+      <div className={UI.row.sectionLabel}>
         <span>03 / {t('app.lobby.settingsLabel') || 'AJUSTES'}</span>
-        <small className="text-muted-foreground text-[0.68rem] font-medium tracking-normal">
+        <small className={UI.text.hint}>
           {isPublicMode
             ? t('app.lobby.fixedPublicLabel') || 'Valores fijos en público'
             : !isHost
@@ -75,7 +75,7 @@ export function GameSettingsCard({
         </small>
       </div>
 
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+      <div className={UI.shell.grid3Tight}>
         <SettingRow
           label={t('app.lobby.initialBombsLabel') || 'Bombas iniciales'}
           value={String(settings.initialBombs)}

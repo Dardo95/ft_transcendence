@@ -48,7 +48,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
     <div className={UI.shell.page}>
       <div className={UI.shell.container}>
         {/* Public identity */}
-        <Card className={`${UI.card.section} sm:p-8`}>
+        <Card className={UI.card.sectionLarge}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
               <div className="relative size-28 shrink-0">
@@ -56,11 +56,11 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                   <img
                     src={user.avatarUrl || defaultAvatar}
                     alt={user.username}
-                    className="size-full object-cover"
+                    className={UI.avatar.full}
                   />
                 </div>
                 <span
-                  className={`border-background absolute right-1.5 bottom-1.5 size-3.5 rounded-full border-2 ${
+                  className={`${UI.avatar.statusDot} right-1.5 bottom-1.5 size-3.5 ${
                     user.isOnline ? 'bg-success' : 'bg-muted-foreground'
                   }`}
                   aria-hidden="true"
@@ -69,7 +69,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
 
               <div className="min-w-0">
                 <span className={UI.badge.pill}>
-                  <UserRound className="size-3.5" aria-hidden="true" />
+                  <UserRound className={UI.icon.xs} aria-hidden="true" />
                   {t('profile.publicProfileBadge') || 'Player Profile'}
                 </span>
 
@@ -80,10 +80,10 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                   <span className={UI.badge.tag}>#{user.id}</span>
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${
+                    className={`${UI.badge.status} ${
                       user.isOnline
-                        ? 'border-success/40 bg-success/15 text-success-foreground'
-                        : 'border-input bg-secondary text-muted-foreground'
+                        ? UI.badge.statusOnline
+                        : UI.badge.statusOffline
                     }`}
                   >
                     <span
@@ -102,9 +102,9 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                 <Button
                   disabled
                   variant="secondary"
-                  className="border-success/40 bg-success/15 text-success-foreground gap-2 border text-xs font-semibold"
+                  className={`${UI.badge.statusOnline} gap-2 border text-xs font-semibold`}
                 >
-                  <UserCheck className="size-4" aria-hidden="true" />
+                  <UserCheck className={UI.icon.sm} aria-hidden="true" />
                   {t('profile.alreadyFriends') || 'Friends'}
                 </Button>
               ) : (
@@ -112,7 +112,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                   onClick={() => sendRequest(user.username)}
                   className="gap-2 text-xs font-semibold"
                 >
-                  <UserPlus className="size-4" aria-hidden="true" />
+                  <UserPlus className={UI.icon.sm} aria-hidden="true" />
                   {t('profile.addFriend') || 'Add Friend'}
                 </Button>
               )}
@@ -121,8 +121,8 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
         </Card>
 
         {/* Statistics and public properties */}
-        <Card className={`${UI.card.section} sm:p-8`}>
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <Card className={UI.card.sectionLarge}>
+          <div className={UI.row.header}>
             <h2 className={UI.text.sectionTitle}>
               {t('profile.statistics') || 'Statistics'}
             </h2>
@@ -131,16 +131,16 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
             </span>
           </div>
 
-          <div className={`mt-5 p-3.5 ${UI.card.inner}`}>
+          <div className={`mt-5 ${UI.card.innerPadded}`}>
             <LevelProgress xp={user.xp} />
           </div>
 
-          <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <dl className={UI.shell.detailGrid}>
             {details.map((field) => (
-              <div key={field.label} className={`p-3.5 ${UI.card.inner}`}>
+              <div key={field.label} className={UI.card.innerPadded}>
                 <dt className={UI.text.sublabel}>{field.label}</dt>
                 <dd
-                  className={`mt-1 text-sm font-semibold break-all ${field.tone}`}
+                  className={`text-foreground ${field.tone} ${UI.text.value}`}
                 >
                   {field.value}
                 </dd>

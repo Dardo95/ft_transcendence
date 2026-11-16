@@ -7,6 +7,7 @@ import { EyeIcon, XIcon } from 'lucide-react';
 import defaultAvatar from '@/assets/default.jpg';
 
 import { Button } from '@/components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,10 +53,8 @@ export function FriendListItem({
 
   return (
     <div
-      className={`flex items-center justify-between transition-colors ${
-        isProfile
-          ? 'border-border/80 bg-background/60 hover:bg-muted/40 rounded-xl border p-3.5'
-          : 'border-input bg-background/40 hover:bg-muted/40 rounded-xl border p-2.5'
+      className={`flex items-center justify-between ${UI.row.interactive} ${
+        isProfile ? UI.card.profileRow : UI.card.lobbyRow
       }`}
     >
       <Link
@@ -67,12 +66,10 @@ export function FriendListItem({
           <img
             src={friend.avatarUrl || defaultAvatar}
             alt={friend.username}
-            className={`border-input bg-secondary rounded-full border object-cover ${
-              isProfile ? 'size-10' : 'h-8 w-8'
-            }`}
+            className={isProfile ? UI.avatar.lg : UI.avatar.md}
           />
           <span
-            className={`border-background absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 ${
+            className={`${UI.avatar.statusDot} -right-0.5 -bottom-0.5 h-2.5 w-2.5 ${
               isPlaying
                 ? 'bg-accent'
                 : isOnline
@@ -110,7 +107,7 @@ export function FriendListItem({
             onClick={() => onSpectate?.(friend.currentGameId!)}
             title={t('app.friends.spectateTitle') || 'Espectar partida'}
           >
-            <EyeIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            <EyeIcon className={UI.icon.xs} aria-hidden="true" />
           </Button>
         )}
 
@@ -136,10 +133,10 @@ export function FriendListItem({
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer p-0 text-xs"
+                className={UI.btn.iconDanger}
                 title={t('app.friends.deleteFriendTitle') || 'Eliminar amigo'}
               >
-                <XIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                <XIcon className={UI.icon.xs} aria-hidden="true" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
