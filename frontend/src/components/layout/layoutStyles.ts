@@ -59,6 +59,8 @@ const STATUS_PILL =
   'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold';
 const STATUS_ONLINE = 'border-success/40 bg-success/15 text-success-foreground';
 const STATUS_OFFLINE = 'border-input bg-secondary text-muted-foreground';
+const STATUS_BLOCKED =
+  'border-destructive/40 bg-destructive/15 text-destructive-foreground';
 
 /* Typography */
 const PAGE_TITLE =
@@ -104,6 +106,9 @@ const ALERT_SUCCESS =
   'rounded-xl border border-success/35 bg-success/15 px-3.5 py-3 text-[0.78rem] text-success-foreground';
 const ALERT_BANNER =
   'flex w-full items-center justify-center text-center font-semibold';
+const INLINE_ERROR = 'text-destructive text-xs font-medium';
+const INLINE_SUCCESS =
+  'text-success-foreground inline-flex items-center gap-1 text-xs font-medium';
 const STATUS_DOT = 'inline-block size-2 shrink-0 rounded-full';
 
 /* Tables */
@@ -130,6 +135,8 @@ const OVERLAY_BACKDROP =
   'fixed inset-0 bg-overlay backdrop-blur-sm transition-opacity';
 const ROW_ITEM =
   'flex items-center justify-between gap-2 rounded-lg p-2 transition-colors';
+const ROW_ITEM_ROOMY =
+  'flex items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors';
 const ROW_INTERACTIVE = 'transition-colors hover:bg-muted/40';
 const ROW_HEADER =
   'flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between';
@@ -164,6 +171,9 @@ const BTN_SM_GHOST = 'gap-1.5 text-xs';
 const BTN_ICON_GHOST = 'text-muted-foreground hover:text-primary';
 const BTN_ICON_DANGER =
   'text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer p-0 text-xs';
+const BTN_BLOCK =
+  'gap-2 text-xs font-semibold text-muted-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive';
+const BTN_UNBLOCK = 'gap-2 text-xs font-semibold';
 const BTN_OPTION =
   'text-foreground hover:border-primary/50 min-w-0 cursor-pointer rounded-xl border text-left transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0';
 const BTN_OPTION_ACTIVE =
@@ -282,6 +292,7 @@ export const UI = {
     status: STATUS_PILL,
     statusOnline: STATUS_ONLINE,
     statusOffline: STATUS_OFFLINE,
+    statusBlocked: STATUS_BLOCKED,
   },
   text: {
     pageTitle: PAGE_TITLE,
@@ -329,6 +340,8 @@ export const UI = {
     success: ALERT_SUCCESS,
     banner: ALERT_BANNER,
     dot: STATUS_DOT,
+    inlineError: INLINE_ERROR,
+    inlineSuccess: INLINE_SUCCESS,
   },
   table: {
     wrapper: TABLE_WRAPPER,
@@ -350,6 +363,7 @@ export const UI = {
   },
   row: {
     item: ROW_ITEM,
+    itemRoomy: ROW_ITEM_ROOMY,
     interactive: ROW_INTERACTIVE,
     header: ROW_HEADER,
     actions: ROW_ACTIONS,
@@ -379,6 +393,8 @@ export const UI = {
     smGhost: BTN_SM_GHOST,
     iconGhost: BTN_ICON_GHOST,
     iconDanger: BTN_ICON_DANGER,
+    block: BTN_BLOCK,
+    unblock: BTN_UNBLOCK,
     option: BTN_OPTION,
     optionActive: BTN_OPTION_ACTIVE,
     social: SOCIAL_LINK,

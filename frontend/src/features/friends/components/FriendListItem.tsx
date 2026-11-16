@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useLanguage } from '@/locales/useLanguage';
 
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
-import { EyeIcon, XIcon } from 'lucide-react';
+import { Ban, EyeIcon, XIcon } from 'lucide-react';
 import defaultAvatar from '@/assets/default.jpg';
 
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useFriendsStore } from '../store/useFriendsStore';
 import type { FriendUser } from '../service/friendsService';
 
 type FriendListItemVariant = 'lobby' | 'profile';
@@ -49,7 +51,28 @@ export function FriendListItem({
       : t('app.friends.offlineStatus') || 'Desconectado';
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isBlockOpen, setIsBlockOpen] = useState(false);
+  const [isBlocking, setIsBlocking] = useState(false);
+  const blockUser = useFriendsStore((state) => state.blockUser);
   const isProfile = variant === 'profile';
+
+  // Handle blocking a user
+  const handleBlock = async () => {
+    setIsBlocking(true);
+    try {
+      await blockUser(friend.username);
+      toast.success(
+        t('profile.blockedSuccess') || 'User blocked successfully.'
+      );
+    } catch {
+      toast.error(
+        t('profile.blockFailed') || 'Could not block the user. Try again.'
+      );
+    } finally {
+      setIsBlocking(false);
+      setIsBlockOpen(false);
+    }
+  };
 
   return (
     <div
@@ -124,6 +147,48 @@ export function FriendListItem({
             +
           </Button>
         )}
+
+        {/* Block user button */}
+        <AlertDialog open={isBlockOpen} onOpenChange={setIsBlockOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              disabled={isBlocking}
+              className={UI.btn.iconGhost}
+              title={t('profile.blockUser') || 'Block user'}
+            >
+              <Ban className={UI.icon.xs} aria-hidden="true" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t('profile.blockUserTitle') || 'Block user'}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {(
+                  t('profile.blockUserConfirm') ||
+                  'Are you sure you want to block {username}?'
+                ).replace('{username}', friend.username)}{' '}
+                {t('profile.blockUserWarning') ||
+                  'You will stop being friends, pending requests will be cancelled, and you will not be able to send messages or invitations to each other.'}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex items-center justify-end gap-2">
+              <AlertDialogCancel>
+                {t('profile.cancel') || 'Cancel'}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={() => void handleBlock()}
+              >
+                {t('profile.blockButton') || 'Block'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Remove friend button */}
         {onRemove && (

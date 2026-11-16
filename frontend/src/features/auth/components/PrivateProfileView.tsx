@@ -16,6 +16,7 @@ import { AvatarUpload } from './AvatarUpload';
 // import { ChangePasswordForm } from './ChangePasswordForm';
 import { LevelProgress } from './LevelProgress';
 import { FriendList } from '../../friends/components/FriendListCard';
+import { BlockedUsersCard } from '../../friends/components/BlockedUsersCard';
 import { useLanguage } from '../../../locales/useLanguage';
 import { UI } from '@/components/layout/layoutStyles';
 import {
@@ -436,16 +437,13 @@ export function PrivateProfileView({
               */}
 
               {error && (
-                <p
-                  className="text-destructive text-xs font-medium"
-                  role="alert"
-                >
+                <p className={UI.feedback.inlineError} role="alert">
                   {error}
                 </p>
               )}
 
               {success && (
-                <p className="text-success-foreground inline-flex items-center gap-1 text-xs font-medium">
+                <p className={UI.feedback.inlineSuccess}>
                   <CheckCircle2 className={UI.icon.sm} aria-hidden="true" />
                   {success}
                 </p>
@@ -485,6 +483,9 @@ export function PrivateProfileView({
 
         {/* Friends and social management */}
         <FriendList variant="profile" />
+
+        {/* Blocked users management */}
+        <BlockedUsersCard />
       </div>
     </div>
   );
