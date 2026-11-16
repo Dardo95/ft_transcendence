@@ -11,15 +11,23 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UseGuards,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import type { Response } from 'express';
+import { AuthService } from '../auth/auth.service.js';
+import {
+  ACCESS_TOKEN_COOKIE,
+  accessTokenCookieOptions,
+} from '../auth/auth-cookie.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
 import { SendFriendRequestDto } from './dto/send-friend-request.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { FriendshipsService } from './friendships.service.js';
 import { UsersService } from './users.service.js';
 import { ChatGateway } from '../chat/chat.gateway.js';
@@ -31,7 +39,8 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly friendships: FriendshipsService,
-    private readonly chatGateway: ChatGateway
+    private readonly chatGateway: ChatGateway,
+    private readonly authService: AuthService
   ) {}
 
   private emitToUser(userId: number, event: string, data: unknown) {
@@ -48,8 +57,38 @@ export class UsersController {
 
   @Patch('me')
   @HttpCode(HttpStatus.OK)
-  updateMe(@CurrentUser('sub') userId: number, @Body() dto: UpdateProfileDto) {
-    return this.usersService.updatePrivate(userId, dto);
+  async updateMe(
+    @CurrentUser('sub') userId: number,
+    @Body() dto: UpdateProfileDto,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const result = await this.usersService.updatePrivate(userId, dto);
+
+    // The JWT and live sockets carry the username: refresh both after a rename.
+    if (
+      result.outcome === 'updated' &&
+      result.user &&
+      dto.username !== undefined
+    ) {
+      const { id, username } = result.user;
+      res.cookie(
+        ACCESS_TOKEN_COOKIE,
+        this.authService.issueAccessToken({ id, username }),
+        accessTokenCookieOptions()
+      );
+      this.chatGateway?.refreshUserIdentity(id, username);
+    }
+
+    return result;
+  }
+
+  @Patch('me/password')
+  @HttpCode(HttpStatus.OK)
+  changePassword(
+    @CurrentUser('sub') userId: number,
+    @Body() dto: ChangePasswordDto
+  ) {
+    return this.usersService.changePassword(userId, dto);
   }
 
   @Post('me/avatar')

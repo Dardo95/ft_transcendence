@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module.js';
 import { PrismaModule } from '../database/prisma.module.js';
 import { ChatModule } from '../chat/chat.module.js';
 import { GameModule } from '../game/game.module.js';
@@ -8,7 +9,7 @@ import { UsersService } from './users.service.js';
 import { FriendshipsService } from './friendships.service.js';
 
 @Module({
-  imports: [PrismaModule, ChatModule, GameModule, RealtimeModule],
+  imports: [AuthModule, PrismaModule, ChatModule, GameModule, RealtimeModule],
   controllers: [UsersController],
   providers: [UsersService, FriendshipsService],
 })

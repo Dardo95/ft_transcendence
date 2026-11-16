@@ -93,3 +93,19 @@ describe('LobbyService membership notifications', () => {
     unsubscribe();
   });
 });
+
+describe('LobbyService.renameMember', () => {
+  it('updates the member username in the lobby', () => {
+    const service = new LobbyService();
+    service.createLobby(user(1));
+
+    const lobby = service.renameMember(1, 'new_name');
+
+    expect(lobby?.members[0].username).toBe('new_name');
+    expect(service.getLobbyForUser(1)?.members[0].username).toBe('new_name');
+  });
+
+  it('returns null when the user is not in a lobby', () => {
+    expect(new LobbyService().renameMember(1, 'new_name')).toBeNull();
+  });
+});

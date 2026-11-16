@@ -1,21 +1,11 @@
-import {
-  IsEmail,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsUsername } from '../../users/username.rules.js';
 
 export class RegisterDto {
   @IsEmail()
   email: string;
 
-  @IsString()
-  @MinLength(3)
-  @MaxLength(20)
-  @Matches(/^\S+$/, {
-    message: 'Username must not contain spaces',
-  })
+  @IsUsername()
   username: string;
 
   @IsString()

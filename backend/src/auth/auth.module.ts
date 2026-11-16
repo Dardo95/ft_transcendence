@@ -27,6 +27,6 @@ function resolveJwtSecret(): string {
   ],
   controllers: [AuthController],
   providers: [AuthService, WsJwtAuthService],
-  exports: [JwtModule, WsJwtAuthService],
+  exports: [JwtModule, WsJwtAuthService, AuthService],
 })
 export class AuthModule {}

@@ -147,6 +147,19 @@ export class LobbyService {
     return lobby ? this.toSnapshot(lobby) : null;
   }
 
+  renameMember(userId: number, username: string): LobbySnapshot | null {
+    const lobbyId = this.lobbyIdByUserId.get(userId);
+    const lobby = lobbyId ? this.lobbies.get(lobbyId) : undefined;
+    const member = lobby?.members.get(userId);
+
+    if (!lobby || !member) {
+      return null;
+    }
+
+    member.username = username;
+    return this.toSnapshot(lobby);
+  }
+
   leaveLobby(userId: number): LeaveLobbyResult | null {
     const lobbyId = this.lobbyIdByUserId.get(userId);
 

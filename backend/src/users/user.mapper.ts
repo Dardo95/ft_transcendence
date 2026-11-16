@@ -17,6 +17,8 @@ export const userPrivateSelect = {
   email: true,
   twoFaEnabled: true,
   oauthProvider: true,
+  // Only read to compute hasPassword. The hash is never returned.
+  password: true,
 } as const;
 
 // Shapes returned by Prisma for the selects above.
@@ -34,6 +36,7 @@ type UserPrivateRow = UserPublicRow & {
   email: string;
   twoFaEnabled: boolean;
   oauthProvider: string | null;
+  password: string | null;
 };
 
 // Converts a Prisma row to the public user contract.
@@ -55,5 +58,6 @@ export function toUserPrivate(row: UserPrivateRow): UserPrivate {
     email: row.email,
     twoFaEnabled: row.twoFaEnabled,
     oauthProvider: row.oauthProvider,
+    hasPassword: row.password !== null,
   };
 }
