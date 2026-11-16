@@ -7,7 +7,7 @@ export function PublicOnlyRoute() {
   const authErrorKey = useAuthStore((state) => state.authErrorKey);
 
   if (!isAuthChecked && !authErrorKey) {
-    return <div className="fixed inset-0 bg-slate-950" />;
+    return <div className="bg-background fixed inset-0" />;
   }
 
   if (isAuthenticated) {

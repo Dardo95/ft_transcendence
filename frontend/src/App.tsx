@@ -91,12 +91,12 @@ export default function App() {
   }, [checkAuth]);
 
   if (!ready) {
-    return <div className="fixed inset-0 bg-slate-950" />;
+    return <div className="bg-background fixed inset-0" />;
   }
 
   return (
     <BrowserRouter>
-      <Suspense fallback={<div className="fixed inset-0 bg-slate-950" />}>
+      <Suspense fallback={<div className="bg-background fixed inset-0" />}>
         <Routes>
           {/* Group 1: Entrypoint (only accessible if NOT logged in) */}
           <Route element={<PublicOnlyRoute />}>
@@ -113,6 +113,7 @@ export default function App() {
             <Route path="/project" element={<ProjectPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
 
           {/* Group 3: Private pages (Mandatory login; use AppLayout with normal Header and Footer) */}
@@ -125,9 +126,6 @@ export default function App() {
               <Route path="/game/:id?" element={<GamePage />} />
             </Route>
           </Route>
-
-          {/* 404 Not Found */}
-          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

@@ -3,6 +3,8 @@ import { useLanguage } from '../../../locales/useLanguage';
 import { useFriendsStore } from '../../friends/store/useFriendsStore';
 import { LevelProgress } from './LevelProgress';
 import { Button } from '../../../components/ui/button';
+import { Card } from '../../../components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 
 import { UserCheck, UserPlus, UserRound } from 'lucide-react';
 import defaultAvatar from '../../../assets/default.jpg';
@@ -10,14 +12,6 @@ import defaultAvatar from '../../../assets/default.jpg';
 interface PublicProfileViewProps {
   user: UserPublic;
 }
-
-const SECTION_CARD =
-  'rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl backdrop-blur-sm sm:p-8';
-const INNER_BOX = 'rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5';
-const LABEL =
-  'text-[11px] font-semibold tracking-wider text-zinc-400 uppercase';
-const ORANGE_BADGE =
-  'inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase';
 
 /**
  * Public profile view.
@@ -46,19 +40,19 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
     {
       label: t('profile.joined') || 'Registered on',
       value: registrationDate,
-      tone: 'text-white',
+      tone: 'text-foreground',
     },
   ];
 
   return (
-    <div className="flex w-full justify-center px-4 py-8">
-      <div className="w-full max-w-5xl space-y-8">
+    <div className={UI.shell.page}>
+      <div className={UI.shell.container}>
         {/* Public identity */}
-        <section className={SECTION_CARD}>
+        <Card className={`${UI.card.section} sm:p-8`}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
               <div className="relative size-28 shrink-0">
-                <div className="size-28 overflow-hidden rounded-2xl border-2 border-orange-500/40 bg-zinc-800 shadow-lg">
+                <div className="border-primary/40 bg-secondary size-28 overflow-hidden rounded-2xl border-2 shadow-lg">
                   <img
                     src={user.avatarUrl || defaultAvatar}
                     alt={user.username}
@@ -66,37 +60,35 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                   />
                 </div>
                 <span
-                  className={`absolute right-1.5 bottom-1.5 size-3.5 rounded-full border-2 border-zinc-900 ${
-                    user.isOnline ? 'bg-emerald-500' : 'bg-zinc-600'
+                  className={`border-background absolute right-1.5 bottom-1.5 size-3.5 rounded-full border-2 ${
+                    user.isOnline ? 'bg-success' : 'bg-muted-foreground'
                   }`}
                   aria-hidden="true"
                 />
               </div>
 
               <div className="min-w-0">
-                <span className={ORANGE_BADGE}>
+                <span className={UI.badge.pill}>
                   <UserRound className="size-3.5" aria-hidden="true" />
                   {t('profile.publicProfileBadge') || 'Player Profile'}
                 </span>
 
-                <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-white md:text-3xl">
+                <h1 className="text-foreground mt-3 text-2xl font-extrabold tracking-tight md:text-3xl">
                   {user.username}
                 </h1>
 
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                  <span className="rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-300">
-                    #{user.id}
-                  </span>
+                  <span className={UI.badge.tag}>#{user.id}</span>
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${
                       user.isOnline
-                        ? 'border-emerald-900/60 bg-emerald-950/50 text-emerald-400'
-                        : 'border-zinc-700 bg-zinc-800 text-zinc-400'
+                        ? 'border-success/40 bg-success/15 text-success-foreground'
+                        : 'border-input bg-secondary text-muted-foreground'
                     }`}
                   >
                     <span
-                      className={`size-2 rounded-full ${
-                        user.isOnline ? 'bg-emerald-500' : 'bg-zinc-500'
+                      className={`${UI.feedback.dot} ${
+                        user.isOnline ? 'bg-success' : 'bg-muted-foreground'
                       }`}
                     />
                     {statusLabel}
@@ -110,7 +102,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                 <Button
                   disabled
                   variant="secondary"
-                  className="gap-2 border border-emerald-900/60 bg-emerald-950/50 text-xs font-semibold text-emerald-400"
+                  className="border-success/40 bg-success/15 text-success-foreground gap-2 border text-xs font-semibold"
                 >
                   <UserCheck className="size-4" aria-hidden="true" />
                   {t('profile.alreadyFriends') || 'Friends'}
@@ -118,7 +110,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
               ) : (
                 <Button
                   onClick={() => sendRequest(user.username)}
-                  className="gap-2 bg-orange-600 text-xs font-semibold text-white hover:bg-orange-500"
+                  className="gap-2 text-xs font-semibold"
                 >
                   <UserPlus className="size-4" aria-hidden="true" />
                   {t('profile.addFriend') || 'Add Friend'}
@@ -126,27 +118,27 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
               )}
             </div>
           </div>
-        </section>
+        </Card>
 
         {/* Statistics and public properties */}
-        <section className={SECTION_CARD}>
+        <Card className={`${UI.card.section} sm:p-8`}>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className={UI.text.sectionTitle}>
               {t('profile.statistics') || 'Statistics'}
             </h2>
-            <span className={ORANGE_BADGE}>
+            <span className={UI.badge.pill}>
               {t('profile.level') || 'Level'} {level}
             </span>
           </div>
 
-          <div className={`${INNER_BOX} mt-5`}>
+          <div className={`mt-5 p-3.5 ${UI.card.inner}`}>
             <LevelProgress xp={user.xp} />
           </div>
 
           <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {details.map((field) => (
-              <div key={field.label} className={INNER_BOX}>
-                <dt className={LABEL}>{field.label}</dt>
+              <div key={field.label} className={`p-3.5 ${UI.card.inner}`}>
+                <dt className={UI.text.sublabel}>{field.label}</dt>
                 <dd
                   className={`mt-1 text-sm font-semibold break-all ${field.tone}`}
                 >
@@ -155,7 +147,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
               </div>
             ))}
           </dl>
-        </section>
+        </Card>
       </div>
     </div>
   );

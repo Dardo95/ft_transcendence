@@ -1,15 +1,21 @@
 import { useState } from 'react';
 import { EyeIcon, EyeOffIcon, LockIcon } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '../../../locales/useLanguage';
 
+// Password input component with a lock icon on the left and a show/hide toggle button (eye icon) on the right.
+// The toggle button is of type "button" to prevent form submission when clicked.
 interface PasswordInputProps {
   id: string;
   value: string;
   onChange: (value: string) => void;
   autoComplete: string;
   placeholder: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  describedBy?: string;
 }
 
 /**
@@ -23,6 +29,9 @@ export function PasswordInput({
   onChange,
   autoComplete,
   placeholder,
+  disabled,
+  invalid,
+  describedBy,
 }: PasswordInputProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { t } = useLanguage();
@@ -30,7 +39,7 @@ export function PasswordInput({
   return (
     <div className="relative">
       <LockIcon
-        className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500"
+        className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
         aria-hidden="true"
       />
       <Input
@@ -41,24 +50,29 @@ export function PasswordInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        disabled={disabled}
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         required
       />
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-sm"
         onClick={() => setIsVisible((prev) => !prev)}
         aria-label={
           isVisible
             ? t('auth.login.hidePassword') || 'Hide password'
             : t('auth.login.showPassword') || 'Show password'
         }
-        className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1.5 text-zinc-500 transition-colors hover:text-zinc-300"
+        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
       >
         {isVisible ? (
           <EyeOffIcon className="h-4 w-4" aria-hidden="true" />
         ) : (
           <EyeIcon className="h-4 w-4" aria-hidden="true" />
         )}
-      </button>
+      </Button>
     </div>
   );
 }

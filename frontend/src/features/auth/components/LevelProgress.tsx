@@ -1,4 +1,5 @@
 import { useLanguage } from '../../../locales/useLanguage';
+import { UI } from '@/components/layout/layoutStyles';
 
 interface LevelProgressProps {
   xp: number;
@@ -17,17 +18,17 @@ export function LevelProgress({ xp }: LevelProgressProps) {
   return (
     <div className="space-y-2.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
+        <span className={UI.text.sublabel}>
           {t('profile.level') || 'Level'}{' '}
-          <span className="font-extrabold text-orange-400">{level}</span>
+          <span className="text-primary font-extrabold">{level}</span>
         </span>
-        <span className="text-xs font-semibold text-zinc-300">
+        <span className="text-secondary-foreground text-xs font-semibold">
           {xp} {t('profile.totalXp') || 'XP'}
         </span>
       </div>
 
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-800"
+        className="bg-secondary h-2.5 w-full overflow-hidden rounded-full"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -35,12 +36,12 @@ export function LevelProgress({ xp }: LevelProgressProps) {
         aria-label={`${t('profile.level') || 'Level'} ${level}`}
       >
         <div
-          className="h-full rounded-full bg-orange-500 transition-all duration-300"
+          className="bg-primary h-full rounded-full transition-all duration-300"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <p className="text-[11px] text-zinc-500">
+      <p className="text-muted-foreground text-[11px]">
         {(t('profile.xpToNextLevel') || '{xp} XP to next level').replace(
           '{xp}',
           String(remaining)

@@ -2,6 +2,7 @@ import { useFriendsStore } from '../store/useFriendsStore';
 import { useLanguage } from '@/locales/useLanguage';
 
 import { Button } from '@/components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 
 type IncomingFriendRequestVariant = 'lobby' | 'profile';
 
@@ -20,8 +21,8 @@ export function IncomingFriendRequest({
 
   const cardClass =
     variant === 'profile'
-      ? 'space-y-2 rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 text-zinc-100'
-      : 'space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl';
+      ? `space-y-2 p-3.5 text-foreground ${UI.card.inner}`
+      : 'space-y-2 rounded-lg border border-input bg-background/40 p-3 text-foreground shadow-xl';
 
   return (
     <div className="space-y-3">
@@ -36,7 +37,7 @@ export function IncomingFriendRequest({
           <div className="flex gap-2">
             <Button
               size="sm"
-              className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
+              className="bg-success text-success-foreground hover:bg-success/80 flex-1"
               onClick={() => acceptFriendRequest(req.id)}
             >
               {t('app.lobby.acceptButton') || 'Aceptar'}

@@ -19,6 +19,8 @@
 import { apiFetch } from '../../../api/api';
 import type {
   AuthCredentials,
+  // ChangePasswordInput,
+  // ChangePasswordResponse,
   UpdateProfileInput,
   UpdateProfileResponse,
   UserPrivate,
@@ -77,6 +79,20 @@ export async function updateMyProfile(
     body: JSON.stringify(input),
   });
 }
+
+// TODO(password): password change is not implemented in the backend yet.
+// Re-enable this service together with `PATCH /api/users/me/password`.
+//
+// // Changes the password of the authenticated local user.
+// // Business errors are returned as `outcome` values with HTTP 200.
+// export async function changeMyPassword(
+//   input: ChangePasswordInput
+// ): Promise<ChangePasswordResponse> {
+//   return apiFetch<ChangePasswordResponse>('/users/me/password', {
+//     method: 'PATCH',
+//     body: JSON.stringify(input),
+//   });
+// }
 
 function avatarFilename(blob: Blob): string {
   if (blob.type === 'image/png') return 'avatar.png';

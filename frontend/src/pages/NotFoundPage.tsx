@@ -1,14 +1,20 @@
 import { useLanguage } from '../locales/useLanguage';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 
 export function NotFoundPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="w-full max-w-4xl rounded-xl border border-zinc-700 bg-zinc-900 p-6 text-center">
-      <h1 className="mb-2 text-2xl font-bold text-orange-400">
-        {t('app.general.notFound') || '404 Not Found'}
-      </h1>
-      <p className="text-sm text-zinc-400">Vista en construcción.</p>
+    <div className={UI.shell.page}>
+      <div className={UI.shell.containerCompact}>
+        <Card className={UI.card.header}>
+          <h1 className={UI.text.pageTitle}>
+            {t('app.general.notFound') || '404 Not Found'}
+          </h1>
+          <p className={UI.text.pageSubtitle}>Vista en construcción.</p>
+        </Card>
+      </div>
     </div>
   );
 }

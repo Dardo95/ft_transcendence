@@ -1,14 +1,60 @@
 import { useLanguage } from '../locales/useLanguage';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 
 export function StatsPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="w-full max-w-4xl rounded-xl border border-zinc-700 bg-zinc-900 p-6 text-center">
-      <h1 className="mb-2 text-2xl font-bold text-orange-400">
-        {t('app.general.stats') || 'Game Statistics'}
-      </h1>
-      <p className="text-sm text-zinc-400">Vista en construcción.</p>
+    <div className={UI.shell.page}>
+      <div className={UI.shell.container}>
+        <Card className={UI.card.header}>
+          <h1 className={UI.text.pageTitle}>
+            {t('app.general.stats') || 'Game Statistics'}
+          </h1>
+          <p className={UI.text.pageSubtitle}>
+            {t('app.general.statsSubtitle') ||
+              'Track your matches, results and progression over time.'}
+          </p>
+        </Card>
+
+        <Card className={UI.card.section}>
+          <h2 className={UI.text.sectionTitle}>
+            {t('app.general.matchHistory') || 'Match history'}
+          </h2>
+
+          <div
+            className={`text-muted-foreground mt-4 p-3.5 text-xs ${UI.card.inner}`}
+          >
+            {t('app.general.statsEmpty') || 'No matches recorded yet.'}
+          </div>
+
+          <div className={`mt-4 ${UI.table.wrapper}`}>
+            <table className={UI.table.base}>
+              <thead className={UI.table.head}>
+                <tr>
+                  <th className={UI.table.cell}>
+                    {t('app.general.match') || 'Match'}
+                  </th>
+                  <th className={UI.table.cell}>
+                    {t('app.general.result') || 'Result'}
+                  </th>
+                  <th className={`${UI.table.cell} text-right`}>
+                    {t('app.general.date') || 'Date'}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className={UI.table.row}>
+                  <td colSpan={3} className="px-4 py-8 text-center text-sm">
+                    Vista en construcción.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
