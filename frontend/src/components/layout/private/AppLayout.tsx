@@ -24,6 +24,7 @@ import { SideDrawer } from './SideDrawer';
 import { SessionReplacedOverlay } from './SessionReplacedOverlay';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useSocketStore } from '@/stores/useSocketStore';
+import { UI } from '@/components/layout/layoutStyles';
 
 export function AppLayout() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -40,7 +41,7 @@ export function AppLayout() {
   }, [isAuthenticated, connect, disconnect]);
 
   return (
-    <div className="flex min-h-screen flex-col justify-between bg-slate-950 font-sans text-slate-100">
+    <div className={UI.chrome.appFrame}>
       {/* Overlay for session replacement */}
       <SessionReplacedOverlay />
 

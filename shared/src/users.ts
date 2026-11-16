@@ -32,3 +32,9 @@ export interface UpdateProfileResponse {
   outcome: UpdateProfileOutcome;
   user?: UserPrivate;
 }
+
+export interface BlockedUser {
+  id: number; // friendship row id
+  createdAt: string;
+  user: UserPublic; // the blocked user
+}

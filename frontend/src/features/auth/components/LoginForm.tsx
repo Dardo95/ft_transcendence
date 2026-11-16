@@ -5,14 +5,22 @@ import { useLanguage } from '../../../locales/useLanguage';
 import { useAuthStore } from '../store/useAuthStore';
 
 import { Button } from '@/components/ui/button';
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/ui/icons';
+import { UI } from '@/components/layout/layoutStyles';
 import { PasswordInput } from './PasswordInput';
+import { validateLogin, type LoginFormErrors } from '../utils/validation';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<LoginFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const authErrorKey = useAuthStore((state) => state.authErrorKey);
   const clearError = useAuthStore((state) => state.clearError);
@@ -21,13 +29,25 @@ export function LoginForm() {
   const { t } = useLanguage();
   const login = useAuthStore((state) => state.login);
 
+  // Handle form submission for user login: validate inputs, call login, and navigate on success.
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsSubmitting(true);
     clearError();
 
+    // Validate the form fields before submitting.
+    const errors = validateLogin({ email, password });
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      const firstInvalidId = errors.email ? 'login-email' : 'login-password';
+      document.getElementById(firstInvalidId)?.focus();
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      await login({ email, password });
+      await login({ email: email.trim(), password });
       const state = useAuthStore.getState();
       if (!state.authErrorKey && state.isAuthenticated) {
         navigate('/lobby', { replace: true });
@@ -36,6 +56,24 @@ export function LoginForm() {
       setIsSubmitting(false);
     }
   }
+
+  // Update the email state and clear any existing field error for email when the user types.
+  function updateEmail(value: string) {
+    setEmail(value);
+    if (fieldErrors.email) {
+      setFieldErrors((current) => ({ ...current, email: undefined }));
+    }
+  }
+
+  // Update the password state and clear any existing field error for password when the user types.
+  function updatePassword(value: string) {
+    setPassword(value);
+    if (fieldErrors.password) {
+      setFieldErrors((current) => ({ ...current, password: undefined }));
+    }
+  }
+
+  // Focus the error message when an authentication error occurs.
   const errorRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (authErrorKey && errorRef.current) {
@@ -44,13 +82,17 @@ export function LoginForm() {
   }, [authErrorKey]);
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="mx-auto w-full max-w-sm"
+    >
       {/* Header of the Form */}
       <div className="mb-6">
-        <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+        <h2 className="text-foreground text-xl font-bold tracking-tight sm:text-2xl">
           {t('auth.login.heading') || 'Welcome back!'}{' '}
         </h2>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="text-muted-foreground mt-1 text-sm">
           {t('auth.login.subheading') || 'Log in to return to the game.'}{' '}
         </p>
       </div>
@@ -61,7 +103,7 @@ export function LoginForm() {
           tabIndex={-1}
           role="alert"
           aria-live="polite"
-          className="mb-4 flex items-center justify-center rounded-xl bg-white p-2.5 text-center text-xs font-semibold text-orange-500"
+          className={`mb-4 flex items-center justify-center text-center font-semibold ${UI.feedback.error}`}
         >
           <span>{t(authErrorKey)}</span>
         </div>
@@ -74,7 +116,7 @@ export function LoginForm() {
           </FieldLabel>
           <div className="relative">
             <MailIcon
-              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500"
+              className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
               aria-hidden="true"
             />
             <Input
@@ -83,13 +125,23 @@ export function LoginForm() {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => updateEmail(e.target.value)}
               placeholder={
                 t('auth.login.emailPlaceholder') || 'Enter your email'
               }
+              aria-invalid={Boolean(fieldErrors.email) || undefined}
+              aria-describedby={
+                fieldErrors.email ? 'login-email-error' : undefined
+              }
+              disabled={isSubmitting}
               required
             />
           </div>
+          {fieldErrors.email && (
+            <FieldError id="login-email-error">
+              {t(fieldErrors.email)}
+            </FieldError>
+          )}
         </Field>
 
         <Field>
@@ -99,17 +151,27 @@ export function LoginForm() {
           <PasswordInput
             id="login-password"
             value={password}
-            onChange={setPassword}
+            onChange={updatePassword}
             autoComplete="current-password"
             placeholder={t('auth.login.passwordPlaceholder') || '********'}
+            disabled={isSubmitting}
+            invalid={Boolean(fieldErrors.password)}
+            describedBy={
+              fieldErrors.password ? 'login-password-error' : undefined
+            }
           />
+          {fieldErrors.password && (
+            <FieldError id="login-password-error">
+              {t(fieldErrors.password)}
+            </FieldError>
+          )}
         </Field>
 
         <Field orientation="horizontal" className="mt-2">
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="h-10 w-full bg-orange-600 hover:bg-orange-800"
+            className="h-10 w-full cursor-pointer"
           >
             {isSubmitting
               ? t('auth.login.connecting') || 'Connecting...'
@@ -120,24 +182,25 @@ export function LoginForm() {
 
       {/* Separator */}
       <div className="relative my-5 flex items-center">
-        <div className="grow border-t border-zinc-800" />
-        <span className="mx-3 shrink text-sm text-zinc-500 uppercase">
+        <div className="border-border grow border-t" />
+        <span className="text-muted-foreground mx-3 shrink text-sm uppercase">
           {t('auth.login.orContinueWith') || 'or continue with'}
         </span>
-        <div className="grow border-t border-zinc-800" />
+        <div className="border-border grow border-t" />
       </div>
 
       {/* Google OAuth */}
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={() => {
           window.location.href = '/api/auth/google';
         }}
-        className="hover:bg-zinc-750 flex h-10 w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-0 text-sm font-semibold text-white transition-all hover:border-zinc-600 active:scale-[0.99]"
+        className="h-10 w-full gap-2.5 text-sm font-semibold"
       >
         <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
         <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>
-      </button>
+      </Button>
     </form>
   );
 }

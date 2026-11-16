@@ -5,7 +5,7 @@
  * Responsible for:
  * - Tailwind CSS v4 configuration and imports.
  * - Global CSS design tokens (@theme inline).
- * - Theme variables for light and dark modes (Dark Industrial Bistro).
+ * - Dark Industrial Bistro theme variables in RGBA.
  * - Base resets, accessibility outlines, and custom scrollbars.
  *
  * Component-specific styles must remain within their respective component files.
@@ -46,6 +46,10 @@
   --color-accent-foreground: var(--accent-foreground);
 
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
 
   --color-border: var(--border);
   --color-input: var(--input);
@@ -75,96 +79,65 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Default light theme tokens */
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-/* Dark Industrial Bistro theme tokens (Charcoal slate, stainless steel, and flame accents) */
+/* Dark Industrial Bistro theme tokens (RGBA) */
+:root,
 .dark {
-  /* General canvas: Deep charcoal slate (Slate 950) */
-  --background: oklch(0.125 0.025 264.4);
-  /* Primary text: Warm kitchen ivory */
-  --foreground: oklch(0.97 0.015 65);
+  /* General canvas: Deep charcoal (Zinc 950) */
+  --background: rgba(9, 9, 11, 1);
+  /* Primary text: Crisp white */
+  --foreground: rgba(250, 250, 250, 1);
 
   /* Cards, modals, and popovers: Dark cast iron (Zinc 900) */
-  --card: oklch(0.19 0.006 285.8);
-  --card-foreground: oklch(0.97 0.015 65);
-  --popover: oklch(0.19 0.006 285.8);
-  --popover-foreground: oklch(0.97 0.015 65);
+  --card: rgba(24, 24, 27, 1);
+  --card-foreground: rgba(250, 250, 250, 1);
+  --popover: rgba(24, 24, 27, 1);
+  --popover-foreground: rgba(250, 250, 250, 1);
 
-  /* Primary action: Flame burner orange (#f97316) */
-  --primary: oklch(0.705 0.213 47.6);
-  --primary-foreground: oklch(0.985 0 0);
+  /* Primary action: Flame burner orange (Orange 500) */
+  --primary: rgba(249, 115, 22, 1);
+  --primary-foreground: rgba(255, 255, 255, 1);
 
-  /* Secondary: Tempered dark steel */
-  --secondary: oklch(0.24 0.008 260);
-  --secondary-foreground: oklch(0.92 0.01 65);
+  /* Secondary surfaces & pills: Tempered steel (Zinc 800) */
+  --secondary: rgba(39, 39, 42, 1);
+  --secondary-foreground: rgba(212, 212, 216, 1); /* Zinc 300 */
 
-  /* Muted: Subtle backgrounds and secondary text */
-  --muted: oklch(0.24 0.008 260);
-  --muted-foreground: oklch(0.68 0.015 260);
+  /* Muted: Subtle hover rows and secondary labels */
+  --muted: rgba(39, 39, 42, 1); /* Zinc 800 */
+  --muted-foreground: rgba(161, 161, 170, 1); /* Zinc 400 */
 
-  /* Accent: Warm amber glow (#f59e0b) */
-  --accent: oklch(0.76 0.16 65.5);
-  --accent-foreground: oklch(0.125 0.025 264.4);
+  /* Accent: Warm amber glow (Amber 500) */
+  --accent: rgba(245, 158, 11, 1);
+  --accent-foreground: rgba(9, 9, 11, 1);
 
-  /* Destructive: Cooker pressure flare red (#9e0031) */
-  --destructive: oklch(0.45 0.22 25.5);
-  --destructive-foreground: oklch(0.985 0 0);
+  /* Status feedback: Fire red & Emerald */
+  --destructive: rgba(220, 38, 38, 1); /* Red 600 */
+  --destructive-foreground: rgba(254, 202, 202, 1); /* Red 200 */
+  --success: rgba(5, 150, 105, 1); /* Emerald 600 */
+  --success-foreground: rgba(167, 243, 208, 1); /* Emerald 200 */
 
-  /* Form inputs and borders: Brushed stainless steel finish */
-  --border: oklch(0.35 0.01 260 / 30%);
-  --input: oklch(0.35 0.01 260 / 40%);
-  --ring: oklch(0.705 0.213 47.6);
+  /* Form inputs and borders: Brushed steel (Zinc 800 / Zinc 700) */
+  --border: rgba(39, 39, 42, 1);
+  --input: rgba(63, 63, 70, 1);
+  --ring: rgba(249, 115, 22, 1);
+
+  --radius: 0.625rem;
 
   /* Themed chart variables (Flame Orange, Amber, Wood Ochre, Steel, Fire Red) */
-  --chart-1: oklch(0.705 0.213 47.6);
-  --chart-2: oklch(0.76 0.16 65.5);
-  --chart-3: oklch(0.6 0.08 60);
-  --chart-4: oklch(0.68 0.015 260);
-  --chart-5: oklch(0.45 0.22 25.5);
+  --chart-1: rgba(249, 115, 22, 1);
+  --chart-2: rgba(245, 158, 11, 1);
+  --chart-3: rgba(180, 132, 84, 1);
+  --chart-4: rgba(161, 161, 170, 1);
+  --chart-5: rgba(220, 38, 38, 1);
 
-  /* Sidebar navigation panel */
-  --sidebar: oklch(0.16 0.015 264.4);
-  --sidebar-foreground: oklch(0.97 0.015 65);
-  --sidebar-primary: oklch(0.705 0.213 47.6);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.24 0.008 260);
-  --sidebar-accent-foreground: oklch(0.97 0.015 65);
-  --sidebar-border: oklch(0.35 0.01 260 / 30%);
-  --sidebar-ring: oklch(0.705 0.213 47.6);
+  /* Sidebar navigation drawer */
+  --sidebar: rgba(9, 9, 11, 1);
+  --sidebar-foreground: rgba(250, 250, 250, 1);
+  --sidebar-primary: rgba(249, 115, 22, 1);
+  --sidebar-primary-foreground: rgba(255, 255, 255, 1);
+  --sidebar-accent: rgba(39, 39, 42, 1);
+  --sidebar-accent-foreground: rgba(250, 250, 250, 1);
+  --sidebar-border: rgba(39, 39, 42, 1);
+  --sidebar-ring: rgba(249, 115, 22, 1);
 }
 
 /* Global base resets and component defaults */
@@ -174,19 +147,23 @@
   }
 
   html {
-    @apply bg-slate-950 font-sans;
+    @apply bg-background font-sans;
     overflow-x: hidden;
-    /* Standards-compliant scrollbar for Firefox and modern engines */
+    /* Reserves space for the scrollbar so layout width never shifts */
+    scrollbar-gutter: stable;
     scrollbar-width: thin;
-    scrollbar-color: #27272a #020617;
+    scrollbar-color: var(--border) var(--background);
   }
 
   body {
-    @apply text-foreground bg-slate-950;
+    @apply bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
     min-height: 100vh;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    /* Prevents Radix UI scroll-lock from shifting the page horizontally */
+    padding-right: 0 !important;
+    margin-right: 0 !important;
   }
 
   h1,
@@ -206,15 +183,15 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #020617;
+    background: var(--background);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #27272a;
+    background: var(--border);
     border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #f97316;
+    background: var(--primary);
   }
 }

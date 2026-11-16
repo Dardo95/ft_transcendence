@@ -49,14 +49,13 @@ export const appEs = {
     invitesYou: 'te invita a su lobby.',
     leaveBeforeAccept:
       'Abandona tu grupo actual antes de aceptar otra invitación.',
-    lobbyChat: 'Chat del Lobby',
-    userEnteredLobby: 'ha entrado al Lobby',
-    userLeftLobby: 'ha salido del Lobby',
-    sendMessagePlaceholder: 'Enviar mensaje a tu lobby...',
+    globalChat: 'Chat Global',
+    systemLabel: 'Sistema',
+    userJoinedGame: 'ha entrado al juego',
+    userLeftGame: 'ha salido del juego',
+    sendMessagePlaceholder: 'Enviar mensaje a todos los jugadores...',
     sendButton: 'Enviar',
     acceptButton: 'Aceptar',
-    joinLobbyToChat:
-      'Entra en un lobby para utilizar el chat privado con sus miembros.',
 
     modeLabel: 'Modo de Juego',
     modePracticeTitle: 'Práctica',
@@ -168,80 +167,6 @@ export const appEs = {
         'Autenticación de usuarios + JWT y Google, implementación de WebSocket, funcionalidad de chat, matchmaking en vivo y motor del juego.',
       member4:
         'Despliegue y orquestación de contenedores Docker, nginx, prisma ORM con seed, gestión de relaciones de amistad, autenticación de usuarios y gestión de avatares.',
-    },
-  },
-  aboutProject: {
-    title: 'Sobre el Proyecto',
-    subtitle:
-      'Especificación técnica, arquitectura del sistema y desglose de módulos evaluados según la normativa oficial (v21.2).',
-    summaryMandatory: 'Obligatorio',
-    summaryBonus: 'Bonus',
-    mandatoryHeading: 'Módulos Obligatorios de Base',
-    bonusHeading: 'Módulos Bonus (Máx 5 pts)',
-    pointsLabel: 'Puntos Declarados',
-    colModule: 'Módulo',
-    colCategory: 'Categoría',
-    colType: 'Tipo',
-    colPoints: 'Puntos',
-    categories: {
-      web: 'Web',
-      userMgmt: 'Gestión de Usuarios',
-      gaming: 'Juego y UX',
-      a11y: 'Accesibilidad e i18n',
-    },
-    types: {
-      major: 'Mayor (2 pts)',
-      minor: 'Menor (1 pt)',
-    },
-    modules: {
-      frameworks: {
-        title: 'Frameworks en Frontend y Backend',
-        desc: 'React + Vite en cliente y arquitectura modular NestJS en servidor.',
-      },
-      websockets: {
-        title: 'Funcionalidades en Tiempo Real (WebSockets)',
-        desc: 'Bucle de juego autoritativo en servidor mediante Socket.io a baja latencia.',
-      },
-      interaction: {
-        title: 'Interacción de Usuarios y Social',
-        desc: 'Chat global y en lobby, perfiles públicos y estado de amigos en tiempo real.',
-      },
-      userMgmt: {
-        title: 'Gestión de Usuarios Estándar y Autenticación',
-        desc: 'Hashing con Argon2id, cookies HTTP-only JWT y subida de avatares.',
-      },
-      game: {
-        title: 'Juego Completo Basado en Web',
-        desc: 'Arena Bomberman 2D en tiempo real con reglas y condiciones de victoria claras.',
-      },
-      remote: {
-        title: 'Soporte de Jugadores Remotos',
-        desc: 'Partidas sincronizadas entre equipos separados y reconexión gestionada.',
-      },
-      multiplayer: {
-        title: 'Multijugador de 3 o más Jugadores',
-        desc: 'Arena simultánea para hasta 4 jugadores con sincronización de estado.',
-      },
-      orm: {
-        title: 'Uso de un ORM para la Base de Datos',
-        desc: 'Esquema relacional en PostgreSQL gestionado con Prisma y migraciones.',
-      },
-      i18n: {
-        title: 'Soporte Multilingüe (3+ idiomas)',
-        desc: 'Motor de internacionalización completo para inglés, español e italiano.',
-      },
-      customization: {
-        title: 'Opciones de Personalización y Power-ups',
-        desc: 'Objetos en mapa: mayor radio de bomba, bombas adicionales y botas de velocidad.',
-      },
-      stats: {
-        title: 'Estadísticas e Historial de Partidas',
-        desc: 'Historial de encuentros, registro de victorias/derrotas y tabla clasificatoria.',
-      },
-      spectator: {
-        title: 'Modo Espectador',
-        desc: 'Transmisión de partidas activas en tiempo real en modo sólo lectura.',
-      },
     },
   },
   aboutGame: {

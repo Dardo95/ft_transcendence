@@ -1,6 +1,8 @@
 import { CircleIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
@@ -15,15 +17,15 @@ export function LobbyStatusCard() {
   const isHost = lobby?.hostUserId === user?.id;
 
   return (
-    <div className="rounded-2xl border border-zinc-700 bg-zinc-800/80 p-5 text-slate-100 shadow-2xl backdrop-blur-md">
+    <Card className="p-5">
       {lobby ? (
         <div className="space-y-5">
           <div>
-            <span className="text-xs font-bold tracking-wider text-orange-400 uppercase">
+            <span className="text-primary text-xs font-bold tracking-wider uppercase">
               {t('app.lobby.yourLobby') || 'Tu lobby'}
             </span>
 
-            <span className="ml-2 text-xs break-all text-zinc-400">
+            <span className="text-muted-foreground ml-2 text-xs break-all">
               | ID: {lobby.id}
             </span>
           </div>
@@ -34,7 +36,7 @@ export function LobbyStatusCard() {
             </h4>
 
             {isHost && (
-              <span className="rounded-full bg-orange-500/15 px-3 py-1 text-xs text-orange-300">
+              <span className="bg-primary/15 text-primary rounded-full px-3 py-1 text-xs">
                 {t('app.lobby.host') || 'Anfitrión'}
               </span>
             )}
@@ -44,7 +46,7 @@ export function LobbyStatusCard() {
             {lobby.members.map((member) => (
               <div
                 key={member.userId}
-                className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900/70 p-3"
+                className={`flex items-center justify-between p-3 ${UI.card.inner}`}
               >
                 <div>
                   <p className="font-medium">
@@ -54,7 +56,7 @@ export function LobbyStatusCard() {
                       : ''}
                   </p>
 
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-muted-foreground text-xs">
                     {member.isHost
                       ? t('app.lobby.host') || 'Anfitrión'
                       : t('app.lobby.guest') || 'Invitado'}
@@ -62,7 +64,7 @@ export function LobbyStatusCard() {
                 </div>
 
                 <CircleIcon
-                  className="h-3 w-3 fill-emerald-400 text-emerald-400"
+                  className="fill-success text-success h-3 w-3"
                   aria-hidden="true"
                 />
               </div>
@@ -77,21 +79,21 @@ export function LobbyStatusCard() {
       ) : (
         <div className="flex min-h-56 flex-col items-center justify-center gap-4 text-center">
           <div>
-            <h2 className="text-lg font-bold text-orange-300">
+            <h2 className="text-primary text-lg font-bold">
               {t('app.lobby.preparingGroup') || 'Preparando tu grupo...'}
             </h2>
 
-            <p className="mt-2 text-sm text-zinc-400">
+            <p className="text-muted-foreground mt-2 text-sm">
               {t('app.lobby.syncingLobby') ||
                 'Estamos sincronizando tu lobby con el servidor.'}
             </p>
           </div>
 
-          <span className="animate-pulse text-orange-400">
+          <span className="text-primary animate-pulse">
             {t('app.general.connectingStatus') || 'Conectando...'}
           </span>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

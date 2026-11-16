@@ -200,6 +200,11 @@ export class UsersController {
     return result;
   }
 
+  @Get('me/blocked')
+  listBlocked(@CurrentUser('sub') userId: number) {
+    return this.friendships.listBlocked(userId);
+  }
+
   @Post('me/blocked')
   blockUser(
     @CurrentUser('sub') userId: number,

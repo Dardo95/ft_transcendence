@@ -57,13 +57,13 @@ export class ChatGateway
     const user = client.data.user as WsUser | undefined;
     if (!user?.id) return;
 
-    // 1. Registra el socket y expulsa el de otra pestaña del mismo namespace.
+    //  Registra el socket y expulsa el de otra pestaña del mismo namespace.
     this.registry.register('chat', user.id, client);
 
-    // 2. Sala personal: invitaciones y avisos llegan a la pestaña activa.
+    //  Sala personal: invitaciones y avisos llegan a la pestaña activa.
     await client.join(`user:${user.id}`);
 
-    // 3. Marca online solo si este socket sigue siendo el activo.
+    //  Marca online solo si este socket sigue siendo el activo.
     try {
       await this.prisma.user.update({
         where: { id: user.id },
@@ -82,6 +82,10 @@ export class ChatGateway
     } catch {
       // Si falla la BD no tumbamos el gateway.
     }
+    // Si este socket no es el activo, no toca presencia ni lobby.
+    if (!this.registry.isCurrent('chat', user.id, client.id)) return;
+    // Difunde la presencia a todos los clientes conectados.
+    this.broadcastPresence(user.username, 'user_joined');
   }
 
   handleDisconnect(client: Socket): void {
@@ -96,6 +100,8 @@ export class ChatGateway
       .catch(() => undefined);
 
     this.notifyFriendsStatus(user.id, false).catch(() => undefined);
+
+    this.broadcastPresence(user.username, 'user_left');
 
     const result = this.lobbyService.leaveLobby(user.id);
     if (!result || !result.lobby) return;
@@ -123,6 +129,18 @@ export class ChatGateway
     if (!lobby) return;
 
     this.server.to(`lobby:${lobby.id}`).emit('lobby:updated', lobby);
+  }
+
+  private broadcastPresence(
+    username: string,
+    type: 'user_joined' | 'user_left'
+  ): void {
+    this.server.emit('chat:system', {
+      id: randomUUID(),
+      type,
+      username,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   async notifyFriendsStatus(userId: number, isOnline: boolean) {
@@ -393,23 +411,13 @@ export class ChatGateway
   }
 
   @SubscribeMessage('chat:send')
-  handleSend(
+  async handleSend(
     @ConnectedSocket() client: Socket,
     @MessageBody() body: unknown
-  ): void {
+  ): Promise<void> {
     const user = client.data.user as WsUser;
 
-    // 1. Comprobar a qué lobby pertenece el remitente.
-    const lobby = this.lobbyService.getLobbyForUser(user.id);
-
-    if (!lobby) {
-      client.emit('lobby:error', {
-        message: 'You must be in a lobby to send messages',
-      });
-      return;
-    }
-
-    // 2. Leer y validar el texto.
+    // 1. Leer y validar el texto.
     const text = this.readString(body, 'text').trim();
 
     if (!text || text.length > 500) {
@@ -419,16 +427,31 @@ export class ChatGateway
       return;
     }
 
+    // 2. Recuperar el avatar actual del remitente para adjuntarlo al mensaje.
+    let avatarUrl: string | null = null;
+
+    try {
+      const account = await this.prisma.user.findUnique({
+        where: { id: user.id },
+        select: { avatarUrl: true },
+      });
+
+      avatarUrl = account?.avatarUrl ?? null;
+    } catch {
+      // Si la BD falla, el mensaje se envía igualmente con el avatar por defecto.
+    }
+
     // 3. Construir el mensaje con la identidad autenticada.
     const message = {
       id: randomUUID(),
       senderId: user.id,
       sender: user.username,
+      avatarUrl,
       text,
       timestamp: new Date().toISOString(),
     };
 
-    // 4. Enviar el mensaje exclusivamente al lobby del remitente.
-    this.server.to(`lobby:${lobby.id}`).emit('chat:message', message);
+    // 4. El chat es global: se envía a todos los clientes conectados.
+    this.server.emit('chat:message', message);
   }
 }

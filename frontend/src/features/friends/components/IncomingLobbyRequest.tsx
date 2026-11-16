@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 
 import { useSocketStore } from '@/stores/useSocketStore';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
@@ -28,8 +29,8 @@ export function IncomingLobbyRequest({
 
   const cardClass =
     variant === 'profile'
-      ? 'space-y-2 rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 text-zinc-100'
-      : 'space-y-2 rounded-lg border border-zinc-700 bg-zinc-950/40 p-3 text-zinc-100 shadow-xl';
+      ? `space-y-2 p-3.5 text-foreground ${UI.card.inner}`
+      : 'space-y-2 rounded-lg border border-input bg-background/40 p-3 text-foreground shadow-xl';
 
   return (
     <div className="space-y-3">
@@ -44,7 +45,7 @@ export function IncomingLobbyRequest({
             <Button
               size="sm"
               disabled={!isConnected || (lobby?.members.length ?? 0) > 1}
-              className="flex-1 bg-emerald-700 text-white hover:bg-emerald-600"
+              className="bg-success text-success-foreground hover:bg-success/80 flex-1"
               onClick={() => acceptLobbyInvitation(invitation.id)}
             >
               {t('app.lobby.acceptButton') || 'Aceptar'}
@@ -61,7 +62,7 @@ export function IncomingLobbyRequest({
           </div>
 
           {(lobby?.members.length ?? 0) > 1 && (
-            <p className="text-xs text-zinc-400">
+            <p className="text-muted-foreground text-xs">
               {t('app.lobby.leaveBeforeAccept') ||
                 'Abandona tu grupo actual antes de aceptar otra invitación.'}
             </p>

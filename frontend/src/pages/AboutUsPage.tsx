@@ -1,5 +1,7 @@
 import { useLanguage } from '../locales/useLanguage';
 import { Icons } from '../components/ui/icons';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 import { Bomb } from 'lucide-react';
 
 import member1Avatar from '../assets/member1.jpg';
@@ -97,39 +99,41 @@ const TEAM_MEMBERS: TeamMember[] = [
   },
 ];
 
+const SOCIAL_LINK =
+  'flex items-center gap-2 rounded-lg border border-input bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground transition-colors hover:border-primary/40 hover:bg-muted hover:text-foreground';
+
 export function AboutUsPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex w-full justify-center px-4 py-8">
-      <div className="w-full max-w-5xl space-y-8">
+    <div className={UI.shell.page}>
+      <div className={UI.shell.container}>
         {/* Header Section */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase">
-            <span>👥</span>
+        <Card className={UI.card.header}>
+          <div className={UI.badge.header}>
             <span>42 Madrid Team</span>
           </div>
 
-          <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+          <h1 className={UI.text.pageTitle}>
             {t('app.aboutUs.title') || 'About Us'}
           </h1>
-          <p className="mx-auto max-w-2xl text-xs leading-relaxed text-zinc-400 sm:text-sm">
+          <p className={UI.text.pageSubtitle}>
             {t('app.aboutUs.subtitle') ||
               'Four 42 Madrid developers building a real-time multiplayer arcade experience driven by modern software architecture.'}
           </p>
-        </section>
+        </Card>
 
         {/* Team Members Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <section className={UI.shell.grid2}>
           {TEAM_MEMBERS.map((member) => (
-            <div
+            <Card
               key={member.id}
-              className="flex flex-col justify-between rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900"
+              className={`hover:bg-muted/40 flex flex-col justify-between ${UI.card.section}`}
             >
               {/* Member Top Area: Avatar & Name */}
               <div className="flex items-start gap-4">
                 {/* Circular Avatar */}
-                <div className="relative size-16 shrink-0 overflow-hidden rounded-full border-2 border-orange-500/40 bg-zinc-800 p-0.5">
+                <div className="border-primary/40 bg-secondary relative size-16 shrink-0 overflow-hidden rounded-full border-2 p-0.5">
                   <img
                     src={member.avatarUrl || defaultAvatar}
                     alt={member.name}
@@ -138,10 +142,10 @@ export function AboutUsPage() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-lg font-bold text-white">
+                  <h2 className="text-foreground truncate text-lg font-bold">
                     {member.name}
                   </h2>
-                  <span className="inline-block rounded-md border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs font-medium text-orange-400">
+                  <span className="border-input bg-secondary text-primary inline-block rounded-md border px-2 py-0.5 text-xs font-medium">
                     {t(member.roleKey) || member.defaultRole}
                   </span>
                 </div>
@@ -149,23 +153,23 @@ export function AboutUsPage() {
 
               {/* Contributions & Assigned Work */}
               <div className="my-4 flex-1">
-                <h3 className="mb-1 text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+                <h3 className={`mb-1 ${UI.text.sublabel}`}>
                   {t('app.aboutUs.contributionsLabel') ||
                     'Work & Contributions'}
                 </h3>
-                <p className="text-xs leading-relaxed text-zinc-300">
+                <p className={UI.text.body}>
                   {t(member.contributionsKey) || member.defaultContributions}
                 </p>
               </div>
 
               {/* Social Links (GitHub, LinkedIn, School42, Bomberman Account) */}
-              <div className="grid grid-cols-2 gap-3 border-t border-zinc-800/80 pt-4">
+              <div className="border-border/80 grid grid-cols-2 gap-3 border-t pt-4">
                 <a
                   href={member.githubUrl}
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`${member.name} GitHub`}
-                  className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700 hover:text-white"
+                  className={SOCIAL_LINK}
                 >
                   <Icons.gitHub className="size-4 shrink-0 fill-current" />
                   <span className="truncate">{member.githubName}</span>
@@ -176,7 +180,7 @@ export function AboutUsPage() {
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`${member.name} LinkedIn`}
-                  className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700 hover:text-white"
+                  className={SOCIAL_LINK}
                 >
                   <Icons.linkedIn className="size-4 shrink-0 fill-current" />
                   <span className="truncate">{member.linkedinName}</span>
@@ -187,7 +191,7 @@ export function AboutUsPage() {
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`${member.name} Bomberman Account`}
-                  className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700 hover:text-white"
+                  className={SOCIAL_LINK}
                 >
                   <Bomb className="size-4 shrink-0" />
                   <span className="truncate">{member.bombermanName}</span>
@@ -198,15 +202,15 @@ export function AboutUsPage() {
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`${member.name} 42 School Profile`}
-                  className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700 hover:text-white"
+                  className={SOCIAL_LINK}
                 >
                   <Icons.school42 className="size-4 shrink-0 fill-current" />
                   <span className="truncate">{member.school42Name}</span>
                 </a>
               </div>
-            </div>
+            </Card>
           ))}
-        </div>
+        </section>
       </div>
     </div>
   );

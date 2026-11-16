@@ -12,7 +12,7 @@
 
 export const authIt = {
   login: {
-    tag: 'Accedi',
+    tab: 'Accedi',
     heading: 'Bentornato!',
     subheading: 'Accedi per continuare la tua partita.',
     connecting: 'Connessione...',
@@ -29,7 +29,7 @@ export const authIt = {
     registerInstead: 'Registrati',
   },
   register: {
-    tag: 'Crea un account',
+    tab: 'Crea un account',
     heading: 'Unisciti a noi per divertirti con il gioco!',
     subheading: 'Registrati per iniziare a giocare.',
     connecting: 'Registrando...',
@@ -40,8 +40,34 @@ export const authIt = {
     userPlaceholder: 'Inserisci il nome utente',
     password: 'Password',
     passwordPlaceholder: '********',
+    confirmPassword: 'Conferma password',
+    confirmPasswordPlaceholder: 'Ripeti la password',
+    passwordHint: 'Almeno 8 caratteri.',
     alreadyHaveAccount: 'Hai già un account? ',
     loginInstead: ' Accedi invece',
+  },
+  validation: {
+    emailRequired: "L'email è obbligatoria.",
+    emailInvalid: 'Inserisci un indirizzo email valido.',
+    emailTooLong: "L'email non può superare i 254 caratteri.",
+    usernameRequired: 'Il nome utente è obbligatorio.',
+    usernameInvalid:
+      'Il nome utente deve avere 3-20 caratteri e non contenere spazi.',
+    passwordRequired: 'La password è obbligatoria.',
+    passwordTooShort: 'La password deve contenere almeno 8 caratteri.',
+    passwordTooLong: 'La password non può superare i 128 caratteri.',
+    passwordConfirmationRequired: 'Conferma la nuova password.',
+    passwordMismatch: 'Le password non coincidono.',
+    currentPasswordRequired: 'Inserisci la password attuale.',
+    currentPasswordInvalid: 'La password attuale non è corretta.',
+    samePassword: 'La nuova password deve essere diversa da quella attuale.',
+    passwordUpdateFailed: 'Impossibile cambiare la password. Riprova.',
+    oauthAccount: 'Gli account Google non hanno una password locale.',
+    avatarType: 'Sono consentite solo immagini JPG, PNG o WebP.',
+    avatarTooLarge: "L'immagine deve pesare 2 MB o meno.",
+    avatarEmpty: 'Il file selezionato è vuoto.',
+    avatarInvalidImage: "Impossibile elaborare l'immagine.",
+    avatarUploadFailed: "Impossibile caricare l'avatar. Riprova.",
   },
   status: {
     loggedIn: 'Accesso effettuato',

@@ -6,7 +6,7 @@ export function ProtectedRoute() {
   const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
 
   if (!isAuthChecked) {
-    return <div className="fixed inset-0 bg-slate-950" />;
+    return <div className="bg-background fixed inset-0" />;
   }
 
   if (!isAuthenticated) {

@@ -13,7 +13,7 @@ export function HeaderPublic() {
           <img
             src={logoUrl}
             alt="ft_bomberman Logo"
-            className="h-12 object-contain"
+            className="h-12 cursor-pointer object-contain"
             onClick={() => navigate('/login')}
           />
         </div>

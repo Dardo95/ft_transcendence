@@ -1,4 +1,8 @@
 import { useLanguage } from '../locales/useLanguage';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
+import { Button } from '@/components/ui/button';
+import { Icons } from '@/components/ui/icons';
 
 interface ModuleItem {
   id: string;
@@ -9,171 +13,237 @@ interface ModuleItem {
   typeKey: string;
   defaultType: string;
   points: number;
-  descriptionKey: string;
-  defaultDescription: string;
+  requirementsKey: string;
 }
 
 const MANDATORY_MODULES: ModuleItem[] = [
   {
     id: 'm-web-frameworks',
-    categoryKey: 'app.aboutProject.categories.web',
+    categoryKey: 'project.categories.web',
     defaultCategory: 'Web',
-    nameKey: 'app.aboutProject.modules.frameworks.title',
-    defaultName: 'Frontend & Backend Frameworks',
-    typeKey: 'app.aboutProject.types.major',
+    nameKey: 'project.modules.frameworks.title',
+    defaultName: 'Use a framework for both the frontend and backend',
+    typeKey: 'project.types.major',
     defaultType: 'Major',
     points: 2,
-    descriptionKey: 'app.aboutProject.modules.frameworks.desc',
-    defaultDescription:
-      'React + Vite on client, NestJS modular architecture on server.',
+    requirementsKey: 'project.modules.frameworks.requirements',
   },
   {
     id: 'm-web-sockets',
-    categoryKey: 'app.aboutProject.categories.web',
+    categoryKey: 'project.categories.web',
     defaultCategory: 'Web',
-    nameKey: 'app.aboutProject.modules.websockets.title',
-    defaultName: 'Real-time WebSockets',
-    typeKey: 'app.aboutProject.types.major',
+    nameKey: 'project.modules.websockets.title',
+    defaultName:
+      'Implement real-time features using WebSockets or similar technology',
+    typeKey: 'project.types.major',
     defaultType: 'Major',
     points: 2,
-    descriptionKey: 'app.aboutProject.modules.websockets.desc',
-    defaultDescription:
-      'Low-latency Socket.io server-authoritative ticks and event loop.',
+    requirementsKey: 'project.modules.websockets.requirements',
   },
   {
     id: 'm-user-interaction',
-    categoryKey: 'app.aboutProject.categories.web',
+    categoryKey: 'project.categories.web',
     defaultCategory: 'Web',
-    nameKey: 'app.aboutProject.modules.interaction.title',
-    defaultName: 'User Interaction & Social',
-    typeKey: 'app.aboutProject.types.major',
+    nameKey: 'project.modules.interaction.title',
+    defaultName: 'Allow users to interact with other users',
+    typeKey: 'project.types.major',
     defaultType: 'Major',
     points: 2,
-    descriptionKey: 'app.aboutProject.modules.interaction.desc',
-    defaultDescription:
-      'Global and lobby chat, public profiles, and live friend status.',
+    requirementsKey: 'project.modules.interaction.requirements',
   },
   {
     id: 'm-user-management',
-    categoryKey: 'app.aboutProject.categories.userMgmt',
+    categoryKey: 'project.categories.userMgmt',
     defaultCategory: 'User Management',
-    nameKey: 'app.aboutProject.modules.userMgmt.title',
-    defaultName: 'Standard User Management & Auth',
-    typeKey: 'app.aboutProject.types.major',
+    nameKey: 'project.modules.userMgmt.title',
+    defaultName: 'Standard user management and authentication',
+    typeKey: 'project.types.major',
     defaultType: 'Major',
     points: 2,
-    descriptionKey: 'app.aboutProject.modules.userMgmt.desc',
-    defaultDescription:
-      'Argon2id password hashing, JWT HTTP-only cookies, and avatar upload.',
+    requirementsKey: 'project.modules.userMgmt.requirements',
   },
   {
     id: 'm-gaming-game',
-    categoryKey: 'app.aboutProject.categories.gaming',
-    defaultCategory: 'Gaming & UX',
-    nameKey: 'app.aboutProject.modules.game.title',
-    defaultName: 'Complete Web-Based Game',
-    typeKey: 'app.aboutProject.types.major',
+    categoryKey: 'project.categories.gaming',
+    defaultCategory: 'Gaming and user experience',
+    nameKey: 'project.modules.game.title',
+    defaultName:
+      'Implement a complete web-based game where users can play against each other',
+    typeKey: 'project.types.major',
     defaultType: 'Major',
     points: 2,
-    descriptionKey: 'app.aboutProject.modules.game.desc',
-    defaultDescription:
-      'Real-time 2D Bomberman arena with clear rules and win/loss states.',
+    requirementsKey: 'project.modules.game.requirements',
   },
   {
     id: 'm-gaming-remote',
-    categoryKey: 'app.aboutProject.categories.gaming',
-    defaultCategory: 'Gaming & UX',
-    nameKey: 'app.aboutProject.modules.remote.title',
-    defaultName: 'Remote Players Support',
-    typeKey: 'app.aboutProject.types.major',
+    categoryKey: 'project.categories.gaming',
+    defaultCategory: 'Gaming and user experience',
+    nameKey: 'project.modules.remote.title',
+    defaultName:
+      'Remote players — Enable two players on separate computers to play the same game in real-time',
+    typeKey: 'project.types.major',
     defaultType: 'Major',
     points: 2,
-    descriptionKey: 'app.aboutProject.modules.remote.desc',
-    defaultDescription:
-      'Synchronized remote gameplay across separate devices with reconnect logic.',
+    requirementsKey: 'project.modules.remote.requirements',
   },
   {
     id: 'm-gaming-multiplayer',
-    categoryKey: 'app.aboutProject.categories.gaming',
-    defaultCategory: 'Gaming & UX',
-    nameKey: 'app.aboutProject.modules.multiplayer.title',
-    defaultName: 'Multiplayer 3+ Players',
-    typeKey: 'app.aboutProject.types.major',
+    categoryKey: 'project.categories.gaming',
+    defaultCategory: 'Gaming and user experience',
+    nameKey: 'project.modules.multiplayer.title',
+    defaultName: 'Multiplayer game (more than two players)',
+    typeKey: 'project.types.major',
     defaultType: 'Major',
     points: 2,
-    descriptionKey: 'app.aboutProject.modules.multiplayer.desc',
-    defaultDescription:
-      'Concurrent 4-player deathmatch with real-time state synchronization.',
+    requirementsKey: 'project.modules.multiplayer.requirements',
   },
 ];
 
 const BONUS_MODULES: ModuleItem[] = [
   {
     id: 'b-orm',
-    categoryKey: 'app.aboutProject.categories.web',
+    categoryKey: 'project.categories.web',
     defaultCategory: 'Web',
-    nameKey: 'app.aboutProject.modules.orm.title',
-    defaultName: 'Database ORM Integration',
-    typeKey: 'app.aboutProject.types.minor',
+    nameKey: 'project.modules.orm.title',
+    defaultName: 'Use an ORM for the database',
+    typeKey: 'project.types.minor',
     defaultType: 'Minor',
     points: 1,
-    descriptionKey: 'app.aboutProject.modules.orm.desc',
-    defaultDescription:
-      'Prisma ORM schema, strong typings, migrations, and PostgreSQL relations.',
+    requirementsKey: 'project.modules.orm.requirements',
   },
   {
     id: 'b-i18n',
-    categoryKey: 'app.aboutProject.categories.a11y',
-    defaultCategory: 'Accessibility & i18n',
-    nameKey: 'app.aboutProject.modules.i18n.title',
-    defaultName: 'Multi-Language Support (3+)',
-    typeKey: 'app.aboutProject.types.minor',
+    categoryKey: 'project.categories.a11y',
+    defaultCategory: 'Accessibility and Internationalization',
+    nameKey: 'project.modules.i18n.title',
+    defaultName: 'Support for multiple languages (at least 3 languages)',
+    typeKey: 'project.types.minor',
     defaultType: 'Minor',
     points: 1,
-    descriptionKey: 'app.aboutProject.modules.i18n.desc',
-    defaultDescription:
-      'Internationalization engine supporting English, Spanish, and Italian.',
+    requirementsKey: 'project.modules.i18n.requirements',
   },
   {
     id: 'b-customization',
-    categoryKey: 'app.aboutProject.categories.gaming',
-    defaultCategory: 'Gaming & UX',
-    nameKey: 'app.aboutProject.modules.customization.title',
-    defaultName: 'Game Customization & Power-ups',
-    typeKey: 'app.aboutProject.types.minor',
+    categoryKey: 'project.categories.gaming',
+    defaultCategory: 'Gaming and user experience',
+    nameKey: 'project.modules.customization.title',
+    defaultName: 'Game customization options',
+    typeKey: 'project.types.minor',
     defaultType: 'Minor',
     points: 1,
-    descriptionKey: 'app.aboutProject.modules.customization.desc',
-    defaultDescription:
-      'Dynamic power-up pickups (blast radius, extra bombs, speed boots).',
+    requirementsKey: 'project.modules.customization.requirements',
   },
   {
     id: 'b-stats',
-    categoryKey: 'app.aboutProject.categories.userMgmt',
+    categoryKey: 'project.categories.userMgmt',
     defaultCategory: 'User Management',
-    nameKey: 'app.aboutProject.modules.stats.title',
-    defaultName: 'Game Statistics & Match History',
-    typeKey: 'app.aboutProject.types.minor',
+    nameKey: 'project.modules.stats.title',
+    defaultName: 'Game statistics and match history',
+    typeKey: 'project.types.minor',
     defaultType: 'Minor',
     points: 1,
-    descriptionKey: 'app.aboutProject.modules.stats.desc',
-    defaultDescription:
-      'Player match records, win/loss tracking, and leaderboard rankings.',
+    requirementsKey: 'project.modules.stats.requirements',
   },
   {
     id: 'b-spectator',
-    categoryKey: 'app.aboutProject.categories.gaming',
-    defaultCategory: 'Gaming & UX',
-    nameKey: 'app.aboutProject.modules.spectator.title',
-    defaultName: 'Spectator Mode',
-    typeKey: 'app.aboutProject.types.minor',
+    categoryKey: 'project.categories.gaming',
+    defaultCategory: 'Gaming and user experience',
+    nameKey: 'project.modules.spectator.title',
+    defaultName: 'Implement spectator mode for games',
+    typeKey: 'project.types.minor',
     defaultType: 'Minor',
     points: 1,
-    descriptionKey: 'app.aboutProject.modules.spectator.desc',
-    defaultDescription:
-      'Live spectator view for ongoing arena matches without player input lag.',
+    requirementsKey: 'project.modules.spectator.requirements',
   },
 ];
+
+const EXTRA_MODULES: ModuleItem[] = [
+  {
+    id: 'e-oauth',
+    categoryKey: 'project.categories.userMgmt',
+    defaultCategory: 'User Management',
+    nameKey: 'project.modules.oauth.title',
+    defaultName:
+      'Implement remote authentication with OAuth 2.0 (Google, GitHub, 42, etc.)',
+    typeKey: 'project.types.minor',
+    defaultType: 'Minor',
+    points: 1,
+    requirementsKey: 'project.modules.oauth.requirements',
+  },
+];
+
+type ModuleAccent = 'orange' | 'amber' | 'gray';
+
+const ACCENT_CLASSES: Record<ModuleAccent, string> = {
+  orange: 'border-primary/30 bg-primary/10 text-primary',
+  amber: 'border-accent/30 bg-accent/10 text-accent',
+  gray: 'border-input bg-secondary text-muted-foreground',
+};
+
+interface ModuleTableProps {
+  modules: ModuleItem[];
+  accent: ModuleAccent;
+}
+
+function ModuleTable({ modules, accent }: ModuleTableProps) {
+  const { t, tList } = useLanguage();
+
+  return (
+    <div className={UI.table.wrapper}>
+      <table className={UI.table.base}>
+        <thead className={UI.table.head}>
+          <tr>
+            <th className={UI.table.cell}>
+              {t('project.colModule') || 'Module'}
+            </th>
+            <th className={UI.table.cell}>
+              {t('project.colCategory') || 'Category'}
+            </th>
+            <th className={UI.table.cell}>{t('project.colType') || 'Type'}</th>
+            <th className={`${UI.table.cell} text-right`}>
+              {t('project.colPoints') || 'Points'}
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-border/60 text-secondary-foreground divide-y">
+          {modules.map((item) => {
+            const requirements = tList(item.requirementsKey);
+
+            return (
+              <tr key={item.id} className={UI.table.row}>
+                <td className="px-4 py-4">
+                  <div className="text-foreground text-sm font-semibold">
+                    {t(item.nameKey) || item.defaultName}
+                  </div>
+                  {requirements.length > 0 && (
+                    <ul className="text-muted-foreground mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed">
+                      {requirements.map((requirement) => (
+                        <li key={requirement}>{requirement}</li>
+                      ))}
+                    </ul>
+                  )}
+                </td>
+                <td className="text-muted-foreground px-4 py-4 align-top whitespace-nowrap">
+                  {t(item.categoryKey) || item.defaultCategory}
+                </td>
+                <td className="px-4 py-4 align-top whitespace-nowrap">
+                  <span
+                    className={`inline-block rounded border px-2 py-0.5 text-xs font-semibold ${ACCENT_CLASSES[accent]}`}
+                  >
+                    {t(item.typeKey) || item.defaultType}
+                  </span>
+                </td>
+                <td className="text-foreground px-4 py-4 text-right align-top font-bold whitespace-nowrap">
+                  {item.points} {t('project.pts') || 'pts'}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export function ProjectPage() {
   const { t } = useLanguage();
@@ -185,166 +255,109 @@ export function ProjectPage() {
   const bonusTotal = BONUS_MODULES.reduce((sum, item) => sum + item.points, 0);
 
   return (
-    <div className="flex w-full justify-center px-4 py-8">
-      <div className="w-full max-w-5xl space-y-8">
+    <div className={UI.shell.page}>
+      <div className={UI.shell.container}>
         {/* Header Section */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-orange-400 uppercase">
+        <Card className={UI.card.header}>
+          <div className={UI.badge.header}>
             <span>42 Transcendence v21.2</span>
           </div>
 
-          <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-            {t('app.aboutProject.title') || 'About the Project'}
+          <h1 className={UI.text.pageTitle}>
+            {t('project.title') || 'About the Project'}
           </h1>
-          <p className="mx-auto max-w-3xl text-xs leading-relaxed text-zinc-400 sm:text-sm">
-            {t('app.aboutProject.subtitle') ||
-              'Especificación técnica, arquitectura del sistema y desglose de módulos evaluados según la normativa oficial (v21.2).'}
+          <p className={UI.text.pageSubtitle}>
+            {t('project.subtitle') ||
+              'Technical specification, system architecture, and module breakdown evaluated under the official 42 guidelines (v21.2).'}
           </p>
 
           {/* Quick Score Counter */}
-          <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs font-semibold">
-            <div className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2 text-zinc-300">
-              <span className="text-zinc-400">
-                {t('app.aboutProject.summaryMandatory') || 'Mandatory'}:{' '}
+          <div className="mt-4 mb-6 flex w-full flex-wrap justify-center gap-4 text-xs font-semibold">
+            <div className={UI.badge.metaPill}>
+              <span className="text-muted-foreground">
+                {t('project.summaryMandatory') || 'Mandatory'}:{' '}
               </span>
-              <span className="text-orange-400">{mandatoryTotal} pts</span> (Min
-              14 pts)
+              <span className="text-primary">
+                {mandatoryTotal} {t('project.pts') || 'pts'}
+              </span>{' '}
+              <span className="text-muted-foreground/70">
+                ({t('project.minPoints') || 'Min 14 pts'})
+              </span>
             </div>
-            <div className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2 text-zinc-300">
-              <span className="text-zinc-400">
-                {t('app.aboutProject.summaryBonus') || 'Bonus'}:{' '}
+            <div className={UI.badge.metaPill}>
+              <span className="text-muted-foreground">
+                {t('project.summaryBonus') || 'Bonus'}:{' '}
               </span>
-              <span className="text-amber-400">+{bonusTotal} pts</span> (Max 5
-              pts)
+              <span className="text-accent">
+                +{bonusTotal} {t('project.pts') || 'pts'}
+              </span>{' '}
+              <span className="text-muted-foreground/70">
+                ({t('project.maxPoints') || 'Max 5 pts'})
+              </span>
             </div>
           </div>
-        </section>
+
+          {/* Github Link to the project repository */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="absolute right-4 bottom-4 mt-10 gap-2"
+            asChild
+          >
+            <a
+              href="https://github.com/Dardo95/ft_transcendence"
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label="Project GitHub Repository"
+            >
+              <Icons.gitHub className="size-4 shrink-0 fill-current" />
+              Repository
+            </a>
+          </Button>
+        </Card>
 
         {/* Mandatory Modules Table */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg backdrop-blur-sm">
+        <Card className={UI.card.section}>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-white">
-              {t('app.aboutProject.mandatoryHeading') ||
-                'Mandatory Core Modules'}
+            <h2 className={UI.text.sectionTitle}>
+              {t('project.mandatoryHeading') || 'Mandatory Core Modules'}
             </h2>
-            <span className="text-xs font-semibold text-orange-400">
-              {mandatoryTotal}{' '}
-              {t('app.aboutProject.pointsLabel') || 'Points Claimed'}
+            <span className="text-primary text-xs font-semibold">
+              {mandatoryTotal} {t('project.pointsLabel') || 'Points Claimed'}
             </span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-zinc-800 bg-zinc-950/60 tracking-wider text-zinc-400 uppercase">
-                <tr>
-                  <th className="px-4 py-3">
-                    {t('app.aboutProject.colModule') || 'Module'}
-                  </th>
-                  <th className="px-4 py-3">
-                    {t('app.aboutProject.colCategory') || 'Category'}
-                  </th>
-                  <th className="px-4 py-3">
-                    {t('app.aboutProject.colType') || 'Type'}
-                  </th>
-                  <th className="px-4 py-3 text-right">
-                    {t('app.aboutProject.colPoints') || 'Points'}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
-                {MANDATORY_MODULES.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="transition-colors hover:bg-zinc-800/40"
-                  >
-                    <td className="px-4 py-3.5">
-                      <div className="font-semibold text-white">
-                        {t(item.nameKey) || item.defaultName}
-                      </div>
-                      <div className="text-[11px] text-zinc-400">
-                        {t(item.descriptionKey) || item.defaultDescription}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap text-zinc-400">
-                      {t(item.categoryKey) || item.defaultCategory}
-                    </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap">
-                      <span className="inline-block rounded border border-orange-500/30 bg-orange-500/10 px-2 py-0.5 text-[11px] font-semibold text-orange-400">
-                        {t(item.typeKey) || item.defaultType}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-right font-bold whitespace-nowrap text-white">
-                      {item.points} pts
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+          <ModuleTable modules={MANDATORY_MODULES} accent="orange" />
+        </Card>
 
         {/* Bonus Modules Table */}
-        <section className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-lg backdrop-blur-sm">
+        <Card className={`mb-8 ${UI.card.section}`}>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-white">
-              {t('app.aboutProject.bonusHeading') ||
-                'Bonus Modules (Max 5 pts)'}
+            <h2 className={UI.text.sectionTitle}>
+              {t('project.bonusHeading') || 'Bonus Modules (Max 5 pts)'}
             </h2>
-            <span className="text-xs font-semibold text-amber-400">
-              {bonusTotal}{' '}
-              {t('app.aboutProject.pointsLabel') || 'Points Claimed'}
+            <span className="text-accent text-xs font-semibold">
+              {bonusTotal} {t('project.pointsLabel') || 'Points Claimed'}
             </span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-zinc-800 bg-zinc-950/60 tracking-wider text-zinc-400 uppercase">
-                <tr>
-                  <th className="px-4 py-3">
-                    {t('app.aboutProject.colModule') || 'Module'}
-                  </th>
-                  <th className="px-4 py-3">
-                    {t('app.aboutProject.colCategory') || 'Category'}
-                  </th>
-                  <th className="px-4 py-3">
-                    {t('app.aboutProject.colType') || 'Type'}
-                  </th>
-                  <th className="px-4 py-3 text-right">
-                    {t('app.aboutProject.colPoints') || 'Points'}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
-                {BONUS_MODULES.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="transition-colors hover:bg-zinc-800/40"
-                  >
-                    <td className="px-4 py-3.5">
-                      <div className="font-semibold text-white">
-                        {t(item.nameKey) || item.defaultName}
-                      </div>
-                      <div className="text-[11px] text-zinc-400">
-                        {t(item.descriptionKey) || item.defaultDescription}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap text-zinc-400">
-                      {t(item.categoryKey) || item.defaultCategory}
-                    </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap">
-                      <span className="inline-block rounded border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-400">
-                        {t(item.typeKey) || item.defaultType}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-right font-bold whitespace-nowrap text-white">
-                      {item.points} pt
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <ModuleTable modules={BONUS_MODULES} accent="amber" />
+        </Card>
+
+        {/* Extra Modules */}
+        <Card className={UI.card.section}>
+          <h2 className={UI.text.sectionTitle}>
+            {t('project.extraHeading') || 'Extra Modules'}
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            {t('project.extraDesc') ||
+              'Additional modules or features that are not part of the mandatory or bonus criteria but may enhance the project.'}
+          </p>
+
+          <div className="mt-4">
+            <ModuleTable modules={EXTRA_MODULES} accent="gray" />
           </div>
-        </section>
+        </Card>
       </div>
     </div>
   );

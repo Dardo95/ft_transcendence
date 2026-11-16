@@ -1,4 +1,6 @@
 import { useLanguage } from '@/locales/useLanguage';
+import { Card } from '@/components/ui/card';
+import { UI } from '@/components/layout/layoutStyles';
 
 import mapUrl from '@/assets/map1_lobby.png';
 
@@ -40,10 +42,10 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
   ];
 
   return (
-    <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-900/90 p-4">
-      <div className="mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider text-orange-400">
+    <Card className="min-w-0 p-4">
+      <div className="text-primary mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider">
         <span>02 / {t('app.lobby.mapLabel') || 'ESCENARIO'}</span>
-        <small className="text-[0.68rem] font-medium tracking-normal text-zinc-500">
+        <small className="text-muted-foreground text-[0.68rem] font-medium tracking-normal">
           {t('app.lobby.mapHint') || 'Elige el mapa'}
         </small>
       </div>
@@ -58,21 +60,21 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
               type="button"
               disabled={disabled}
               onClick={() => onChange(map.id)}
-              className={`min-w-0 cursor-pointer rounded-xl border p-2.5 text-left text-[#f5eee4] transition hover:-translate-y-0.5 hover:border-orange-400/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
+              className={`text-foreground hover:border-primary/50 min-w-0 cursor-pointer rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
                 isSelected
-                  ? 'border-orange-400 bg-[linear-gradient(145deg,rgba(255,145,77,0.13),rgba(255,145,77,0.035))] shadow-[inset_0_0_0_1px_rgba(255,145,77,0.08)]'
-                  : 'border-white/10 bg-white/[0.025]'
+                  ? 'border-primary bg-primary/10 shadow-[inset_0_0_0_1px_var(--primary)]'
+                  : UI.card.inner
               }`}
             >
-              <span className="relative mb-2 block aspect-[1.5] overflow-hidden rounded-[0.4rem] bg-[#1c2828]">
+              <span className="bg-secondary relative mb-2 block aspect-[1.5] overflow-hidden rounded-[0.4rem]">
                 <img
                   src={mapUrl}
                   alt={map.name}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
-                <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                <span className="from-background/55 via-background/5 absolute inset-0 bg-gradient-to-t to-transparent" />
                 {isSelected && (
-                  <span className="absolute top-1.5 right-1.5 rounded bg-orange-500/90 px-1.5 py-0.5 text-[0.52rem] font-black tracking-wider text-[#231710]">
+                  <span className="bg-primary/90 text-primary-foreground absolute top-1.5 right-1.5 rounded px-1.5 py-0.5 text-[0.52rem] font-black tracking-wider">
                     {t('app.lobby.activeLabel') || 'ACTIVO'}
                   </span>
                 )}
@@ -80,13 +82,13 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
               <strong className="block text-[0.72rem] font-black tracking-wider">
                 {map.name}
               </strong>
-              <small className="mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug text-zinc-400">
+              <small className="text-muted-foreground mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug">
                 {map.subtitle}
               </small>
             </button>
           );
         })}
       </div>
-    </section>
+    </Card>
   );
 }
