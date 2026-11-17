@@ -200,6 +200,7 @@ export const appIt = {
     defeatTitle: 'Hai perso',
     returnLobby: 'Torna alla lobby',
     keepWatching: 'Continua a guardare',
+    restart: 'Ricomincia',
   },
   joinFailure: {
     notFoundTitle: 'Partita non trovata',

@@ -200,6 +200,7 @@ export const appEn = {
     defeatTitle: 'You lose',
     returnLobby: 'Back to lobby',
     keepWatching: 'Keep watching',
+    restart: 'Restart',
   },
   joinFailure: {
     notFoundTitle: 'Match not found',

@@ -201,6 +201,7 @@ export const appEs = {
     defeatTitle: 'Perdiste',
     returnLobby: 'Volver al lobby',
     keepWatching: 'Seguir viendo',
+    restart: 'Reiniciar',
   },
   joinFailure: {
     notFoundTitle: 'Partida no encontrada',

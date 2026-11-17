@@ -2,6 +2,7 @@ import type {
   BombSnapshot,
   GamePlayerSnapshot,
   GameSnapshot,
+  MovementInput,
 } from '@transcendence/shared';
 import { Application, type Ticker } from 'pixi.js';
 import type { RefObject } from 'react';
@@ -11,10 +12,21 @@ import { gameSocket } from '../../../lib/socket';
 
 import { nextDemoGate, type DemoGateState } from '../bombs/demoGate';
 import { demoBombStateAt } from '../bombs/demoBombs';
-import { deriveEndScreen, type EndScreenState } from '../endScreen';
+import {
+  deriveDemoEndScreen,
+  deriveEndScreen,
+  type EndScreenState,
+} from '../endScreen';
 import { nextHudGate, type HudGateState } from '../hud/hudGate';
 import { buildHudModel, type HudModel } from '../hud/hudModel';
 import { DemoPilot } from '../input/demoPilot';
+import {
+  initialBotBrainState,
+  isMoving,
+  nextBotDecision,
+  STOPPED_MOVEMENT,
+  type BotBrainState,
+} from '../input/botBrain';
 import { KeyboardController } from '../input/keyboard';
 import { boardToTileMap } from '../map/boardConversion';
 import { testMap, TILE_SIZE } from '../map/TileMap';
@@ -41,6 +53,17 @@ const FPS_SAMPLE_MS = 1000;
  * - `demo`: sin servidor, la demo local (F-01..F-07) como fallback.
  */
 export type ViewMode = 'connecting' | 'server' | 'demo';
+
+/** Un bot de la demo: su piloto (físicas) + su brain (comportamiento). */
+interface DemoBot {
+  player: GamePlayerSnapshot;
+  pilot: DemoPilot;
+  state: BotBrainState;
+  /** Teclas pedidas en el tick anterior (para detectar muros). */
+  asked: MovementInput;
+  /** Avanzó en el tick anterior (false = estaba bloqueado). */
+  movedLast: boolean;
+}
 
 export interface GameEngineCallbacks {
   /** Modelo de HUD reconstruido (solo cuando cambia algo visible). */
@@ -105,6 +128,8 @@ export class GameEngine {
     position: { ...player.position },
   }));
   private readonly pilot: DemoPilot;
+  /** Un piloto + brain por bot del fixture (sin el local). */
+  private readonly bots: DemoBot[];
 
   // Estado del modo servidor: el último snapshot recibido y
   // el último ya aplicado a la escena (20 Hz, por identidad).
@@ -162,6 +187,18 @@ export class GameEngine {
     this.callbacks = options.callbacks;
 
     this.pilot = new DemoPilot(testMap, this.players, LOCAL_PLAYER_ID);
+
+    // Un piloto por bot: mismas físicas que el local (muro,
+    // bomba, muerte), gobernado por su brain en cada tick.
+    this.bots = this.players
+      .filter((player) => player.id !== LOCAL_PLAYER_ID)
+      .map((player) => ({
+        player,
+        pilot: new DemoPilot(testMap, this.players, player.id),
+        state: initialBotBrainState(),
+        asked: STOPPED_MOVEMENT,
+        movedLast: false,
+      }));
 
     this.appReady = new Promise<void>((resolve) => {
       this.resolveAppReady = () => resolve();
@@ -477,8 +514,10 @@ export class GameEngine {
     let sceneBombs: readonly BombSnapshot[];
     let elapsedMs: number;
     let hudLocalId: string | null;
-    // La demo nunca termina: solo la rama servidor la calcula.
-    let nextEndScreen: EndScreenState = 'playing';
+    // Fin de partida: la rama servidor lo deriva del snapshot;
+    // la demo, de sus jugadores (muerte local o bots caídos).
+    // Ambas ramas lo asignan antes de usarlo.
+    let nextEndScreen: EndScreenState;
 
     if (this.currentMode === 'server') {
       const snapshot = this.latestSnapshot;
@@ -515,36 +554,95 @@ export class GameEngine {
       elapsedMs = snapshot.elapsedMs;
     } else {
       const fixture = demoBombStateAt(scene.timeMs);
-      this.pilot.update(scene.timeMs, ticker.deltaMS, fixture.explosions);
+      // Externas del local: fixture + bombas ya detonadas de
+      // los bots (las propias del piloto se comprueban dentro
+      // de su update; lo cruzado lleva un tick de retardo).
+      const botExplosions = this.bots.flatMap((bot) =>
+        bot.pilot.getExplosions()
+      );
 
-      if (this.pilot.consumeMoved()) {
+      this.pilot.update(scene.timeMs, ticker.deltaMS, [
+        ...fixture.explosions,
+        ...botExplosions,
+      ]);
+
+      // Bots: brain → teclas → piloto (movimiento, bomba y
+      // muerte resuelven dentro del piloto).
+      const externalForBots = [
+        ...fixture.explosions,
+        ...this.pilot.getExplosions(),
+        ...botExplosions,
+      ];
+
+      for (const bot of this.bots) {
+        const brain = nextBotDecision(bot.state, {
+          nowMs: scene.timeMs,
+          map: this.activeMap,
+          position: bot.player.position,
+          alive: bot.player.alive,
+          blocked: isMoving(bot.asked) && !bot.movedLast,
+          rng: Math.random,
+        });
+        bot.state = brain.state;
+        bot.asked = brain.decision.movement;
+        bot.pilot.setMovement(brain.decision.movement);
+
+        if (brain.decision.placeBomb) {
+          bot.pilot.placeBomb();
+        }
+
+        bot.pilot.update(scene.timeMs, ticker.deltaMS, externalForBots);
+      }
+
+      // Repintar jugadores solo cuando algo se movió o murió
+      // (el sprite pone DEAD_ALPHA al marcar `alive`).
+      const pilotMoved = this.pilot.consumeMoved();
+      const pilotChanged = this.pilot.consumeChanged();
+      let botsMoved = false;
+      let botsChanged = false;
+
+      for (const bot of this.bots) {
+        const moved = bot.pilot.consumeMoved();
+        bot.movedLast = moved;
+        botsMoved = botsMoved || moved;
+        botsChanged = botsChanged || bot.pilot.consumeChanged();
+      }
+
+      if (pilotMoved || botsMoved) {
         scene.setPlayers(this.players);
       }
 
       // Repintar bombas/explosiones solo cuando las listas
-      // cambian (fases del fixture o bombas del piloto). La
+      // cambian (fases del fixture o bombas de cualquiera). La
       // demo no genera power-ups y la escena arranca vacía.
-      const pilotChanged = this.pilot.consumeChanged();
       const pilotBombs = this.pilot.getBombs();
-      const pilotExplosions = this.pilot.getExplosions();
       const nextDemo = nextDemoGate(this.lastDemoGate, {
-        pilotChanged,
+        pilotChanged: pilotChanged || botsChanged,
         fixtureBombs: fixture.bombs.length,
         fixtureExplosions: fixture.explosions.length,
       });
 
       if (nextDemo) {
         this.lastDemoGate = nextDemo;
-        scene.setBombs([...fixture.bombs, ...pilotBombs]);
-        scene.setExplosions([...fixture.explosions, ...pilotExplosions]);
+        const botBombs = this.bots.flatMap((bot) => bot.pilot.getBombs());
+        const activeBotExplosions = this.bots.flatMap((bot) =>
+          bot.pilot.getExplosions()
+        );
+        scene.setBombs([...fixture.bombs, ...pilotBombs, ...botBombs]);
+        scene.setExplosions([
+          ...fixture.explosions,
+          ...this.pilot.getExplosions(),
+          ...activeBotExplosions,
+        ]);
       }
 
       // Para el HUD solo cuentan las bombas del piloto (las
-      // del fixture son de otro propietario).
+      // de los bots y del fixture son de otro propietario).
       sceneBombs = pilotBombs;
       scenePlayers = this.players;
       elapsedMs = scene.timeMs;
       hudLocalId = LOCAL_PLAYER_ID;
+      nextEndScreen = deriveDemoEndScreen(this.players, LOCAL_PLAYER_ID);
     }
 
     // Cámara siguiendo al jugador local con suavizado.
