@@ -41,7 +41,7 @@ export interface AuthState {
   setAuthErrorKey: (key: TranslationKey | null) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isAuthChecked: false,
@@ -49,9 +49,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   authErrorKey: null,
 
   checkAuth: async () => {
+    const previousUser = get().user;
     set({ error: null, authErrorKey: null });
+
     try {
       const user = await fetchSession();
+
+      if (!user && previousUser) {
+        set({
+          isAuthChecked: true,
+          error: null,
+          authErrorKey: null,
+        });
+        return;
+      }
+
       set({
         user,
         isAuthenticated: user !== null,
@@ -60,6 +72,15 @@ export const useAuthStore = create<AuthState>((set) => ({
         authErrorKey: null,
       });
     } catch {
+      if (previousUser) {
+        set({
+          isAuthChecked: true,
+          error: null,
+          authErrorKey: null,
+        });
+        return;
+      }
+
       set({
         user: null,
         isAuthenticated: false,

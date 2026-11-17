@@ -30,19 +30,9 @@ import { cn } from '@/lib/utils';
 export function GlobalChat() {
   const { user } = useAuthStore();
   const { isConnected } = useSocketStore();
-  const { messages, sendMessage, initChatListeners, clearMessages } =
-    useChatStore();
+  const { messages, sendMessage } = useChatStore();
   const [inputValue, setInputValue] = React.useState('');
   const { t } = useLanguage();
-
-  React.useEffect(() => {
-    const cleanup = initChatListeners();
-
-    return () => {
-      cleanup();
-      clearMessages();
-    };
-  }, [initChatListeners, clearMessages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +70,7 @@ export function GlobalChat() {
         />
       </div>
 
-      {/* Visor scroller de shadcn */}
+      {/* Message scroller */}
       <div className="min-h-0 flex-1">
         <MessageScrollerProvider autoScroll>
           <MessageScroller>
@@ -92,12 +82,12 @@ export function GlobalChat() {
                   const messageText =
                     msg.systemEvent === 'user_joined'
                       ? `${msg.targetUsername} ${
-                          t('app.lobby.userJoinedGame') ||
-                          'has entered the game'
+                          t('app.lobby.userConnected') || 'has connected'
                         }`
                       : msg.systemEvent === 'user_left'
                         ? `${msg.targetUsername} ${
-                            t('app.lobby.userLeftGame') || 'has left the game'
+                            t('app.lobby.userDisconnected') ||
+                            'has disconnected'
                           }`
                         : msg.text;
 
@@ -190,7 +180,7 @@ export function GlobalChat() {
         </MessageScrollerProvider>
       </div>
 
-      {/* Input de envío */}
+      {/* Message input */}
       <form onSubmit={handleSubmit} className={`mt-3 ${UI.row.actions}`}>
         <Input
           type="text"
