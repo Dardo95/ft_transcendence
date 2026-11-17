@@ -33,6 +33,18 @@ export interface UpdateProfileResponse {
   user?: UserPrivate;
 }
 
+// Credentials required to change the password of a local account.
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
+// Response returned after a successful password change.
+export interface ChangePasswordResponse {
+  message: string;
+}
+
+// Represents a blocked user, including the friendship row ID and the public information of the blocked user.
 export interface BlockedUser {
   id: number; // friendship row id
   createdAt: string;

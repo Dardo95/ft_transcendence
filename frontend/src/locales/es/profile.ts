@@ -55,6 +55,9 @@ export const profileEs = {
   twoFactorEnabled: 'Activada',
   twoFactorDisabled: 'Desactivada',
   managedByGoogle: 'Gestionado por Google',
+  googleLinked: 'Vinculada a Google',
+  emailChangePasswordHint:
+    'Introduce tu contraseña actual para cambiar el correo electrónico.',
   privateProfileBadge: 'Datos editables',
   publicProfileBadge: 'Perfil de jugador',
   statistics: 'Estadísticas',

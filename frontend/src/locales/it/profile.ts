@@ -55,6 +55,9 @@ export const profileIt = {
   twoFactorEnabled: 'Attiva',
   twoFactorDisabled: 'Disattivata',
   managedByGoogle: 'Gestito da Google',
+  googleLinked: 'Collegato a Google',
+  emailChangePasswordHint:
+    'Inserisci la password attuale per cambiare l\u2019indirizzo email.',
   privateProfileBadge: 'Dati modificabili',
   publicProfileBadge: 'Profilo giocatore',
   statistics: 'Statistiche',

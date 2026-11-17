@@ -299,6 +299,8 @@ export const UI = {
     pageSubtitle: PAGE_SUBTITLE,
     sectionTitle: SECTION_TITLE,
     sublabel: SECTION_SUBLABEL,
+    fieldLabel: FORM_LABEL,
+    microLabel: HINT_TEXT,
     body: SECTION_TEXT,
     formTitle: FORM_TITLE,
     formSubtitle: FORM_SUBTITLE,

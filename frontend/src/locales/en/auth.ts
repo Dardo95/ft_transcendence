@@ -55,6 +55,7 @@ export const authEn = {
     passwordRequired: 'Password is required.',
     passwordTooShort: 'Password must be at least 8 characters.',
     passwordTooLong: 'Password must be 128 characters or fewer.',
+    passwordInvalid: 'Password must be 8-128 characters.',
     passwordConfirmationRequired: 'Confirm your new password.',
     passwordMismatch: 'Passwords do not match.',
     currentPasswordRequired: 'Enter your current password.',

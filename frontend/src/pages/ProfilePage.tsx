@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type {
-  // ChangePasswordInput,
-  // ChangePasswordResponse,
+  ChangePasswordInput,
+  ChangePasswordResponse,
   UpdateProfileInput,
   UpdateProfileResponse,
   UserPrivate,
@@ -11,7 +11,7 @@ import type {
 import { ArrowLeft, Loader2, UserX } from 'lucide-react';
 import { apiFetch } from '../api/api';
 import {
-  // changeMyPassword,
+  changeMyPassword,
   updateMyAvatar,
   updateMyProfile,
 } from '../features/auth/service/authService';
@@ -96,9 +96,10 @@ export function ProfilePage() {
     return result;
   };
 
-  // const handleChangePassword = (
-  //   input: ChangePasswordInput
-  // ): Promise<ChangePasswordResponse> => changeMyPassword(input);
+  // Keep the current session alive: password changes never revoke the cookies.
+  const handleChangePassword = (
+    input: ChangePasswordInput
+  ): Promise<ChangePasswordResponse> => changeMyPassword(input);
 
   // 1. Own profile (private view)
   if (isOwnProfile && currentUser) {
@@ -107,7 +108,7 @@ export function ProfilePage() {
         user={currentUser}
         onAvatarUpload={handleAvatarUpload}
         onUpdateProfile={handleUpdateProfile}
-        // onChangePassword={handleChangePassword}
+        onChangePassword={handleChangePassword}
       />
     );
   }

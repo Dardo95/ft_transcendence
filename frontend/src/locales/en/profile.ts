@@ -54,6 +54,9 @@ export const profileEn = {
   twoFactorEnabled: 'Enabled',
   twoFactorDisabled: 'Disabled',
   managedByGoogle: 'Managed by Google',
+  googleLinked: 'Google linked',
+  emailChangePasswordHint:
+    'Enter your current password to change your email address.',
   privateProfileBadge: 'Editable Data',
   publicProfileBadge: 'Player Profile',
   statistics: 'Statistics',
