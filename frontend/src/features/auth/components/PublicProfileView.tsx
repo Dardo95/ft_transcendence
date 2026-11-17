@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { UserPublic } from '@transcendence/shared';
 import { toast } from 'sonner';
 import { useLanguage } from '../../../locales/useLanguage';
@@ -35,7 +34,6 @@ interface PublicProfileViewProps {
  */
 export function PublicProfileView({ user }: PublicProfileViewProps) {
   const { t } = useLanguage();
-  const navigate = useNavigate();
   const friends = useFriendsStore((state) => state.friends);
   const blockedUsers = useFriendsStore((state) => state.blockedUsers);
   const sendRequest = useFriendsStore((state) => state.sendFriendRequest);
