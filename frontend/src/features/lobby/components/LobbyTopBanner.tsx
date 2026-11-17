@@ -1,4 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
+import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { Card } from '@/components/ui/card';
 import { UI } from '@/components/layout/layoutStyles';
 
@@ -8,6 +9,7 @@ interface Props {
 
 export function LobbyTopBanner({ isGameConnected }: Props) {
   const { t } = useLanguage();
+  const user = useAuthStore((state) => state.user);
 
   return (
     <Card className="relative my-6 grid min-h-[250px] items-center gap-6 p-[clamp(1.3rem,4vw,2.5rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.9fr)]">
@@ -31,15 +33,11 @@ export function LobbyTopBanner({ isGameConnected }: Props) {
       </div>
 
       <div className="relative z-10">
-        <span className={UI.text.eyebrow}>
-          {t('app.lobby.matchConfiguration') || 'CONFIGURACIÓN DE PARTIDA'}
-        </span>
-
         <h2 className="text-foreground mt-2 mb-3 text-[clamp(2.5rem,6vw,4.4rem)] leading-[0.92] font-black tracking-[-0.075em]">
-          {t('app.lobby.enterLobbyPrefix') || 'Entra al'}
+          {t('app.lobby.enterLobbyPrefix') || 'Bienvenido al Lobby, '}
           <em className="text-primary not-italic">
-            {' '}
-            {t('app.lobby.enterLobbyHighlight') || 'Lobby'}
+            <br />
+            {user?.username || 'Jugador'}
           </em>
         </h2>
         <p className="text-muted-foreground max-w-[520px] text-sm leading-relaxed">

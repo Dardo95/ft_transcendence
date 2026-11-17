@@ -105,6 +105,12 @@ export const appEn = {
     matchmakingFailed: 'The match could not be started. Try again.',
     matchmakingActiveGame:
       'You already have a match in progress. Finish it before starting another one.',
+    socketOnline: 'SOCKET ONLINE',
+    socketOffline: 'SOCKET OFFLINE',
+    enterLobbyPrefix: 'Welcome to the Lobby, ',
+    bannerDescription:
+      'Configure your match. The server controls movement, bombs, explosions, power-ups, and victory.',
+    bombsReady: 'BOMBS READY / PLAYER MODE',
   },
   friends: {
     friendList: 'Friend List',

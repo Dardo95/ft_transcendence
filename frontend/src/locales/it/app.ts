@@ -107,6 +107,12 @@ export const appIt = {
     matchmakingFailed: 'Impossibile avviare la partita. Riprova.',
     matchmakingActiveGame:
       'Hai già una partita in corso. Falla terminare prima di iniziarne una nuova.',
+    socketOnline: 'SOCKET ONLINE',
+    socketOffline: 'SOCKET OFFLINE',
+    enterLobbyPrefix: 'Benvenuto nella Lobby, ',
+    bannerDescription:
+      'Configura la tua partita. Il server gestisce movimento, bombe, esplosioni, potenziamenti e vittoria.',
+    bombsReady: 'BOMBE PRONTE / MODALITÀ GIOCATORE',
   },
   friends: {
     friendList: 'Lista amici',
