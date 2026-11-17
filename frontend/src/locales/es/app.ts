@@ -173,6 +173,9 @@ export const appEs = {
     title: 'Reglas del Juego',
     subtitle:
       'Guía táctica sobre mecánicas de movimiento, colocación de bombas, tipos de bloques y catálogo de mejoras.',
+    demoTitle: 'Demo jugable',
+    demoHint:
+      'Muévete con WASD o las flechas y coloca bombas con espacio. Los bots deambulan, bombardean junto a las paredes y pueden morir con las explosiones.',
   },
 
   hud: {

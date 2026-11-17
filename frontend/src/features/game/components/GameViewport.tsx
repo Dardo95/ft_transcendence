@@ -18,13 +18,22 @@ import { GameTopBar } from '../hud/GameTopBar';
  * replica sus callbacks a `useState` y renderiza la UI alrededor
  * del canvas (topbar, overlays y sidebar). Toda la lógica
  * imperativa (Pixi, conexión, teclado, tick) vive en el motor.
+ *
+ * Con `demo` (embebida en Rules) arranca en modo local sin
+ * backend, oculta "Salir" y la pantalla de fin ofrece reiniciar.
  */
-export function GameViewport() {
+interface GameViewportProps {
+  demo?: boolean;
+}
+
+export function GameViewport({ demo = false }: GameViewportProps) {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
   const [hudModel, setHudModel] = useState<HudModel | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('connecting');
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    demo ? 'demo' : 'connecting'
+  );
   // Pantalla de fin (muerte/victoria/derrota) y su descarte
   // manual ("seguir viendo") hasta que cambie el resultado.
   const [endScreenState, setEndScreenState] =
@@ -35,6 +44,9 @@ export function GameViewport() {
   // Fallo del join inicial (GAME-F-13): sin sala o sin
   // servidor. La demo ya no es el fallback de /game.
   const [joinFailure, setJoinFailure] = useState<GameJoinFailure | null>(null);
+  // Id de montaje del motor: incrementarlo lo recrea entero
+  // (botón "Reiniciar" de la demo en Rules).
+  const [runId, setRunId] = useState(0);
   const navigate = useNavigate();
 
   const { gameIdRef, mapIdRef, debugEnabled, isSpectator } = useGameParams();
@@ -50,6 +62,7 @@ export function GameViewport() {
       container,
       gameIdRef,
       mapIdRef,
+      server: !demo,
       callbacks: {
         onHud: setHudModel,
         onMode: setViewMode,
@@ -71,18 +84,32 @@ export function GameViewport() {
       engine.destroy();
     };
     // Las refs del hook son estables (useRef): listarlas calma
-    // a exhaustive-deps sin recrear el motor.
-  }, [gameIdRef, mapIdRef]);
+    // a exhaustive-deps sin recrear el motor. `demo` cambia el
+    // modo y `runId` lo recrea entero (reiniciar la demo).
+  }, [gameIdRef, mapIdRef, demo, runId]);
+
+  // Reinicio de la demo: limpia los avisos y recrea el motor
+  // (el nuevo empieza con todos los jugadores en pie).
+  const restartDemo = (): void => {
+    setEndScreenState('playing');
+    setEndDismissed(false);
+    setJoinFailure(null);
+    setRunId((id) => id + 1);
+  };
 
   return (
-    <div className="flex w-full flex-col gap-2 p-2 lg:h-[calc(100dvh-80px)] lg:flex-row lg:overflow-hidden">
+    <div
+      className={`flex w-full flex-col gap-2 p-2 lg:flex-row ${
+        demo ? '' : 'lg:h-[calc(100dvh-80px)] lg:overflow-hidden'
+      }`}
+    >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         {hudModel && (
           <GameTopBar
             model={hudModel}
             isFullscreen={isFullscreen}
             onToggleFullscreen={toggleFullscreen}
-            onLeave={() => navigate('/lobby')}
+            onLeave={demo ? undefined : () => navigate('/lobby')}
           />
         )}
         <div
@@ -90,7 +117,9 @@ export function GameViewport() {
           className={`relative overflow-hidden bg-zinc-950 ${
             isFullscreen
               ? 'h-screen w-screen rounded-none'
-              : 'h-[70vh] min-h-[320px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
+              : demo
+                ? 'h-[70vh] min-h-[420px] rounded-lg'
+                : 'h-[70vh] min-h-[320px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
           }`}
           style={{ imageRendering: 'pixelated' }}
           aria-label="Game viewport"
@@ -141,6 +170,7 @@ export function GameViewport() {
               state={endScreenState}
               onReturnToLobby={() => navigate('/lobby')}
               onKeepWatching={() => setEndDismissed(true)}
+              onRestart={demo ? restartDemo : undefined}
             />
           )}
           {debugEnabled && debugFps !== null && (

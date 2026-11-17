@@ -84,6 +84,12 @@ export interface GameEngineOptions {
   gameIdRef: RefObject<string>;
   /** Mapa en `?map=`, en mayúsculas, ref para el tick. */
   mapIdRef: RefObject<string>;
+  /**
+   * false → arranca directo en modo demo local, sin join ni
+   * socket (la demo embebida en Rules, GAME-F-13). Por defecto
+   * true: partida real contra el backend.
+   */
+  server?: boolean;
   callbacks: GameEngineCallbacks;
 }
 
@@ -103,6 +109,8 @@ export class GameEngine {
   private readonly gameIdRef: RefObject<string>;
   private readonly mapIdRef: RefObject<string>;
   private readonly callbacks: GameEngineCallbacks;
+  // false → arranca en modo demo sin tocar el backend.
+  private readonly serverMode: boolean;
 
   private readonly app = new Application();
   private readonly connection: GameConnection;
@@ -185,6 +193,12 @@ export class GameEngine {
     this.gameIdRef = options.gameIdRef;
     this.mapIdRef = options.mapIdRef;
     this.callbacks = options.callbacks;
+    this.serverMode = options.server !== false;
+
+    // Fase inicial según el modo: demo local sin "Conectando..."
+    // (asignación simple, sin `setMode`, para no sincronizar
+    // setState con el effect que nos crea).
+    this.currentMode = this.serverMode ? 'connecting' : 'demo';
 
     this.pilot = new DemoPilot(testMap, this.players, LOCAL_PLAYER_ID);
 
@@ -267,23 +281,29 @@ export class GameEngine {
   }
 
   /**
-   * Arranca el motor: teclado, Pixi, join al servidor y observer
-   * de resize. Llamar una sola vez por montado (el shell lo hace
-   * dentro de su effect).
+   * Arranca el motor: teclado, Pixi, escena (demo) o join al
+   * servidor, y observer de resize. Llamar una sola vez por
+   * montado (el shell lo hace dentro de su effect).
    */
   start(): void {
     this.keyboard.attach();
 
     void this.init();
 
-    // Unirse al servidor. Si el id no existe o el backend no
-    // responde, `onFailed` avisa a la vista (GAME-F-13) para que
-    // muestre su pantalla — y como ese camino es asíncrono
-    // (timer/excepción), nunca hay setState síncrono en el
-    // effect (regla react-hooks/set-state-in-effect).
-    this.connection.join(this.gameIdRef.current, {
-      spectator: this.spectatorMode,
-    });
+    if (this.serverMode) {
+      // Unirse al servidor. Si el id no existe o el backend no
+      // responde, `onFailed` avisa a la vista (GAME-F-13) para
+      // que muestre su pantalla — y como ese camino es
+      // asíncrono (timer/excepción), nunca hay setState
+      // síncrono en el effect (regla react-hooks/set-state-in-effect).
+      this.connection.join(this.gameIdRef.current, {
+        spectator: this.spectatorMode,
+      });
+    } else {
+      // Demo local (Rules): escena del fixture sin tocar el
+      // backend (sin join ni socket).
+      void this.ensureScene(testMap, this.players);
+    }
 
     this.resizeObserver = new ResizeObserver(() => {
       this.resize();

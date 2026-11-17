@@ -172,6 +172,9 @@ export const appEn = {
     title: 'Rules of the Game',
     subtitle:
       'Tactical guide on movement mechanics, bomb placement, block types and upgrade catalog.',
+    demoTitle: 'Playable demo',
+    demoHint:
+      'Move with WASD or the arrow keys and place bombs with space. The bots wander, bomb next to walls and can die to explosions.',
   },
 
   hud: {
