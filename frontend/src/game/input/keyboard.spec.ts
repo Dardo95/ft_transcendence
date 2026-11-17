@@ -18,9 +18,14 @@ function press(key: string, options: KeyboardEventInit = {}): KeyboardEvent {
   return event;
 }
 
-function release(key: string): void {
+function release(key: string, options: KeyboardEventInit = {}): void {
   window.dispatchEvent(
-    new KeyboardEvent('keyup', { key, bubbles: true, cancelable: true })
+    new KeyboardEvent('keyup', {
+      key,
+      bubbles: true,
+      cancelable: true,
+      ...options,
+    })
   );
 }
 
@@ -101,7 +106,7 @@ describe('KeyboardController', () => {
     controller.destroy();
   });
 
-  it('combines two held keys into a diagonal', () => {
+  it('uses only the most recently pressed direction', () => {
     const { controller, movement } = createController();
     controller.attach();
 
@@ -109,15 +114,52 @@ describe('KeyboardController', () => {
     press('ArrowRight');
 
     expect(movement).toHaveBeenLastCalledWith({
-      up: true,
+      up: false,
       down: false,
       left: false,
       right: true,
     });
 
+    // Al soltar la última tecla, vuelve a la dirección anterior
+    // mientras esa tecla siga físicamente pulsada.
     release('ArrowRight');
     expect(movement).toHaveBeenLastCalledWith({
       up: true,
+      down: false,
+      left: false,
+      right: false,
+    });
+
+    release('ArrowUp');
+    expect(movement).toHaveBeenLastCalledWith({
+      up: false,
+      down: false,
+      left: false,
+      right: false,
+    });
+
+    controller.destroy();
+  });
+
+  it('tracks physical keys separately when they map to the same direction', () => {
+    const { controller, movement } = createController();
+    controller.attach();
+
+    press('ArrowUp', { code: 'ArrowUp' });
+    press('w', { code: 'KeyW' });
+
+    release('w', { code: 'KeyW' });
+
+    expect(movement).toHaveBeenLastCalledWith({
+      up: true,
+      down: false,
+      left: false,
+      right: false,
+    });
+
+    release('ArrowUp', { code: 'ArrowUp' });
+    expect(movement).toHaveBeenLastCalledWith({
+      up: false,
       down: false,
       left: false,
       right: false,

@@ -73,25 +73,31 @@ describe('continuous movement', () => {
     expect(position.y).toBeCloseTo(1.5);
   });
 
-  it('normalizes diagonal movement', () => {
+  it('rejects diagonal input without changing the accepted movement', () => {
     const session = createRunningSession();
+    const alice = session.players.get('alice')!;
 
-    setPlayerMovementInput(session, 'alice', {
+    expect(setPlayerMovementInput(session, 'alice', RIGHT)).toEqual({
+      success: true,
+    });
+
+    const result = setPlayerMovementInput(session, 'alice', {
       up: false,
       down: true,
       left: false,
       right: true,
     });
 
+    expect(result).toEqual({
+      success: false,
+      reason: 'INVALID_MOVEMENT',
+    });
+    expect(alice.movementInput).toEqual(RIGHT);
+
     updatePlayerMovement(session, 0.05);
 
-    const position = session.players.get('alice')!.position;
-
-    const dx = position.x - 1.5;
-    const dy = position.y - 1.5;
-
-    expect(dx).toBeCloseTo(dy);
-    expect(Math.hypot(dx, dy)).toBeCloseTo(0.2);
+    expect(alice.position.x).toBeCloseTo(1.7);
+    expect(alice.position.y).toBeCloseTo(1.5);
   });
 
   it('stops when movement input is released', () => {

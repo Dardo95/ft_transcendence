@@ -13,7 +13,8 @@ export type MovementInputResult =
         | 'PLAYER_NOT_FOUND'
         | 'PLAYER_DEAD'
         | 'GAME_NOT_RUNNING'
-        | 'BOT_CONTROLLED';
+        | 'BOT_CONTROLLED'
+        | 'INVALID_MOVEMENT';
     };
 
 const COLLISION_EPSILON = 1e-9;
@@ -42,6 +43,16 @@ export function setPlayerMovementInput(
 
   if (session.status !== 'RUNNING') {
     return { success: false, reason: 'GAME_NOT_RUNNING' };
+  }
+
+  const activeDirections =
+    Number(input.up) +
+    Number(input.down) +
+    Number(input.left) +
+    Number(input.right);
+
+  if (activeDirections > 1) {
+    return { success: false, reason: 'INVALID_MOVEMENT' };
   }
 
   player.movementInput = {
@@ -109,16 +120,15 @@ function movePlayerByDelta(
   let directionY =
     Number(player.movementInput.down) - Number(player.movementInput.up);
 
-  const magnitude = Math.hypot(directionX, directionY);
-
-  if (magnitude === 0 || player.speedTilesPerSecond <= 0) {
+  // El servidor solo permite movimiento cardinal. Esta comprobación
+  // también protege el motor si el estado se altera fuera del setter.
+  if (
+    (directionX !== 0 && directionY !== 0) ||
+    (directionX === 0 && directionY === 0) ||
+    player.speedTilesPerSecond <= 0
+  ) {
     return;
   }
-
-  // Normalizamos para que el movimiento diagonal no
-  // sea más rápido que el horizontal o el vertical.
-  directionX /= magnitude;
-  directionY /= magnitude;
 
   const distance = player.speedTilesPerSecond * deltaSeconds;
 

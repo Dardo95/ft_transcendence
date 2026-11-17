@@ -36,6 +36,17 @@ export interface KeyboardHandlers {
   onPlaceBomb: () => void;
 }
 
+function normalizeKey(key: string): string {
+  return key.length === 1 ? key.toLowerCase() : key;
+}
+
+function getPressedKeyId(event: KeyboardEvent): string {
+  // `code` distingue teclas físicas distintas que producen la misma
+  // dirección (por ejemplo, W y ArrowUp). En entornos sin `code`,
+  // usamos `key` como alternativa.
+  return event.code || event.key;
+}
+
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
     return false;
@@ -56,12 +67,14 @@ function isEditableTarget(target: EventTarget | null): boolean {
  *
  * - `preventDefault` en flechas y espacio: la página no hace scroll.
  * - Ignora `event.repeat`: mantener la tecla no dispara eventos nuevos.
+ * - Si hay varias direcciones pulsadas, gana la última.
+ * - Al soltar la última, recupera la anterior si sigue pulsada.
  * - No roba teclas si el foco está en un campo de texto.
  * - Al perder foco (`blur`) se limpia el estado para que el jugador
  *   no quede "atorado" moviéndose.
  */
 export class KeyboardController {
-  private readonly pressed = new Set<DirectionKey>();
+  private readonly pressedKeys = new Map<string, DirectionKey>();
   private readonly handlers: KeyboardHandlers;
   private attached = false;
 
@@ -89,7 +102,7 @@ export class KeyboardController {
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('blur', this.handleBlur);
-    this.pressed.clear();
+    this.pressedKeys.clear();
   }
 
   private readonly handleKeyDown = (event: KeyboardEvent): void => {
@@ -111,13 +124,18 @@ export class KeyboardController {
       return;
     }
 
-    const direction = KEY_TO_DIRECTION[event.key];
+    const direction = KEY_TO_DIRECTION[normalizeKey(event.key)];
 
     if (!direction) {
       return;
     }
 
-    this.pressed.add(direction);
+    const keyId = getPressedKeyId(event);
+
+    // Map conserva el orden de inserción. Reinsertar esta tecla hace
+    // que pase a ser la más reciente, sin mezclar teclas físicas.
+    this.pressedKeys.delete(keyId);
+    this.pressedKeys.set(keyId, direction);
     this.emitMovement();
   };
 
@@ -126,36 +144,40 @@ export class KeyboardController {
       return;
     }
 
-    const direction = KEY_TO_DIRECTION[event.key];
+    const keyId = getPressedKeyId(event);
 
-    if (!direction) {
-      return;
+    if (this.pressedKeys.delete(keyId)) {
+      this.emitMovement();
     }
-
-    this.pressed.delete(direction);
-    this.emitMovement();
   };
 
   private readonly handleBlur = (): void => {
-    if (this.pressed.size === 0) {
+    if (this.pressedKeys.size === 0) {
       return;
     }
 
-    this.pressed.clear();
+    this.pressedKeys.clear();
     this.handlers.onMovement(STOPPED);
   };
 
   private emitMovement(): void {
-    if (this.pressed.size === 0) {
+    let activeDirection: DirectionKey | undefined;
+
+    // La última entrada insertada representa la última tecla pulsada.
+    for (const direction of this.pressedKeys.values()) {
+      activeDirection = direction;
+    }
+
+    if (!activeDirection) {
       this.handlers.onMovement(STOPPED);
       return;
     }
 
     this.handlers.onMovement({
-      up: this.pressed.has('up'),
-      down: this.pressed.has('down'),
-      left: this.pressed.has('left'),
-      right: this.pressed.has('right'),
+      up: activeDirection === 'up',
+      down: activeDirection === 'down',
+      left: activeDirection === 'left',
+      right: activeDirection === 'right',
     });
   }
 }
