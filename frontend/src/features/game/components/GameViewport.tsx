@@ -7,25 +7,25 @@ import { Application, type Ticker } from 'pixi.js';
 
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useAuthStore } from '../features/auth/store/useAuthStore';
-import { useLanguage } from '../locales/useLanguage';
+import { useAuthStore } from '../../auth/store/useAuthStore';
+import { useLanguage } from '../../../locales/useLanguage';
 
-import { gameSocket } from '../lib/socket';
+import { gameSocket } from '../../../lib/socket';
 
-import { approach, computeSceneOffset, type CameraViewport } from './camera';
-import { demoBombStateAt } from './bombs/demoBombs';
+import { approach, computeSceneOffset, type CameraViewport } from '../pixi/camera';
+import { demoBombStateAt } from '../bombs/demoBombs';
 import { EndScreenOverlay } from './EndScreenOverlay';
-import { deriveEndScreen, type EndScreenState } from './endScreen';
-import { GameSidebar } from './hud/GameSidebar';
-import { buildHudModel, type HudModel } from './hud/hudModel';
-import { GameTopBar } from './hud/GameTopBar';
-import { DemoPilot } from './input/demoPilot';
-import { KeyboardController } from './input/keyboard';
-import { boardToTileMap } from './map/boardConversion';
-import { testMap, TILE_SIZE } from './map/TileMap';
-import { GameConnection } from './net/gameConnection';
-import { demoPlayers } from './players/demoPlayers';
-import { GameScene } from './scenes/GameScene';
+import { deriveEndScreen, type EndScreenState } from '../endScreen';
+import { GameSidebar } from '../hud/GameSidebar';
+import { buildHudModel, type HudModel } from '../hud/hudModel';
+import { GameTopBar } from '../hud/GameTopBar';
+import { DemoPilot } from '../input/demoPilot';
+import { KeyboardController } from '../input/keyboard';
+import { boardToTileMap } from '../map/boardConversion';
+import { testMap, TILE_SIZE } from '../map/TileMap';
+import { GameConnection } from '../net/gameConnection';
+import { demoPlayers } from '../players/demoPlayers';
+import { GameScene } from '../pixi/GameScene';
 
 const LOCAL_PLAYER_ID = 'bren';
 const DEFAULT_MAP_ID = 'map1';

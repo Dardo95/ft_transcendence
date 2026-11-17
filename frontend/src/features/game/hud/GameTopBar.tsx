@@ -8,8 +8,8 @@ import {
   UsersIcon,
 } from 'lucide-react';
 
-import { Button } from '../../components/ui/button';
-import { useLanguage } from '../../locales/useLanguage';
+import { Button } from '../../../components/ui/button';
+import { useLanguage } from '../../../locales/useLanguage';
 import { formatClock, type HudModel } from './hudModel';
 
 interface TopBarStat {

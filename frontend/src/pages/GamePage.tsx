@@ -1,4 +1,4 @@
-import { GameViewport } from '../game';
+import { GameViewport } from '../features/game';
 
 /**
  * Route-level shell for a game.

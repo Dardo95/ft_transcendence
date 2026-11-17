@@ -1,6 +1,6 @@
-import { Button } from '../components/ui/button';
-import { useLanguage } from '../locales/useLanguage';
-import type { EndScreenState } from './endScreen';
+import { Button } from '../../../components/ui/button';
+import { useLanguage } from '../../../locales/useLanguage';
+import type { EndScreenState } from '../endScreen';
 
 interface EndScreenOverlayProps {
   state: Exclude<EndScreenState, 'playing'>;
