@@ -18,7 +18,7 @@ import { DemoPilot } from '../input/demoPilot';
 import { KeyboardController } from '../input/keyboard';
 import { boardToTileMap } from '../map/boardConversion';
 import { testMap, TILE_SIZE } from '../map/TileMap';
-import { GameConnection } from '../net/gameConnection';
+import { GameConnection, type GameJoinFailure } from '../net/gameConnection';
 import { demoPlayers } from '../players/demoPlayers';
 import { GameScene } from '../pixi/GameScene';
 import {
@@ -51,6 +51,8 @@ export interface GameEngineCallbacks {
   onMode: (mode: ViewMode) => void;
   /** Muestreo de FPS del overlay (?debug=1). */
   onFps: (fps: number) => void;
+  /** El join inicial falló: sin sala (`rejected`) o sin servidor (`timeout`). */
+  onJoinFailed: (reason: GameJoinFailure) => void;
 }
 
 export interface GameEngineOptions {
@@ -195,16 +197,17 @@ export class GameEngine {
 
         this.latestSnapshot = snapshot;
       },
-      onFailed: () => {
+      onFailed: (reason) => {
         // Solo rinde la conexión inicial: si ya se jugaba y se
-        // pierde la sala, se conserva el último estado.
+        // pierde la sala, se conserva el último estado. Sin
+        // fallback a la demo (GAME-F-13): la vista muestra la
+        // pantalla de "partida no encontrada" o de conexión.
         if (this.destroyed || this.currentMode !== 'connecting') {
           return;
         }
 
         this.connection.destroy();
-        this.setMode('demo');
-        void this.ensureScene(testMap, this.players);
+        this.callbacks.onJoinFailed(reason);
       },
     });
 
@@ -237,9 +240,10 @@ export class GameEngine {
     void this.init();
 
     // Unirse al servidor. Si el id no existe o el backend no
-    // responde, `onFailed` cae a la demo — y como ese camino es
-    // asíncrono (timer/excepción), nunca hay setState síncrono
-    // en el effect (regla react-hooks/set-state-in-effect).
+    // responde, `onFailed` avisa a la vista (GAME-F-13) para que
+    // muestre su pantalla — y como ese camino es asíncrono
+    // (timer/excepción), nunca hay setState síncrono en el
+    // effect (regla react-hooks/set-state-in-effect).
     this.connection.join(this.gameIdRef.current, {
       spectator: this.spectatorMode,
     });

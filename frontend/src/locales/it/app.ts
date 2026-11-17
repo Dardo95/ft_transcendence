@@ -201,6 +201,13 @@ export const appIt = {
     returnLobby: 'Torna alla lobby',
     keepWatching: 'Continua a guardare',
   },
+  joinFailure: {
+    notFoundTitle: 'Partita non trovata',
+    notFoundSubtitle: 'Questa partita non esiste o è già terminata.',
+    connectionLostTitle: 'Impossibile connettersi al server',
+    connectionLostSubtitle: 'Il server non ha risposto in tempo.',
+    retry: 'Riprova',
+  },
   sidebar: {
     inKitchen: 'In cucina',
     yourStats: 'Le tue statistiche',

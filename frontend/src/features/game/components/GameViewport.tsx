@@ -5,6 +5,8 @@ import { useLanguage } from '../../../locales/useLanguage';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { useGameParams } from '../hooks/useGameParams';
 import { GameEngine, type ViewMode } from '../engine/GameEngine';
+import type { GameJoinFailure } from '../net/gameConnection';
+import { Button } from '../../../components/ui/button';
 import { EndScreenOverlay } from './EndScreenOverlay';
 import type { EndScreenState } from '../endScreen';
 import { GameSidebar } from '../hud/GameSidebar';
@@ -30,6 +32,9 @@ export function GameViewport() {
   const [endDismissed, setEndDismissed] = useState(false);
   // Overlay de rendimiento: solo con ?debug=1 en la URL.
   const [debugFps, setDebugFps] = useState<number | null>(null);
+  // Fallo del join inicial (GAME-F-13): sin sala o sin
+  // servidor. La demo ya no es el fallback de /game.
+  const [joinFailure, setJoinFailure] = useState<GameJoinFailure | null>(null);
   const navigate = useNavigate();
 
   const { gameIdRef, mapIdRef, debugEnabled, isSpectator } = useGameParams();
@@ -55,6 +60,7 @@ export function GameViewport() {
           setEndDismissed(false);
         },
         onFps: setDebugFps,
+        onJoinFailed: setJoinFailure,
       },
     });
     engineRef.current = engine;
@@ -89,11 +95,45 @@ export function GameViewport() {
           style={{ imageRendering: 'pixelated' }}
           aria-label="Game viewport"
         >
-          {viewMode === 'connecting' && (
+          {viewMode === 'connecting' && !joinFailure && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/70">
               <span className="text-sm text-zinc-400">
                 {t('app.general.connecting') || 'Connecting...'}
               </span>
+            </div>
+          )}
+          {joinFailure && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-zinc-950/90 px-4 text-center">
+              <p className="text-lg font-black text-zinc-100">
+                {joinFailure === 'rejected'
+                  ? t('app.joinFailure.notFoundTitle')
+                  : t('app.joinFailure.connectionLostTitle')}
+              </p>
+              <p className="text-sm text-zinc-400">
+                {joinFailure === 'rejected'
+                  ? t('app.joinFailure.notFoundSubtitle')
+                  : t('app.joinFailure.connectionLostSubtitle')}
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {joinFailure === 'timeout' && (
+                  <Button
+                    type="button"
+                    size="lg"
+                    onClick={() => window.location.reload()}
+                    className="bg-orange-500 font-black text-white hover:bg-orange-600"
+                  >
+                    {t('app.joinFailure.retry')}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate('/lobby')}
+                >
+                  {t('app.endScreen.returnLobby')}
+                </Button>
+              </div>
             </div>
           )}
           {!isSpectator && endScreenState !== 'playing' && !endDismissed && (

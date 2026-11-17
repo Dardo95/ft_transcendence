@@ -201,6 +201,13 @@ export const appEn = {
     returnLobby: 'Back to lobby',
     keepWatching: 'Keep watching',
   },
+  joinFailure: {
+    notFoundTitle: 'Match not found',
+    notFoundSubtitle: 'This match does not exist or has already ended.',
+    connectionLostTitle: 'Could not connect to the server',
+    connectionLostSubtitle: 'The server did not respond in time.',
+    retry: 'Retry',
+  },
   sidebar: {
     inKitchen: 'In the kitchen',
     yourStats: 'Your stats',

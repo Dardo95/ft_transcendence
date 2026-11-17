@@ -202,6 +202,13 @@ export const appEs = {
     returnLobby: 'Volver al lobby',
     keepWatching: 'Seguir viendo',
   },
+  joinFailure: {
+    notFoundTitle: 'Partida no encontrada',
+    notFoundSubtitle: 'Esta partida no existe o ya terminó.',
+    connectionLostTitle: 'No se pudo conectar al servidor',
+    connectionLostSubtitle: 'El servidor no respondió a tiempo.',
+    retry: 'Reintentar',
+  },
   sidebar: {
     inKitchen: 'En la cocina',
     yourStats: 'Tus estadísticas',
