@@ -80,17 +80,18 @@ export function AvatarUpload({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="group relative size-55 shrink-0">
-        <div className="border-primary/50 bg-secondary size-55 overflow-hidden rounded-2xl border-2 shadow-lg">
+    <div className={UI.avatar.uploader}>
+      <div className={UI.avatar.uploadFrame}>
+        <div className={UI.avatar.uploadImage}>
           <img
             src={preview || currentAvatarUrl || defaultAvatar}
             alt={username}
             className={UI.avatar.full}
-            onError={(e) => {
-              // Default placeholder svg fallback
-              (e.target as HTMLImageElement).src =
-                'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="%2371717a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+            onError={(event) => {
+              const image = event.currentTarget;
+              if (image.getAttribute('src') !== defaultAvatar) {
+                image.src = defaultAvatar;
+              }
             }}
           />
         </div>
@@ -101,7 +102,8 @@ export function AvatarUpload({
           disabled={isUploading}
           onClick={() => fileInputRef.current?.click()}
           aria-label={t('profile.uploadAvatar') || 'Upload avatar'}
-          className="absolute right-0 bottom-0 shadow-md active:scale-95"
+          title={t('profile.uploadAvatar') || 'Upload avatar'}
+          className={UI.avatar.uploadButton}
         >
           {isUploading ? (
             <Loader2 className={`${UI.icon.sm} ${UI.icon.spinner}`} />
@@ -120,10 +122,7 @@ export function AvatarUpload({
       </div>
 
       {error && (
-        <p
-          role="alert"
-          className="text-destructive max-w-55 text-center text-xs font-medium"
-        >
+        <p role="alert" className={UI.avatar.uploadError}>
           {t(error)}
         </p>
       )}

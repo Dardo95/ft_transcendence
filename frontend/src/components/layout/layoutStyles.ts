@@ -111,6 +111,15 @@ const INLINE_SUCCESS =
   'text-success-foreground inline-flex items-center gap-1 text-xs font-medium';
 const STATUS_DOT = 'inline-block size-2 shrink-0 rounded-full';
 
+/* Avatar upload */
+const AVATAR_UPLOADER = 'flex flex-col items-center gap-2';
+const AVATAR_UPLOAD_FRAME = 'group relative size-58 shrink-0';
+const AVATAR_UPLOAD_IMAGE =
+  'border-primary/50 bg-secondary size-58 overflow-hidden rounded-2xl border-2 shadow-lg';
+const AVATAR_UPLOAD_BUTTON =
+  'absolute right-0 bottom-0 shadow-md active:scale-95';
+const AVATAR_UPLOAD_ERROR = `max-w-55 text-center ${INLINE_ERROR}`;
+
 /* Tables */
 const TABLE_WRAPPER = 'overflow-x-auto';
 const TABLE_BASE = 'w-full text-left text-sm';
@@ -361,6 +370,11 @@ export const UI = {
     lg: AVATAR_LG,
     full: AVATAR_FULL,
     statusDot: AVATAR_STATUS_DOT,
+    uploader: AVATAR_UPLOADER,
+    uploadFrame: AVATAR_UPLOAD_FRAME,
+    uploadImage: AVATAR_UPLOAD_IMAGE,
+    uploadButton: AVATAR_UPLOAD_BUTTON,
+    uploadError: AVATAR_UPLOAD_ERROR,
     fallback:
       'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-input bg-secondary text-xs font-bold text-muted-foreground',
   },
