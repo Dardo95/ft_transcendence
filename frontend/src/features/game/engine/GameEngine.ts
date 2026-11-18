@@ -1,5 +1,6 @@
 import type {
   BombSnapshot,
+  ExplosionSnapshot,
   GamePlayerSnapshot,
   GameSnapshot,
   MovementInput,
@@ -11,7 +12,9 @@ import { useAuthStore } from '../../auth/store/useAuthStore';
 import { gameSocket } from '../../../lib/socket';
 
 import { nextDemoGate, type DemoGateState } from '../bombs/demoGate';
-import { demoBombStateAt } from '../bombs/demoBombs';
+// Bombas ambientales del fixture, desactivadas de momento.
+// Descomentar para reactivarlas (ver el stub del tick de demo).
+// import { demoBombStateAt } from '../bombs/demoBombs';
 import {
   deriveDemoEndScreen,
   deriveEndScreen,
@@ -584,7 +587,15 @@ export class GameEngine {
       sceneBombs = snapshot.bombs;
       elapsedMs = snapshot.elapsedMs;
     } else {
-      const fixture = demoBombStateAt(scene.timeMs);
+      // Bombas ambientales del fixture, desactivadas de momento:
+      // solo viven las que colocan Bren y los bots. Para
+      // reactivarlas, descomentar el import y la línea `fixture`
+      // y borrar este stub (todos los usos de abajo leen de él).
+      // const fixture = demoBombStateAt(scene.timeMs);
+      const fixture = {
+        bombs: [] as BombSnapshot[],
+        explosions: [] as ExplosionSnapshot[],
+      };
       // Externas del local: fixture + bombas ya detonadas de
       // los bots (las propias del piloto se comprueban dentro
       // de su update; lo cruzado lleva un tick de retardo).
