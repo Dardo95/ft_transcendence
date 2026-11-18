@@ -169,12 +169,27 @@ export const appEn = {
     },
   },
   aboutGame: {
-    title: 'Rules of the Game',
+    title: 'ft_bomberman',
     subtitle:
-      'Tactical guide on movement mechanics, bomb placement, block types and upgrade catalog.',
-    demoTitle: 'Playable demo',
-    demoHint:
-      'Move with WASD or the arrow keys and place bombs with space. The bots wander, bomb next to walls and can die to explosions.',
+      'Inspired by Bomberman, the classic strategy and maze video game franchise originally created by Hudson Soft in 1983 and now owned by Konami. A 42 Madrid project.',
+    mechanicsTitle: 'Core mechanics',
+    mechanics: {
+      bombPlacement: {
+        label: 'Bomb placement',
+        description:
+          'the player moves through a maze and strategically places explosives to destroy walls and eliminate enemies.',
+      },
+      powerUps: {
+        label: 'Power-ups',
+        description:
+          'breaking blocks yields upgrades such as greater explosion range, more simultaneous bombs, or increased movement speed.',
+      },
+      multiplayer: {
+        label: 'Multiplayer',
+        description:
+          'it is known for its frenetic competitive modes, both in local and online matches for multiple players.',
+      },
+    },
   },
 
   hud: {

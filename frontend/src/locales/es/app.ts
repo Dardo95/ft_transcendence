@@ -170,12 +170,27 @@ export const appEs = {
     },
   },
   aboutGame: {
-    title: 'Reglas del Juego',
+    title: 'ft_bomberman',
     subtitle:
-      'Guía táctica sobre mecánicas de movimiento, colocación de bombas, tipos de bloques y catálogo de mejoras.',
-    demoTitle: 'Demo jugable',
-    demoHint:
-      'Muévete con WASD o las flechas y coloca bombas con espacio. Los bots deambulan, bombardean junto a las paredes y pueden morir con las explosiones.',
+      'Inspirado en Bomberman, la clásica franquicia de estrategia y laberintos creada originalmente por Hudson Soft en 1983 y actualmente propiedad de Konami. Proyecto de 42 Madrid.',
+    mechanicsTitle: 'Mecánica principal',
+    mechanics: {
+      bombPlacement: {
+        label: 'Colocación de bombas',
+        description:
+          'el jugador se desplaza por un laberinto y coloca explosivos estratégicamente para destruir muros y eliminar enemigos.',
+      },
+      powerUps: {
+        label: 'Power-ups',
+        description:
+          'al romper los bloques se obtienen mejoras, como mayor alcance de explosión, más bombas simultáneas o mayor velocidad de movimiento.',
+      },
+      multiplayer: {
+        label: 'Multijugador',
+        description:
+          'ofrece modos competitivos tanto en partidas locales como en línea para varios jugadores.',
+      },
+    },
   },
 
   hud: {
