@@ -20,6 +20,7 @@ import {
 import { nextHudGate, type HudGateState } from '../hud/hudGate';
 import { buildHudModel, type HudModel } from '../hud/hudModel';
 import { DemoPilot } from '../input/demoPilot';
+import { DemoWorld } from '../demo/demoWorld';
 import {
   initialBotBrainState,
   isMoving,
@@ -138,15 +139,18 @@ export class GameEngine {
   private readonly pilot: DemoPilot;
   /** Un piloto + brain por bot del fixture (sin el local). */
   private readonly bots: DemoBot[];
+  /** Mundo vivo de la demo: mapa (cajas quemadas) y power-ups. */
+  private readonly demoWorld: DemoWorld;
 
   // Estado del modo servidor: el último snapshot recibido y
   // el último ya aplicado a la escena (20 Hz, por identidad).
   private latestSnapshot: GameSnapshot | null = null;
   private appliedSnapshot: GameSnapshot | null = null;
 
-  // Mapa activo: la demo usa el fixture; el servidor, el board
-  // del snapshot. La cámara y el HUD leen estas medidas.
-  private activeMap: readonly number[][] = testMap;
+  // Mapa activo: la demo vive en `demoWorld.map` (cajas
+  // quemadas); el servidor, el board del snapshot. La cámara,
+  // el HUD y el brain de los bots leen estas medidas.
+  private activeMap: readonly number[][];
   private readonly mapSize = {
     width: testMap[0].length * TILE_SIZE,
     height: testMap.length * TILE_SIZE,
@@ -200,7 +204,14 @@ export class GameEngine {
     // setState con el effect que nos crea).
     this.currentMode = this.serverMode ? 'connecting' : 'demo';
 
-    this.pilot = new DemoPilot(testMap, this.players, LOCAL_PLAYER_ID);
+    // Mundo de la demo: copia viva del fixture (las cajas
+    // destruidas y los power-ups no deben mutar `testMap`,
+    // que es compartido entre montajes) compartida por Bren,
+    // los bots y la escena.
+    this.demoWorld = new DemoWorld(testMap);
+    this.activeMap = this.demoWorld.map;
+
+    this.pilot = new DemoPilot(this.demoWorld, this.players, LOCAL_PLAYER_ID);
 
     // Un piloto por bot: mismas físicas que el local (muro,
     // bomba, muerte), gobernado por su brain en cada tick.
@@ -208,7 +219,7 @@ export class GameEngine {
       .filter((player) => player.id !== LOCAL_PLAYER_ID)
       .map((player) => ({
         player,
-        pilot: new DemoPilot(testMap, this.players, player.id),
+        pilot: new DemoPilot(this.demoWorld, this.players, player.id),
         state: initialBotBrainState(),
         asked: STOPPED_MOVEMENT,
         movedLast: false,
@@ -300,9 +311,9 @@ export class GameEngine {
         spectator: this.spectatorMode,
       });
     } else {
-      // Demo local (Rules): escena del fixture sin tocar el
+      // Demo local (Rules): escena del mapa vivo sin tocar el
       // backend (sin join ni socket).
-      void this.ensureScene(testMap, this.players);
+      void this.ensureScene(this.demoWorld.map, this.players);
     }
 
     this.resizeObserver = new ResizeObserver(() => {
@@ -633,8 +644,8 @@ export class GameEngine {
       }
 
       // Repintar bombas/explosiones solo cuando las listas
-      // cambian (fases del fixture o bombas de cualquiera). La
-      // demo no genera power-ups y la escena arranca vacía.
+      // cambian (fases del fixture o bombas de cualquiera); los
+      // power-ups y las cajas se repintan abajo, con sus flags.
       const pilotBombs = this.pilot.getBombs();
       const nextDemo = nextDemoGate(this.lastDemoGate, {
         pilotChanged: pilotChanged || botsChanged,
@@ -654,6 +665,29 @@ export class GameEngine {
           ...this.pilot.getExplosions(),
           ...activeBotExplosions,
         ]);
+      }
+
+      // Cajas destruidas y power-ups: el mundo se actualiza
+      // dentro de los updates de los pilotos (al detonar) y
+      // aquí se aplican sus cambios a la escena.
+      if (this.demoWorld.consumeMapChanged()) {
+        // Copia: `setTiles` compara contra el mapa propio de
+        // la escena y el del mundo se muta en el sitio.
+        scene.setTiles(this.demoWorld.map.map((row) => [...row]));
+      }
+
+      const demoExplosions = [
+        ...fixture.explosions,
+        ...this.pilot.getExplosions(),
+        ...this.bots.flatMap((bot) => bot.pilot.getExplosions()),
+      ];
+
+      // Recoger power-ups: solo jugadores vivos y fuera de la
+      // llama activa (reglas del backend).
+      this.demoWorld.collect(this.players, demoExplosions, scene.timeMs);
+
+      if (this.demoWorld.consumePowerUpsChanged()) {
+        scene.setPowerUps(this.demoWorld.getPowerUps());
       }
 
       // Para el HUD solo cuentan las bombas del piloto (las

@@ -5,12 +5,13 @@ import type {
   MovementInput,
 } from '@transcendence/shared';
 
-import { crossCellsAt } from '../bombs/crossCells';
 import { EXPLOSION_MS, FUSE_MS } from '../bombs/demoBombs';
+import { DemoWorld } from '../demo/demoWorld';
 import { TileType } from '../map/types';
 
-// Igual que el stat `speed` del fixture (tiles por segundo).
-const SPEED_TILES_PER_SECOND = 4;
+// Igual que el stat `speed` del fixture (tiles por segundo): el
+// piloto lee `player.speed` en cada paso, que los power-ups
+// SPEED incrementan.
 const PLAYER_HALF_SIZE = 0.4;
 const INV_SQRT_2 = Math.SQRT1_2;
 // Tope de delta para que una pestaña suspendida no atraviese muros.
@@ -32,7 +33,7 @@ const STOPPED: MovementInput = {
  * de con este piloto.
  */
 export class DemoPilot {
-  private readonly map: number[][];
+  private readonly world: DemoWorld;
   private readonly localPlayer: GamePlayerSnapshot;
 
   private movement: MovementInput = STOPPED;
@@ -44,7 +45,7 @@ export class DemoPilot {
   private nextBombIndex = 0;
 
   constructor(
-    map: number[][],
+    world: DemoWorld,
     players: GamePlayerSnapshot[],
     localPlayerId: string
   ) {
@@ -54,7 +55,7 @@ export class DemoPilot {
       throw new Error(`[DemoPilot] Local player not found: ${localPlayerId}`);
     }
 
-    this.map = map;
+    this.world = world;
     this.localPlayer = localPlayer;
   }
 
@@ -151,7 +152,7 @@ export class DemoPilot {
       return;
     }
 
-    const distance = (SPEED_TILES_PER_SECOND * deltaMs) / 1000;
+    const distance = (this.localPlayer.speed * deltaMs) / 1000;
     let dx = (movingHorizontally ? (movement.right ? 1 : -1) : 0) * distance;
     let dy = (movingVertically ? (movement.down ? 1 : -1) : 0) * distance;
 
@@ -223,7 +224,7 @@ export class DemoPilot {
     for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
       for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
         // Fuera del mapa también colisiona (undefined !== FLOOR).
-        if (this.map[tileY]?.[tileX] !== TileType.FLOOR) {
+        if (this.world.map[tileY]?.[tileX] !== TileType.FLOOR) {
           return true;
         }
       }
@@ -249,9 +250,10 @@ export class DemoPilot {
     }
 
     for (const bomb of detonated) {
+      // El mundo quema las cajas y suelta los power-ups.
       this.explosions.push({
         id: `${bomb.id}:explosion`,
-        cells: crossCellsAt(this.map, bomb.position, bomb.blastRadius),
+        cells: this.world.detonate(bomb),
         expiresAt: bomb.detonateAt + EXPLOSION_MS,
       });
     }

@@ -5,7 +5,9 @@ import type {
 import { describe, expect, it } from 'vitest';
 
 import { testMap } from '../map/TileMap';
+import { TileType } from '../map/types';
 import { FUSE_MS } from '../bombs/demoBombs';
+import { DemoWorld } from '../demo/demoWorld';
 import { DemoPilot } from './demoPilot';
 
 function createPilot(
@@ -14,6 +16,7 @@ function createPilot(
 ): {
   pilot: DemoPilot;
   players: GamePlayerSnapshot[];
+  world: DemoWorld;
 } {
   const players: GamePlayerSnapshot[] = [
     {
@@ -28,7 +31,9 @@ function createPilot(
     },
   ];
 
-  return { pilot: new DemoPilot(testMap, players, 'bren'), players };
+  const world = new DemoWorld(testMap);
+
+  return { pilot: new DemoPilot(world, players, 'bren'), players, world };
 }
 
 describe('DemoPilot', () => {
@@ -125,6 +130,19 @@ describe('DemoPilot', () => {
 
     pilot.update(3000, 16);
     expect(pilot.getExplosions()).toHaveLength(0);
+  });
+
+  it('burns a crate through the shared world', () => {
+    // Caja de testMap en (6,2): la bomba en (6,1) la alcanza.
+    const { pilot, world } = createPilot(6.5, 1.5);
+
+    pilot.placeBomb();
+    expect(world.map[2][6]).toBe(TileType.BLOCK);
+
+    pilot.update(FUSE_MS + 1, 16);
+
+    expect(world.map[2][6]).toBe(TileType.FLOOR);
+    expect(world.consumeMapChanged()).toBe(true);
   });
 
   it('frees the bomb slot after detonation', () => {
