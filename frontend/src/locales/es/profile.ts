@@ -28,6 +28,10 @@ export const profileEs = {
   fieldsRequired: 'El nombre de usuario y el correo son obligatorios.',
   usernameTaken: 'Ese nombre de usuario ya está en uso.',
   emailTaken: 'Ese correo ya está registrado.',
+  usernameHint: 'Entre 3 y 20 caracteres, sin espacios.',
+  emailHint: 'Introduce un correo válido (máximo 254 caracteres).',
+  passwordChangeHint:
+    'La nueva contraseña debe tener entre 8 y 128 caracteres, ser distinta de la actual y coincidir con la confirmación.',
   invalidUsername:
     'El nombre debe tener entre 3 y 20 caracteres y no contener espacios.',
   invalidEmail: 'Introduce un correo electrónico válido.',

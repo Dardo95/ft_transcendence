@@ -238,6 +238,7 @@ export const UI = {
     grid3: 'grid grid-cols-1 gap-4 sm:grid-cols-3',
     grid3Tight: GRID_THREE_TIGHT,
     detailGrid: DETAIL_GRID,
+    detailGridFull: 'col-span-full',
   },
   chrome: {
     appFrame: APP_FRAME,

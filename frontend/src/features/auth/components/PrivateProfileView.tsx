@@ -89,8 +89,6 @@ export function PrivateProfileView({
         day: 'numeric',
       })
     : '—';
-  const authenticationMethod = accessBadge;
-
   // Two-factor authentication status is currently not going to be implemented, so this field is commented out for now.
   // const twoFactorStatus = user.twoFaEnabled
   //   ? t('profile.twoFactorEnabled') || 'Enabled'
@@ -300,12 +298,15 @@ export function PrivateProfileView({
       label: t('profile.joined') || 'Registered on',
       value: registrationDate,
       tone: 'text-foreground',
+      fullWidth: true,
     },
-    {
-      label: t('profile.authentication') || 'Authentication',
-      value: authenticationMethod,
-      tone: 'text-foreground',
-    },
+    // Already included in the access badge above, so this field is commented out for now.
+    // {
+    //   label: t('profile.authentication') || 'Authentication',
+    //   value: authenticationMethod,
+    //   tone: 'text-foreground',
+    //   fullWidth: false,
+    // },
     // Two-factor authentication status is currently not going to be implemented, so this field is commented out for now.
     // {
     //   label: t('profile.twoFactor') || 'Two-factor authentication',
@@ -313,6 +314,7 @@ export function PrivateProfileView({
     //   tone: user.twoFaEnabled
     //     ? 'text-success-foreground'
     //     : 'text-muted-foreground',
+    //   fullWidth: false,
     // },
   ];
 
@@ -431,20 +433,32 @@ export function PrivateProfileView({
                                   : undefined
                               }
                             />
-                            {currentPasswordError ? (
+                            {currentPasswordError && (
                               <FieldError id="profile-current-password-error">
                                 {t(currentPasswordError)}
                               </FieldError>
-                            ) : (
-                              <p className={UI.text.microLabel}>
-                                {t('profile.emailChangePasswordHint') ||
-                                  'Enter your current password to change your email.'}
-                              </p>
                             )}
                           </div>
                         )}
 
-                        <div className="flex flex-wrap gap-2">
+                        <div className="space-y-1">
+                          <p className={UI.text.microLabel}>
+                            {field.key === 'username'
+                              ? t('profile.usernameHint') ||
+                                '3-20 characters, no spaces.'
+                              : t('profile.emailHint') ||
+                                'Enter a valid email address (254 characters max).'}
+                          </p>
+
+                          {field.key === 'email' && (
+                            <p className={UI.text.microLabel}>
+                              {t('profile.emailChangePasswordHint') ||
+                                'Enter your current password to change your email.'}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap justify-end gap-2">
                           <Button
                             type="submit"
                             size="sm"
@@ -477,27 +491,30 @@ export function PrivateProfileView({
                           <p className="text-foreground mt-1 text-sm font-medium break-all">
                             {field.value}
                           </p>
-
-                          {field.key === 'email' && (
-                            <span className={`mt-2 ${UI.badge.tag}`}>
-                              {accessBadge}
-                            </span>
-                          )}
                         </div>
 
-                        {field.canEdit && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => startEditing(field.key)}
-                            title={editLabel(field.label)}
-                            aria-label={editLabel(field.label)}
-                            className={UI.btn.iconGhost}
-                          >
-                            <Pencil className={UI.icon.xs} aria-hidden="true" />
-                          </Button>
-                        )}
+                        <div className="flex shrink-0 items-center gap-2 self-end">
+                          {field.key === 'email' && (
+                            <span className={UI.badge.tag}>{accessBadge}</span>
+                          )}
+
+                          {field.canEdit && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon-sm"
+                              onClick={() => startEditing(field.key)}
+                              title={editLabel(field.label)}
+                              aria-label={editLabel(field.label)}
+                              className={UI.btn.iconGhost}
+                            >
+                              <Pencil
+                                className={UI.icon.xs}
+                                aria-hidden="true"
+                              />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -521,9 +538,6 @@ export function PrivateProfileView({
                         <p className="text-foreground mt-1 text-sm font-medium break-all">
                           **********
                         </p>
-                        <p className={`mt-1 ${UI.text.microLabel}`}>
-                          {t('profile.passwordHint') || '8-128 characters.'}
-                        </p>
                       </div>
 
                       <Button
@@ -535,7 +549,7 @@ export function PrivateProfileView({
                         aria-label={editLabel(
                           t('profile.password') || 'Password'
                         )}
-                        className={UI.btn.iconGhost}
+                        className={`${UI.btn.iconGhost} self-end`}
                       >
                         <Pencil className={UI.icon.xs} aria-hidden="true" />
                       </Button>
@@ -577,7 +591,12 @@ export function PrivateProfileView({
 
           <dl className={UI.shell.detailGrid}>
             {readOnlyFields.map((field) => (
-              <div key={field.label} className={UI.card.innerPadded}>
+              <div
+                key={field.label}
+                className={`${UI.card.innerPadded} ${
+                  field.fullWidth ? UI.shell.detailGridFull : ''
+                }`}
+              >
                 <dt className={UI.text.sublabel}>{field.label}</dt>
                 <dd
                   className={`text-foreground ${field.tone} ${UI.text.value}`}

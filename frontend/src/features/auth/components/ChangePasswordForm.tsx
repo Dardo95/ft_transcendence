@@ -236,13 +236,18 @@ export function ChangePasswordForm({
         )}
       </div>
 
+      <p className={UI.text.microLabel}>
+        {t('profile.passwordChangeHint') ||
+          'The new password must be 8-128 characters, differ from the current one, and match the confirmation.'}
+      </p>
+
       {submitError && (
         <p className={UI.feedback.inlineError} role="alert">
           {t(submitError)}
         </p>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <Button
           type="submit"
           size="sm"

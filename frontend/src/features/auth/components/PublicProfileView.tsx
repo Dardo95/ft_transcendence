@@ -68,6 +68,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
       label: t('profile.joined') || 'Registered on',
       value: registrationDate,
       tone: 'text-foreground',
+      fullWidth: true,
     },
   ];
 
@@ -271,7 +272,12 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
 
           <dl className={UI.shell.detailGrid}>
             {details.map((field) => (
-              <div key={field.label} className={UI.card.innerPadded}>
+              <div
+                key={field.label}
+                className={`${UI.card.innerPadded} ${
+                  field.fullWidth ? UI.shell.detailGridFull : ''
+                }`}
+              >
                 <dt className={UI.text.sublabel}>{field.label}</dt>
                 <dd
                   className={`text-foreground ${field.tone} ${UI.text.value}`}

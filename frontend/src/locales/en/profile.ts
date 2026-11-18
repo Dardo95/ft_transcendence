@@ -28,6 +28,10 @@ export const profileEn = {
   fieldsRequired: 'Username and email are required.',
   usernameTaken: 'That username is already taken.',
   emailTaken: 'That email is already registered.',
+  usernameHint: '3-20 characters, no spaces.',
+  emailHint: 'Enter a valid email address (254 characters max).',
+  passwordChangeHint:
+    'The new password must be 8-128 characters, differ from the current one, and match the confirmation.',
   invalidUsername: 'Username must be 3-20 characters with no spaces.',
   invalidEmail: 'Enter a valid email address.',
   password: 'Password',

@@ -51,16 +51,19 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
             className={variant === 'profile' ? UI.icon.md : UI.icon.sm}
             aria-hidden="true"
           />
-          <span>
-            {t('app.friends.friendList') || 'Lista de Amigos'} ({friends.length}
-            )
-          </span>
+          <span>{t('app.friends.friendList') || 'Lista de Amigos'}</span>
         </h4>
-        {isLoading && (
-          <span className="text-muted-foreground animate-pulse text-[10px]">
-            {t('app.general.connecting') || 'Cargando...'}
+        <div className="flex items-center gap-2">
+          {isLoading && (
+            <span className="text-muted-foreground animate-pulse text-[10px]">
+              {t('app.general.connecting') || 'Cargando...'}
+            </span>
+          )}
+          <span className={UI.badge.pill}>
+            <UsersIcon className={UI.icon.xs} aria-hidden="true" />
+            {friends.length}
           </span>
-        )}
+        </div>
       </div>
 
       {/* Incoming lobby invitations and friend requests */}
