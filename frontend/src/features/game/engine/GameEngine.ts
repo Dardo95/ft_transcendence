@@ -590,7 +590,10 @@ export class GameEngine {
       // Bombas ambientales del fixture, desactivadas de momento:
       // solo viven las que colocan Bren y los bots. Para
       // reactivarlas, descomentar el import y la línea `fixture`
-      // y borrar este stub (todos los usos de abajo leen de él).
+      // y borrar este stub (todos los usos de abajo leen de él);
+      // además habrá que registrarlas y olvidarlas en el mundo
+      // (`registerBomb`/`forgetBomb`) para que bloqueen como
+      // las demás.
       // const fixture = demoBombStateAt(scene.timeMs);
       const fixture = {
         bombs: [] as BombSnapshot[],

@@ -34,6 +34,8 @@ const STOPPED: MovementInput = {
  */
 export class DemoPilot {
   private readonly world: DemoWorld;
+  /** Todos los jugadores del fixture: con ellos se registran las bombas. */
+  private readonly players: GamePlayerSnapshot[];
   private readonly localPlayer: GamePlayerSnapshot;
 
   private movement: MovementInput = STOPPED;
@@ -56,6 +58,7 @@ export class DemoPilot {
     }
 
     this.world = world;
+    this.players = players;
     this.localPlayer = localPlayer;
   }
 
@@ -89,13 +92,18 @@ export class DemoPilot {
       return;
     }
 
-    this.bombs.push({
+    const bomb: BombSnapshot = {
       id: `pilot-bomb-${this.nextBombIndex++}`,
       ownerId: this.localPlayer.id,
       position: tile,
       detonateAt: this.lastNowMs + FUSE_MS,
       blastRadius: this.localPlayer.blastRadius,
-    });
+    };
+
+    this.bombs.push(bomb);
+    // La bomba es sólida: quien la pisa al colocarla puede
+    // salir, pero nadie más puede cruzarla (backend).
+    this.world.registerBomb(bomb, this.players);
     this.changed = true;
   }
 
@@ -134,6 +142,14 @@ export class DemoPilot {
     if (this.localPlayer.alive) {
       this.moveLocalPlayer(Math.min(deltaMs, MAX_STEP_MS));
     }
+
+    // Tras cada intento de movimiento: el pase se suelta en
+    // cuanto el jugador deja de pisar la bomba (como
+    // `releaseBombPassThrough` del backend).
+    this.world.releasePassThrough(
+      this.localPlayer.id,
+      this.localPlayer.position
+    );
 
     this.processBombs(nowMs);
     this.checkDeath(nowMs, externalExplosions);
@@ -230,7 +246,8 @@ export class DemoPilot {
       }
     }
 
-    return false;
+    // Las bombas registradas en el mundo también son sólidas.
+    return this.world.blocksPlayer(this.localPlayer.id, x, y);
   }
 
   private processBombs(nowMs: number): void {
@@ -250,7 +267,8 @@ export class DemoPilot {
     }
 
     for (const bomb of detonated) {
-      // El mundo quema las cajas y suelta los power-ups.
+      // La bomba deja de bloquear y el mundo quema las cajas.
+      this.world.forgetBomb(bomb.id);
       this.explosions.push({
         id: `${bomb.id}:explosion`,
         cells: this.world.detonate(bomb),

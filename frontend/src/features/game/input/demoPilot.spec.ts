@@ -166,6 +166,30 @@ describe('DemoPilot', () => {
     expect(pilot.getBombs()).toHaveLength(1);
   });
 
+  it('cannot walk back through the bomb it placed', () => {
+    const { pilot, players } = createPilot(1.5, 1.5);
+
+    pilot.placeBomb();
+
+    // Salir de la casilla: 5 pasos de 50 ms (0.2 tiles cada
+    // uno) llevan a x = 2.5, ya fuera de la bomba.
+    pilot.setMovement({ up: false, down: false, left: false, right: true });
+
+    for (let frame = 1; frame <= 5; frame++) {
+      pilot.update(frame * 50, 50);
+    }
+
+    expect(players[0].position.x).toBeCloseTo(2.5, 5);
+    expect(pilot.consumeMoved()).toBe(true);
+
+    // Al volver, la bomba ya no deja pasar.
+    pilot.setMovement({ up: false, down: false, left: true, right: false });
+    pilot.update(300, 50);
+
+    expect(players[0].position.x).toBeCloseTo(2.5, 5);
+    expect(pilot.consumeMoved()).toBe(false);
+  });
+
   it('dies when its own explosion catches it', () => {
     const { pilot, players } = createPilot(1.5, 1.5);
 

@@ -170,4 +170,61 @@ describe('DemoWorld', () => {
     expect(world.getPowerUps()).toHaveLength(0);
     expect(bren.bombCapacity).toBe(2);
   });
+
+  describe('bomb solidity', () => {
+    // Bomba en (2,1), una casilla de piso de la sala.
+    const PLACED = { id: 'bomb-1', position: { x: 2, y: 1 } };
+
+    it('blocks players who were not on the bomb when it was placed', () => {
+      const world = new DemoWorld(roomMap());
+      const bren = playerAt({ position: { x: 1.5, y: 1.5 } });
+
+      world.registerBomb(PLACED, [bren]);
+
+      // Lejos no bloquea...
+      expect(world.blocksPlayer('bren', 1.5, 1.5)).toBe(false);
+      // ...pero acercarse a la casilla sí.
+      expect(world.blocksPlayer('bren', 1.9, 1.5)).toBe(true);
+    });
+
+    it('lets the placer walk out but never back in', () => {
+      const world = new DemoWorld(roomMap());
+      const bren = playerAt({ position: { x: 2.5, y: 1.5 } });
+
+      world.registerBomb(PLACED, [bren]);
+
+      // Pisándola: el pase deja salir...
+      expect(world.blocksPlayer('bren', 2.5, 1.5)).toBe(false);
+      world.releasePassThrough('bren', { x: 2.5, y: 1.5 });
+      expect(world.blocksPlayer('bren', 2.5, 1.5)).toBe(false);
+
+      // ...y en cuanto sale, se suelta el pase.
+      world.releasePassThrough('bren', { x: 3.5, y: 1.5 });
+      expect(world.blocksPlayer('bren', 2.5, 1.5)).toBe(true);
+    });
+
+    it('stops blocking once the bomb detonates', () => {
+      const world = new DemoWorld(roomMap());
+      const bren = playerAt({ position: { x: 1.5, y: 1.5 } });
+
+      world.registerBomb(PLACED, [bren]);
+      expect(world.blocksPlayer('bren', 1.9, 1.5)).toBe(true);
+
+      world.forgetBomb(PLACED.id);
+
+      expect(world.blocksPlayer('bren', 1.9, 1.5)).toBe(false);
+    });
+
+    it('does not give the pass to dead players', () => {
+      const world = new DemoWorld(roomMap());
+      const dead = playerAt({
+        position: { x: 2.5, y: 1.5 },
+        alive: false,
+      });
+
+      world.registerBomb(PLACED, [dead]);
+
+      expect(world.blocksPlayer(dead.id, 2.5, 1.5)).toBe(true);
+    });
+  });
 });
