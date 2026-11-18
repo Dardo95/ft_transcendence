@@ -16,11 +16,9 @@ export function RulesPage() {
   return (
     <div className={UI.shell.page}>
       <div className={UI.shell.container}>
-        <div>
+        <div className="mx-auto max-w-3xl text-center">
           <h1 className={UI.text.pageTitle}>{t('app.aboutGame.title')}</h1>
-          <p className="text-muted-foreground max-w-3xl text-xs leading-relaxed sm:text-sm">
-            {t('app.aboutGame.subtitle')}
-          </p>
+          <p className={UI.text.pageSubtitle}>{t('app.aboutGame.subtitle')}</p>
         </div>
 
         <div>

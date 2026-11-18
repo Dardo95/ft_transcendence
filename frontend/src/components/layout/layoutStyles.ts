@@ -39,9 +39,9 @@ const TAG_CHIP =
 
 /* Typography */
 const PAGE_TITLE =
-  'mb-3 font-heading text-3xl font-extrabold tracking-tight text-foreground md:text-4xl';
+  'mb-3 font-heading text-3xl font-extrabold text-foreground md:text-4xl';
 const PAGE_SUBTITLE =
-  'mx-auto max-w-3xl text-xs leading-relaxed text-muted-foreground sm:text-sm';
+  'mx-auto max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base';
 const SECTION_TITLE = 'mb-2.5 font-heading text-lg font-bold text-foreground';
 const SECTION_SUBLABEL =
   'text-[11px] font-semibold tracking-wider text-muted-foreground uppercase';
