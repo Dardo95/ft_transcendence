@@ -1,3 +1,4 @@
+
 import { NotFoundException } from '@nestjs/common';
 import { MatchStatus } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service.js';
@@ -31,28 +32,50 @@ describe('StatsService', () => {
       );
     });
 
-    it('aggregates finished matches', async () => {
+    it('aggregates wins, losses and draws separately', async () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 1,
         username: 'brivera',
         xp: 0,
       });
+
       prisma.matchPlayer.findMany.mockResolvedValue([
-        { score: 120, kills: 5, isWinner: true },
-        { score: 100, kills: 4, isWinner: true },
-        { score: 90, kills: 4, isWinner: false },
-        { score: 80, kills: 2, isWinner: false },
+        {
+          score: 120,
+          kills: 5,
+          isWinner: true,
+          result: 'WIN',
+        },
+        {
+          score: 100,
+          kills: 4,
+          isWinner: false,
+          result: 'DRAW',
+        },
+        {
+          score: 90,
+          kills: 4,
+          isWinner: false,
+          result: 'LOSS',
+        },
+        {
+          score: 80,
+          kills: 2,
+          isWinner: false,
+          result: null,
+        },
       ]);
 
       await expect(service.getByUserId(1)).resolves.toEqual({
         userId: 1,
         username: 'brivera',
         matches: 4,
-        wins: 2,
+        wins: 1,
         losses: 2,
+        draws: 1,
         kills: 15,
         score: 390,
-        winRate: 0.5,
+        winRate: 0.25,
         xp: 0,
       });
 
@@ -61,7 +84,42 @@ describe('StatsService', () => {
           userId: 1,
           match: { status: MatchStatus.FINISHED },
         },
-        select: { score: true, kills: true, isWinner: true },
+        select: {
+          score: true,
+          kills: true,
+          result: true,
+          isWinner: true,
+        },
+      });
+    });
+
+    it('uses isWinner for legacy records without an explicit result', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: 1,
+        username: 'brivera',
+        xp: 0,
+      });
+
+      prisma.matchPlayer.findMany.mockResolvedValue([
+        {
+          score: 100,
+          kills: 3,
+          isWinner: true,
+          result: null,
+        },
+        {
+          score: 80,
+          kills: 1,
+          isWinner: false,
+          result: null,
+        },
+      ]);
+
+      await expect(service.getByUserId(1)).resolves.toMatchObject({
+        matches: 2,
+        wins: 1,
+        losses: 1,
+        draws: 0,
       });
     });
 
@@ -71,12 +129,14 @@ describe('StatsService', () => {
         username: 'nsantand',
         xp: 0,
       });
+
       prisma.matchPlayer.findMany.mockResolvedValue([]);
 
       await expect(service.getByUserId(6)).resolves.toMatchObject({
         matches: 0,
         wins: 0,
         losses: 0,
+        draws: 0,
         kills: 0,
         score: 0,
         winRate: 0,
@@ -91,6 +151,7 @@ describe('StatsService', () => {
       await expect(service.getByUsername('ghost')).rejects.toBeInstanceOf(
         NotFoundException
       );
+
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { username: 'ghost' },
         select: { id: true, username: true, xp: true },
@@ -99,8 +160,9 @@ describe('StatsService', () => {
   });
 
   describe('getMatches', () => {
-    it('paginates and maps the current user perspective', async () => {
+    it('returns DRAW for a player in a drawn match', async () => {
       const finishedAt = new Date('2026-10-22T18:00:00.000Z');
+
       prisma.match.count.mockResolvedValue(4);
       prisma.match.findMany.mockResolvedValue([
         {
@@ -115,6 +177,7 @@ describe('StatsService', () => {
               score: 120,
               kills: 6,
               position: 1,
+              result: 'WIN',
               isWinner: true,
               user: { username: 'ozamora-' },
             },
@@ -123,6 +186,7 @@ describe('StatsService', () => {
               score: 90,
               kills: 4,
               position: 2,
+              result: 'DRAW',
               isWinner: false,
               user: { username: 'brivera' },
             },
@@ -140,13 +204,14 @@ describe('StatsService', () => {
             mapId: 'map3',
             createdAt: finishedAt,
             finishedAt,
-            result: 'LOSS',
+            result: 'DRAW',
             score: 90,
             kills: 4,
             position: 2,
             players: [
               {
                 username: 'ozamora-',
+                result: 'WIN',
                 isWinner: true,
                 score: 120,
                 kills: 6,
@@ -154,6 +219,7 @@ describe('StatsService', () => {
               },
               {
                 username: 'brivera',
+                result: 'DRAW',
                 isWinner: false,
                 score: 90,
                 kills: 4,

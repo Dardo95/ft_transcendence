@@ -1,3 +1,4 @@
+
 import type { GameSnapshot } from '@transcendence/shared';
 import { describe, expect, it } from 'vitest';
 
@@ -64,8 +65,6 @@ describe('deriveEndScreen', () => {
   });
 
   it('does not show the dead screen during COUNTDOWN', () => {
-    // No debería pasar (nadie muere antes de empezar), pero el
-    // estado `dead` no debe colarse en fases previas al juego.
     const state = snapshot({
       status: 'COUNTDOWN',
       players: [playerAlive('local', false)],
@@ -75,25 +74,46 @@ describe('deriveEndScreen', () => {
   });
 
   it('shows victory when the local player won', () => {
-    const state = snapshot({ status: 'FINISHED', winnerId: 'local' });
+    const state = snapshot({
+      status: 'FINISHED',
+      winnerId: 'local',
+    });
 
     expect(deriveEndScreen(state, 'local')).toBe('victory');
   });
 
   it('shows defeat when another player won', () => {
-    const state = snapshot({ status: 'FINISHED', winnerId: 'rival' });
+    const state = snapshot({
+      status: 'FINISHED',
+      winnerId: 'rival',
+    });
 
     expect(deriveEndScreen(state, 'local')).toBe('defeat');
   });
 
-  it('shows defeat when the match finished without a winner', () => {
-    const state = snapshot({ status: 'FINISHED', winnerId: null });
+  it('shows draw when the match finished without a winner', () => {
+    const state = snapshot({
+      status: 'FINISHED',
+      winnerId: null,
+    });
 
-    expect(deriveEndScreen(state, 'local')).toBe('defeat');
+    expect(deriveEndScreen(state, 'local')).toBe('draw');
+  });
+
+  it('recognizes a draw even when the local identity is unavailable', () => {
+    const state = snapshot({
+      status: 'FINISHED',
+      winnerId: null,
+    });
+
+    expect(deriveEndScreen(state, null)).toBe('draw');
   });
 
   it('never claims victory without a local identity', () => {
-    const state = snapshot({ status: 'FINISHED', winnerId: null });
+    const state = snapshot({
+      status: 'FINISHED',
+      winnerId: 'local',
+    });
 
     expect(deriveEndScreen(state, null)).toBe('defeat');
   });
@@ -107,7 +127,9 @@ describe('deriveEndScreen', () => {
   });
 
   it('keeps playing when the local player is missing from the snapshot', () => {
-    const state = snapshot({ players: [playerAlive('rival', true)] });
+    const state = snapshot({
+      players: [playerAlive('rival', true)],
+    });
 
     expect(deriveEndScreen(state, 'local')).toBe('playing');
   });

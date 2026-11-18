@@ -198,6 +198,7 @@ export const appIt = {
     deadTitle: 'ciao ciao arrivederci',
     victoryTitle: 'Hai vinto',
     defeatTitle: 'Hai perso',
+    drawTitle: 'Pareggio',
     returnLobby: 'Torna alla lobby',
     keepWatching: 'Continua a guardare',
   },

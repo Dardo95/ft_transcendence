@@ -199,6 +199,7 @@ export const appEs = {
     deadTitle: 'chau chao adios',
     victoryTitle: 'Ganaste',
     defeatTitle: 'Perdiste',
+    drawTitle: 'Empate',
     returnLobby: 'Volver al lobby',
     keepWatching: 'Seguir viendo',
   },

@@ -56,6 +56,9 @@ model MatchPlayer {
   score     Int     @default(0)
   kills     Int     @default(0)
   position  Int?
+  result    MatchPlayerResult?
+
+  // Inherit field for compatibility
   isWinner  Boolean @default(false)
 
   match  Match @relation(fields: [matchId], references: [id])
@@ -166,4 +169,10 @@ enum TournamentStatus {
   OPEN
   IN_PROGRESS
   FINISHED
+}
+
+enum MatchPlayerResult {
+  WIN
+  LOSS
+  DRAW
 }
