@@ -89,7 +89,7 @@ export function LoginForm() {
     >
       {/* Header of the Form */}
       <div className="mb-6">
-        <h2 className="text-foreground text-xl font-bold tracking-tight sm:text-2xl">
+        <h2 className="text-foreground text-xl font-bold sm:text-2xl">
           {t('auth.login.heading') || 'Welcome back!'}{' '}
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">

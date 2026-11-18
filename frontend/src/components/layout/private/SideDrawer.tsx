@@ -34,7 +34,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
       <aside className={UI.chrome.drawer}>
         <div className="flex flex-col gap-6">
           <div className="border-border flex items-center justify-between border-b pb-4">
-            <h2 className="text-primary text-lg font-bold tracking-wider">
+            <h2 className="text-primary text-lg font-bold">
               {t('app.general.title') || 'ft_boomberman'}
             </h2>
             <Button

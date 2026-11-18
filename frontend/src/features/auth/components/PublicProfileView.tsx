@@ -73,7 +73,7 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                   {t('profile.publicProfileBadge') || 'Player Profile'}
                 </span>
 
-                <h1 className="text-foreground mt-3 text-2xl font-extrabold tracking-tight md:text-3xl">
+                <h1 className="text-foreground mt-3 text-2xl font-extrabold md:text-3xl">
                   {user.username}
                 </h1>
 

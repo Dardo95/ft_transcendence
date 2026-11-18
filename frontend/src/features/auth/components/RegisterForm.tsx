@@ -126,7 +126,7 @@ export function RegisterForm() {
     >
       {/* Header of the Form */}
       <div className="mb-6">
-        <h2 className="text-foreground text-xl font-bold tracking-tight sm:text-2xl">
+        <h2 className="text-foreground text-xl font-bold sm:text-2xl">
           {t('auth.register.heading') || 'Join to enjoy the game!'}{' '}
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">

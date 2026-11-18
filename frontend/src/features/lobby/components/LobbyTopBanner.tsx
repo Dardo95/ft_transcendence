@@ -35,7 +35,7 @@ export function LobbyTopBanner({ isGameConnected }: Props) {
           {t('app.lobby.matchConfiguration') || 'CONFIGURACIÓN DE PARTIDA'}
         </span>
 
-        <h2 className="text-foreground mt-2 mb-3 text-[clamp(2.5rem,6vw,4.4rem)] leading-[0.92] font-black tracking-[-0.075em]">
+        <h2 className="text-foreground mt-2 mb-3 text-[clamp(2.5rem,6vw,4.4rem)] leading-[0.92] font-black">
           {t('app.lobby.enterLobbyPrefix') || 'Entra al'}
           <em className="text-primary not-italic">
             {' '}

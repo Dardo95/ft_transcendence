@@ -21,7 +21,7 @@
 
 /* Map CSS variables to Tailwind design tokens */
 @theme inline {
-  --font-heading: 'Jersey 25', sans-serif;
+  --font-heading: 'Gabarito', sans-serif;
   --font-sans: 'Lekton', monospace;
 
   --color-background: var(--background);
@@ -172,8 +172,8 @@
   h4,
   h5,
   h6 {
-    font-family: 'Jersey 25', sans-serif;
-    letter-spacing: 0.02em;
+    font-family: var(--font-heading);
+    letter-spacing: 0;
   }
 
   /* WebKit scrollbar customizations (Chrome, Safari, Edge) */
