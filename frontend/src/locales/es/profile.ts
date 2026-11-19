@@ -79,7 +79,7 @@ export const profileEs = {
   blockUserTitle: 'Bloquear usuario',
   blockUserConfirm: '¿Seguro que quieres bloquear a {username}?',
   blockUserWarning:
-    'Dejaréis de ser amigos, se cancelarán las solicitudes pendientes y no podréis enviaros mensajes ni invitaciones.',
+    'Dejaréis de ser amigos, se cancelarán las solicitudes pendientes y no podréis enviaros solicitudes de amistad ni invitaciones de partida.',
   blockButton: 'Bloquear',
   unblockUser: 'Desbloquear usuario',
   unblockButton: 'Desbloquear',

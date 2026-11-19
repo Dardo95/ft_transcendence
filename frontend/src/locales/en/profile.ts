@@ -78,7 +78,7 @@ export const profileEn = {
   blockUserTitle: 'Block user',
   blockUserConfirm: 'Are you sure you want to block {username}?',
   blockUserWarning:
-    'You will stop being friends, pending requests will be cancelled, and you will not be able to send messages or invitations to each other.',
+    'You will stop being friends, pending requests will be cancelled, and you will not be able to send friend requests or game invitations to each other.',
   blockButton: 'Block',
   unblockUser: 'Unblock user',
   unblockButton: 'Unblock',

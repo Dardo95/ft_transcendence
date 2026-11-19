@@ -79,7 +79,7 @@ export const profileIt = {
   blockUserTitle: 'Blocca utente',
   blockUserConfirm: 'Sei sicuro di voler bloccare {username}?',
   blockUserWarning:
-    'Non sarete più amici, le richieste in sospeso verranno annullate e non potrete inviarvi messaggi o inviti.',
+    'Non sarete più amici, le richieste in sospeso verranno annullate e non potrete inviarvi richieste di amicizia o inviti di partita.',
   blockButton: 'Blocca',
   unblockUser: 'Sblocca utente',
   unblockButton: 'Sblocca',
