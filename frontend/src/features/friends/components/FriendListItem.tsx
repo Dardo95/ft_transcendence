@@ -83,7 +83,7 @@ export function FriendListItem({
       <Link
         to={`/profile/${encodeURIComponent(friend.username)}`}
         title={t('profile.publicProfile')}
-        className="flex min-w-0 items-center gap-2.5 rounded-lg transition-opacity hover:opacity-80"
+        className={UI.link.profileRow}
       >
         <div className="relative">
           <img

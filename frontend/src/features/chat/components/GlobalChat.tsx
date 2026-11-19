@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import {
   MessageScrollerProvider,
   MessageScroller,
@@ -79,17 +80,16 @@ export function GlobalChat() {
                 {messages.map((msg) => {
                   const isMe = msg.senderId === user?.id;
                   const isSystem = msg.sender === 'System';
-                  const messageText =
+                  const profileLink = `/profile/${encodeURIComponent(
+                    msg.sender
+                  )}`;
+                  const hasSender = Boolean(msg.sender);
+                  const systemPhrase =
                     msg.systemEvent === 'user_joined'
-                      ? `${msg.targetUsername} ${
-                          t('app.lobby.userConnected') || 'has connected'
-                        }`
+                      ? t('app.lobby.userConnected') || 'has connected'
                       : msg.systemEvent === 'user_left'
-                        ? `${msg.targetUsername} ${
-                            t('app.lobby.userDisconnected') ||
-                            'has disconnected'
-                          }`
-                        : msg.text;
+                        ? t('app.lobby.userDisconnected') || 'has disconnected'
+                        : null;
 
                   return (
                     <MessageScrollerItem key={msg.id} messageId={msg.id}>
@@ -105,18 +105,24 @@ export function GlobalChat() {
                                 : 'justify-start text-left'
                           )}
                         >
-                          <span
-                            className={cn(
-                              'font-semibold',
-                              isMe
-                                ? 'text-primary'
-                                : 'text-secondary-foreground'
-                            )}
-                          >
-                            {isSystem
-                              ? t('app.lobby.systemLabel') || 'System'
-                              : msg.sender}
-                          </span>
+                          {isSystem ? (
+                            <span className="text-secondary-foreground font-semibold">
+                              {t('app.lobby.systemLabel') || 'System'}
+                            </span>
+                          ) : hasSender ? (
+                            <Link
+                              to={profileLink}
+                              title={t('profile.publicProfile')}
+                              className={cn(
+                                UI.link.chatName,
+                                isMe
+                                  ? 'text-primary'
+                                  : 'text-secondary-foreground'
+                              )}
+                            >
+                              {msg.sender}
+                            </Link>
+                          ) : null}
 
                           <span>•</span>
 
@@ -129,17 +135,23 @@ export function GlobalChat() {
                         </div>
 
                         <Message align={isMe ? 'end' : 'start'}>
-                          {!isSystem && (
+                          {!isSystem && hasSender && (
                             <MessageAvatar className="size-8">
-                              <img
-                                src={msg.avatarUrl || defaultAvatar}
-                                alt={msg.sender}
-                                className="size-8 rounded-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src =
-                                    defaultAvatar;
-                                }}
-                              />
+                              <Link
+                                to={profileLink}
+                                title={t('profile.publicProfile')}
+                                className={UI.link.chatAvatar}
+                              >
+                                <img
+                                  src={msg.avatarUrl || defaultAvatar}
+                                  alt={msg.sender}
+                                  className={UI.avatar.chat}
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src =
+                                      defaultAvatar;
+                                  }}
+                                />
+                              </Link>
                             </MessageAvatar>
                           )}
 
@@ -164,7 +176,26 @@ export function GlobalChat() {
                                     : 'secondary'
                               }
                             >
-                              <BubbleContent>{messageText}</BubbleContent>
+                              <BubbleContent>
+                                {isSystem &&
+                                msg.targetUsername &&
+                                systemPhrase ? (
+                                  <>
+                                    <Link
+                                      to={`/profile/${encodeURIComponent(
+                                        msg.targetUsername
+                                      )}`}
+                                      title={t('profile.publicProfile')}
+                                      className={UI.link.inline}
+                                    >
+                                      {msg.targetUsername}
+                                    </Link>{' '}
+                                    {systemPhrase}
+                                  </>
+                                ) : (
+                                  msg.text
+                                )}
+                              </BubbleContent>
                             </Bubble>
                           </MessageContent>
                         </Message>

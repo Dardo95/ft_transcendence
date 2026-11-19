@@ -137,6 +137,7 @@ const AVATAR_SM = `${AVATAR_BASE} h-7 w-7`;
 const AVATAR_MD = `${AVATAR_BASE} h-8 w-8`;
 const AVATAR_LG = `${AVATAR_BASE} size-10`;
 const AVATAR_FULL = 'size-full object-cover';
+const AVATAR_CHAT = 'size-8 rounded-full object-cover';
 const AVATAR_STATUS_DOT = 'border-background absolute rounded-full border-2';
 
 /* Navigation, overlays, rows, actions */
@@ -189,6 +190,14 @@ const BTN_OPTION_ACTIVE =
   'border-primary bg-primary/10 shadow-[inset_0_0_0_1px_var(--primary)]';
 const SOCIAL_LINK =
   'flex items-center gap-2 rounded-lg border border-input bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground transition-colors hover:border-primary/40 hover:bg-muted hover:text-foreground';
+
+/* Content links (profile navigation) */
+const LINK_HOVER = 'transition-opacity hover:opacity-80';
+const LINK_PROFILE_ROW = `flex min-w-0 items-center gap-2.5 rounded-lg ${LINK_HOVER}`;
+const LINK_PROFILE_NAME = 'truncate font-semibold hover:underline';
+const LINK_CHAT_NAME = `font-semibold underline-offset-2 hover:underline ${LINK_HOVER}`;
+const LINK_CHAT_AVATAR = `block shrink-0 rounded-full ${LINK_HOVER}`;
+const LINK_INLINE = `font-semibold underline-offset-2 hover:underline ${LINK_HOVER}`;
 
 /* Forms */
 const FORM_CONTAINER = 'mx-auto w-full max-w-sm';
@@ -369,6 +378,7 @@ export const UI = {
     md: AVATAR_MD,
     lg: AVATAR_LG,
     full: AVATAR_FULL,
+    chat: AVATAR_CHAT,
     statusDot: AVATAR_STATUS_DOT,
     uploader: AVATAR_UPLOADER,
     uploadFrame: AVATAR_UPLOAD_FRAME,
@@ -422,6 +432,13 @@ export const UI = {
     md: ICON_MD,
     lg: ICON_LG,
     spinner: ICON_SPINNER,
+  },
+  link: {
+    profileRow: LINK_PROFILE_ROW,
+    profileName: LINK_PROFILE_NAME,
+    chatName: LINK_CHAT_NAME,
+    chatAvatar: LINK_CHAT_AVATAR,
+    inline: LINK_INLINE,
   },
   ui: {
     card: UI_CARD,

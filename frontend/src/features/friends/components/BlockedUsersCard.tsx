@@ -59,7 +59,7 @@ export function BlockedUsersCard() {
             <li key={blocked.id} className={UI.row.itemRoomy}>
               <Link
                 to={`/profile/${encodeURIComponent(blocked.username)}`}
-                className="flex min-w-0 items-center gap-2.5 transition-opacity hover:opacity-80"
+                className={UI.link.profileRow}
               >
                 <img
                   src={blocked.avatarUrl || defaultAvatar}

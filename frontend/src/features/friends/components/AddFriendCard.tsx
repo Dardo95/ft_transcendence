@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import type { UserPublic } from '@transcendence/shared';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -278,7 +279,11 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
                 key={user.id}
                 className={`${UI.row.item} ${UI.row.interactive}`}
               >
-                <div className="flex min-w-0 items-center gap-2.5">
+                <Link
+                  to={`/profile/${encodeURIComponent(user.username)}`}
+                  title={t('profile.publicProfile')}
+                  className={UI.link.profileRow}
+                >
                   {user.avatarUrl ? (
                     <img
                       src={user.avatarUrl}
@@ -290,10 +295,12 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
                       {user.username.slice(0, 2).toUpperCase()}
                     </div>
                   )}
-                  <span className="text-foreground truncate text-xs font-semibold">
+                  <span
+                    className={`text-foreground text-xs ${UI.link.profileName}`}
+                  >
                     {user.username}
                   </span>
-                </div>
+                </Link>
 
                 <Button
                   type="button"
