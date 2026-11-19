@@ -41,7 +41,7 @@ export interface AuthState {
   setAuthErrorKey: (key: TranslationKey | null) => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isAuthChecked: false,
@@ -49,21 +49,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   authErrorKey: null,
 
   checkAuth: async () => {
-    const previousUser = get().user;
     set({ error: null, authErrorKey: null });
 
     try {
       const user = await fetchSession();
 
-      if (!user && previousUser) {
-        set({
-          isAuthChecked: true,
-          error: null,
-          authErrorKey: null,
-        });
-        return;
-      }
-
+      // `fetchSession` only resolves to null when the server confirmed that
+      // there is no valid session, so stale user state must be cleared.
       set({
         user,
         isAuthenticated: user !== null,
@@ -72,18 +64,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         authErrorKey: null,
       });
     } catch {
-      if (previousUser) {
-        set({
-          isAuthChecked: true,
-          error: null,
-          authErrorKey: null,
-        });
-        return;
-      }
-
+      // Network or server failures are not proof that the session is gone:
+      // keep the current user and only mark the check as finished.
       set({
-        user: null,
-        isAuthenticated: false,
         isAuthChecked: true,
         error: null,
         authErrorKey: null,
