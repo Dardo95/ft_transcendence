@@ -70,7 +70,7 @@ export const profileEn = {
   avatarHint: 'Square image · JPG, PNG or WebP',
   uploadAvatar: 'Upload avatar',
   someone: 'Someone',
-  blockedUsers: 'Blocked users',
+  blockedUsers: 'Blocked-users List',
   blockedUsersEmpty: 'You have not blocked any users yet.',
   blockedUser: 'Blocked user',
   blocked: 'Blocked',

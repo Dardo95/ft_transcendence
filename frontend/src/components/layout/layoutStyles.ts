@@ -95,6 +95,7 @@ const HIGHLIGHT_HEADER = 'mb-2.5 flex items-center gap-2 text-primary';
 const HIGHLIGHT_TITLE =
   'text-xs font-bold tracking-wider text-foreground uppercase';
 const FRIEND_LIST_SCROLL = 'flex flex-col gap-2 overflow-y-auto pr-1';
+const PROFILE_LIST_EMPTY = 'text-muted-foreground py-4 text-center text-xs';
 const SUBLABEL_ROW = `flex items-center gap-2 ${SECTION_SUBLABEL}`;
 const FRIEND_TITLE_LOBBY = SUBLABEL_ROW;
 const FRIEND_TITLE_PROFILE = `flex items-center gap-2 ${SECTION_TITLE}`;
@@ -341,6 +342,7 @@ export const UI = {
     highlightHeader: HIGHLIGHT_HEADER,
     highlightTitle: HIGHLIGHT_TITLE,
     friendsScroll: FRIEND_LIST_SCROLL,
+    profileEmpty: PROFILE_LIST_EMPTY,
     friendsScrollShort: 'max-h-64',
     friendsScrollTall: 'max-h-96',
   },

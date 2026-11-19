@@ -37,11 +37,12 @@ export function BlockedUsersCard() {
   };
 
   return (
-    <Card className={UI.card.sectionLarge}>
-      <div className={UI.row.header}>
-        <h2 className={UI.text.sectionTitle}>
-          {t('profile.blockedUsers') || 'Blocked users'}
-        </h2>
+    <Card className={UI.card.friendProfile}>
+      <div className={UI.row.friendHeaderProfile}>
+        <h4 className={UI.text.friendTitleProfile}>
+          <Ban className={UI.icon.md} aria-hidden="true" />
+          <span>{t('profile.blockedUsers') || 'Blocked-users List'}</span>
+        </h4>
         <span className={UI.badge.pill}>
           <Ban className={UI.icon.xs} aria-hidden="true" />
           {blockedUsers.length}
@@ -49,14 +50,17 @@ export function BlockedUsersCard() {
       </div>
 
       {blockedUsers.length === 0 ? (
-        <p className={`mt-4 ${UI.card.innerPadded} ${UI.text.small}`}>
+        <p className={UI.list.profileEmpty}>
           {t('profile.blockedUsersEmpty') ||
             'You have not blocked any users yet.'}
         </p>
       ) : (
-        <ul className={`mt-5 ${UI.card.inner} ${UI.row.dividerList}`}>
+        <ul className={`${UI.list.friendsScroll} ${UI.list.friendsScrollTall}`}>
           {blockedUsers.map((blocked) => (
-            <li key={blocked.id} className={UI.row.itemRoomy}>
+            <li
+              key={blocked.id}
+              className={`flex items-center justify-between gap-3 ${UI.card.profileRow} ${UI.row.interactive}`}
+            >
               <Link
                 to={`/profile/${encodeURIComponent(blocked.username)}`}
                 className={UI.link.profileRow}
@@ -64,16 +68,18 @@ export function BlockedUsersCard() {
                 <img
                   src={blocked.avatarUrl || defaultAvatar}
                   alt={blocked.username}
-                  className={UI.avatar.md}
+                  className={UI.avatar.lg}
                 />
-                <span className="min-w-0">
-                  <span className="text-foreground block truncate text-sm font-semibold">
+                <div className="min-w-0">
+                  <p
+                    className={`text-foreground text-sm ${UI.link.profileName}`}
+                  >
                     {blocked.username}
-                  </span>
-                  <span className={UI.text.small}>
+                  </p>
+                  <p className="text-muted-foreground text-[11px]">
                     {t('profile.blocked') || 'Blocked'}
-                  </span>
-                </span>
+                  </p>
+                </div>
               </Link>
 
               <Button

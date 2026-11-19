@@ -51,7 +51,7 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
             className={variant === 'profile' ? UI.icon.md : UI.icon.sm}
             aria-hidden="true"
           />
-          <span>{t('app.friends.friendList') || 'Lista de Amigos'}</span>
+          <span>{t('app.friends.friendList') || 'Friend List'}</span>
         </h4>
         <div className="flex items-center gap-2">
           {isLoading && (
@@ -81,7 +81,7 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
         }`}
       >
         {friends.length === 0 && !isLoading ? (
-          <p className="text-muted-foreground py-4 text-center text-xs">
+          <p className={UI.list.profileEmpty}>
             {t('app.friends.noFriendsYet') || 'No tienes amigos añadidos aún.'}
           </p>
         ) : (

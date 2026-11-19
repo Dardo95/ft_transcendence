@@ -71,7 +71,7 @@ export const profileIt = {
   avatarHint: 'Immagine quadrata · JPG, PNG o WebP',
   uploadAvatar: 'Carica avatar',
   someone: 'Qualcuno',
-  blockedUsers: 'Utenti bloccati',
+  blockedUsers: 'Lista degli utenti bloccati',
   blockedUsersEmpty: 'Non hai ancora bloccato nessun utente.',
   blockedUser: 'Utente bloccato',
   blocked: 'Bloccato',

@@ -71,7 +71,7 @@ export const profileEs = {
   avatarHint: 'Imagen cuadrada · JPG, PNG o WebP',
   uploadAvatar: 'Subir avatar',
   someone: 'Alguien',
-  blockedUsers: 'Usuarios bloqueados',
+  blockedUsers: 'Lista de Usuarios bloqueados',
   blockedUsersEmpty: 'No has bloqueado a ningún usuario.',
   blockedUser: 'Usuario bloqueado',
   blocked: 'Bloqueado',
