@@ -33,7 +33,7 @@ export function LobbyTopBanner({ isGameConnected }: Props) {
       </div>
 
       <div className="relative z-10">
-        <h2 className="text-foreground mt-2 mb-3 text-[clamp(2.5rem,6vw,4.4rem)] leading-[0.92] font-black tracking-[-0.075em]">
+        <h2 className="mt-2 mb-3 text-5xl leading-10 tracking-normal">
           {t('app.lobby.enterLobbyPrefix') || 'Bienvenido al Lobby, '}
           <em className="text-primary not-italic">
             <br />
