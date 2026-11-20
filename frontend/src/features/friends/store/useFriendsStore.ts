@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { UserPublic } from '@transcendence/shared';
 import { chatSocket } from '@/lib/socket';
 import {
   type FriendUser,
@@ -6,6 +7,9 @@ import {
   type SendFriendRequestResult,
   fetchFriends,
   fetchIncomingRequests,
+  getBlockedUsers,
+  blockUser as blockUserRequest,
+  unblockUser as unblockUserRequest,
   sendFriendRequest,
   acceptFriendRequest,
   rejectFriendRequest,
@@ -15,20 +19,25 @@ import {
 interface FriendsState {
   friends: FriendUser[];
   incomingFriendRequests: FriendRequestItem[];
+  blockedUsers: UserPublic[];
   isLoading: boolean;
   error: string | null;
 
   initListeners: () => () => void;
   loadFriendsData: () => Promise<void>;
+  fetchBlockedUsers: () => Promise<void>;
   sendFriendRequest: (username: string) => Promise<SendFriendRequestResult>;
   acceptFriendRequest: (requestId: number) => Promise<void>;
   rejectFriendRequest: (requestId: number) => Promise<void>;
   deleteFriend: (username: string) => Promise<void>;
+  blockUser: (username: string) => Promise<void>;
+  unblockUser: (username: string) => Promise<void>;
 }
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
   friends: [],
   incomingFriendRequests: [],
+  blockedUsers: [],
   isLoading: false,
   error: null,
 
@@ -51,13 +60,15 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   loadFriendsData: async () => {
     set({ isLoading: true, error: null });
     try {
-      const [friendsList, requests] = await Promise.all([
+      const [friendsList, requests, blocked] = await Promise.all([
         fetchFriends().catch(() => []),
         fetchIncomingRequests().catch(() => []),
+        getBlockedUsers().catch(() => []),
       ]);
       set({
         friends: friendsList,
         incomingFriendRequests: requests,
+        blockedUsers: blocked.map((entry) => entry.user),
         isLoading: false,
       });
     } catch (err: unknown) {
@@ -65,6 +76,15 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         error: err instanceof Error ? err.message : 'Error al cargar amigos',
         isLoading: false,
       });
+    }
+  },
+
+  fetchBlockedUsers: async () => {
+    try {
+      const blocked = await getBlockedUsers();
+      set({ blockedUsers: blocked.map((entry) => entry.user) });
+    } catch {
+      // Keep the current list when the endpoint is temporarily unavailable.
     }
   },
 
@@ -91,6 +111,31 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     await removeFriend(username);
     set((state) => ({
       friends: state.friends.filter((f) => f.username !== username),
+    }));
+  },
+
+  blockUser: async (username: string) => {
+    set({ error: null });
+    await blockUserRequest(username);
+    const knownUser = get().friends.find((f) => f.username === username);
+    set((state) => ({
+      friends: state.friends.filter((f) => f.username !== username),
+      incomingFriendRequests: state.incomingFriendRequests.filter(
+        (request) => request.from?.username !== username
+      ),
+      blockedUsers:
+        knownUser && !state.blockedUsers.some((u) => u.username === username)
+          ? [...state.blockedUsers, knownUser]
+          : state.blockedUsers,
+    }));
+    await get().fetchBlockedUsers();
+  },
+
+  unblockUser: async (username: string) => {
+    set({ error: null });
+    await unblockUserRequest(username);
+    set((state) => ({
+      blockedUsers: state.blockedUsers.filter((u) => u.username !== username),
     }));
   },
 }));

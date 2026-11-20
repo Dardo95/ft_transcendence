@@ -200,12 +200,12 @@ function ModuleTable({ modules, accent }: ModuleTableProps) {
               {t('project.colCategory') || 'Category'}
             </th>
             <th className={UI.table.cell}>{t('project.colType') || 'Type'}</th>
-            <th className={`${UI.table.cell} text-right`}>
+            <th className={UI.table.cellRight}>
               {t('project.colPoints') || 'Points'}
             </th>
           </tr>
         </thead>
-        <tbody className="divide-border/60 text-secondary-foreground divide-y">
+        <tbody className={`text-secondary-foreground ${UI.table.dividerList}`}>
           {modules.map((item) => {
             const requirements = tList(item.requirementsKey);
 
@@ -228,7 +228,7 @@ function ModuleTable({ modules, accent }: ModuleTableProps) {
                 </td>
                 <td className="px-4 py-4 align-top whitespace-nowrap">
                   <span
-                    className={`inline-block rounded border px-2 py-0.5 text-xs font-semibold ${ACCENT_CLASSES[accent]}`}
+                    className={`${UI.badge.type} ${ACCENT_CLASSES[accent]}`}
                   >
                     {t(item.typeKey) || item.defaultType}
                   </span>
@@ -310,7 +310,7 @@ export function ProjectPage() {
               rel="noreferrer noopener"
               aria-label="Project GitHub Repository"
             >
-              <Icons.gitHub className="size-4 shrink-0 fill-current" />
+              <Icons.gitHub className={`${UI.icon.sm} shrink-0 fill-current`} />
               Repository
             </a>
           </Button>
@@ -318,7 +318,7 @@ export function ProjectPage() {
 
         {/* Mandatory Modules Table */}
         <Card className={UI.card.section}>
-          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className={`mb-4 ${UI.row.header}`}>
             <h2 className={UI.text.sectionTitle}>
               {t('project.mandatoryHeading') || 'Mandatory Core Modules'}
             </h2>
@@ -332,7 +332,7 @@ export function ProjectPage() {
 
         {/* Bonus Modules Table */}
         <Card className={`mb-8 ${UI.card.section}`}>
-          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className={`mb-4 ${UI.row.header}`}>
             <h2 className={UI.text.sectionTitle}>
               {t('project.bonusHeading') || 'Bonus Modules (Max 5 pts)'}
             </h2>
@@ -349,7 +349,7 @@ export function ProjectPage() {
           <h2 className={UI.text.sectionTitle}>
             {t('project.extraHeading') || 'Extra Modules'}
           </h2>
-          <p className="text-muted-foreground text-sm">
+          <p className={UI.text.muted}>
             {t('project.extraDesc') ||
               'Additional modules or features that are not part of the mandatory or bonus criteria but may enhance the project.'}
           </p>

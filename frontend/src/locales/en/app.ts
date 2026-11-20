@@ -46,8 +46,8 @@ export const appEn = {
       'Leave your current group before accepting another invitation.',
     globalChat: 'Global Chat',
     systemLabel: 'System',
-    userJoinedGame: 'has entered the game',
-    userLeftGame: 'has left the game',
+    userConnected: 'has connected',
+    userDisconnected: 'has disconnected',
     sendMessagePlaceholder: 'Send a message to all players...',
     sendButton: 'Send',
     acceptButton: 'Accept',
@@ -105,6 +105,12 @@ export const appEn = {
     matchmakingFailed: 'The match could not be started. Try again.',
     matchmakingActiveGame:
       'You already have a match in progress. Finish it before starting another one.',
+    socketOnline: 'SOCKET ONLINE',
+    socketOffline: 'SOCKET OFFLINE',
+    enterLobbyPrefix: 'Welcome to the Lobby, ',
+    bannerDescription:
+      'Configure your match. The server controls movement, bombs, explosions, power-ups, and victory.',
+    bombsReady: 'BOMBS READY / PLAYER MODE',
   },
   friends: {
     friendList: 'Friend List',
@@ -169,9 +175,27 @@ export const appEn = {
     },
   },
   aboutGame: {
-    title: 'Rules of the Game',
+    title: 'ft_bomberman',
     subtitle:
-      'Tactical guide on movement mechanics, bomb placement, block types and upgrade catalog.',
+      'Inspired by Bomberman, the classic strategy and maze video game franchise originally created by Hudson Soft in 1983 and now owned by Konami. A 42 Madrid project.',
+    mechanicsTitle: 'Core mechanics',
+    mechanics: {
+      bombPlacement: {
+        label: 'Bomb placement',
+        description:
+          'the player moves through a maze and strategically places explosives to destroy walls and eliminate enemies.',
+      },
+      powerUps: {
+        label: 'Power-ups',
+        description:
+          'breaking blocks yields upgrades such as greater explosion range, more simultaneous bombs, or increased movement speed.',
+      },
+      multiplayer: {
+        label: 'Multiplayer',
+        description:
+          'it is known for its frenetic competitive modes, both in local and online matches for multiple players.',
+      },
+    },
   },
 
   hud: {
@@ -201,6 +225,14 @@ export const appEn = {
     drawTitle: "Draw",
     returnLobby: 'Back to lobby',
     keepWatching: 'Keep watching',
+    restart: 'Restart',
+  },
+  joinFailure: {
+    notFoundTitle: 'Match not found',
+    notFoundSubtitle: 'This match does not exist or has already ended.',
+    connectionLostTitle: 'Could not connect to the server',
+    connectionLostSubtitle: 'The server did not respond in time.',
+    retry: 'Retry',
   },
   sidebar: {
     inKitchen: 'In the kitchen',

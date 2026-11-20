@@ -10,7 +10,7 @@ const demoUsers = [
     username: 'ozamora-',
     email: 'ozamora-@example.com',
     legacyEmail: 'demo2@example.com',
-    xp: 120,
+    xp: 720,
     avatarUrl: '/api/uploads/avatars/member1.jpg',
     twoFaEnabled: false,
     twoFaSecret: null,
@@ -78,6 +78,18 @@ const demoUsers = [
     oauthId: null,
     createdAt: new Date('2026-11-01T18:00:00.000Z'),
   },
+  {
+    username: 'testuser2',
+    email: 'testuser2@example.com',
+    legacyEmail: 'demo6@example.com',
+    xp: 0,
+    avatarUrl: '/api/uploads/avatars/default.jpg',
+    twoFaEnabled: false,
+    twoFaSecret: null,
+    oauthProvider: null,
+    oauthId: null,
+    createdAt: new Date('2026-11-02T18:00:00.000Z'),
+  },
 ];
 
 const demoFriendships = [
@@ -86,6 +98,7 @@ const demoFriendships = [
   ['ozamora-', 'enogueir'],
   ['ozamora-', 'nsantand'],
   ['ozamora-', 'testuser'],
+  ['ozamora-', 'testuser2'],
   ['brivera', 'raperez-'],
   ['brivera', 'enogueir'],
   ['brivera', 'nsantand'],

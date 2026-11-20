@@ -56,6 +56,7 @@ export const authIt = {
     passwordRequired: 'La password è obbligatoria.',
     passwordTooShort: 'La password deve contenere almeno 8 caratteri.',
     passwordTooLong: 'La password non può superare i 128 caratteri.',
+    passwordInvalid: 'La password deve avere tra 8 e 128 caratteri.',
     passwordConfirmationRequired: 'Conferma la nuova password.',
     passwordMismatch: 'Le password non coincidono.',
     currentPasswordRequired: 'Inserisci la password attuale.',

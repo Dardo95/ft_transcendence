@@ -1,6 +1,7 @@
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import logoUrl from '@/assets/ui_logo.svg';
 import { useNavigate } from 'react-router-dom';
+import { UI } from '@/components/layout/layoutStyles';
 
 export function HeaderPublic() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export function HeaderPublic() {
           <img
             src={logoUrl}
             alt="ft_bomberman Logo"
-            className="h-12 cursor-pointer object-contain"
+            className={`h-12 ${UI.chrome.logo}`}
             onClick={() => navigate('/login')}
           />
         </div>

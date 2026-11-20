@@ -206,11 +206,26 @@ export class UsersController {
   }
 
   @Post('me/blocked')
-  blockUser(
+  async blockUser(
     @CurrentUser('sub') userId: number,
     @Body() dto: SendFriendRequestDto
   ) {
-    return this.friendships.block(userId, dto.username);
+    const result = await this.friendships.block(userId, dto.username);
+
+    // Blocking drops any friendship or pending request, so the blocked user's
+    // lists are stale. Reuse the friend-removed event their client already
+    // listens to in order to reload friends, requests and blocked users.
+    const otherId =
+      result.requesterId === userId ? result.addresseeId : result.requesterId;
+    if (otherId) {
+      this.emitToUser(Number(otherId), 'friend:removed', {
+        message: 'User blocked',
+        requesterId: result.requesterId,
+        addresseeId: result.addresseeId,
+      });
+    }
+
+    return result;
   }
 
   @Delete('me/blocked/:username')

@@ -21,7 +21,7 @@
 
 /* Map CSS variables to Tailwind design tokens */
 @theme inline {
-  --font-heading: 'Jersey 25', sans-serif;
+  --font-heading: 'Gabarito', sans-serif;
   --font-sans: 'Lekton', monospace;
 
   --color-background: var(--background);
@@ -51,9 +51,22 @@
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
 
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
+  --color-surface-elevated: var(--surface-elevated);
+
+  --color-banner-glow: var(--banner-glow);
+  --color-banner-sheen-start: var(--banner-sheen-start);
+  --color-banner-sheen-end: var(--banner-sheen-end);
+  --color-tile-warm-from: var(--tile-warm-from);
+  --color-tile-warm-to: var(--tile-warm-to);
+  --color-tile-cool-from: var(--tile-cool-from);
+  --color-tile-cool-to: var(--tile-cool-to);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -114,6 +127,12 @@
   --destructive-foreground: rgba(254, 202, 202, 1); /* Red 200 */
   --success: rgba(5, 150, 105, 1); /* Emerald 600 */
   --success-foreground: rgba(167, 243, 208, 1); /* Emerald 200 */
+  --warning: rgba(245, 158, 11, 1); /* Amber 500 */
+  --warning-foreground: rgba(9, 9, 11, 1);
+
+  /* Elevated floating surfaces and modal backdrops */
+  --surface-elevated: rgba(24, 24, 27, 1);
+  --overlay: rgba(9, 9, 11, 0.75);
 
   /* Form inputs and borders: Brushed steel (Zinc 800 / Zinc 700) */
   --border: rgba(39, 39, 42, 1);
@@ -128,6 +147,17 @@
   --chart-3: rgba(180, 132, 84, 1);
   --chart-4: rgba(161, 161, 170, 1);
   --chart-5: rgba(220, 38, 38, 1);
+
+  /* Lobby hero banner and battlefield tile gradients */
+  --banner-glow: rgba(255, 137, 68, 0.16);
+  --banner-sheen-start: rgba(40, 43, 46, 0.96);
+  --banner-sheen-end: rgba(19, 22, 26, 0.96);
+  --banner-panel-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 124, 54, 0.1);
+  --tile-warm-from: rgba(113, 69, 43, 1);
+  --tile-warm-to: rgba(58, 40, 30, 1);
+  --tile-cool-from: rgba(54, 59, 62, 1);
+  --tile-cool-to: rgba(27, 32, 36, 1);
 
   /* Sidebar navigation drawer */
   --sidebar: rgba(9, 9, 11, 1);
@@ -172,8 +202,8 @@
   h4,
   h5,
   h6 {
-    font-family: 'Jersey 25', sans-serif;
-    letter-spacing: 0.02em;
+    font-family: var(--font-heading);
+    letter-spacing: 0;
   }
 
   /* WebKit scrollbar customizations (Chrome, Safari, Edge) */

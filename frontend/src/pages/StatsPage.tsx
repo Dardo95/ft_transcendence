@@ -24,7 +24,7 @@ export function StatsPage() {
           </h2>
 
           <div
-            className={`text-muted-foreground mt-4 p-3.5 text-xs ${UI.card.inner}`}
+            className={`text-muted-foreground mt-4 text-xs ${UI.card.innerPadded}`}
           >
             {t('app.general.statsEmpty') || 'No matches recorded yet.'}
           </div>
@@ -39,7 +39,7 @@ export function StatsPage() {
                   <th className={UI.table.cell}>
                     {t('app.general.result') || 'Result'}
                   </th>
-                  <th className={`${UI.table.cell} text-right`}>
+                  <th className={UI.table.cellRight}>
                     {t('app.general.date') || 'Date'}
                   </th>
                 </tr>

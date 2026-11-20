@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { UI } from '@/components/layout/layoutStyles';
 import { GameModeSelector } from './GameModeSelector';
 import { GameSettingsCard } from './GameSettingsCard';
 import { LobbyStatusCard } from './LobbyStatusCard';
@@ -56,7 +57,7 @@ export function GameConfig({
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(290px,0.9fr)]">
-      <div className="grid min-w-0 content-start gap-4">
+      <div className={UI.shell.stack}>
         <GameModeSelector
           selectedMode={selectedMode}
           onChange={onModeChange}
@@ -88,7 +89,7 @@ export function GameConfig({
         />
       </div>
 
-      <aside className="grid min-w-0 content-start gap-4">
+      <aside className={UI.shell.stack}>
         <LobbyStatusCard />
         {children}
       </aside>

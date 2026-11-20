@@ -39,7 +39,10 @@ export class GameScene extends Container {
   constructor(map: number[][], players: readonly GamePlayerSnapshot[] = []) {
     super();
 
-    this.map = map;
+    // Copia defensiva: la demo muta su mapa en el sitio y la
+    // escena debe poder detectar el cambio en `setTiles`
+    // (`sameBoard` compara contra su propio mapa).
+    this.map = map.map((row) => [...row]);
     this.players = players;
 
     this.addChild(this.floorLayer);

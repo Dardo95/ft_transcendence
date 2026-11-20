@@ -51,8 +51,8 @@ export const appIt = {
       'Abbandona il tuo gruppo attuale prima di accettare un altro invito.',
     globalChat: 'Chat Globale',
     systemLabel: 'Sistema',
-    userJoinedGame: 'è entrato nel gioco',
-    userLeftGame: 'è uscito dal gioco',
+    userConnected: 'si è connesso',
+    userDisconnected: 'si è disconnesso',
     sendMessagePlaceholder: 'Invia un messaggio a tutti i giocatori...',
     sendButton: 'Invia',
     acceptButton: 'Accetta',
@@ -107,6 +107,12 @@ export const appIt = {
     matchmakingFailed: 'Impossibile avviare la partita. Riprova.',
     matchmakingActiveGame:
       'Hai già una partita in corso. Falla terminare prima di iniziarne una nuova.',
+    socketOnline: 'SOCKET ONLINE',
+    socketOffline: 'SOCKET OFFLINE',
+    enterLobbyPrefix: 'Benvenuto nella Lobby, ',
+    bannerDescription:
+      'Configura la tua partita. Il server gestisce movimento, bombe, esplosioni, potenziamenti e vittoria.',
+    bombsReady: 'BOMBE PRONTE / MODALITÀ GIOCATORE',
   },
   friends: {
     friendList: 'Lista amici',
@@ -170,9 +176,27 @@ export const appIt = {
     },
   },
   aboutGame: {
-    title: 'Regole del Gioco',
+    title: 'ft_bomberman',
     subtitle:
-      'Guida tattica su meccaniche di movimento, posizionamento delle bombe, tipi di blocchi e catalogo di potenziamenti.',
+      'Ispirato a Bomberman, la classica serie di videogiochi di strategia e labirinti creata originariamente da Hudson Soft nel 1983 e oggi di proprietà di Konami. Progetto di 42 Madrid.',
+    mechanicsTitle: 'Meccanica principale',
+    mechanics: {
+      bombPlacement: {
+        label: 'Posizionamento delle bombe',
+        description:
+          'il giocatore si muove in un labirinto e posiziona esplosivi in modo strategico per distruggere muri ed eliminare i nemici.',
+      },
+      powerUps: {
+        label: 'Power-up',
+        description:
+          "distruggendo i blocchi si ottengono miglioramenti, come maggiore raggio dell'esplosione, più bombe simultanee o maggiore velocità di movimento.",
+      },
+      multiplayer: {
+        label: 'Multigiocatore',
+        description:
+          'è celebre per le sue frenetiche modalità competitive, sia in locale che online, per più giocatori.',
+      },
+    },
   },
   hud: {
     health: 'Vite',
@@ -201,6 +225,14 @@ export const appIt = {
     drawTitle: 'Pareggio',
     returnLobby: 'Torna alla lobby',
     keepWatching: 'Continua a guardare',
+    restart: 'Ricomincia',
+  },
+  joinFailure: {
+    notFoundTitle: 'Partita non trovata',
+    notFoundSubtitle: 'Questa partita non esiste o è già terminata.',
+    connectionLostTitle: 'Impossibile connettersi al server',
+    connectionLostSubtitle: 'Il server non ha risposto in tempo.',
+    retry: 'Riprova',
   },
   sidebar: {
     inKitchen: 'In cucina',

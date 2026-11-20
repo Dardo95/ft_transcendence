@@ -38,7 +38,7 @@ export function InviteFriendToLobbyForm() {
         {t('app.friends.inviteLobbyTitle') || 'Invitar amigo a lobby'}
       </h2>
 
-      <form onSubmit={handleInvite} className="flex gap-2">
+      <form onSubmit={handleInvite} className={UI.row.actions}>
         <Input
           value={friendUsername}
           onChange={(event) => setFriendUsername(event.target.value)}
@@ -58,7 +58,7 @@ export function InviteFriendToLobbyForm() {
         </Button>
       </form>
 
-      <p className="text-muted-foreground text-xs">
+      <p className={UI.text.small}>
         {isFull
           ? t('app.friends.lobbyFull') || 'El lobby está completo.'
           : t('app.friends.inviteOnlyFriends') ||

@@ -43,7 +43,7 @@ export function LandingPage() {
           {/* Left side: Branding, Logo and Motto */}
           <div className="flex flex-col items-center text-center lg:col-span-7 lg:items-start lg:text-left">
             {/* Logo */}
-            <div className="relative mb-4 flex items-center justify-center">
+            <div className="relative mb-4 flex w-full items-center justify-center">
               <img
                 src={logoUrl}
                 alt="ft_bomberman Logo"
@@ -77,10 +77,8 @@ export function LandingPage() {
                     setAuthTab('login');
                     useAuthStore.getState().clearError();
                   }}
-                  className={`relative flex-1 cursor-pointer pb-3 text-xs font-bold transition-all sm:text-sm ${
-                    authTab === 'login'
-                      ? 'text-primary after:bg-primary after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full'
-                      : 'text-muted-foreground hover:text-secondary-foreground'
+                  className={`${UI.btn.tab} ${
+                    authTab === 'login' ? UI.btn.tabActive : UI.btn.tabInactive
                   }`}
                 >
                   {t('auth.login.tab') || 'Log in'}
@@ -91,10 +89,10 @@ export function LandingPage() {
                     setAuthTab('register');
                     useAuthStore.getState().clearError();
                   }}
-                  className={`relative flex-1 cursor-pointer pb-3 text-xs font-bold transition-all sm:text-sm ${
+                  className={`${UI.btn.tab} ${
                     authTab === 'register'
-                      ? 'text-primary after:bg-primary after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full'
-                      : 'text-muted-foreground hover:text-secondary-foreground'
+                      ? UI.btn.tabActive
+                      : UI.btn.tabInactive
                   }`}
                 >
                   {t('auth.register.tab') || 'Create account'}
@@ -122,7 +120,7 @@ export function LandingPage() {
                         setAuthTab('register');
                         useAuthStore.getState().clearError();
                       }}
-                      className="h-auto p-0 font-semibold"
+                      className={UI.btn.link}
                     >
                       {t('auth.login.registerInstead') || 'Sign up'}
                     </Button>
@@ -138,7 +136,7 @@ export function LandingPage() {
                         setAuthTab('login');
                         useAuthStore.getState().clearError();
                       }}
-                      className="h-auto p-0 font-semibold"
+                      className={UI.btn.link}
                     >
                       {t('auth.register.loginInstead') || 'Log in'}
                     </Button>

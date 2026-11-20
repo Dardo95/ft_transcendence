@@ -72,6 +72,7 @@ export class GameConnection {
   private gameId: string | null = null;
   private joined = false;
   private spectator = false;
+  private gameFinished = false;
   /** El intento actual terminó (éxito o fallo): evita dobles avisos. */
   private settled = false;
   private active = false;
@@ -94,6 +95,7 @@ export class GameConnection {
     this.gameId = gameId;
     this.joined = false;
     this.spectator = options.spectator === true;
+    this.gameFinished = false;
     this.active = true;
     this.needsRejoin = false;
     this.addListeners();
@@ -132,12 +134,18 @@ export class GameConnection {
     this.gameId = null;
     this.joined = false;
     this.spectator = false;
+    this.gameFinished = false;
     this.active = false;
     this.needsRejoin = false;
   }
 
   private sendStop(): void {
-    if (!this.joined || this.spectator || !this.socket.connected) {
+    if (
+      !this.joined ||
+      this.spectator ||
+      this.gameFinished ||
+      !this.socket.connected
+    ) {
       return;
     }
 
@@ -179,6 +187,7 @@ export class GameConnection {
 
     this.settled = true;
     this.joined = true;
+    this.gameFinished = snapshot.status === 'FINISHED';
     this.clearTimer();
     this.callbacks.onJoined(snapshot);
   };
@@ -188,6 +197,7 @@ export class GameConnection {
       return;
     }
 
+    this.gameFinished = payload.status === 'FINISHED';
     this.callbacks.onState(payload);
   };
 

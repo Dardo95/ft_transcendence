@@ -1,22 +1,26 @@
-import { Button } from '../components/ui/button';
-import { useLanguage } from '../locales/useLanguage';
-import type { EndScreenState } from './endScreen';
+import { Button } from '../../../components/ui/button';
+import { useLanguage } from '../../../locales/useLanguage';
+import type { EndScreenState } from '../endScreen';
 
 interface EndScreenOverlayProps {
   state: Exclude<EndScreenState, 'playing'>;
   onReturnToLobby: () => void;
   onKeepWatching: () => void;
+  /** En la demo (Rules), reinicia la partida en vez de volver. */
+  onRestart?: () => void;
 }
 
 /**
  * Pantalla de fin de partida sobre el canvas:
  * - Muerte: "chau chao adios" con seguir viendo o volver.
  * - Victoria/derrota: resultado y vuelta al lobby.
+ * - Con `onRestart` (demo): el botón principal reinicia.
  */
 export function EndScreenOverlay({
   state,
   onReturnToLobby,
   onKeepWatching,
+  onRestart,
 }: EndScreenOverlayProps) {
   const { t } = useLanguage();
 
@@ -39,10 +43,12 @@ const title =
         <Button
           type="button"
           size="lg"
-          onClick={onReturnToLobby}
+          onClick={onRestart ?? onReturnToLobby}
           className="bg-orange-500 font-black text-white hover:bg-orange-600"
         >
-          {t('app.endScreen.returnLobby')}
+          {onRestart
+            ? t('app.endScreen.restart')
+            : t('app.endScreen.returnLobby')}
         </Button>
 
         {state === 'dead' && (

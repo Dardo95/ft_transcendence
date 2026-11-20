@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import {
   MessageScrollerProvider,
   MessageScroller,
@@ -30,19 +31,9 @@ import { cn } from '@/lib/utils';
 export function GlobalChat() {
   const { user } = useAuthStore();
   const { isConnected } = useSocketStore();
-  const { messages, sendMessage, initChatListeners, clearMessages } =
-    useChatStore();
+  const { messages, sendMessage } = useChatStore();
   const [inputValue, setInputValue] = React.useState('');
   const { t } = useLanguage();
-
-  React.useEffect(() => {
-    const cleanup = initChatListeners();
-
-    return () => {
-      cleanup();
-      clearMessages();
-    };
-  }, [initChatListeners, clearMessages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +52,8 @@ export function GlobalChat() {
     <Card className="flex h-104 flex-col p-4">
       {/* Chat header */}
       <div className="border-border mb-2 flex items-center justify-between border-b pb-2">
-        <h4 className={`flex items-center gap-2 ${UI.text.sublabel}`}>
-          <MessageSquareIcon className="h-3.5 w-3.5" aria-hidden="true" />
+        <h4 className={UI.text.sublabelRow}>
+          <MessageSquareIcon className={UI.icon.xs} aria-hidden="true" />
           <span>{t('app.lobby.globalChat') || 'Global Chat'}</span>
         </h4>
 
@@ -80,7 +71,7 @@ export function GlobalChat() {
         />
       </div>
 
-      {/* Visor scroller de shadcn */}
+      {/* Message scroller */}
       <div className="min-h-0 flex-1">
         <MessageScrollerProvider autoScroll>
           <MessageScroller>
@@ -89,17 +80,16 @@ export function GlobalChat() {
                 {messages.map((msg) => {
                   const isMe = msg.senderId === user?.id;
                   const isSystem = msg.sender === 'System';
-                  const messageText =
+                  const profileLink = `/profile/${encodeURIComponent(
+                    msg.sender
+                  )}`;
+                  const hasSender = Boolean(msg.sender);
+                  const systemPhrase =
                     msg.systemEvent === 'user_joined'
-                      ? `${msg.targetUsername} ${
-                          t('app.lobby.userJoinedGame') ||
-                          'has entered the game'
-                        }`
+                      ? t('app.lobby.userConnected') || 'has connected'
                       : msg.systemEvent === 'user_left'
-                        ? `${msg.targetUsername} ${
-                            t('app.lobby.userLeftGame') || 'has left the game'
-                          }`
-                        : msg.text;
+                        ? t('app.lobby.userDisconnected') || 'has disconnected'
+                        : null;
 
                   return (
                     <MessageScrollerItem key={msg.id} messageId={msg.id}>
@@ -115,18 +105,24 @@ export function GlobalChat() {
                                 : 'justify-start text-left'
                           )}
                         >
-                          <span
-                            className={cn(
-                              'font-semibold',
-                              isMe
-                                ? 'text-primary'
-                                : 'text-secondary-foreground'
-                            )}
-                          >
-                            {isSystem
-                              ? t('app.lobby.systemLabel') || 'System'
-                              : msg.sender}
-                          </span>
+                          {isSystem ? (
+                            <span className="text-secondary-foreground font-semibold">
+                              {t('app.lobby.systemLabel') || 'System'}
+                            </span>
+                          ) : hasSender ? (
+                            <Link
+                              to={profileLink}
+                              title={t('profile.publicProfile')}
+                              className={cn(
+                                UI.link.chatName,
+                                isMe
+                                  ? 'text-primary'
+                                  : 'text-secondary-foreground'
+                              )}
+                            >
+                              {msg.sender}
+                            </Link>
+                          ) : null}
 
                           <span>•</span>
 
@@ -139,17 +135,23 @@ export function GlobalChat() {
                         </div>
 
                         <Message align={isMe ? 'end' : 'start'}>
-                          {!isSystem && (
+                          {!isSystem && hasSender && (
                             <MessageAvatar className="size-8">
-                              <img
-                                src={msg.avatarUrl || defaultAvatar}
-                                alt={msg.sender}
-                                className="size-8 rounded-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src =
-                                    defaultAvatar;
-                                }}
-                              />
+                              <Link
+                                to={profileLink}
+                                title={t('profile.publicProfile')}
+                                className={UI.link.chatAvatar}
+                              >
+                                <img
+                                  src={msg.avatarUrl || defaultAvatar}
+                                  alt={msg.sender}
+                                  className={UI.avatar.chat}
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src =
+                                      defaultAvatar;
+                                  }}
+                                />
+                              </Link>
                             </MessageAvatar>
                           )}
 
@@ -174,7 +176,26 @@ export function GlobalChat() {
                                     : 'secondary'
                               }
                             >
-                              <BubbleContent>{messageText}</BubbleContent>
+                              <BubbleContent>
+                                {isSystem &&
+                                msg.targetUsername &&
+                                systemPhrase ? (
+                                  <>
+                                    <Link
+                                      to={`/profile/${encodeURIComponent(
+                                        msg.targetUsername
+                                      )}`}
+                                      title={t('profile.publicProfile')}
+                                      className={UI.link.inline}
+                                    >
+                                      {msg.targetUsername}
+                                    </Link>{' '}
+                                    {systemPhrase}
+                                  </>
+                                ) : (
+                                  msg.text
+                                )}
+                              </BubbleContent>
                             </Bubble>
                           </MessageContent>
                         </Message>
@@ -190,8 +211,8 @@ export function GlobalChat() {
         </MessageScrollerProvider>
       </div>
 
-      {/* Input de envío */}
-      <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
+      {/* Message input */}
+      <form onSubmit={handleSubmit} className={`mt-3 ${UI.row.actions}`}>
         <Input
           type="text"
           value={inputValue}
@@ -213,7 +234,7 @@ export function GlobalChat() {
           }
           className="h-8 px-3"
         >
-          <SendIcon className="size-3.5" />
+          <SendIcon className={UI.icon.xs} />
 
           <span className="sr-only">
             {t('app.lobby.sendButton') || 'Enviar'}

@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { cn } from 'cn';
+import { UI } from '@/components/layout/layoutStyles';
 
 function MessageGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="message-group"
-      className={cn('flex min-w-0 flex-col gap-2', className)}
+      className={cn(UI.ui.messageGroup, className)}
       {...props}
     />
   );
@@ -59,10 +60,7 @@ function MessageHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="message-header"
-      className={cn(
-        'text-muted-foreground flex max-w-full min-w-0 items-center px-3 text-xs font-medium group-has-data-[variant=ghost]/message:px-0',
-        className
-      )}
+      className={cn(UI.ui.messageMeta, className)}
       {...props}
     />
   );
@@ -73,7 +71,8 @@ function MessageFooter({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="message-footer"
       className={cn(
-        'text-muted-foreground flex max-w-full min-w-0 items-center px-3 text-xs font-medium group-has-data-[variant=ghost]/message:px-0 group-data-[align=end]/message:justify-end',
+        UI.ui.messageMeta,
+        'group-data-[align=end]/message:justify-end',
         className
       )}
       {...props}
