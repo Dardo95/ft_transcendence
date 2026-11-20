@@ -1,4 +1,5 @@
 import { useLanguage } from '@/locales/useLanguage';
+import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { Card } from '@/components/ui/card';
 import { UI } from '@/components/layout/layoutStyles';
 
@@ -8,11 +9,12 @@ interface Props {
 
 export function LobbyTopBanner({ isGameConnected }: Props) {
   const { t } = useLanguage();
+  const user = useAuthStore((state) => state.user);
 
   return (
     <Card className="relative my-6 grid min-h-[250px] items-center gap-6 p-[clamp(1.3rem,4vw,2.5rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.9fr)]">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(255,137,68,0.16),transparent_30%),linear-gradient(115deg,rgba(40,43,46,0.96),rgba(19,22,26,0.96))]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,var(--banner-glow),transparent_30%),linear-gradient(115deg,var(--banner-sheen-start),var(--banner-sheen-end))]"
         aria-hidden="true"
       />
       <div className="absolute top-6 right-6 z-20">
@@ -31,15 +33,11 @@ export function LobbyTopBanner({ isGameConnected }: Props) {
       </div>
 
       <div className="relative z-10">
-        <span className="text-muted-foreground block text-[0.65rem] font-extrabold tracking-[0.19em]">
-          {t('app.lobby.matchConfiguration') || 'CONFIGURACIÓN DE PARTIDA'}
-        </span>
-
-        <h2 className="text-foreground mt-2 mb-3 text-[clamp(2.5rem,6vw,4.4rem)] leading-[0.92] font-black">
-          {t('app.lobby.enterLobbyPrefix') || 'Entra al'}
+        <h2 className="mt-2 mb-3 text-5xl leading-10 tracking-normal">
+          {t('app.lobby.enterLobbyPrefix') || 'Bienvenido al Lobby, '}
           <em className="text-primary not-italic">
-            {' '}
-            {t('app.lobby.enterLobbyHighlight') || 'Lobby'}
+            <br />
+            {user?.username || 'Jugador'}
           </em>
         </h2>
         <p className="text-muted-foreground max-w-[520px] text-sm leading-relaxed">
@@ -53,16 +51,16 @@ export function LobbyTopBanner({ isGameConnected }: Props) {
         aria-hidden="true"
       >
         <span className="bg-primary/20 absolute inset-[15%] rounded-full blur-[45px]" />
-        <div className="border-primary/25 bg-background/80 relative grid grid-cols-5 gap-1.5 rounded-xl border p-2 shadow-[0_25px_60px_rgba(0,0,0,0.4),0_0_40px_rgba(255,124,54,0.1)]">
+        <div className="border-primary/25 bg-background/80 relative grid grid-cols-5 gap-1.5 rounded-xl border p-2 shadow-[var(--banner-panel-shadow)]">
           {Array.from({ length: 15 }, (_, index) => (
             <span
               key={index}
               className={`border-border grid aspect-square place-items-center rounded-[0.3rem] border text-[clamp(1rem,3vw,2rem)] [text-shadow:0_0_12px_currentColor] ${
                 (index + 1) % 3 === 0
-                  ? 'text-accent bg-[linear-gradient(145deg,#71452b,#3a281e)]'
+                  ? 'text-accent bg-[linear-gradient(145deg,var(--tile-warm-from),var(--tile-warm-to))]'
                   : index === 6 || index === 8 || index === 12
                     ? 'text-primary'
-                    : 'text-muted-foreground bg-[linear-gradient(145deg,#363b3e,#1b2024)]'
+                    : 'text-muted-foreground bg-[linear-gradient(145deg,var(--tile-cool-from),var(--tile-cool-to))]'
               }`}
             >
               {index === 6 || index === 8 || index === 12

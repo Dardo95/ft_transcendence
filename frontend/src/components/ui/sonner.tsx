@@ -8,6 +8,8 @@ import {
   Loader2Icon,
 } from 'lucide-react';
 
+import { UI } from '@/components/layout/layoutStyles';
+
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme();
 
@@ -16,11 +18,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps['theme']}
       className="toaster group"
       icons={{
-        success: <CircleCheckIcon className="size-4" />,
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+        success: <CircleCheckIcon className={UI.icon.sm} />,
+        info: <InfoIcon className={UI.icon.sm} />,
+        warning: <TriangleAlertIcon className={UI.icon.sm} />,
+        error: <OctagonXIcon className={UI.icon.sm} />,
+        loading: <Loader2Icon className={`${UI.icon.sm} ${UI.icon.spinner}`} />,
       }}
       style={
         {

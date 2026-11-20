@@ -23,6 +23,7 @@ import { Footer } from './Footer';
 import { SideDrawer } from './SideDrawer';
 import { SessionReplacedOverlay } from './SessionReplacedOverlay';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
+import { useChatStore } from '@/features/chat/store/useChatStore';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { UI } from '@/components/layout/layoutStyles';
 
@@ -31,14 +32,19 @@ export function AppLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const connect = useSocketStore((state) => state.connect);
   const disconnect = useSocketStore((state) => state.disconnect);
+  const initChatListeners = useChatStore((state) => state.initChatListeners);
 
   useEffect(() => {
     if (!isAuthenticated) return;
+
+    const cleanupChatListeners = initChatListeners();
     connect();
+
     return () => {
       disconnect();
+      cleanupChatListeners();
     };
-  }, [isAuthenticated, connect, disconnect]);
+  }, [isAuthenticated, connect, disconnect, initChatListeners]);
 
   return (
     <div className={UI.chrome.appFrame}>

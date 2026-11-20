@@ -43,14 +43,14 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
 
   return (
     <Card className="min-w-0 p-4">
-      <div className="text-primary mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider">
+      <div className={UI.row.sectionLabel}>
         <span>02 / {t('app.lobby.mapLabel') || 'ESCENARIO'}</span>
-        <small className="text-muted-foreground text-[0.68rem] font-medium tracking-normal">
+        <small className={UI.text.hint}>
           {t('app.lobby.mapHint') || 'Elige el mapa'}
         </small>
       </div>
 
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+      <div className={UI.shell.grid3Tight}>
         {maps.map((map) => {
           const isSelected = selectedMap === map.id;
 
@@ -60,10 +60,8 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
               type="button"
               disabled={disabled}
               onClick={() => onChange(map.id)}
-              className={`text-foreground hover:border-primary/50 min-w-0 cursor-pointer rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
-                isSelected
-                  ? 'border-primary bg-primary/10 shadow-[inset_0_0_0_1px_var(--primary)]'
-                  : UI.card.inner
+              className={`${UI.btn.option} p-2.5 ${
+                isSelected ? UI.btn.optionActive : UI.card.inner
               }`}
             >
               <span className="bg-secondary relative mb-2 block aspect-[1.5] overflow-hidden rounded-[0.4rem]">
@@ -82,9 +80,7 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
               <strong className="block text-[0.72rem] font-black tracking-wider">
                 {map.name}
               </strong>
-              <small className="text-muted-foreground mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug">
-                {map.subtitle}
-              </small>
+              <small className={UI.text.optionHint}>{map.subtitle}</small>
             </button>
           );
         })}

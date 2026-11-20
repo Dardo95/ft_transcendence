@@ -1,4 +1,4 @@
-import type { UserPublic } from '@transcendence/shared';
+import type { BlockedUser, UserPublic } from '@transcendence/shared';
 import { apiFetch } from '../../../api/api';
 
 export interface FriendUser extends UserPublic {
@@ -59,6 +59,25 @@ export async function removeFriend(
   username: string
 ): Promise<{ message: string }> {
   return apiFetch(`/users/me/friends/${encodeURIComponent(username)}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getBlockedUsers(): Promise<BlockedUser[]> {
+  return apiFetch('/users/me/blocked', { method: 'GET' });
+}
+
+export async function blockUser(username: string): Promise<unknown> {
+  return apiFetch('/users/me/blocked', {
+    method: 'POST',
+    body: JSON.stringify({ username: username.trim() }),
+  });
+}
+
+export async function unblockUser(
+  username: string
+): Promise<{ message: string }> {
+  return apiFetch(`/users/me/blocked/${encodeURIComponent(username)}`, {
     method: 'DELETE',
   });
 }

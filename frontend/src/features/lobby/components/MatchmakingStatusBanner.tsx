@@ -1,6 +1,7 @@
 import { useLanguage } from '@/locales/useLanguage';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 
 import type { MatchmakingState } from '../types';
 
@@ -60,7 +61,7 @@ export function MatchmakingStatusBanner({
     <Card className="border-primary/25 bg-primary/5 my-4 flex flex-wrap items-center gap-4 p-4">
       <div className="border-primary/20 border-t-primary h-8 w-8 shrink-0 animate-spin rounded-full border-[3px]" />
       <div className="min-w-0 flex-1">
-        <span className="text-muted-foreground block text-[0.65rem] font-extrabold tracking-[0.19em]">
+        <span className={UI.text.eyebrow}>
           {t('app.lobby.searchingMatch') || 'BUSCANDO PARTIDA'} ·{' '}
           {modeLabel(matchmaking.mode)}
         </span>
@@ -76,7 +77,7 @@ export function MatchmakingStatusBanner({
         <Button
           type="button"
           variant="destructive"
-          className="px-4 py-3 text-[0.68rem] font-black tracking-wider"
+          className={UI.btn.action}
           onClick={onCancel}
         >
           {t('app.lobby.cancelSearch') || 'Cancelar búsqueda'}

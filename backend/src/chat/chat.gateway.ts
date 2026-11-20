@@ -19,6 +19,8 @@ import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
 import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 
+const PRESENCE_DISCONNECT_GRACE_MS = 1000;
+
 @WebSocketGateway({
   namespace: '/chat',
   ...websocketOptions,
@@ -40,6 +42,11 @@ export class ChatGateway
     private readonly registry: SocketRegistryService
   ) {}
 
+  private readonly pendingDisconnects = new Map<
+    number,
+    ReturnType<typeof setTimeout>
+  >();
+
   async onModuleInit(): Promise<void> {
     // Al arrancar no hay nadie conectado: limpiamos la presencia
     // que pudo quedar colgada si el backend se cerró sin desconectar a nadie.
@@ -57,7 +64,11 @@ export class ChatGateway
     const user = client.data.user as WsUser | undefined;
     if (!user?.id) return;
 
-    //  Registra el socket y expulsa el de otra pestaña del mismo namespace.
+    // Cancel pending disconnect if the user reconnects within the grace period.
+    const wasPendingDisconnect = this.cancelPendingDisconnect(user.id);
+    const wasOnline = this.registry.isOnline('chat', user.id);
+
+    // Register the socket and replace another socket for the same namespace.
     this.registry.register('chat', user.id, client);
 
     //  Sala personal: invitaciones y avisos llegan a la pestaña activa.
@@ -84,8 +95,10 @@ export class ChatGateway
     }
     // Si este socket no es el activo, no toca presencia ni lobby.
     if (!this.registry.isCurrent('chat', user.id, client.id)) return;
-    // Difunde la presencia a todos los clientes conectados.
-    this.broadcastPresence(user.username, 'user_joined');
+    // Do not announce replacement or grace-period reconnects as new presence.
+    if (!wasOnline && !wasPendingDisconnect) {
+      this.broadcastPresence(user.username, 'user_joined');
+    }
   }
 
   handleDisconnect(client: Socket): void {
@@ -95,24 +108,42 @@ export class ChatGateway
     // Si fue reemplazado, no toca presencia ni lobby.
     if (!this.registry.unregister('chat', user.id, client.id)) return;
 
-    this.prisma.user
-      .update({ where: { id: user.id }, data: { isOnline: false } })
-      .catch(() => undefined);
+    // We wait a grace period before marking the user as offline, in case they reconnect quickly.
+    const timeout = setTimeout(() => {
+      this.pendingDisconnects.delete(user.id);
 
-    this.notifyFriendsStatus(user.id, false).catch(() => undefined);
+      if (this.registry.isOnline('chat', user.id)) return;
 
-    this.broadcastPresence(user.username, 'user_left');
+      this.prisma.user
+        .update({ where: { id: user.id }, data: { isOnline: false } })
+        .catch(() => undefined);
 
-    const result = this.lobbyService.leaveLobby(user.id);
-    if (!result || !result.lobby) return;
+      this.notifyFriendsStatus(user.id, false).catch(() => undefined);
 
-    this.server
-      .to(`lobby:${result.lobby.id}`)
-      .emit('lobby:updated', result.lobby);
+      this.broadcastPresence(user.username, 'user_left');
 
-    this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
-      username: user.username,
-    });
+      const result = this.lobbyService.leaveLobby(user.id);
+      if (!result || !result.lobby) return;
+
+      this.server
+        .to(`lobby:${result.lobby.id}`)
+        .emit('lobby:updated', result.lobby);
+
+      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
+        username: user.username,
+      });
+    }, PRESENCE_DISCONNECT_GRACE_MS);
+
+    this.pendingDisconnects.set(user.id, timeout);
+  }
+
+  private cancelPendingDisconnect(userId: number): boolean {
+    const timeout = this.pendingDisconnects.get(userId);
+    if (!timeout) return false;
+
+    clearTimeout(timeout);
+    this.pendingDisconnects.delete(userId);
+    return true;
   }
 
   // Called after a username change so live features use the new name.

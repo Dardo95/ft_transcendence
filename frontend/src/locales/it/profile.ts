@@ -28,6 +28,10 @@ export const profileIt = {
   fieldsRequired: 'Nome utente ed email sono obbligatori.',
   usernameTaken: 'Questo nome utente è già in uso.',
   emailTaken: 'Questa email è già registrata.',
+  usernameHint: 'Tra 3 e 20 caratteri, senza spazi.',
+  emailHint: 'Inserisci un indirizzo email valido (massimo 254 caratteri).',
+  passwordChangeHint:
+    'La nuova password deve avere tra 8 e 128 caratteri, essere diversa da quella attuale e coincidere con la conferma.',
   invalidUsername:
     'Il nome utente deve avere 3-20 caratteri e non contenere spazi.',
   invalidEmail: 'Inserisci un indirizzo email valido.',
@@ -55,6 +59,9 @@ export const profileIt = {
   twoFactorEnabled: 'Attiva',
   twoFactorDisabled: 'Disattivata',
   managedByGoogle: 'Gestito da Google',
+  googleLinked: 'Collegato a Google',
+  emailChangePasswordHint:
+    'Inserisci la password attuale per cambiare l\u2019indirizzo email.',
   privateProfileBadge: 'Dati modificabili',
   publicProfileBadge: 'Profilo giocatore',
   statistics: 'Statistiche',
@@ -64,4 +71,20 @@ export const profileIt = {
   avatarHint: 'Immagine quadrata · JPG, PNG o WebP',
   uploadAvatar: 'Carica avatar',
   someone: 'Qualcuno',
+  blockedUsers: 'Lista degli utenti bloccati',
+  blockedUsersEmpty: 'Non hai ancora bloccato nessun utente.',
+  blockedUser: 'Utente bloccato',
+  blocked: 'Bloccato',
+  blockUser: 'Blocca utente',
+  blockUserTitle: 'Blocca utente',
+  blockUserConfirm: 'Sei sicuro di voler bloccare {username}?',
+  blockUserWarning:
+    'Non sarete più amici, le richieste in sospeso verranno annullate e non potrete inviarvi richieste di amicizia o inviti di partita.',
+  blockButton: 'Blocca',
+  unblockUser: 'Sblocca utente',
+  unblockButton: 'Sblocca',
+  blockedSuccess: 'Utente bloccato correttamente.',
+  unblockedSuccess: 'Utente sbloccato correttamente.',
+  blockFailed: "Impossibile bloccare l'utente. Riprova.",
+  unblockFailed: "Impossibile sbloccare l'utente. Riprova.",
 };

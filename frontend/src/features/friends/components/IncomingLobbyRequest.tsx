@@ -28,24 +28,22 @@ export function IncomingLobbyRequest({
   if (invitations.length === 0) return null;
 
   const cardClass =
-    variant === 'profile'
-      ? `space-y-2 p-3.5 text-foreground ${UI.card.inner}`
-      : 'space-y-2 rounded-lg border border-input bg-background/40 p-3 text-foreground shadow-xl';
+    variant === 'profile' ? UI.card.incomingProfile : UI.card.incoming;
 
   return (
-    <div className="space-y-3">
+    <div className={UI.form.stack}>
       {invitations.map((invitation) => (
         <div key={invitation.id} className={cardClass}>
-          <p className="text-center text-sm">
+          <p className={UI.text.center}>
             <strong>{invitation.inviterUsername}</strong>{' '}
             {t('app.lobby.invitesYou') || 'te invita a su lobby.'}
           </p>
 
-          <div className="flex gap-2">
+          <div className={UI.row.actions}>
             <Button
               size="sm"
               disabled={!isConnected || (lobby?.members.length ?? 0) > 1}
-              className="bg-success text-success-foreground hover:bg-success/80 flex-1"
+              className={`${UI.btn.success} flex-1`}
               onClick={() => acceptLobbyInvitation(invitation.id)}
             >
               {t('app.lobby.acceptButton') || 'Aceptar'}
@@ -62,7 +60,7 @@ export function IncomingLobbyRequest({
           </div>
 
           {(lobby?.members.length ?? 0) > 1 && (
-            <p className="text-muted-foreground text-xs">
+            <p className={UI.text.small}>
               {t('app.lobby.leaveBeforeAccept') ||
                 'Abandona tu grupo actual antes de aceptar otra invitación.'}
             </p>

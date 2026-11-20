@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type {
-  // ChangePasswordInput,
-  // ChangePasswordResponse,
+  ChangePasswordInput,
+  ChangePasswordResponse,
   UpdateProfileInput,
   UpdateProfileResponse,
   UserPrivate,
@@ -11,7 +11,7 @@ import type {
 import { ArrowLeft, Loader2, UserX } from 'lucide-react';
 import { apiFetch } from '../api/api';
 import {
-  // changeMyPassword,
+  changeMyPassword,
   updateMyAvatar,
   updateMyProfile,
 } from '../features/auth/service/authService';
@@ -96,9 +96,10 @@ export function ProfilePage() {
     return result;
   };
 
-  // const handleChangePassword = (
-  //   input: ChangePasswordInput
-  // ): Promise<ChangePasswordResponse> => changeMyPassword(input);
+  // Keep the current session alive: password changes never revoke the cookies.
+  const handleChangePassword = (
+    input: ChangePasswordInput
+  ): Promise<ChangePasswordResponse> => changeMyPassword(input);
 
   // 1. Own profile (private view)
   if (isOwnProfile && currentUser) {
@@ -107,7 +108,7 @@ export function ProfilePage() {
         user={currentUser}
         onAvatarUpload={handleAvatarUpload}
         onUpdateProfile={handleUpdateProfile}
-        // onChangePassword={handleChangePassword}
+        onChangePassword={handleChangePassword}
       />
     );
   }
@@ -118,7 +119,9 @@ export function ProfilePage() {
       <div className={UI.shell.page}>
         <div className={UI.shell.container}>
           <Card className="text-muted-foreground flex flex-col items-center justify-center gap-3 p-12">
-            <Loader2 className="text-primary size-8 animate-spin" />
+            <Loader2
+              className={`text-primary ${UI.icon.lg} ${UI.icon.spinner}`}
+            />
             <p className="text-sm">
               {t('profile.loading') || 'Loading user profile...'}
             </p>
@@ -140,7 +143,7 @@ export function ProfilePage() {
             <h3 className="text-destructive text-xl font-bold">
               {t('profile.userNotFound') || 'User Not Found (404)'}
             </h3>
-            <p className="text-muted-foreground text-sm">
+            <p className={UI.text.muted}>
               {t('profile.userNotFoundDesc') || 'The user'}{' '}
               <span className="text-foreground font-mono">@{username}</span>{' '}
               {t('profile.doesNotExist') || 'does not exist.'}
@@ -148,7 +151,7 @@ export function ProfilePage() {
             <div className="pt-2">
               <Button variant="outline" size="sm" asChild>
                 <Link to="/lobby" className="gap-2 font-semibold">
-                  <ArrowLeft className="size-4" />
+                  <ArrowLeft className={UI.icon.sm} />
                   {t('profile.backToLobby') || 'Back to Lobby'}
                 </Link>
               </Button>

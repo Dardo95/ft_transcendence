@@ -41,7 +41,7 @@ export function LegalPageLayout({ page }: { page: LegalPageContent }) {
       <div className={UI.shell.container}>
         <Card className={UI.card.header}>
           <div className={UI.badge.header}>
-            <BadgeIcon className="size-3.5" />
+            <BadgeIcon className={UI.icon.xs} />
             <span>{t(page.badgeKey) || page.defaultBadge}</span>
           </div>
 
@@ -58,7 +58,7 @@ export function LegalPageLayout({ page }: { page: LegalPageContent }) {
               {t('legal.lastUpdated') || 'Last updated: November 2026'}
             </span>
             <Link to={page.crossLink.to} className={UI.badge.metaLink}>
-              <CrossLinkIcon className="size-3.5" />
+              <CrossLinkIcon className={UI.icon.xs} />
               <span>
                 {t(page.crossLink.labelKey) || page.crossLink.defaultLabel}
               </span>
@@ -74,7 +74,7 @@ export function LegalPageLayout({ page }: { page: LegalPageContent }) {
               return (
                 <Card key={highlight.titleKey} className={UI.card.highlight}>
                   <div className={UI.list.highlightHeader}>
-                    <HighlightIcon className="size-4 shrink-0" />
+                    <HighlightIcon className={`${UI.icon.sm} shrink-0`} />
                     <h2 className={UI.list.highlightTitle}>
                       {t(highlight.titleKey) || highlight.defaultTitle}
                     </h2>

@@ -25,13 +25,13 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
     <div className="fixed inset-0 z-50 flex">
       {/* Backdrop overlay */}
       <div
-        className="bg-background/70 fixed inset-0 backdrop-blur-sm transition-opacity"
+        className={UI.overlay.backdrop}
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Drawer slide-out panel */}
-      <aside className={UI.chrome.drawer}>
+      <aside className={UI.overlay.drawerPanel}>
         <div className="flex flex-col gap-6">
           <div className="border-border flex items-center justify-between border-b pb-4">
             <h2 className="text-primary text-lg font-bold">
@@ -42,37 +42,37 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               variant="ghost"
               size="icon-sm"
               onClick={onClose}
-              className="text-muted-foreground hover:text-foreground"
+              className={UI.nav.iconBtn}
               aria-label="Close navigation drawer"
             >
-              <XIcon className="h-5 w-5" aria-hidden="true" />
+              <XIcon className={UI.icon.md} aria-hidden="true" />
             </Button>
           </div>
 
           {/* Navigation links */}
           <nav className="flex flex-col gap-2">
-            <Link to="/lobby" onClick={onClose} className={UI.chrome.navLink}>
-              <GamepadIcon className="h-4 w-4" aria-hidden="true" />
+            <Link to="/lobby" onClick={onClose} className={UI.nav.drawerLink}>
+              <GamepadIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.lobby') || 'Lobby'}</span>
             </Link>
-            <Link to="/stats" onClick={onClose} className={UI.chrome.navLink}>
-              <TrophyIcon className="h-4 w-4" aria-hidden="true" />
+            <Link to="/stats" onClick={onClose} className={UI.nav.drawerLink}>
+              <TrophyIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.general.stats') || 'Game Statistics'}</span>
             </Link>
-            <Link to="/rules" onClick={onClose} className={UI.chrome.navLink}>
-              <BookOpenIcon className="h-4 w-4" aria-hidden="true" />
+            <Link to="/rules" onClick={onClose} className={UI.nav.drawerLink}>
+              <BookOpenIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.general.aboutGame') || 'Rules'}</span>
             </Link>
-            <Link to="/project" onClick={onClose} className={UI.chrome.navLink}>
-              <PackageIcon className="h-4 w-4" aria-hidden="true" />
+            <Link to="/project" onClick={onClose} className={UI.nav.drawerLink}>
+              <PackageIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.general.aboutProject') || 'Project'}</span>
             </Link>
             <Link
               to="/about-us"
               onClick={onClose}
-              className={UI.chrome.navLink}
+              className={UI.nav.drawerLink}
             >
-              <ChefHatIcon className="h-4 w-4" aria-hidden="true" />
+              <ChefHatIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.general.aboutUs') || 'About Us'}</span>
             </Link>
           </nav>
