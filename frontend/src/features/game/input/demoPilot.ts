@@ -12,8 +12,8 @@ import { TileType } from '../map/types';
 // Igual que el stat `speed` del fixture (tiles por segundo): el
 // piloto lee `player.speed` en cada paso, que los power-ups
 // SPEED incrementan.
+const SPEED_TILES_PER_SECOND = 4;
 const PLAYER_HALF_SIZE = 0.4;
-const INV_SQRT_2 = Math.SQRT1_2;
 // Tope de delta para que una pestaña suspendida no atraviese muros.
 const MAX_STEP_MS = 50;
 
@@ -26,9 +26,8 @@ const STOPPED: MovementInput = {
 
 /**
  * Controla un jugador local en el demo: aplica el estado de
- * teclas del `KeyboardController` con la misma normalización
- * diagonal que el backend y gestiona sus bombas (mecha → cruz →
- * fin). Es la costura futura del socket: cuando llegue
+ * teclas del `KeyboardController` con movimiento cardinal y
+ * gestiona sus bombas. Es la costura futura del socket: cuando llegue
  * `game:input`, el controller hablará con el servidor en lugar
  * de con este piloto.
  */
@@ -63,7 +62,23 @@ export class DemoPilot {
   }
 
   setMovement(movement: MovementInput): void {
-    this.movement = movement;
+    const activeDirections =
+      Number(movement.up) +
+      Number(movement.down) +
+      Number(movement.left) +
+      Number(movement.right);
+
+    // La demo aplica la misma regla que el servidor: una o ninguna
+    // dirección activa. Un input diagonal se descarta por completo.
+    this.movement =
+      activeDirections > 1
+        ? STOPPED
+        : {
+            up: movement.up,
+            down: movement.down,
+            left: movement.left,
+            right: movement.right,
+          };
   }
 
   placeBomb(): void {
@@ -161,23 +176,22 @@ export class DemoPilot {
     }
 
     const { movement, localPlayer } = this;
-    const movingHorizontally = movement.left !== movement.right;
-    const movingVertically = movement.up !== movement.down;
 
-    if (!movingHorizontally && !movingVertically) {
+    const directionX = Number(movement.right) - Number(movement.left);
+    const directionY = Number(movement.down) - Number(movement.up);
+
+    // La demo tampoco permite diagonales, incluso si recibe un input
+    // que no procede del KeyboardController.
+    if (
+      (directionX !== 0 && directionY !== 0) ||
+      (directionX === 0 && directionY === 0)
+    ) {
       return;
     }
 
-    const distance = (this.localPlayer.speed * deltaMs) / 1000;
-    let dx = (movingHorizontally ? (movement.right ? 1 : -1) : 0) * distance;
-    let dy = (movingVertically ? (movement.down ? 1 : -1) : 0) * distance;
-
-    // Misma normalización que el backend: la diagonal no
-    // debe ser más rápida que un solo eje.
-    if (dx !== 0 && dy !== 0) {
-      dx *= INV_SQRT_2;
-      dy *= INV_SQRT_2;
-    }
+    const distance = (SPEED_TILES_PER_SECOND * deltaMs) / 1000;
+    const dx = directionX * distance;
+    const dy = directionY * distance;
 
     const position = localPlayer.position;
 

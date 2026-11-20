@@ -43,6 +43,10 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
 
       onTick: (session, result) => {
         this.notifyTickListeners(session, result);
+
+        if (result.outcome?.newlyFinished) {
+          this.removeFinishedSession(session.id);
+        }
       },
 
       onError: (error, session) => {

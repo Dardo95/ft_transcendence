@@ -8,7 +8,7 @@ import type { GamePlayerSnapshot, GameSnapshot } from '@transcendence/shared';
  * - `playing`: todo lo demás (demo, cuenta atrás, espectador
  *   sin identidad local).
  */
-export type EndScreenState = 'playing' | 'dead' | 'victory' | 'defeat';
+export type EndScreenState = 'playing' | 'dead' | 'victory' | 'defeat' | 'draw';
 
 export function deriveEndScreen(
   snapshot: GameSnapshot,
@@ -18,6 +18,11 @@ export function deriveEndScreen(
   // estando "muerto" (o el backend no marcó `alive`), gana el
   // resultado.
   if (snapshot.status === 'FINISHED') {
+    // Una partida terminada sin ganador es un empate.
+    if (snapshot.winnerId === null) {
+      return 'draw';
+    }
+
     return localId !== null && snapshot.winnerId === localId
       ? 'victory'
       : 'defeat';

@@ -279,6 +279,26 @@ async function ensureMatch(match, idByUsername) {
       where: { id: existing.id },
       data: { mapId: match.mapId },
     });
+    await prisma.matchPlayer.updateMany({
+      where: {
+        matchId: existing.id,
+        userId: idByUsername.get(match.winner),
+      },
+      data: {
+        result: 'WIN',
+        isWinner: true,
+      },
+    });
+    await prisma.matchPlayer.updateMany({
+      where: {
+        matchId: existing.id,
+        userId: idByUsername.get(match.loser),
+      },
+      data: {
+        result: 'LOSS',
+        isWinner: false,
+      },
+    });
     return;
   }
 
@@ -297,6 +317,7 @@ async function ensureMatch(match, idByUsername) {
             score: match.winnerScore,
             kills: match.winnerKills,
             position: 1,
+            result: 'WIN',
             isWinner: true,
           },
           {
@@ -304,6 +325,7 @@ async function ensureMatch(match, idByUsername) {
             score: match.loserScore,
             kills: match.loserKills,
             position: 2,
+            result: 'LOSS',
             isWinner: false,
           },
         ],

@@ -3,12 +3,15 @@ import { MatchStatus } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service.js';
 import { MatchHistoryQueryDto } from './dto/match-history-query.dto.js';
 
+export type MatchPlayerResult = 'WIN' | 'LOSS' | 'DRAW';
+
 export interface UserStats {
   userId: number;
   username: string;
   matches: number;
   wins: number;
   losses: number;
+  draws: number;
   kills: number;
   score: number;
   winRate: number;
@@ -17,6 +20,7 @@ export interface UserStats {
 
 export interface MatchHistoryPlayer {
   username: string;
+  result: MatchPlayerResult;
   isWinner: boolean;
   score: number;
   kills: number;
@@ -29,7 +33,7 @@ export interface MatchHistoryItem {
   mapId: string | null;
   createdAt: Date;
   finishedAt: Date | null;
-  result: 'WIN' | 'LOSS';
+  result: MatchPlayerResult;
   score: number;
   kills: number;
   position: number | null;
@@ -47,6 +51,25 @@ interface StatsUser {
   id: number;
   username: string;
   xp: number;
+}
+
+interface PlayerResultSource {
+  result: MatchPlayerResult | null;
+  isWinner: boolean;
+}
+
+/**
+ * Resuelve el resultado individual.
+ *
+ * Los registros antiguos no tienen `result`, por lo que
+ * se interpretan usando el campo heredado `isWinner`.
+ */
+function resolvePlayerResult(player: PlayerResultSource): MatchPlayerResult {
+  if (player.result !== null) {
+    return player.result;
+  }
+
+  return player.isWinner ? 'WIN' : 'LOSS';
 }
 
 @Injectable()
@@ -85,6 +108,7 @@ export class StatsService {
   ): Promise<MatchHistoryPage> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
+
     const where = {
       status: MatchStatus.FINISHED,
       players: { some: { userId } },
@@ -110,6 +134,7 @@ export class StatsService {
               score: true,
               kills: true,
               position: true,
+              result: true,
               isWinner: true,
               user: { select: { username: true } },
             },
@@ -122,23 +147,30 @@ export class StatsService {
       data: matches.map((match) => {
         const own = match.players.find((player) => player.userId === userId);
 
+        const ownResult = own ? resolvePlayerResult(own) : 'LOSS';
+
         return {
           matchId: match.id,
           gameMode: match.gameMode,
           mapId: match.mapId,
           createdAt: match.createdAt,
           finishedAt: match.finishedAt,
-          result: own?.isWinner ? 'WIN' : 'LOSS',
+          result: ownResult,
           score: own?.score ?? 0,
           kills: own?.kills ?? 0,
           position: own?.position ?? null,
-          players: match.players.map((player) => ({
-            username: player.user.username,
-            isWinner: player.isWinner,
-            score: player.score,
-            kills: player.kills,
-            position: player.position,
-          })),
+          players: match.players.map((player) => {
+            const result = resolvePlayerResult(player);
+
+            return {
+              username: player.user.username,
+              result,
+              isWinner: result === 'WIN',
+              score: player.score,
+              kills: player.kills,
+              position: player.position,
+            };
+          }),
         };
       }),
       total,
@@ -153,12 +185,20 @@ export class StatsService {
         userId: user.id,
         match: { status: MatchStatus.FINISHED },
       },
-      select: { score: true, kills: true, isWinner: true },
+      select: {
+        score: true,
+        kills: true,
+        result: true,
+        isWinner: true,
+      },
     });
 
-    const matches = players.length;
-    const wins = players.filter((player) => player.isWinner).length;
-    const losses = matches - wins;
+    const results = players.map(resolvePlayerResult);
+
+    const matches = results.length;
+    const wins = results.filter((result) => result === 'WIN').length;
+    const losses = results.filter((result) => result === 'LOSS').length;
+    const draws = results.filter((result) => result === 'DRAW').length;
 
     return {
       userId: user.id,
@@ -166,6 +206,7 @@ export class StatsService {
       matches,
       wins,
       losses,
+      draws,
       kills: players.reduce((sum, player) => sum + player.kills, 0),
       score: players.reduce((sum, player) => sum + player.score, 0),
       winRate: matches === 0 ? 0 : Math.round((wins / matches) * 100) / 100,

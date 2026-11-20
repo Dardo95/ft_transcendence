@@ -222,6 +222,7 @@ export const appEn = {
     deadTitle: 'bye bye goodbye',
     victoryTitle: 'You win',
     defeatTitle: 'You lose',
+    drawTitle: 'Draw',
     returnLobby: 'Back to lobby',
     keepWatching: 'Keep watching',
     restart: 'Restart',

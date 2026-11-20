@@ -29,7 +29,9 @@ export function EndScreenOverlay({
       ? t('app.endScreen.deadTitle')
       : state === 'victory'
         ? t('app.endScreen.victoryTitle')
-        : t('app.endScreen.defeatTitle');
+        : state === 'draw'
+          ? t('app.endScreen.drawTitle')
+          : t('app.endScreen.defeatTitle');
 
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 bg-zinc-950/85">

@@ -72,20 +72,15 @@ describe('DemoPilot', () => {
     expect(pilot.consumeChanged()).toBe(false);
   });
 
-  it('normalizes diagonal speed like the backend', () => {
+  it('ignores diagonal input instead of moving on both axes', () => {
     const { pilot, players } = createPilot(11.5, 6.5);
-    const startX = players[0].position.x;
-    const startY = players[0].position.y;
+    const initialPosition = { ...players[0].position };
 
     pilot.setMovement({ up: true, down: false, left: false, right: true });
     pilot.update(0, 100);
 
-    const dx = players[0].position.x - startX;
-    const dy = startY - players[0].position.y;
-
-    // Delta topado a 50 ms: 4 * 0.05 = 0.2; en diagonal / sqrt(2).
-    expect(dx).toBeCloseTo(0.2 * Math.SQRT1_2, 5);
-    expect(dy).toBeCloseTo(0.2 * Math.SQRT1_2, 5);
+    expect(players[0].position).toEqual(initialPosition);
+    expect(pilot.consumeMoved()).toBe(false);
   });
 
   it('stops at the border wall instead of leaving the map', () => {
