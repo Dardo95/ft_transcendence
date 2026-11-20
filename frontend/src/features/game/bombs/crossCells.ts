@@ -10,13 +10,16 @@ const DIRECTIONS: readonly Position[] = [
 ];
 
 /**
- * Celdas que cubre una explosión en el demo: la casilla de la
- * bomba más los brazos en cruz, avanzando hasta el radio o hasta
- * el primer tile que no sea piso (muro, caja o mesa lo detiene).
+ * Celdas que cubre una explosión en la demo, con las mismas
+ * reglas que el backend:
+ * - la casilla de la bomba siempre se incluye;
+ * - el brazo avanza por piso hasta el radio;
+ * - una caja (destructible) se incluye y el brazo se detiene
+ *   detrás (la destrucción la resuelve `DemoWorld`);
+ * - un muro, una mesa o el borde cortan el brazo sin
+ *   incluir la casilla.
  *
- * Simplificación del demo: el backend sí destruye cajas y corta
- * el brazo incluyéndolas; aquí no destruimos nada, así que el
- * brazo simplemente se detiene antes del obstáculo.
+ * No encadena bombas (mejora posterior, ver GAME-F-13).
  */
 export function crossCellsAt(
   map: number[][],
@@ -31,11 +34,18 @@ export function crossCellsAt(
       const y = origin.y + direction.y * distance;
       const tile = map[y]?.[x];
 
-      if (tile !== TileType.FLOOR) {
+      // Indestructible o fuera del mapa: el rayo se corta
+      // sin quemar esa casilla.
+      if (tile !== TileType.FLOOR && tile !== TileType.BLOCK) {
         break;
       }
 
       cells.push({ x, y });
+
+      // La caja se quema, pero no hay nada detrás.
+      if (tile !== TileType.FLOOR) {
+        break;
+      }
     }
   }
 

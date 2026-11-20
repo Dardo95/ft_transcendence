@@ -176,9 +176,27 @@ export const appEs = {
     },
   },
   aboutGame: {
-    title: 'Reglas del Juego',
+    title: 'ft_bomberman',
     subtitle:
-      'Guía táctica sobre mecánicas de movimiento, colocación de bombas, tipos de bloques y catálogo de mejoras.',
+      'Inspirado en Bomberman, la clásica franquicia de estrategia y laberintos creada originalmente por Hudson Soft en 1983 y actualmente propiedad de Konami. Proyecto de 42 Madrid.',
+    mechanicsTitle: 'Mecánica principal',
+    mechanics: {
+      bombPlacement: {
+        label: 'Colocación de bombas',
+        description:
+          'el jugador se desplaza por un laberinto y coloca explosivos estratégicamente para destruir muros y eliminar enemigos.',
+      },
+      powerUps: {
+        label: 'Power-ups',
+        description:
+          'al romper los bloques se obtienen mejoras, como mayor alcance de explosión, más bombas simultáneas o mayor velocidad de movimiento.',
+      },
+      multiplayer: {
+        label: 'Multijugador',
+        description:
+          'ofrece modos competitivos tanto en partidas locales como en línea para varios jugadores.',
+      },
+    },
   },
 
   hud: {
@@ -207,6 +225,14 @@ export const appEs = {
     defeatTitle: 'Perdiste',
     returnLobby: 'Volver al lobby',
     keepWatching: 'Seguir viendo',
+    restart: 'Reiniciar',
+  },
+  joinFailure: {
+    notFoundTitle: 'Partida no encontrada',
+    notFoundSubtitle: 'Esta partida no existe o ya terminó.',
+    connectionLostTitle: 'No se pudo conectar al servidor',
+    connectionLostSubtitle: 'El servidor no respondió a tiempo.',
+    retry: 'Reintentar',
   },
   sidebar: {
     inKitchen: 'En la cocina',

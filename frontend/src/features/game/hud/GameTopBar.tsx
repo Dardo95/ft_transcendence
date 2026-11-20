@@ -8,8 +8,8 @@ import {
   UsersIcon,
 } from 'lucide-react';
 
-import { Button } from '../../components/ui/button';
-import { useLanguage } from '../../locales/useLanguage';
+import { Button } from '../../../components/ui/button';
+import { useLanguage } from '../../../locales/useLanguage';
 import { formatClock, type HudModel } from './hudModel';
 
 interface TopBarStat {
@@ -22,7 +22,8 @@ interface GameTopBarProps {
   model: HudModel;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
-  onLeave: () => void;
+  /** Ausente en la demo (Rules): no hay sala de la que salir. */
+  onLeave?: () => void;
 }
 
 /**
@@ -72,21 +73,23 @@ export function GameTopBar({
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onLeave}
-            aria-label={t('app.topbar.leave')}
-            title={t('app.topbar.leave')}
-            className="h-9 gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0"
-          >
-            <LogOutIcon
-              className="h-4 w-4 text-orange-500"
-              aria-hidden="true"
-            />
-            <span>{t('app.topbar.leave')}</span>
-          </Button>
+          {onLeave && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onLeave}
+              aria-label={t('app.topbar.leave')}
+              title={t('app.topbar.leave')}
+              className="h-9 gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0"
+            >
+              <LogOutIcon
+                className="h-4 w-4 text-orange-500"
+                aria-hidden="true"
+              />
+              <span>{t('app.topbar.leave')}</span>
+            </Button>
+          )}
 
           <Button
             type="button"

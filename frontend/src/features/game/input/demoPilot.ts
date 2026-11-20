@@ -5,12 +5,13 @@ import type {
   MovementInput,
 } from '@transcendence/shared';
 
-import { crossCellsAt } from '../bombs/crossCells';
 import { EXPLOSION_MS, FUSE_MS } from '../bombs/demoBombs';
+import { DemoWorld } from '../demo/demoWorld';
 import { TileType } from '../map/types';
 
-// Igual que el stat `speed` del fixture (tiles por segundo).
-const SPEED_TILES_PER_SECOND = 4;
+// Igual que el stat `speed` del fixture (tiles por segundo): el
+// piloto lee `player.speed` en cada paso, que los power-ups
+// SPEED incrementan.
 const PLAYER_HALF_SIZE = 0.4;
 const INV_SQRT_2 = Math.SQRT1_2;
 // Tope de delta para que una pestaña suspendida no atraviese muros.
@@ -32,7 +33,9 @@ const STOPPED: MovementInput = {
  * de con este piloto.
  */
 export class DemoPilot {
-  private readonly map: number[][];
+  private readonly world: DemoWorld;
+  /** Todos los jugadores del fixture: con ellos se registran las bombas. */
+  private readonly players: GamePlayerSnapshot[];
   private readonly localPlayer: GamePlayerSnapshot;
 
   private movement: MovementInput = STOPPED;
@@ -44,7 +47,7 @@ export class DemoPilot {
   private nextBombIndex = 0;
 
   constructor(
-    map: number[][],
+    world: DemoWorld,
     players: GamePlayerSnapshot[],
     localPlayerId: string
   ) {
@@ -54,7 +57,8 @@ export class DemoPilot {
       throw new Error(`[DemoPilot] Local player not found: ${localPlayerId}`);
     }
 
-    this.map = map;
+    this.world = world;
+    this.players = players;
     this.localPlayer = localPlayer;
   }
 
@@ -88,13 +92,18 @@ export class DemoPilot {
       return;
     }
 
-    this.bombs.push({
+    const bomb: BombSnapshot = {
       id: `pilot-bomb-${this.nextBombIndex++}`,
       ownerId: this.localPlayer.id,
       position: tile,
       detonateAt: this.lastNowMs + FUSE_MS,
       blastRadius: this.localPlayer.blastRadius,
-    });
+    };
+
+    this.bombs.push(bomb);
+    // La bomba es sólida: quien la pisa al colocarla puede
+    // salir, pero nadie más puede cruzarla (backend).
+    this.world.registerBomb(bomb, this.players);
     this.changed = true;
   }
 
@@ -134,6 +143,14 @@ export class DemoPilot {
       this.moveLocalPlayer(Math.min(deltaMs, MAX_STEP_MS));
     }
 
+    // Tras cada intento de movimiento: el pase se suelta en
+    // cuanto el jugador deja de pisar la bomba (como
+    // `releaseBombPassThrough` del backend).
+    this.world.releasePassThrough(
+      this.localPlayer.id,
+      this.localPlayer.position
+    );
+
     this.processBombs(nowMs);
     this.checkDeath(nowMs, externalExplosions);
   }
@@ -151,7 +168,7 @@ export class DemoPilot {
       return;
     }
 
-    const distance = (SPEED_TILES_PER_SECOND * deltaMs) / 1000;
+    const distance = (this.localPlayer.speed * deltaMs) / 1000;
     let dx = (movingHorizontally ? (movement.right ? 1 : -1) : 0) * distance;
     let dy = (movingVertically ? (movement.down ? 1 : -1) : 0) * distance;
 
@@ -223,13 +240,14 @@ export class DemoPilot {
     for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
       for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
         // Fuera del mapa también colisiona (undefined !== FLOOR).
-        if (this.map[tileY]?.[tileX] !== TileType.FLOOR) {
+        if (this.world.map[tileY]?.[tileX] !== TileType.FLOOR) {
           return true;
         }
       }
     }
 
-    return false;
+    // Las bombas registradas en el mundo también son sólidas.
+    return this.world.blocksPlayer(this.localPlayer.id, x, y);
   }
 
   private processBombs(nowMs: number): void {
@@ -249,9 +267,11 @@ export class DemoPilot {
     }
 
     for (const bomb of detonated) {
+      // La bomba deja de bloquear y el mundo quema las cajas.
+      this.world.forgetBomb(bomb.id);
       this.explosions.push({
         id: `${bomb.id}:explosion`,
-        cells: crossCellsAt(this.map, bomb.position, bomb.blastRadius),
+        cells: this.world.detonate(bomb),
         expiresAt: bomb.detonateAt + EXPLOSION_MS,
       });
     }

@@ -44,6 +44,27 @@ describe('crossCellsAt', () => {
     expect(cells).toContainEqual({ x: 3, y: 5 });
   });
 
+  it('burns a crate by including it and stopping behind', () => {
+    const map = openMap();
+    map[3][4] = TileType.BLOCK;
+
+    const cells = crossCellsAt(map, { x: 3, y: 3 }, 3);
+
+    expect(cells).toContainEqual({ x: 4, y: 3 });
+    expect(cells).not.toContainEqual({ x: 5, y: 3 });
+    expect(cells).not.toContainEqual({ x: 6, y: 3 });
+  });
+
+  it('stops an arm at a table without burning it', () => {
+    const map = openMap();
+    map[3][4] = TileType.TABLE;
+
+    const cells = crossCellsAt(map, { x: 3, y: 3 }, 3);
+
+    expect(cells).not.toContainEqual({ x: 4, y: 3 });
+    expect(cells).not.toContainEqual({ x: 5, y: 3 });
+  });
+
   it('does not leave the map bounds', () => {
     const cells = crossCellsAt(openMap(5), { x: 1, y: 1 }, 5);
 

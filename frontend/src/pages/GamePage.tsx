@@ -1,10 +1,10 @@
-import { GameViewport } from '../game';
+import { GameViewport } from '../features/game';
 
 /**
  * Route-level shell for a game.
  *
  * GameViewport owns the Pixi renderer, game connection, input handling,
- * camera, HUD, and demo fallback so the page remains responsible only for
+ * camera, HUD and end screens so the page remains responsible only for
  * mounting the game experience.
  */
 export function GamePage() {

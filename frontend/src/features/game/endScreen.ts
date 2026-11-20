@@ -1,4 +1,4 @@
-import type { GameSnapshot } from '@transcendence/shared';
+import type { GamePlayerSnapshot, GameSnapshot } from '@transcendence/shared';
 
 /**
  * Pantalla que corresponde mostrar según el último snapshot:
@@ -36,6 +36,31 @@ export function deriveEndScreen(
     !local.alive &&
     (snapshot.status === 'RUNNING' || snapshot.status === 'OVERTIME')
   ) {
+    return 'dead';
+  }
+
+  return 'playing';
+}
+
+/**
+ * Resultado de la demo local (GAME-F-13): la demo termina
+ * cuando caen todos los bots (victoria) o muere el local
+ * (muerte). La prioridad replica la del servidor: el resultado
+ * manda sobre la muerte — si cayeron todos los bots, el local
+ * gana aunque esté muerto.
+ */
+export function deriveDemoEndScreen(
+  players: readonly GamePlayerSnapshot[],
+  localId: string
+): EndScreenState {
+  const opponents = players.filter((player) => player.id !== localId);
+  const local = players.find((player) => player.id === localId);
+
+  if (opponents.length > 0 && opponents.every((player) => !player.alive)) {
+    return 'victory';
+  }
+
+  if (local && !local.alive) {
     return 'dead';
   }
 

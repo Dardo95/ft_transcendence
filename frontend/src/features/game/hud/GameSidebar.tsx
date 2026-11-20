@@ -1,10 +1,10 @@
 import { ChefHatIcon, CircleIcon, CircleOffIcon, InfoIcon } from 'lucide-react';
 
-import bombUrl from '../../assets/sprites/bomb_pressure_cooker.png';
-import crateUrl from '../../assets/sprites/crate_wood.png';
-import powerUpUrl from '../../assets/sprites/powerup_extrabomb.png';
-import tileWallUrl from '../../assets/sprites/tile_table.png';
-import { useLanguage } from '../../locales/useLanguage';
+import bombUrl from '../../../assets/sprites/bomb_pressure_cooker.png';
+import crateUrl from '../../../assets/sprites/crate_wood.png';
+import powerUpUrl from '../../../assets/sprites/powerup_extrabomb.png';
+import tileWallUrl from '../../../assets/sprites/tile_table.png';
+import { useLanguage } from '../../../locales/useLanguage';
 import { PLAYER_COLORS, type PlayerColor } from '../players/types';
 import type { HudModel } from './hudModel';
 
@@ -90,7 +90,7 @@ export function GameSidebar({ model }: { model: HudModel }) {
       {/* Jugadores en la cocina */}
       <section className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-zinc-100 shadow-lg">
         <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.2em] text-zinc-400 uppercase">
+          <h2 className="flex items-center gap-2 text-[11px] font-semibold text-zinc-400 uppercase">
             <ChefHatIcon className="h-4 w-4" aria-hidden="true" />
             {t('app.sidebar.inKitchen')}
           </h2>
@@ -149,7 +149,7 @@ export function GameSidebar({ model }: { model: HudModel }) {
 
       {/* Estadísticas del jugador local */}
       <section className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-zinc-100 shadow-lg">
-        <h2 className="text-[11px] font-semibold tracking-[0.2em] text-zinc-400 uppercase">
+        <h2 className="text-[11px] font-semibold text-zinc-400 uppercase">
           {t('app.sidebar.yourStats')}
         </h2>
 
@@ -172,7 +172,7 @@ export function GameSidebar({ model }: { model: HudModel }) {
 
       {/* Leyenda del tablero */}
       <section className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-zinc-100 shadow-lg">
-        <h2 className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.2em] text-zinc-400 uppercase">
+        <h2 className="flex items-center gap-2 text-[11px] font-semibold text-zinc-400 uppercase">
           <InfoIcon className="h-4 w-4" aria-hidden="true" />
           {t('app.legend.title')}
         </h2>

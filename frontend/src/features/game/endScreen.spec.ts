@@ -1,7 +1,7 @@
 import type { GameSnapshot } from '@transcendence/shared';
 import { describe, expect, it } from 'vitest';
 
-import { deriveEndScreen } from './endScreen';
+import { deriveDemoEndScreen, deriveEndScreen } from './endScreen';
 
 function snapshot(overrides: Partial<GameSnapshot> = {}): GameSnapshot {
   return {
@@ -110,5 +110,42 @@ describe('deriveEndScreen', () => {
     const state = snapshot({ players: [playerAlive('rival', true)] });
 
     expect(deriveEndScreen(state, 'local')).toBe('playing');
+  });
+});
+
+describe('deriveDemoEndScreen', () => {
+  it('keeps playing while everyone is alive', () => {
+    const players = [playerAlive('bren', true), playerAlive('bot', true)];
+
+    expect(deriveDemoEndScreen(players, 'bren')).toBe('playing');
+  });
+
+  it('shows the dead screen when the local player dies', () => {
+    const players = [playerAlive('bren', false), playerAlive('bot', true)];
+
+    expect(deriveDemoEndScreen(players, 'bren')).toBe('dead');
+  });
+
+  it('shows victory when every bot is dead', () => {
+    const players = [
+      playerAlive('bren', true),
+      playerAlive('bot1', false),
+      playerAlive('bot2', false),
+    ];
+
+    expect(deriveDemoEndScreen(players, 'bren')).toBe('victory');
+  });
+
+  it('victory wins over death when the local also died', () => {
+    // Replica la prioridad del servidor: el resultado manda.
+    const players = [playerAlive('bren', false), playerAlive('bot1', false)];
+
+    expect(deriveDemoEndScreen(players, 'bren')).toBe('victory');
+  });
+
+  it('keeps playing when there are no opponents', () => {
+    expect(deriveDemoEndScreen([playerAlive('bren', true)], 'bren')).toBe(
+      'playing'
+    );
   });
 });
