@@ -1,4 +1,3 @@
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MatchStatus } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service.js';
@@ -65,9 +64,7 @@ interface PlayerResultSource {
  * Los registros antiguos no tienen `result`, por lo que
  * se interpretan usando el campo heredado `isWinner`.
  */
-function resolvePlayerResult(
-  player: PlayerResultSource
-): MatchPlayerResult {
+function resolvePlayerResult(player: PlayerResultSource): MatchPlayerResult {
   if (player.result !== null) {
     return player.result;
   }
@@ -150,9 +147,7 @@ export class StatsService {
       data: matches.map((match) => {
         const own = match.players.find((player) => player.userId === userId);
 
-        const ownResult = own
-          ? resolvePlayerResult(own)
-          : 'LOSS';
+        const ownResult = own ? resolvePlayerResult(own) : 'LOSS';
 
         return {
           matchId: match.id,

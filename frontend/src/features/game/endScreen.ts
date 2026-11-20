@@ -18,15 +18,15 @@ export function deriveEndScreen(
   // estando "muerto" (o el backend no marcó `alive`), gana el
   // resultado.
   if (snapshot.status === 'FINISHED') {
-  // Una partida terminada sin ganador es un empate.
-  if (snapshot.winnerId === null) {
-    return 'draw';
-  }
+    // Una partida terminada sin ganador es un empate.
+    if (snapshot.winnerId === null) {
+      return 'draw';
+    }
 
-  return localId !== null && snapshot.winnerId === localId
-    ? 'victory'
-    : 'defeat';
-}
+    return localId !== null && snapshot.winnerId === localId
+      ? 'victory'
+      : 'defeat';
+  }
 
   if (localId === null || snapshot.status === 'COUNTDOWN') {
     return 'playing';

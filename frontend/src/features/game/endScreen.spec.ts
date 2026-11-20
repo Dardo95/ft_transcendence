@@ -1,4 +1,3 @@
-
 import type { GameSnapshot } from '@transcendence/shared';
 import { describe, expect, it } from 'vitest';
 
