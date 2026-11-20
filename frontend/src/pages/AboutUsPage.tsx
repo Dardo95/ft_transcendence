@@ -99,9 +99,6 @@ const TEAM_MEMBERS: TeamMember[] = [
   },
 ];
 
-const SOCIAL_LINK =
-  'flex items-center gap-2 rounded-lg border border-input bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground transition-colors hover:border-primary/40 hover:bg-muted hover:text-foreground';
-
 export function AboutUsPage() {
   const { t } = useLanguage();
 
@@ -128,7 +125,7 @@ export function AboutUsPage() {
           {TEAM_MEMBERS.map((member) => (
             <Card
               key={member.id}
-              className={`hover:bg-muted/40 flex flex-col justify-between ${UI.card.section}`}
+              className={`${UI.card.section} ${UI.row.interactive} flex flex-col justify-between`}
             >
               {/* Member Top Area: Avatar & Name */}
               <div className="flex items-start gap-4">
@@ -137,7 +134,7 @@ export function AboutUsPage() {
                   <img
                     src={member.avatarUrl || defaultAvatar}
                     alt={member.name}
-                    className="size-full rounded-full object-cover"
+                    className={`${UI.avatar.full} rounded-full`}
                   />
                 </div>
 
@@ -169,9 +166,11 @@ export function AboutUsPage() {
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`${member.name} GitHub`}
-                  className={SOCIAL_LINK}
+                  className={UI.btn.social}
                 >
-                  <Icons.gitHub className="size-4 shrink-0 fill-current" />
+                  <Icons.gitHub
+                    className={`${UI.icon.sm} shrink-0 fill-current`}
+                  />
                   <span className="truncate">{member.githubName}</span>
                 </a>
 
@@ -180,9 +179,11 @@ export function AboutUsPage() {
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`${member.name} LinkedIn`}
-                  className={SOCIAL_LINK}
+                  className={UI.btn.social}
                 >
-                  <Icons.linkedIn className="size-4 shrink-0 fill-current" />
+                  <Icons.linkedIn
+                    className={`${UI.icon.sm} shrink-0 fill-current`}
+                  />
                   <span className="truncate">{member.linkedinName}</span>
                 </a>
 
@@ -191,9 +192,9 @@ export function AboutUsPage() {
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`${member.name} Bomberman Account`}
-                  className={SOCIAL_LINK}
+                  className={UI.btn.social}
                 >
-                  <Bomb className="size-4 shrink-0" />
+                  <Bomb className={`${UI.icon.sm} shrink-0`} />
                   <span className="truncate">{member.bombermanName}</span>
                 </a>
 
@@ -202,9 +203,11 @@ export function AboutUsPage() {
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`${member.name} 42 School Profile`}
-                  className={SOCIAL_LINK}
+                  className={UI.btn.social}
                 >
-                  <Icons.school42 className="size-4 shrink-0 fill-current" />
+                  <Icons.school42
+                    className={`${UI.icon.sm} shrink-0 fill-current`}
+                  />
                   <span className="truncate">{member.school42Name}</span>
                 </a>
               </div>

@@ -20,24 +20,22 @@ export function IncomingFriendRequest({
   if (incomingFriendRequests.length === 0) return null;
 
   const cardClass =
-    variant === 'profile'
-      ? `space-y-2 p-3.5 text-foreground ${UI.card.inner}`
-      : 'space-y-2 rounded-lg border border-input bg-background/40 p-3 text-foreground shadow-xl';
+    variant === 'profile' ? UI.card.incomingProfile : UI.card.incoming;
 
   return (
-    <div className="space-y-3">
+    <div className={UI.form.stack}>
       {incomingFriendRequests.map((req) => (
         <div key={req.id} className={cardClass}>
-          <p className="text-center text-sm">
+          <p className={UI.text.center}>
             <strong>{req.from?.username || t('profile.someone')}</strong>{' '}
             {t('app.friends.friendRequestText') ||
               'te envió una solicitud de amistad.'}
           </p>
 
-          <div className="flex gap-2">
+          <div className={UI.row.actions}>
             <Button
               size="sm"
-              className="bg-success text-success-foreground hover:bg-success/80 flex-1"
+              className={`${UI.btn.success} flex-1`}
               onClick={() => acceptFriendRequest(req.id)}
             >
               {t('app.lobby.acceptButton') || 'Aceptar'}

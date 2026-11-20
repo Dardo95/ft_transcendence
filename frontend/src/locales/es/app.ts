@@ -51,8 +51,8 @@ export const appEs = {
       'Abandona tu grupo actual antes de aceptar otra invitación.',
     globalChat: 'Chat Global',
     systemLabel: 'Sistema',
-    userJoinedGame: 'ha entrado al juego',
-    userLeftGame: 'ha salido del juego',
+    userConnected: 'se ha conectado',
+    userDisconnected: 'se ha desconectado',
     sendMessagePlaceholder: 'Enviar mensaje a todos los jugadores...',
     sendButton: 'Enviar',
     acceptButton: 'Aceptar',
@@ -107,6 +107,12 @@ export const appEs = {
     matchmakingFailed: 'No se pudo iniciar la partida. Inténtalo de nuevo.',
     matchmakingActiveGame:
       'Ya tienes una partida en curso. Termínala antes de empezar otra.',
+    socketOnline: 'SOCKET ONLINE',
+    socketOffline: 'SOCKET OFFLINE',
+    enterLobbyPrefix: 'Bienvenido al Lobby, ',
+    bannerDescription:
+      'Configura tu partida. El servidor controla movimiento, bombas, explosiones, mejoras y victoria.',
+    bombsReady: 'BOMBAS LISTAS / MODO JUGADOR',
   },
   friends: {
     friendList: 'Lista de Amigos',

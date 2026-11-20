@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
+import { UI } from '@/components/layout/layoutStyles';
 
 const LANGUAGES: SupportedLanguage[] = ['es', 'en', 'it'];
 
@@ -21,7 +22,9 @@ export function LanguageSwitcher() {
           size="lg"
           className="border-border bg-card text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground data-[state=open]:border-primary data-[state=open]:bg-primary data-[state=open]:text-primary-foreground gap-2 px-4 font-black"
         >
-          <Globe className="text-primary group-data-[state=open]/button:text-primary-foreground h-4 w-4" />
+          <Globe
+            className={`text-primary group-data-[state=open]/button:text-primary-foreground ${UI.icon.sm}`}
+          />
           <span className="text-xs tracking-widest uppercase">{language}</span>
         </Button>
       </DropdownMenuTrigger>

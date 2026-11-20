@@ -56,6 +56,7 @@ export const authEs = {
     passwordRequired: 'La contraseña es obligatoria.',
     passwordTooShort: 'La contraseña debe tener al menos 8 caracteres.',
     passwordTooLong: 'La contraseña no puede superar los 128 caracteres.',
+    passwordInvalid: 'La contraseña debe tener entre 8 y 128 caracteres.',
     passwordConfirmationRequired: 'Confirma la nueva contraseña.',
     passwordMismatch: 'Las contraseñas no coinciden.',
     currentPasswordRequired: 'Introduce tu contraseña actual.',

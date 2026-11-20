@@ -56,7 +56,7 @@ export function LobbyStatusCard() {
                       : ''}
                   </p>
 
-                  <p className="text-muted-foreground text-xs">
+                  <p className={UI.text.small}>
                     {member.isHost
                       ? t('app.lobby.host') || 'Anfitrión'
                       : t('app.lobby.guest') || 'Invitado'}

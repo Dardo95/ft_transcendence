@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../../../features/auth/store/useAuthStore';
+import { UI } from '@/components/layout/layoutStyles';
 
 export function PublicOnlyRoute() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -7,7 +8,7 @@ export function PublicOnlyRoute() {
   const authErrorKey = useAuthStore((state) => state.authErrorKey);
 
   if (!isAuthChecked && !authErrorKey) {
-    return <div className="bg-background fixed inset-0" />;
+    return <div className={UI.shell.bootScreen} />;
   }
 
   if (isAuthenticated) {

@@ -65,10 +65,10 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         variant="ghost"
         size="icon-lg"
         onClick={onOpenDrawer}
-        className="text-muted-foreground hover:bg-muted hover:text-foreground"
+        className={UI.nav.iconBtn}
         aria-label="Open sidebar menu"
       >
-        <MenuIcon className="h-5 w-5" aria-hidden="true" />
+        <MenuIcon className={UI.icon.md} aria-hidden="true" />
       </Button>
 
       {/* Center section: logo */}
@@ -76,7 +76,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         <img
           src={logoUrl}
           alt="ft_bomberman Logo"
-          className="absolute top-1/2 left-1/2 m-0 h-12 -translate-x-1/2 -translate-y-1/2 cursor-pointer object-contain"
+          className={`absolute top-1/2 left-1/2 m-0 h-12 -translate-x-1/2 -translate-y-1/2 ${UI.chrome.logo}`}
           onClick={() => navigate('/lobby')}
         />
       </div>
@@ -111,7 +111,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
           {isDropdownOpen && (
             <div className={UI.chrome.dropdown}>
               <div className="border-border border-b px-4 py-2">
-                <p className="text-muted-foreground text-xs font-semibold">
+                <p className={`${UI.text.small} font-semibold`}>
                   {t('app.general.connectedAs') || 'Logged in as'}
                 </p>
                 <p className="text-foreground m-2 truncate text-center text-sm font-bold">
@@ -125,7 +125,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
                 onClick={() => setIsDropdownOpen(false)}
                 className={UI.chrome.dropdownItem}
               >
-                <UserIcon className="h-4 w-4" aria-hidden="true" />
+                <UserIcon className={UI.icon.sm} aria-hidden="true" />
                 <span>{t('app.general.profile') || 'Profile'}</span>
               </Link>
 
@@ -134,9 +134,9 @@ export function Header({ onOpenDrawer }: HeaderProps) {
                 type="button"
                 variant="ghost"
                 onClick={handleLogout}
-                className="text-destructive hover:bg-destructive/10 hover:text-destructive w-full justify-start rounded-none px-4 py-2 text-left"
+                className={`${UI.btn.danger} w-full justify-start rounded-none px-4 py-2 text-left`}
               >
-                <LogOutIcon className="h-4 w-4" aria-hidden="true" />
+                <LogOutIcon className={UI.icon.sm} aria-hidden="true" />
                 <span>{t('app.general.logout') || 'Logout'}</span>
               </Button>
             </div>

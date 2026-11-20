@@ -82,17 +82,13 @@ export function LoginForm() {
   }, [authErrorKey]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
-      className="mx-auto w-full max-w-sm"
-    >
+    <form onSubmit={handleSubmit} noValidate className={UI.form.container}>
       {/* Header of the Form */}
       <div className="mb-6">
-        <h2 className="text-foreground text-xl font-bold tracking-tight sm:text-2xl">
+        <h2 className={UI.text.formTitle}>
           {t('auth.login.heading') || 'Welcome back!'}{' '}
         </h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className={UI.text.formSubtitle}>
           {t('auth.login.subheading') || 'Log in to return to the game.'}{' '}
         </p>
       </div>
@@ -103,7 +99,7 @@ export function LoginForm() {
           tabIndex={-1}
           role="alert"
           aria-live="polite"
-          className={`mb-4 flex items-center justify-center text-center font-semibold ${UI.feedback.error}`}
+          className={`mb-4 ${UI.feedback.banner} ${UI.feedback.error}`}
         >
           <span>{t(authErrorKey)}</span>
         </div>
@@ -115,13 +111,10 @@ export function LoginForm() {
             {t('auth.login.email') || 'Email'}
           </FieldLabel>
           <div className="relative">
-            <MailIcon
-              className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-              aria-hidden="true"
-            />
+            <MailIcon className={UI.form.inputIcon} aria-hidden="true" />
             <Input
               id="login-email"
-              className="h-10 pl-9"
+              className={UI.form.inputWithIcon}
               type="email"
               autoComplete="email"
               value={email}
@@ -171,7 +164,7 @@ export function LoginForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="h-10 w-full cursor-pointer"
+            className={UI.btn.submit}
           >
             {isSubmitting
               ? t('auth.login.connecting') || 'Connecting...'
@@ -181,12 +174,12 @@ export function LoginForm() {
       </FieldGroup>
 
       {/* Separator */}
-      <div className="relative my-5 flex items-center">
-        <div className="border-border grow border-t" />
-        <span className="text-muted-foreground mx-3 shrink text-sm uppercase">
+      <div className={UI.form.divider}>
+        <div className={UI.form.dividerLine} />
+        <span className={UI.form.dividerLabel}>
           {t('auth.login.orContinueWith') || 'or continue with'}
         </span>
-        <div className="border-border grow border-t" />
+        <div className={UI.form.dividerLine} />
       </div>
 
       {/* Google OAuth */}
@@ -196,9 +189,9 @@ export function LoginForm() {
         onClick={() => {
           window.location.href = '/api/auth/google';
         }}
-        className="h-10 w-full gap-2.5 text-sm font-semibold"
+        className={UI.btn.oauth}
       >
-        <Icons.google className="h-4 w-4" viewBox="0 0 24 24" />
+        <Icons.google className={UI.icon.sm} viewBox="0 0 24 24" />
         <span>{t('auth.login.continueGoogle') || 'Continue with Google'}</span>
       </Button>
     </form>

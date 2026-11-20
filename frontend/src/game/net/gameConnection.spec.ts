@@ -272,4 +272,16 @@ describe('GameConnection', () => {
 
     expect(onState).not.toHaveBeenCalled();
   });
+
+  it('does not send a stop input after the game has finished', () => {
+    connection.join('abc');
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: { ...makeSnapshot('abc'), status: 'FINISHED' },
+    });
+
+    connection.destroy();
+
+    expect(socket.emitted('game:input')).toHaveLength(0);
+  });
 });

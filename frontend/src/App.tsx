@@ -20,6 +20,7 @@ import { useAuthStore } from './features/auth/store/useAuthStore';
 import { DynamicLayout } from './components/layout/DynamicLayout';
 import { ProtectedRoute } from './components/layout/guards/ProtectedRoute';
 import { PublicOnlyRoute } from './components/layout/guards/PublicOnlyRoute';
+import { Toaster } from './components/ui/sonner';
 
 import { AppLayout } from './components/layout/private/AppLayout';
 import { AppLayoutPublic } from './components/layout/public/AppLayoutPublic';
@@ -96,6 +97,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <Toaster theme="dark" position="top-center" />
       <Suspense fallback={<div className="bg-background fixed inset-0" />}>
         <Routes>
           {/* Group 1: Entrypoint (only accessible if NOT logged in) */}

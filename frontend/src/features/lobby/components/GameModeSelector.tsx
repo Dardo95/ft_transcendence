@@ -48,14 +48,14 @@ export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
 
   return (
     <Card className="min-w-0 p-4">
-      <div className="text-primary mb-3 flex items-center justify-between gap-4 text-[0.68rem] font-black tracking-wider">
+      <div className={UI.row.sectionLabel}>
         <span>01 / {t('app.lobby.modeLabel') || 'MODO DE JUEGO'}</span>
-        <small className="text-muted-foreground text-[0.68rem] font-medium tracking-normal">
+        <small className={UI.text.hint}>
           {t('app.lobby.modeHint') || 'Selecciona tu desafío'}
         </small>
       </div>
 
-      <div className="grid gap-2.5 sm:grid-cols-3">
+      <div className={UI.shell.grid3Tight}>
         {modes.map((mode) => {
           const isSelected = selectedMode === mode.id;
 
@@ -65,19 +65,15 @@ export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
               type="button"
               disabled={disabled}
               onClick={() => onChange(mode.id)}
-              className={`text-foreground hover:border-primary/50 min-w-0 cursor-pointer rounded-xl border p-3 text-left transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
-                isSelected
-                  ? 'border-primary bg-primary/10 shadow-[inset_0_0_0_1px_var(--primary)]'
-                  : UI.card.inner
+              className={`${UI.btn.option} p-3 ${
+                isSelected ? UI.btn.optionActive : UI.card.inner
               }`}
             >
               <span className="mb-2 block text-2xl">{mode.icon}</span>
               <strong className="block text-[0.72rem] font-black tracking-wider">
                 {mode.title}
               </strong>
-              <small className="text-muted-foreground mt-1.5 block min-h-[2.1rem] text-[0.66rem] leading-snug">
-                {mode.subtitle}
-              </small>
+              <small className={UI.text.optionHint}>{mode.subtitle}</small>
               <span className="text-primary mt-2 inline-block text-[0.53rem] font-black tracking-wider">
                 {mode.badge}
               </span>
