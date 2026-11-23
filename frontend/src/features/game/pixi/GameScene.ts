@@ -87,9 +87,8 @@ export class GameScene extends Container {
    * Aplica el tablero autoritativo del servidor. Los snapshots
    * llegan a 20 Hz, así que:
    * - Si el mapa no cambia (`sameBoard`), no se hace nada.
-   * - Si cambia, solo se repinta la capa de cajas: el piso, los
-   *   muros y las mesas nunca cambian, y el suelo ya está pintado
-   *   debajo de cada caja, así que al eliminarla queda el piso.
+   * - Si cambia, se reconstruyen las capas de cajas y muros; el piso
+   *   permanece pintado debajo de las casillas cambiantes.
    * - Si el atlas aún no cargó, `init()` construirá este mapa.
    */
   setTiles(map: number[][]): void {
@@ -118,7 +117,7 @@ export class GameScene extends Container {
       return;
     }
 
-    this.rebuildBlocks();
+    this.rebuildWallsAndBlocks();
   }
 
   setLabelsVisible(visible: boolean): void {
@@ -206,23 +205,32 @@ export class GameScene extends Container {
   }
 
   /**
-   * Repinta solo la capa de cajas con el mapa actual: es el
-   * único contenido que cambia durante la partida. Piso, muros
-   * y mesas se quedan como están.
+   * Repinta las capas de cajas y muros. Normalmente solo desaparecen
+   * cajas al explotar, pero durante overtime también aparecen muros
+   * nuevos sobre casillas de suelo o cajas.
    */
-  private rebuildBlocks(): void {
+  private rebuildWallsAndBlocks(): void {
     this.clearLayer(this.blockLayer);
+    this.clearLayer(this.wallLayer);
 
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
-        if (this.map[y][x] !== TileType.BLOCK) {
+        const tile = this.map[y][x];
+
+        if (tile !== TileType.BLOCK && tile !== TileType.WALL) {
           continue;
         }
 
-        const sprite = this.createTileSprite(TileType.BLOCK, x, y);
+        const sprite = this.createTileSprite(tile, x, y);
 
-        if (sprite) {
+        if (!sprite) {
+          continue;
+        }
+
+        if (tile === TileType.BLOCK) {
           this.blockLayer.addChild(sprite);
+        } else {
+          this.wallLayer.addChild(sprite);
         }
       }
     }

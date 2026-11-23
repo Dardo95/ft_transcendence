@@ -6,6 +6,10 @@ export const GAME_DEFAULTS = {
   countdownMs: 3_000,
   matchDurationMs: 180_000,
 
+  // Overtime: first tile closes after a short warning, then one tile per interval.
+  overtimeFirstWallDelayMs: 1_000,
+  overtimeWallIntervalMs: 250,
+
   // Bombas y explosiones
   bombFuseMs: 2_500,
   explosionDurationMs: 500,

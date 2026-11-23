@@ -11,10 +11,12 @@ import {
 } from './powerup-system.js';
 
 import { checkGameOutcome } from './victory-system.js';
+import { updateOvertime } from './overtime-system.js';
 
 import type { ExplosionUpdateResult } from './explosion-system.js';
 import type { CollectedPowerUp } from './powerup-system.js';
 import type { GameOutcomeUpdate } from './victory-system.js';
+import type { OvertimeUpdateResult } from './overtime-system.js';
 
 export interface GameTickResult {
   /** La cuenta atrás terminó en esta actualización. */
@@ -31,6 +33,9 @@ export interface GameTickResult {
 
   /** Resultado de comprobar la victoria. */
   outcome: GameOutcomeUpdate | null;
+
+  /** Transición a overtime y muros cerrados en este tick. */
+  overtime: OvertimeUpdateResult | null;
 }
 
 function emptyTickResult(started = false): GameTickResult {
@@ -40,6 +45,7 @@ function emptyTickResult(started = false): GameTickResult {
     spawnedPowerUps: [],
     collectedPowerUps: [],
     outcome: null,
+    overtime: null,
   };
 }
 
@@ -93,10 +99,32 @@ export class GameEngine {
     // 3. Detonaciones, cadenas, destrucción y daño.
     const explosions = updateBombsAndExplosions(session, nowMs);
 
-    // 4. Comprobar inmediatamente si el daño terminó
-    // la partida. Así no aparecen ni se recogen mejoras
-    // después de que la partida haya concluido.
-    const outcome = checkGameOutcome(session, nowMs);
+    // 4. Comprobar primero las bajas causadas por bombas. Si ya hay
+    // un ganador o empate, el límite de tiempo no debe iniciar overtime.
+    const outcomeBeforeOvertime = checkGameOutcome(session, nowMs);
+
+    if (outcomeBeforeOvertime.finished) {
+      return {
+        started: false,
+        explosions,
+        spawnedPowerUps: [],
+        collectedPowerUps: [],
+        outcome: outcomeBeforeOvertime,
+        overtime: null,
+      };
+    }
+
+    // 5. El reloj del servidor inicia overtime al superar los 180 s
+    // reglamentarios y va cerrando el tablero en espiral.
+    const overtime = updateOvertime(session, nowMs);
+
+    // Una pared puede eliminar a uno o varios jugadores. Comprobar de
+    // nuevo el resultado solo cuando el overtime haya producido bajas.
+    const overtimeOutcome =
+      overtime.killedPlayerIds.length > 0
+        ? checkGameOutcome(session, nowMs)
+        : null;
+    const outcome = overtimeOutcome ?? outcomeBeforeOvertime;
 
     if (outcome.finished) {
       return {
@@ -105,16 +133,18 @@ export class GameEngine {
         spawnedPowerUps: [],
         collectedPowerUps: [],
         outcome,
+        overtime,
       };
     }
 
-    // 5. Generar las mejoras en los muros destruidos.
+    // 6. Generar las mejoras en los muros destruidos. El sistema comprueba
+    // que la casilla siga siendo suelo (una pared de overtime no da drops).
     const spawnedPowerUps = spawnPowerUpsFromDestroyedWalls(
       session,
       explosions.destroyedWalls
     );
 
-    // 6. Recoger mejoras con los jugadores vivos.
+    // 7. Recoger mejoras con los jugadores vivos.
     const collectedPowerUps = collectPowerUps(session);
 
     return {
@@ -123,6 +153,7 @@ export class GameEngine {
       spawnedPowerUps,
       collectedPowerUps,
       outcome,
+      overtime,
     };
   }
 }

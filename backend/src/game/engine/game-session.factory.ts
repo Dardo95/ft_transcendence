@@ -217,5 +217,6 @@ export function createGameSession(
     finishedAtMs: null,
 
     winnerId: null,
+    overtime: null,
   };
 }
