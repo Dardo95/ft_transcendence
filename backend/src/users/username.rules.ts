@@ -1,13 +1,19 @@
 import { applyDecorators } from '@nestjs/common';
 import { IsString, Matches } from 'class-validator';
+import {
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+  USERNAME_REGEX,
+  isValidUsernameFormat,
+} from '@transcendence/shared';
 
-export const USERNAME_MIN_LENGTH = 3;
-export const USERNAME_MAX_LENGTH = 20;
-// 3-20 characters, no whitespace. Single source of truth for usernames.
-export const USERNAME_PATTERN = /^\S{3,20}$/;
+export { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH };
+
+// Backwards-compatible alias; username rules live in @transcendence/shared.
+export const USERNAME_PATTERN = USERNAME_REGEX;
 
 export function isValidUsername(value: string): boolean {
-  return USERNAME_PATTERN.test(value);
+  return isValidUsernameFormat(value);
 }
 
 // class-validator decorator for DTO fields that carry a username.

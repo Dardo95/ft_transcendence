@@ -1,14 +1,21 @@
 import type { TranslationKey } from '@/locales/translations';
+import {
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+  USERNAME_REGEX,
+  isValidUsernameFormat,
+} from '@transcendence/shared';
+
+export { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH, USERNAME_REGEX };
 
 export const EMAIL_MAX_LENGTH = 254;
-export const USERNAME_MIN_LENGTH = 3;
-export const USERNAME_MAX_LENGTH = 20;
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
 export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export const USERNAME_PATTERN = /^\S{3,20}$/;
+// Backwards-compatible alias; username rules live in @transcendence/shared.
+export const USERNAME_PATTERN = USERNAME_REGEX;
 export const AVATAR_MIME_TYPES = [
   'image/png',
   'image/jpeg',
@@ -63,7 +70,7 @@ export function validateUsername(value: string): ValidationErrorKey | null {
   const username = value.trim();
 
   if (!username) return 'auth.validation.usernameRequired';
-  if (!USERNAME_PATTERN.test(username))
+  if (!isValidUsernameFormat(username))
     return 'auth.validation.usernameInvalid';
 
   return null;

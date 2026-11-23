@@ -4,6 +4,9 @@ import { useSocketStore } from '@/stores/useSocketStore';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { useLanguage } from '@/locales/useLanguage';
 
+import { USERNAME_MAX_LENGTH } from '@transcendence/shared';
+import { validateUsername } from '@/features/auth/utils/validation';
+
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +20,7 @@ export function InviteFriendToLobbyForm() {
   const isConnected = useSocketStore((state) => state.isConnected);
 
   const [friendUsername, setFriendUsername] = useState('');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const isFull = (lobby?.members.length ?? 0) >= 4;
   const isHost = lobby?.hostUserId === user?.id;
@@ -25,11 +29,22 @@ export function InviteFriendToLobbyForm() {
     event.preventDefault();
 
     const username = friendUsername.trim();
+    const usernameError = validateUsername(username);
 
-    if (!username) return;
+    if (usernameError) {
+      setValidationError(t(usernameError));
+      return;
+    }
 
+    setValidationError(null);
     inviteFriend(username);
     setFriendUsername('');
+  };
+
+  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFriendUsername(event.target.value);
+    // Clear a stale error as soon as the user edits the field.
+    if (validationError) setValidationError(null);
   };
 
   return (
@@ -41,12 +56,12 @@ export function InviteFriendToLobbyForm() {
       <form onSubmit={handleInvite} className={UI.row.actions}>
         <Input
           value={friendUsername}
-          onChange={(event) => setFriendUsername(event.target.value)}
+          onChange={handleUsernameChange}
           placeholder={
             t('app.friends.inviteLobbyPlaceholder') || 'Nombre de usuario'
           }
           disabled={!isConnected || isFull || !isHost}
-          maxLength={32}
+          maxLength={USERNAME_MAX_LENGTH}
         />
 
         <Button
@@ -57,6 +72,12 @@ export function InviteFriendToLobbyForm() {
           {t('app.friends.inviteLobbyButton') || 'Invitar'}
         </Button>
       </form>
+
+      {validationError && (
+        <p className={`${UI.feedback.banner} ${UI.feedback.error}`}>
+          {validationError}
+        </p>
+      )}
 
       <p className={UI.text.small}>
         {isFull
