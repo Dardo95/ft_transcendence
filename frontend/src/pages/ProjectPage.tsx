@@ -101,17 +101,6 @@ const MANDATORY_MODULES: ModuleItem[] = [
 
 const BONUS_MODULES: ModuleItem[] = [
   {
-    id: 'b-orm',
-    categoryKey: 'project.categories.web',
-    defaultCategory: 'Web',
-    nameKey: 'project.modules.orm.title',
-    defaultName: 'Use an ORM for the database',
-    typeKey: 'project.types.minor',
-    defaultType: 'Minor',
-    points: 1,
-    requirementsKey: 'project.modules.orm.requirements',
-  },
-  {
     id: 'b-i18n',
     categoryKey: 'project.categories.a11y',
     defaultCategory: 'Accessibility and Internationalization',
@@ -133,17 +122,18 @@ const BONUS_MODULES: ModuleItem[] = [
     points: 1,
     requirementsKey: 'project.modules.customization.requirements',
   },
-  {
-    id: 'b-stats',
-    categoryKey: 'project.categories.userMgmt',
-    defaultCategory: 'User Management',
-    nameKey: 'project.modules.stats.title',
-    defaultName: 'Game statistics and match history',
-    typeKey: 'project.types.minor',
-    defaultType: 'Minor',
-    points: 1,
-    requirementsKey: 'project.modules.stats.requirements',
-  },
+  // Kept for reference in case the module is used again.
+  // {
+  //   id: 'b-stats',
+  //   categoryKey: 'project.categories.userMgmt',
+  //   defaultCategory: 'User Management',
+  //   nameKey: 'project.modules.stats.title',
+  //   defaultName: 'Game statistics and match history',
+  //   typeKey: 'project.types.minor',
+  //   defaultType: 'Minor',
+  //   points: 1,
+  //   requirementsKey: 'project.modules.stats.requirements',
+  // },
   {
     id: 'b-spectator',
     categoryKey: 'project.categories.gaming',
@@ -155,11 +145,19 @@ const BONUS_MODULES: ModuleItem[] = [
     points: 1,
     requirementsKey: 'project.modules.spectator.requirements',
   },
-];
-
-const EXTRA_MODULES: ModuleItem[] = [
   {
-    id: 'e-oauth',
+    id: 'b-orm',
+    categoryKey: 'project.categories.web',
+    defaultCategory: 'Web',
+    nameKey: 'project.modules.orm.title',
+    defaultName: 'Use an ORM for the database',
+    typeKey: 'project.types.minor',
+    defaultType: 'Minor',
+    points: 1,
+    requirementsKey: 'project.modules.orm.requirements',
+  },
+  {
+    id: 'b-oauth',
     categoryKey: 'project.categories.userMgmt',
     defaultCategory: 'User Management',
     nameKey: 'project.modules.oauth.title',
@@ -171,6 +169,9 @@ const EXTRA_MODULES: ModuleItem[] = [
     requirementsKey: 'project.modules.oauth.requirements',
   },
 ];
+
+// Extra modules are currently empty on purpose.
+const EXTRA_MODULES: ModuleItem[] = [];
 
 type ModuleAccent = 'orange' | 'amber' | 'gray';
 
@@ -354,9 +355,11 @@ export function ProjectPage() {
               'Additional modules or features that are not part of the mandatory or bonus criteria but may enhance the project.'}
           </p>
 
-          <div className="mt-4">
-            <ModuleTable modules={EXTRA_MODULES} accent="gray" />
-          </div>
+          {EXTRA_MODULES.length > 0 && (
+            <div className="mt-4">
+              <ModuleTable modules={EXTRA_MODULES} accent="gray" />
+            </div>
+          )}
         </Card>
       </div>
     </div>
