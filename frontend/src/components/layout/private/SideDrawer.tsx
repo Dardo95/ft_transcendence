@@ -4,7 +4,7 @@ import {
   ChefHatIcon,
   GamepadIcon,
   PackageIcon,
-  TrophyIcon,
+  // TrophyIcon,
   XIcon,
 } from 'lucide-react';
 import { useLanguage } from '../../../locales/useLanguage';
@@ -55,18 +55,21 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               <GamepadIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.lobby') || 'Lobby'}</span>
             </Link>
-            <Link to="/stats" onClick={onClose} className={UI.nav.drawerLink}>
+
+            {/* <Link to="/stats" onClick={onClose} className={UI.nav.drawerLink}>
               <TrophyIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.general.stats') || 'Game Statistics'}</span>
-            </Link>
+            </Link> */}
             <Link to="/rules" onClick={onClose} className={UI.nav.drawerLink}>
               <BookOpenIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.general.aboutGame') || 'Rules'}</span>
             </Link>
+
             <Link to="/project" onClick={onClose} className={UI.nav.drawerLink}>
               <PackageIcon className={UI.icon.sm} aria-hidden="true" />
               <span>{t('app.general.aboutProject') || 'Project'}</span>
             </Link>
+
             <Link
               to="/about-us"
               onClick={onClose}

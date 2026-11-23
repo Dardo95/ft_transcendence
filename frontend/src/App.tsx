@@ -47,11 +47,11 @@ const ProfilePage = lazy(() =>
     default: module.ProfilePage,
   }))
 );
-const StatsPage = lazy(() =>
-  import('./pages/StatsPage').then((module) => ({
-    default: module.StatsPage,
-  }))
-);
+// const StatsPage = lazy(() =>
+//   import('./pages/StatsPage').then((module) => ({
+//     default: module.StatsPage,
+//   }))
+// );
 const RulesPage = lazy(() =>
   import('./pages/RulesPage').then((module) => ({
     default: module.RulesPage,
@@ -124,7 +124,7 @@ export default function App() {
               <Route path="/lobby" element={<LobbyPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/profile/:username" element={<ProfilePage />} />
-              <Route path="/stats" element={<StatsPage />} />
+              {/* <Route path="/stats" element={<StatsPage />} /> */}
               <Route path="/game/:id?" element={<GamePage />} />
             </Route>
           </Route>
