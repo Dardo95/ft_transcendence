@@ -339,6 +339,12 @@ export class GameEngine {
     this.fitMap();
   }
 
+  /** El jugador ha elegido salir: se notifica como abandono voluntario. */
+  abandon(): void {
+    this.keyboard.destroy();
+    this.connection.abandon();
+  }
+
   /** Limpieza total. Segura aunque `app.init` siga en vuelo. */
   destroy(): void {
     this.destroyed = true;

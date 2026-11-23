@@ -124,6 +124,26 @@ export class GameConnection {
   }
 
   /**
+   * Abandona voluntariamente la partida. A diferencia de `destroy()`,
+   * esta acción elimina la vida del jugador en el servidor.
+   */
+  abandon(): void {
+    if (
+      this.active &&
+      this.joined &&
+      this.gameId &&
+      !this.gameFinished &&
+      this.socket.connected
+    ) {
+      // Evita que destroy() envíe un input STOP después del abandono.
+      this.gameFinished = true;
+      this.socket.emit('game:abandon');
+    }
+
+    this.destroy();
+  }
+
+  /**
    * Detiene al jugador en el servidor y deja de escuchar. El
    * socket es global: sin este stop el jugador seguiría andando.
    */

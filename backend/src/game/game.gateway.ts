@@ -60,6 +60,8 @@ const STOPPED_MOVEMENT: MovementInput = {
   right: false,
 };
 
+const DEFAULT_DISCONNECT_GRACE_MS = 30_000;
+
 @WebSocketGateway({
   namespace: '/game',
   ...websocketOptions,
@@ -77,13 +79,24 @@ export class GameGateway
   private unsubscribeFromMatchCreation?: () => void;
   private unsubscribeFromMatchmakingStatus?: () => void;
   private unsubscribeFromGameTicks?: () => void;
+  private readonly pendingDisconnects = new Map<
+    string,
+    ReturnType<typeof setTimeout>
+  >();
+  private readonly disconnectGraceMs: number;
 
   constructor(
     private readonly wsAuth: WsJwtAuthService,
     private readonly matchmaking: MatchmakingService,
     private readonly gameManager: GameManagerService,
     private readonly chatGateway: ChatGateway
-  ) {}
+  ) {
+    const configuredGraceMs = Number(process.env.GAME_DISCONNECT_GRACE_MS);
+    this.disconnectGraceMs =
+      Number.isSafeInteger(configuredGraceMs) && configuredGraceMs > 0
+        ? configuredGraceMs
+        : DEFAULT_DISCONNECT_GRACE_MS;
+  }
 
   afterInit(server: Namespace): void {
     this.wsAuth.attach(server);
@@ -117,6 +130,12 @@ export class GameGateway
     this.unsubscribeFromMatchCreation?.();
     this.unsubscribeFromMatchmakingStatus?.();
     this.unsubscribeFromGameTicks?.();
+
+    for (const timeout of this.pendingDisconnects.values()) {
+      clearTimeout(timeout);
+    }
+
+    this.pendingDisconnects.clear();
   }
 
   // --------------------------------------------------
@@ -187,24 +206,32 @@ export class GameGateway
 
     const player = this.findHumanPlayer(session, user.id);
 
-    if (!spectator && !player) {
-      throw new WsException('You are not a participant in this game');
+    if (!spectator && (!player || !player.alive)) {
+      throw new WsException('You are not an active participant in this game');
     }
 
     const data = client.data as GameSocketData;
 
     if (data.gameId && data.gameId !== gameId) {
-      if (!data.spectator) {
-        this.stopPlayerMovement(data.gameId, user.id);
-      }
+      const previousGameId = data.gameId;
+      const wasSpectator = data.spectator === true;
 
-      await client.leave(`match:${data.gameId}`);
+      await client.leave(`match:${previousGameId}`);
+      delete data.gameId;
+      delete data.spectator;
+
+      if (!wasSpectator) {
+        this.beginDisconnectGracePeriod(previousGameId, user.id, client.id);
+      }
     }
 
     await client.join(`match:${gameId}`);
 
     data.gameId = gameId;
     data.spectator = spectator;
+
+    const reconnected =
+      !spectator && this.cancelPendingDisconnect(gameId, user.id);
 
     client.emit('game:joined', {
       gameId,
@@ -213,12 +240,74 @@ export class GameGateway
     });
 
     if (!spectator) {
-      this.server.to(`match:${gameId}`).emit('game:playerJoined', {
-        gameId,
-        userId: user.id,
-        username: user.username,
-      });
+      this.server
+        .to(`match:${gameId}`)
+        .emit(reconnected ? 'game:playerReconnected' : 'game:playerJoined', {
+          gameId,
+          userId: user.id,
+          username: user.username,
+        });
     }
+  }
+
+  // --------------------------------------------------
+  // VOLUNTARY ABANDONMENT
+  // --------------------------------------------------
+
+  @SubscribeMessage('game:abandon')
+  async handleAbandonGame(@ConnectedSocket() client: Socket): Promise<void> {
+    const user = this.getAuthenticatedUser(client);
+    const data = client.data as GameSocketData;
+    const gameId = data.gameId;
+
+    if (!gameId || !this.server) {
+      return;
+    }
+
+    this.cancelPendingDisconnect(gameId, user.id);
+
+    // Los espectadores solo abandonan la sala; no tienen una vida
+    // en la partida que pueda eliminarse.
+    if (!data.spectator) {
+      const eliminated = this.gameManager.eliminatePlayer(gameId, user.id);
+
+      if (eliminated) {
+        const room = this.server.to(`match:${gameId}`);
+        const payload = { gameId, userId: user.id };
+
+        room.emit('game:playerAbandoned', payload);
+        room.emit('game:playerLeft', payload);
+      }
+    }
+
+    // El socket que pulsa Salir abandona la sala. Las otras pestañas de
+    // la misma cuenta pasan a modo espectador: siguen viendo la partida,
+    // pero ya no pueden controlar al jugador eliminado. Un espectador
+    // solo abandona su propia vista.
+    const userSockets = data.spectator
+      ? [client]
+      : [...this.server.sockets.values()].filter((socket) => {
+          const socketData = socket.data as GameSocketData;
+
+          return (
+            socketData.user?.id === user.id && socketData.gameId === gameId
+          );
+        });
+
+    await Promise.all(
+      userSockets.map(async (socket) => {
+        const socketData = socket.data as GameSocketData;
+
+        if (!data.spectator && socket.id !== client.id) {
+          socketData.spectator = true;
+          return;
+        }
+
+        await socket.leave(`match:${gameId}`);
+        delete socketData.gameId;
+        delete socketData.spectator;
+      })
+    );
   }
 
   // --------------------------------------------------
@@ -234,8 +323,8 @@ export class GameGateway
     const data = client.data as GameSocketData;
     const gameId = data.gameId;
 
-    if (!gameId) {
-      throw new WsException('Join a game first');
+    if (!gameId || data.spectator) {
+      throw new WsException('Join a game as a player first');
     }
 
     const session = this.gameManager.getSession(gameId);
@@ -302,7 +391,7 @@ export class GameGateway
   }
 
   // --------------------------------------------------
-  // DISCONNECTION
+  // DISCONNECTION / RECONNECTION GRACE PERIOD
   // --------------------------------------------------
 
   handleDisconnect(client: Socket): void {
@@ -310,40 +399,13 @@ export class GameGateway
     const user = data.user;
     const gameId = data.gameId;
 
-    if (!user || !gameId || !this.server) {
+    if (!user || !gameId || !this.server || data.spectator) {
       return;
     }
 
-    // Un espectador no participa en la partida: no movemos ni anunciamos
-    // su salida como si fuera un jugador.
-    if (data.spectator) {
-      return;
-    }
-
-    // Si el usuario tiene otra conexión activa en esta
-    // misma partida, no detenemos su movimiento.
-    const anotherSocketIsConnected = [...this.server.sockets.values()].some(
-      (socket) => {
-        if (socket.id === client.id) {
-          return false;
-        }
-
-        const otherData = socket.data as GameSocketData;
-
-        return otherData.user?.id === user.id && otherData.gameId === gameId;
-      }
-    );
-
-    if (anotherSocketIsConnected) {
-      return;
-    }
-
-    this.stopPlayerMovement(gameId, user.id);
-
-    this.server.to(`match:${gameId}`).emit('game:playerLeft', {
-      gameId,
-      userId: user.id,
-    });
+    // Si queda otra pestaña conectada como jugador, la partida sigue
+    // normalmente y no se inicia el periodo de gracia.
+    this.beginDisconnectGracePeriod(gameId, user.id, client.id);
   }
 
   // --------------------------------------------------
@@ -380,6 +442,7 @@ export class GameGateway
       await socket.join(room);
 
       data.gameId = session.id;
+      data.spectator = false;
 
       socket.emit('game:found', {
         gameId: session.id,
@@ -447,6 +510,8 @@ export class GameGateway
     }
 
     if (result.outcome?.newlyFinished) {
+      this.clearPendingDisconnectsForGame(session.id);
+
       room.emit('game:finished', {
         gameId: session.id,
         winnerId: session.winnerId,
@@ -523,6 +588,119 @@ export class GameGateway
   // --------------------------------------------------
   // HELPERS
   // --------------------------------------------------
+
+  private disconnectKey(gameId: string, userId: number): string {
+    return `${gameId}\u0000${userId}`;
+  }
+
+  private hasAnotherActivePlayerSocket(
+    gameId: string,
+    userId: number,
+    excludedSocketId?: string
+  ): boolean {
+    if (!this.server) {
+      return false;
+    }
+
+    return [...this.server.sockets.values()].some((socket) => {
+      if (socket.id === excludedSocketId) {
+        return false;
+      }
+
+      const data = socket.data as GameSocketData;
+
+      return (
+        data.user?.id === userId &&
+        data.gameId === gameId &&
+        data.spectator !== true
+      );
+    });
+  }
+
+  private beginDisconnectGracePeriod(
+    gameId: string,
+    userId: number,
+    excludedSocketId?: string
+  ): void {
+    if (
+      !this.server ||
+      this.hasAnotherActivePlayerSocket(gameId, userId, excludedSocketId)
+    ) {
+      return;
+    }
+
+    const session = this.gameManager.getSession(gameId);
+    const player = session ? this.findHumanPlayer(session, userId) : undefined;
+
+    if (!session || session.status === 'FINISHED' || !player?.alive) {
+      return;
+    }
+
+    const key = this.disconnectKey(gameId, userId);
+    this.cancelPendingDisconnect(gameId, userId);
+    this.stopPlayerMovement(gameId, userId);
+
+    const timeout = setTimeout(() => {
+      this.expireDisconnectGracePeriod(gameId, userId);
+    }, this.disconnectGraceMs);
+
+    this.pendingDisconnects.set(key, timeout);
+
+    this.server.to(`match:${gameId}`).emit('game:playerDisconnected', {
+      gameId,
+      userId,
+      graceMs: this.disconnectGraceMs,
+    });
+  }
+
+  private expireDisconnectGracePeriod(gameId: string, userId: number): void {
+    const key = this.disconnectKey(gameId, userId);
+
+    // Un timeout cancelado puede haber quedado ya en la cola del event
+    // loop. En ese caso no debe eliminar al jugador.
+    if (!this.pendingDisconnects.has(key)) {
+      return;
+    }
+
+    this.pendingDisconnects.delete(key);
+
+    if (
+      !this.server ||
+      this.hasAnotherActivePlayerSocket(gameId, userId) ||
+      !this.gameManager.eliminatePlayer(gameId, userId)
+    ) {
+      return;
+    }
+
+    this.server.to(`match:${gameId}`).emit('game:playerLeft', {
+      gameId,
+      userId,
+    });
+  }
+
+  private cancelPendingDisconnect(gameId: string, userId: number): boolean {
+    const key = this.disconnectKey(gameId, userId);
+    const timeout = this.pendingDisconnects.get(key);
+
+    if (!timeout) {
+      return false;
+    }
+
+    clearTimeout(timeout);
+    this.pendingDisconnects.delete(key);
+    return true;
+  }
+
+  private clearPendingDisconnectsForGame(gameId: string): void {
+    const prefix = `${gameId}\u0000`;
+
+    for (const [key, timeout] of this.pendingDisconnects) {
+      if (key.startsWith(prefix)) {
+        clearTimeout(timeout);
+        this.pendingDisconnects.delete(key);
+      }
+    }
+  }
 
   private findHumanPlayer(session: GameSession, userId: number) {
     const expectedUserId = String(userId);

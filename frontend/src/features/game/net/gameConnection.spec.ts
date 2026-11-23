@@ -256,6 +256,22 @@ describe('GameConnection', () => {
     ]);
   });
 
+  it('emits game:abandon instead of a stop when leaving voluntarily', () => {
+    connection.join('abc');
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
+
+    connection.abandon();
+
+    expect(socket.emitted('game:abandon')).toHaveLength(1);
+    expect(socket.emitted('game:input')).toHaveLength(0);
+
+    socket.fire('game:state', makeSnapshot('abc'));
+    expect(onState).not.toHaveBeenCalled();
+  });
+
   it('stops the player and detaches listeners on destroy', () => {
     connection.join('abc');
     socket.fire('game:joined', {
