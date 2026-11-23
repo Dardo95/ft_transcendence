@@ -10,6 +10,7 @@ export interface HudGateState {
   capacity: number;
   blast: number;
   speed: number;
+  isOvertime: boolean;
 }
 
 export interface HudGateInputs {
@@ -17,6 +18,7 @@ export interface HudGateInputs {
   bombs: readonly BombSnapshot[];
   localId: string;
   elapsedMs: number;
+  isOvertime: boolean;
 }
 
 /**
@@ -31,7 +33,7 @@ export function nextHudGate(
   prev: HudGateState,
   inputs: HudGateInputs
 ): HudGateState | null {
-  const { players, bombs, localId, elapsedMs } = inputs;
+  const { players, bombs, localId, elapsedMs, isOvertime } = inputs;
   const second = Math.floor(elapsedMs / 1000);
 
   let ownBombs = 0;
@@ -68,7 +70,8 @@ export function nextHudGate(
     localAlive !== prev.localAlive ||
     capacity !== prev.capacity ||
     blast !== prev.blast ||
-    speed !== prev.speed;
+    speed !== prev.speed ||
+    isOvertime !== prev.isOvertime;
 
   if (!changed) {
     return null;
@@ -83,5 +86,6 @@ export function nextHudGate(
     capacity,
     blast,
     speed,
+    isOvertime,
   };
 }

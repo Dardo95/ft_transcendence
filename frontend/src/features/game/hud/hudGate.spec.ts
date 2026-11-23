@@ -39,6 +39,7 @@ const BASE: HudGateState = {
   capacity: 1,
   blast: 2,
   speed: 4,
+  isOvertime: false,
 };
 
 const INPUTS = {
@@ -46,6 +47,7 @@ const INPUTS = {
   bombs: [],
   localId: 'p1',
   elapsedMs: 0,
+  isOvertime: false,
 };
 
 describe('nextHudGate', () => {
@@ -111,5 +113,14 @@ describe('nextHudGate', () => {
 
     expect(next).not.toBe(BASE);
     expect(BASE.second).toBe(0);
+  });
+
+  it('changes when the match enters overtime', () => {
+    const next = nextHudGate(BASE, {
+      ...INPUTS,
+      isOvertime: true,
+    });
+
+    expect(next?.isOvertime).toBe(true);
   });
 });

@@ -213,6 +213,7 @@ export const appEn = {
   topbar: {
     practiceMatch: 'Practice match',
     time: 'Time',
+    overtime: 'Overtime',
     survivors: 'Survivors',
     map: 'Map',
     exitFullscreen: 'Exit fullscreen',

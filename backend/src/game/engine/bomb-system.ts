@@ -6,6 +6,10 @@ import type { BombState, GameSession } from './game-state.js';
 
 import { monotonicNowMs } from './clock.js';
 
+function isActiveGame(session: GameSession): boolean {
+  return session.status === 'RUNNING' || session.status === 'OVERTIME';
+}
+
 type PlaceBombFailureReason =
   | 'PLAYER_NOT_FOUND'
   | 'PLAYER_DEAD'
@@ -54,7 +58,7 @@ export function placeBomb(
     return { success: false, reason: 'PLAYER_DEAD' };
   }
 
-  if (session.status !== 'RUNNING') {
+  if (!isActiveGame(session)) {
     return { success: false, reason: 'GAME_NOT_RUNNING' };
   }
 
