@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import type {
   ChangePasswordInput,
   ChangePasswordResponse,
@@ -32,6 +32,7 @@ type PublicProfileState = {
 export function ProfilePage() {
   const { t } = useLanguage();
   const { username } = useParams<{ username?: string }>();
+  const navigate = useNavigate();
   const currentUser = useAuthStore((state) => state.user) as UserPrivate | null;
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
@@ -91,6 +92,14 @@ export function ProfilePage() {
   ): Promise<UpdateProfileResponse> => {
     const result = await updateMyProfile(input);
     if (result.outcome === 'updated') {
+      // Reset to the canonical own-profile route before refreshing auth state.
+      const nextUsername = result.user?.username ?? input.username;
+      if (
+        nextUsername !== undefined &&
+        nextUsername !== currentUser?.username
+      ) {
+        navigate('/profile', { replace: true });
+      }
       await checkAuth();
     }
     return result;
