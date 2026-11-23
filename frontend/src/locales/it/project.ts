@@ -104,6 +104,7 @@ export const projectIt = {
       title: 'Usare un ORM per il database',
       requirements: [
         'Un ORM (Object-Relational Mapping) è una tecnica di programmazione che consente di interagire con un database relazionale tramite codice orientato agli oggetti invece di scrivere SQL direttamente.',
+        'PrismaORM è stato scelto per l’implementazione, fornendo uno schema di database pulito, tipi TypeScript automatici e facile integrazione con NestJS e PostgreSQL.',
       ],
     },
     i18n: {
@@ -144,7 +145,10 @@ export const projectIt = {
     oauth: {
       title:
         'Implementare l’autenticazione remota con OAuth 2.0 (Google, GitHub, 42, ecc.)',
-      requirements: [],
+      requirements: [
+        'OAuth 2.0 è un modo sicuro per consentire alle applicazioni di accedere alle tue informazioni su un altro servizio, permettendoti di accedere direttamente con quel servizio invece di fornire la tua password all’applicazione.',
+        'È stato scelto di implementare Google OAuth 2.0.',
+      ],
     },
   },
 } as const;
