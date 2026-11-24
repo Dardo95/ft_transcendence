@@ -10,7 +10,7 @@ import {
 
 import { Button } from '../../../components/ui/button';
 import { useLanguage } from '../../../locales/useLanguage';
-import { formatClock, type HudModel } from './hudModel';
+import { formatMatchClock, type HudModel } from './hudModel';
 import { HUD } from './hudStyles';
 
 interface TopBarStat {
@@ -46,9 +46,7 @@ export function GameTopBar({
     {
       icon: ClockIcon,
       label: model.isOvertime ? t('app.topbar.overtime') : t('app.topbar.time'),
-      value: model.isOvertime
-        ? `+${formatClock(model.overtimeElapsedMs)}`
-        : formatClock(model.clockMs),
+      value: formatMatchClock(model),
     },
     {
       icon: UsersIcon,

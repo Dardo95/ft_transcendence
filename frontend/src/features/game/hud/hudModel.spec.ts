@@ -7,7 +7,10 @@ import {
   buildRivalHud,
   countAlivePlayers,
   formatClock,
+  formatMatchClock,
   remainingMatchMs,
+  showFinalSecondsAlert,
+  showSuddenDeathAlert,
 } from './hudModel';
 
 function player(
@@ -216,5 +219,75 @@ describe('overtime clock', () => {
 
     expect(model.isOvertime).toBe(false);
     expect(model.overtimeElapsedMs).toBe(0);
+  });
+});
+
+describe('formatMatchClock', () => {
+  it('shows the regular clock before overtime', () => {
+    const model = buildHudModel(PLAYERS, [], 'bren', 65_000);
+
+    expect(formatMatchClock(model)).toBe('01:55');
+  });
+
+  it('prefixes the overtime clock with a plus sign', () => {
+    const model = buildHudModel(PLAYERS, [], 'bren', 185_000, {
+      isOvertime: true,
+    });
+
+    expect(formatMatchClock(model)).toBe('+00:05');
+  });
+});
+
+describe('showSuddenDeathAlert', () => {
+  it('stays hidden while the regular clock runs', () => {
+    const model = buildHudModel(PLAYERS, [], 'bren', 170_000);
+
+    expect(showSuddenDeathAlert(model)).toBe(false);
+  });
+
+  it('is visible from zero until the five second window elapses', () => {
+    const atZero = buildHudModel(PLAYERS, [], 'bren', 180_000, {
+      isOvertime: true,
+    });
+    const almostOver = buildHudModel(PLAYERS, [], 'bren', 184_999, {
+      isOvertime: true,
+    });
+
+    expect(showSuddenDeathAlert(atZero)).toBe(true);
+    expect(showSuddenDeathAlert(almostOver)).toBe(true);
+  });
+
+  it('hides once the alert window elapses', () => {
+    const model = buildHudModel(PLAYERS, [], 'bren', 185_000, {
+      isOvertime: true,
+    });
+
+    expect(showSuddenDeathAlert(model)).toBe(false);
+  });
+});
+
+describe('showFinalSecondsAlert', () => {
+  it('stays hidden with more than twenty seconds left', () => {
+    const model = buildHudModel(PLAYERS, [], 'bren', 159_000);
+
+    expect(showFinalSecondsAlert(model)).toBe(false);
+  });
+
+  it('is visible during the last twenty seconds', () => {
+    const boundary = buildHudModel(PLAYERS, [], 'bren', 160_000);
+    const lastSecond = buildHudModel(PLAYERS, [], 'bren', 179_000);
+
+    expect(showFinalSecondsAlert(boundary)).toBe(true);
+    expect(showFinalSecondsAlert(lastSecond)).toBe(true);
+  });
+
+  it('hides at zero and during overtime', () => {
+    const atZero = buildHudModel(PLAYERS, [], 'bren', 180_000);
+    const overtime = buildHudModel(PLAYERS, [], 'bren', 180_000, {
+      isOvertime: true,
+    });
+
+    expect(showFinalSecondsAlert(atZero)).toBe(false);
+    expect(showFinalSecondsAlert(overtime)).toBe(false);
   });
 });

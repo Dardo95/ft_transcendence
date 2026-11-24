@@ -29,9 +29,7 @@ function actionLabel(
   }
 
   if (mode === 'practice') {
-    return (
-      t('app.lobby.matchmakingPracticeText') || 'COMENZAR PRÁCTICA (1 VS BOT)'
-    );
+    return t('app.lobby.matchmakingPracticeText') || 'EMPEZAR PRÁCTICA';
   }
 
   if (mode === 'private') {

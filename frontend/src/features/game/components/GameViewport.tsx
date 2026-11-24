@@ -10,9 +10,14 @@ import { Button } from '../../../components/ui/button';
 import { EndScreenOverlay } from './EndScreenOverlay';
 import type { EndScreenState } from '../endScreen';
 import { GameSidebar } from '../hud/GameSidebar';
-import type { HudModel } from '../hud/hudModel';
+import {
+  showFinalSecondsAlert,
+  showSuddenDeathAlert,
+  type HudModel,
+} from '../hud/hudModel';
 import { GameTopBar } from '../hud/GameTopBar';
 import { FullscreenHud } from '../hud/FullscreenHud';
+import { MatchAlertBanner } from '../hud/MatchAlertBanner';
 
 /**
  * Shell React de la partida: crea/destruye el `GameEngine`,
@@ -120,14 +125,15 @@ export function GameViewport({ demo = false }: GameViewportProps) {
             }
           />
         )}
+        {/* El contenedor define el tamaño del canvas: +64 px en modos de 70vh, espacio flexible en escritorio y pantalla completa al maximizar. */}
         <div
           ref={containerRef}
-          className={`relative overflow-hidden bg-zinc-950 ${
+          className={`relative overflow-hidden bg-white ${
             isFullscreen
               ? 'h-screen w-screen rounded-none'
               : demo
-                ? 'h-[70vh] min-h-[420px] rounded-lg'
-                : 'h-[70vh] min-h-[320px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
+                ? 'h-[calc(70vh+64px)] min-h-[484px] rounded-lg'
+                : 'h-[calc(70vh+64px)] min-h-[384px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
           }`}
           style={{ imageRendering: 'pixelated' }}
           aria-label="Game viewport"
@@ -182,9 +188,19 @@ export function GameViewport({ demo = false }: GameViewportProps) {
             />
           )}
           {debugEnabled && debugFps !== null && (
-            <div className="absolute right-2 bottom-2 z-10 rounded bg-zinc-950/80 px-2 py-1 font-mono text-xs text-amber-300">
+            <div className="absolute right-2 bottom-2 z-10 rounded bg-zinc-950/80 px-2 py-1 font-mono text-xs text-orange-500">
               FPS {debugFps}
             </div>
+          )}
+          {/* Avisos de reloj: cuenta atrás de los últimos 20 s
+              y muerte súbita los primeros 5 s de overtime.
+              Dentro del viewport para verse en modo ventana y
+              fullscreen; z-10 < EndScreenOverlay (z-20). */}
+          {hudModel && showFinalSecondsAlert(hudModel) && (
+            <MatchAlertBanner kind="finalSeconds" />
+          )}
+          {hudModel && showSuddenDeathAlert(hudModel) && (
+            <MatchAlertBanner kind="suddenDeath" />
           )}
           {/* HUD superpuesto solo en pantalla completa: el
               topbar y el sidebar quedan fuera del elemento

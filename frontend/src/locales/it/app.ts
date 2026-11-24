@@ -78,7 +78,7 @@ export const appIt = {
     fixedPublicLabel: 'Valori fissi in pubblico',
     hostOnlyLabel: 'Solo host',
 
-    matchmakingPracticeText: 'Inizia Partita di Pratica',
+    matchmakingPracticeText: 'Inizia Pratica',
     matchmakingPrivateHostText: 'Inizia Partita Privata',
     matchmakingPrivateGuestText: "In attesa dell'host...",
     matchmakingPublicText: 'Cerca giocatori per iniziare la partita',
@@ -208,6 +208,9 @@ export const appIt = {
     remaining: 'Rimanenti',
     alive: 'In piedi',
     down: 'Fuori',
+    finalSeconds: 'Ultimi 20 secondi!',
+    suddenDeath: 'Morte improvvisa!',
+    suddenDeathSub: 'I muri si stanno chiudendo',
   },
 
   topbar: {

@@ -2,7 +2,7 @@ import { ChefHatIcon, CircleIcon, CircleOffIcon } from 'lucide-react';
 
 import { useLanguage } from '../../../locales/useLanguage';
 import type { PlayerColor } from '../players/types';
-import { formatClock, type HudModel, type LocalHud } from './hudModel';
+import { formatMatchClock, type HudModel, type LocalHud } from './hudModel';
 import { assignRosterColors, PLAYER_COLOR_CLASSES } from './rosterColors';
 import { HUD } from './hudStyles';
 
@@ -121,9 +121,11 @@ export function FullscreenHud({ model }: { model: HudModel }) {
       <div
         className={`${HUD.surface.timerBox} absolute top-3 left-1/2 -translate-x-1/2`}
         role="timer"
-        aria-label={t('app.topbar.time')}
+        aria-label={
+          model.isOvertime ? t('app.topbar.overtime') : t('app.topbar.time')
+        }
       >
-        <p className={HUD.text.valueTimer}>{formatClock(model.clockMs)}</p>
+        <p className={HUD.text.valueTimer}>{formatMatchClock(model)}</p>
       </div>
 
       {/* Tarjetas laterales centradas en vertical. */}

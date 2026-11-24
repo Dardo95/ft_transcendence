@@ -98,6 +98,44 @@ export function remainingMatchMs(
   return Math.max(0, durationMs - elapsedMs);
 }
 
+/**
+ * Reloj de la partida para el HUD: "MM:SS" durante el tiempo
+ * regular y "+MM:SS" durante la muerte súbita. Lo comparten
+ * el topbar y la caja de tiempo del HUD fullscreen.
+ */
+export function formatMatchClock(
+  model: Pick<HudModel, 'clockMs' | 'isOvertime' | 'overtimeElapsedMs'>
+): string {
+  if (model.isOvertime) {
+    return `+${formatClock(model.overtimeElapsedMs)}`;
+  }
+
+  return formatClock(model.clockMs);
+}
+
+/**
+ * Aviso de muerte súbita: visible solo los primeros
+ * `windowMs` de overtime, justo cuando el reloj regular
+ * llega a 0 y empiezan a cerrar los muros.
+ */
+export function showSuddenDeathAlert(
+  model: Pick<HudModel, 'isOvertime' | 'overtimeElapsedMs'>,
+  windowMs = 5_000
+): boolean {
+  return model.isOvertime && model.overtimeElapsedMs < windowMs;
+}
+
+/**
+ * Cuenta atrás de los últimos veinte segundos del tiempo regular.
+ * Solo antes del overtime y mientras quede algo de tiempo.
+ */
+export function showFinalSecondsAlert(
+  model: Pick<HudModel, 'isOvertime' | 'clockMs'>,
+  thresholdMs = 20_000
+): boolean {
+  return !model.isOvertime && model.clockMs > 0 && model.clockMs <= thresholdMs;
+}
+
 /** "MM:SS" con redondeo hacia arriba: 165 000 → "02:45". */
 export function formatClock(ms: number): string {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
