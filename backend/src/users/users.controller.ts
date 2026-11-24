@@ -31,6 +31,7 @@ import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { FriendshipsService } from './friendships.service.js';
 import { UsersService } from './users.service.js';
 import { ChatGateway } from '../chat/chat.gateway.js';
+import { GameManagerService } from '../game/sessions/game-manager.service.js';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
@@ -40,7 +41,8 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly friendships: FriendshipsService,
     private readonly chatGateway: ChatGateway,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly gameManager: GameManagerService
   ) {}
 
   private emitToUser(userId: number, event: string, data: unknown) {
@@ -53,6 +55,15 @@ export class UsersController {
   @Get('me')
   me(@CurrentUser('sub') userId: number) {
     return this.usersService.findPrivateById(userId);
+  }
+
+  /**
+   * Devuelve la partida activa del usuario autenticado, si existe.
+   * La consulta incluye todos los modos de juego, también PRACTICE.
+   */
+  @Get('me/active-game')
+  activeGame(@CurrentUser('sub') userId: number): { gameId: string | null } {
+    return { gameId: this.gameManager.getActiveGameIdForUser(userId) };
   }
 
   @Patch('me')
