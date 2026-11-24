@@ -9,6 +9,7 @@ interface Props {
   onChange: (settings: GameSettings) => void;
   isHost: boolean;
   isPublicMode: boolean;
+  disabled?: boolean;
 }
 
 interface SettingRowProps {
@@ -54,9 +55,10 @@ export function GameSettingsCard({
   onChange,
   isHost,
   isPublicMode,
+  disabled = false,
 }: Props) {
   const { t } = useLanguage();
-  const isDisabled = isPublicMode || !isHost;
+  const isDisabled = disabled || isPublicMode || !isHost;
 
   return (
     <Card

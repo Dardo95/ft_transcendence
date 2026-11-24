@@ -11,6 +11,7 @@ interface Props {
   playersCount: number;
   isHost: boolean;
   isSearching: boolean;
+  disabled?: boolean;
   countdown: number | null;
   onStart: (payload: MatchmakingPayload) => void;
   onCancelSearch: () => void;
@@ -53,6 +54,7 @@ export function MatchmakingButton({
   playersCount,
   isHost,
   isSearching,
+  disabled = false,
   countdown,
   onStart,
   onCancelSearch,
@@ -60,7 +62,8 @@ export function MatchmakingButton({
   const { t } = useLanguage();
   const canStartPrivate = isHost && playersCount > 1;
   const isEnabled =
-    mode === 'practice' ? true : mode === 'private' ? canStartPrivate : true;
+    !disabled &&
+    (mode === 'practice' ? true : mode === 'private' ? canStartPrivate : true);
 
   return (
     <Card className="flex flex-col items-stretch gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">

@@ -105,6 +105,9 @@ export const appEn = {
     matchmakingFailed: 'The match could not be started. Try again.',
     matchmakingActiveGame:
       'You already have a match in progress. Finish it before starting another one.',
+    activeMatchNotice:
+      'You already have a match in progress. Return to it to keep playing.',
+    returnToActiveMatch: 'Return to active match',
     socketOnline: 'SOCKET ONLINE',
     socketOffline: 'SOCKET OFFLINE',
     enterLobbyPrefix: 'Welcome to the Lobby, ',

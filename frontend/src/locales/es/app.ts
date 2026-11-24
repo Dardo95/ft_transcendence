@@ -107,6 +107,9 @@ export const appEs = {
     matchmakingFailed: 'No se pudo iniciar la partida. Inténtalo de nuevo.',
     matchmakingActiveGame:
       'Ya tienes una partida en curso. Termínala antes de empezar otra.',
+    activeMatchNotice:
+      'Ya tienes una partida en curso. Vuelve a ella para seguir jugando.',
+    returnToActiveMatch: 'Ir a partida en curso',
     socketOnline: 'SOCKET ONLINE',
     socketOffline: 'SOCKET OFFLINE',
     enterLobbyPrefix: 'Bienvenido al Lobby, ',

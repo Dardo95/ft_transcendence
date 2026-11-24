@@ -107,6 +107,9 @@ export const appIt = {
     matchmakingFailed: 'Impossibile avviare la partita. Riprova.',
     matchmakingActiveGame:
       'Hai già una partita in corso. Falla terminare prima di iniziarne una nuova.',
+    activeMatchNotice:
+      'Hai già una partita in corso. Torna a giocarla per continuare.',
+    returnToActiveMatch: 'Torna alla partita in corso',
     socketOnline: 'SOCKET ONLINE',
     socketOffline: 'SOCKET OFFLINE',
     enterLobbyPrefix: 'Benvenuto nella Lobby, ',

@@ -7,6 +7,7 @@ import { FriendList } from '@/features/friends/components/FriendListCard';
 import { GlobalChat } from '@/features/chat/components/GlobalChat';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { gameSocket } from '@/lib/socket';
+import { fetchActiveGameId } from '@/features/lobby/activeMatch';
 import {
   countdownSeconds,
   gameRoute,
@@ -16,6 +17,7 @@ import {
 } from '@/features/lobby/matchmakingEvents';
 import { toServerMatchmakingRequest } from '@/features/lobby/matchmakingRequest';
 
+import { ActiveMatchBanner } from '@/features/lobby/components/ActiveMatchBanner';
 import { GameConfig } from '@/features/lobby/components/GameConfig';
 import { LobbyNotifications } from '@/features/lobby/components/LobbyNotifications';
 import { LobbyTopBanner } from '@/features/lobby/components/LobbyTopBanner';
@@ -77,6 +79,7 @@ export function LobbyPage() {
   const [matchmaking, setMatchmaking] = useState<MatchmakingState | null>(null);
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [gameError, setGameError] = useState<string | null>(null);
+  const [activeGameId, setActiveGameId] = useState<string | null>(null);
   const navigatedGameId = useRef<string | null>(null);
   const requestedMap = useRef<MapId>('map1');
 
@@ -95,6 +98,11 @@ export function LobbyPage() {
   const canStartPrivate = isHost && playersCount > 1;
 
   const dismissGameError = useCallback(() => setGameError(null), []);
+
+  const refreshActiveGame = useCallback(async () => {
+    const gameId = await fetchActiveGameId();
+    setActiveGameId(gameId);
+  }, []);
 
   const goToGame = useCallback(
     (gameId?: string) => {
@@ -122,6 +130,7 @@ export function LobbyPage() {
     const handleConnect = () => {
       setIsGameConnected(true);
       setGameError(null);
+      void refreshActiveGame();
     };
 
     const handleDisconnect = () => {
@@ -145,7 +154,57 @@ export function LobbyPage() {
         gameSocket.disconnect();
       }
     };
+  }, [refreshActiveGame]);
+
+  // Recover an already running match after mounting or reloading the lobby.
+  useEffect(() => {
+    let cancelled = false;
+
+    void fetchActiveGameId().then((gameId) => {
+      if (!cancelled) setActiveGameId(gameId);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  // Keep the active match in sync with match lifecycle events.
+  useEffect(() => {
+    const handleGameFinished = (payload: unknown) => {
+      const gameId = readGameFoundId(payload);
+
+      setActiveGameId((current) =>
+        !gameId || current === gameId ? null : current
+      );
+    };
+
+    const handlePlayerRemoved = (payload: unknown) => {
+      if (!user) return;
+
+      const data = payload as { gameId?: unknown; userId?: unknown };
+      if (Number(data.userId) !== user.id) return;
+
+      const gameId =
+        typeof data.gameId === 'string' && data.gameId.trim()
+          ? data.gameId
+          : null;
+
+      setActiveGameId((current) =>
+        !gameId || current === gameId ? null : current
+      );
+    };
+
+    gameSocket.on('game:finished', handleGameFinished);
+    gameSocket.on('game:playerLeft', handlePlayerRemoved);
+    gameSocket.on('game:playerAbandoned', handlePlayerRemoved);
+
+    return () => {
+      gameSocket.off('game:finished', handleGameFinished);
+      gameSocket.off('game:playerLeft', handlePlayerRemoved);
+      gameSocket.off('game:playerAbandoned', handlePlayerRemoved);
+    };
+  }, [user]);
 
   // The backend confirms the session for every mode. Practice and private
   // matches report CREATED immediately; public matches report SEARCHING until
@@ -164,6 +223,7 @@ export function LobbyPage() {
       }
 
       if (update.type === 'created') {
+        setActiveGameId(update.gameId);
         goToGame(update.gameId);
         return;
       }
@@ -188,6 +248,7 @@ export function LobbyPage() {
     const handleGameFound = (payload: unknown) => {
       const gameId = readGameFoundId(payload);
       if (gameId) {
+        setActiveGameId(gameId);
         goToGame(gameId);
       }
     };
@@ -284,6 +345,8 @@ export function LobbyPage() {
         />
       )}
 
+      {activeGameId && <ActiveMatchBanner gameId={activeGameId} />}
+
       <GameConfig
         selectedMode={selectedMode}
         onModeChange={handleModeChange}
@@ -294,6 +357,7 @@ export function LobbyPage() {
         isHost={isHost}
         playersCount={playersCount}
         isSearching={isSearching}
+        disabled={isSearching || Boolean(activeGameId)}
         countdown={countdown}
         onStart={handleStartMatchmaking}
         onCancelSearch={handleCancelSearch}
