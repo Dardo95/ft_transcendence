@@ -1,6 +1,10 @@
-import type { BombSnapshot, GamePlayerSnapshot } from '@transcendence/shared';
-// Igual que GAME_DEFAULTS.matchDurationMs del backend.
-export const MATCH_DURATION_MS = 180_000;
+import {
+  GAME_DEFAULTS,
+  type BombSnapshot,
+  type GamePlayerSnapshot,
+} from '@transcendence/shared';
+
+export const MATCH_DURATION_MS = GAME_DEFAULTS.matchDurationMs;
 
 export interface LocalHud {
   name: string;
