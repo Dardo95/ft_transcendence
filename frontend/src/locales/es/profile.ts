@@ -6,9 +6,9 @@
 export const profileEs = {
   loading: 'Cargando perfil de usuario...',
   myProfile: 'Mi Perfil',
-  userNotFound: 'Usuario no encontrado (404)',
-  userNotFoundDesc: 'El usuario',
-  doesNotExist: 'no existe.',
+  userNotFound: 'Usuario no encontrado',
+  userNotFoundSubtitle:
+    'No se encontró el perfil que buscas. Comprueba la URL o vuelve al lobby.',
   backToLobby: 'Volver al lobby',
   publicProfile: 'Ver perfil público',
   joined: 'Registrado el',

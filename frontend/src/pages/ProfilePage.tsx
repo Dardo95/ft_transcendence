@@ -1,27 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import type {
-  ChangePasswordInput,
-  ChangePasswordResponse,
-  UpdateProfileInput,
-  UpdateProfileResponse,
-  UserPrivate,
-  UserPublic,
-} from '@transcendence/shared';
-import { ArrowLeft, Loader2, UserX } from 'lucide-react';
-import { apiFetch } from '../api/api';
-import {
-  changeMyPassword,
-  updateMyAvatar,
-  updateMyProfile,
-} from '../features/auth/service/authService';
+import { useParams } from 'react-router-dom';
 import { useAuthStore } from '../features/auth/store/useAuthStore';
-import { PrivateProfileView } from '../features/auth/components/PrivateProfileView';
-import { PublicProfileView } from '../features/auth/components/PublicProfileView';
 import { useLanguage } from '../locales/useLanguage';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+
+import type { UserPrivate, UserPublic } from '@transcendence/shared';
+import { apiFetch } from '../api/api';
+
+import { Loader2 } from 'lucide-react';
 import { UI } from '@/components/layout/layoutStyles';
+import { Card } from '@/components/ui/card';
+import { ProfilePagePrivate } from '../features/auth/components/ProfilePagePrivate';
+import { ProfilePagePublic } from '../features/auth/components/ProfilePagePublic';
+import { ProfilePageUnkown } from '../features/auth/components/ProfilePageUnkown';
 
 type PublicProfileState = {
   username: string;
@@ -32,19 +22,13 @@ type PublicProfileState = {
 export function ProfilePage() {
   const { t } = useLanguage();
   const { username } = useParams<{ username?: string }>();
-  const navigate = useNavigate();
   const currentUser = useAuthStore((state) => state.user) as UserPrivate | null;
-  const checkAuth = useAuthStore((state) => state.checkAuth);
-
   const [profileState, setProfileState] = useState<PublicProfileState | null>(
     null
   );
 
-  // Own profile when there is no username or it matches the session user.
-  const isOwnProfile =
-    !username || (currentUser && currentUser.username === username);
+  const isOwnProfile = !username || currentUser?.username === username;
 
-  // Derived state: never show the previous user's data while loading.
   const loading =
     !isOwnProfile && Boolean(username) && profileState?.username !== username;
   const publicUser =
@@ -81,48 +65,10 @@ export function ProfilePage() {
     };
   }, [username, isOwnProfile]);
 
-  const handleAvatarUpload = async (blob: Blob) => {
-    await updateMyAvatar(blob);
-    // Refresh global auth state to propagate the new avatar throughout the app.
-    await checkAuth();
-  };
-
-  const handleUpdateProfile = async (
-    input: UpdateProfileInput
-  ): Promise<UpdateProfileResponse> => {
-    const result = await updateMyProfile(input);
-    if (result.outcome === 'updated') {
-      // Reset to the canonical own-profile route before refreshing auth state.
-      const nextUsername = result.user?.username ?? input.username;
-      if (
-        nextUsername !== undefined &&
-        nextUsername !== currentUser?.username
-      ) {
-        navigate('/profile', { replace: true });
-      }
-      await checkAuth();
-    }
-    return result;
-  };
-
-  // Keep the current session alive: password changes never revoke the cookies.
-  const handleChangePassword = (
-    input: ChangePasswordInput
-  ): Promise<ChangePasswordResponse> => changeMyPassword(input);
-
-  // 1. Own profile (private view)
   if (isOwnProfile && currentUser) {
-    return (
-      <PrivateProfileView
-        user={currentUser}
-        onAvatarUpload={handleAvatarUpload}
-        onUpdateProfile={handleUpdateProfile}
-        onChangePassword={handleChangePassword}
-      />
-    );
+    return <ProfilePagePrivate user={currentUser} />;
   }
 
-  // 2. Loading state
   if (loading) {
     return (
       <div className={UI.shell.page}>
@@ -140,37 +86,9 @@ export function ProfilePage() {
     );
   }
 
-  // 3. User not found (404)
   if (notFound || !publicUser) {
-    return (
-      <div className={UI.shell.page}>
-        <div className={UI.shell.container}>
-          <Card className="mx-auto w-full max-w-md space-y-4 p-6 text-center sm:p-8">
-            <div className="flex justify-center">
-              <UserX className="text-muted-foreground size-12" />
-            </div>
-            <h3 className="text-destructive text-xl font-bold">
-              {t('profile.userNotFound') || 'User Not Found (404)'}
-            </h3>
-            <p className={UI.text.muted}>
-              {t('profile.userNotFoundDesc') || 'The user'}{' '}
-              <span className="text-foreground font-mono">@{username}</span>{' '}
-              {t('profile.doesNotExist') || 'does not exist.'}
-            </p>
-            <div className="pt-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/lobby" className="gap-2 font-semibold">
-                  <ArrowLeft className={UI.icon.sm} />
-                  {t('profile.backToLobby') || 'Back to Lobby'}
-                </Link>
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
+    return <ProfilePageUnkown />;
   }
 
-  // 4. Other user's profile (public view)
-  return <PublicProfileView user={publicUser} />;
+  return <ProfilePagePublic user={publicUser} />;
 }

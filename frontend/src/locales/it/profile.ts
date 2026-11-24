@@ -6,9 +6,9 @@
 export const profileIt = {
   loading: 'Caricamento del profilo...',
   myProfile: 'Il mio profilo',
-  userNotFound: 'Utente non trovato (404)',
-  userNotFoundDesc: "L'utente",
-  doesNotExist: 'non esiste.',
+  userNotFound: 'Utente non trovato',
+  userNotFoundSubtitle:
+    "Il profilo che stai cercando non è stato trovato. Controlla l'URL o torna alla lobby.",
   backToLobby: 'Torna alla lobby',
   publicProfile: 'Vedi profilo pubblico',
   joined: 'Registrato il',
