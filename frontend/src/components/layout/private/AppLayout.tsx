@@ -61,7 +61,7 @@ export function AppLayout() {
       />
 
       {/* Main view container rendered by React Router */}
-      <main className="flex w-full grow flex-col items-center p-4 md:p-8 justify-center">
+      <main className="flex w-full grow flex-col items-center justify-center p-4 md:p-8">
         <Outlet />
       </main>
 
