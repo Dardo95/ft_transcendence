@@ -12,6 +12,7 @@ import type { EndScreenState } from '../endScreen';
 import { GameSidebar } from '../hud/GameSidebar';
 import type { HudModel } from '../hud/hudModel';
 import { GameTopBar } from '../hud/GameTopBar';
+import { FullscreenHud } from '../hud/FullscreenHud';
 
 /**
  * Shell React de la partida: crea/destruye el `GameEngine`,
@@ -178,6 +179,11 @@ export function GameViewport({ demo = false }: GameViewportProps) {
               FPS {debugFps}
             </div>
           )}
+          {/* HUD superpuesto solo en pantalla completa: el
+              topbar y el sidebar quedan fuera del elemento
+              fullscreen, así que este overlay es la única UI.
+              z-10 < EndScreenOverlay (z-20); sin eventos. */}
+          {isFullscreen && hudModel && <FullscreenHud model={hudModel} />}
         </div>
       </div>
 
