@@ -1,5 +1,6 @@
 import type { AuthService } from '../auth/auth.service.js';
 import type { ChatGateway } from '../chat/chat.gateway.js';
+import type { GameManagerService } from '../game/sessions/game-manager.service.js';
 import type { FriendshipsService } from './friendships.service.js';
 import type { UsersService } from './users.service.js';
 import { UsersController } from './users.controller.js';
@@ -7,7 +8,10 @@ import { UsersController } from './users.controller.js';
 const ME_ID = 1;
 const OTHER_ID = 2;
 
-function createController(block: ReturnType<typeof vi.fn>) {
+function createController(
+  block: ReturnType<typeof vi.fn>,
+  getActiveGameIdForUser: ReturnType<typeof vi.fn> = vi.fn()
+) {
   const emit = vi.fn();
   const to = vi.fn();
   // `emitToUser` chains `to(room).emit(event, payload)`.
@@ -20,10 +24,11 @@ function createController(block: ReturnType<typeof vi.fn>) {
     {} as UsersService,
     friendships,
     { server } as unknown as ChatGateway,
-    {} as AuthService
+    {} as AuthService,
+    { getActiveGameIdForUser } as unknown as GameManagerService
   );
 
-  return { controller, to, emit };
+  return { controller, to, emit, getActiveGameIdForUser };
 }
 
 describe('UsersController.blockUser', () => {
@@ -83,5 +88,23 @@ describe('UsersController.blockUser', () => {
     ).rejects.toThrow('forbidden');
     expect(to).not.toHaveBeenCalled();
     expect(emit).not.toHaveBeenCalled();
+  });
+});
+
+describe('UsersController.activeGame', () => {
+  it('returns the active game id for the authenticated user', () => {
+    const getActiveGameIdForUser = vi.fn().mockReturnValue('game-uuid');
+    const { controller } = createController(vi.fn(), getActiveGameIdForUser);
+
+    expect(controller.activeGame(ME_ID)).toEqual({ gameId: 'game-uuid' });
+    expect(getActiveGameIdForUser).toHaveBeenCalledWith(ME_ID);
+  });
+
+  it('returns a null game id when the user is not playing', () => {
+    const getActiveGameIdForUser = vi.fn().mockReturnValue(null);
+    const { controller } = createController(vi.fn(), getActiveGameIdForUser);
+
+    expect(controller.activeGame(ME_ID)).toEqual({ gameId: null });
+    expect(getActiveGameIdForUser).toHaveBeenCalledWith(ME_ID);
   });
 });
