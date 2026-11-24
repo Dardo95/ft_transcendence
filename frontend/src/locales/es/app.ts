@@ -251,7 +251,19 @@ export const appEs = {
       },
     },
   },
-
+  notFound: {
+    badge: 'ERROR 404',
+    title: 'Página no encontrada',
+    subtitle:
+      'La página que buscas no existe, se ha movido o la URL no es correcta.',
+    requestedPath: 'Ruta solicitada',
+    backLobby: 'Volver al Lobby',
+    backHome: 'Ir al inicio de sesión',
+    goBack: 'Volver',
+    quickLinks: 'Navegación rápida',
+    quickLinksHint:
+      'Descubre las reglas, el desglose del proyecto o conoce al equipo.',
+  },
   game: {
     viewportLabel: 'Área de juego',
     sidebarLabel: 'Panel lateral de la partida',

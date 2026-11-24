@@ -250,6 +250,19 @@ export const appIt = {
       },
     },
   },
+  notFound: {
+    badge: 'ERROR 404',
+    title: 'Pagina non trovata',
+    subtitle:
+      'La pagina che cerchi non esiste, è stata spostata o l’URL non è corretto.',
+    requestedPath: 'Percorso richiesto',
+    backLobby: 'Torna alla lobby',
+    backHome: 'Vai al login',
+    goBack: 'Indietro',
+    quickLinks: 'Navigazione rapida',
+    quickLinksHint:
+      'Scopri le regole, la suddivisione del progetto o conosci il team.',
+  },
   game: {
     viewportLabel: 'Area di gioco',
     sidebarLabel: 'Pannello laterale della partita',

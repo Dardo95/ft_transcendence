@@ -8,7 +8,7 @@ export function AppLayoutPublic() {
     <div className={UI.chrome.publicFrame}>
       <HeaderPublic />
 
-      <main className="z-10 flex w-full grow flex-col items-center justify-center">
+      <main className="flex w-full grow flex-col items-center p-4 md:p-8 justify-center">
         <Outlet />
       </main>
 

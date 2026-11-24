@@ -250,6 +250,20 @@ export const appEn = {
     },
   },
 
+  notFound: {
+    badge: 'ERROR 404',
+    title: 'Page Not Found',
+    subtitle:
+      'The page you are looking for does not exist, has been moved, or the URL is incorrect.',
+    requestedPath: 'Requested path',
+    backLobby: 'Back to Lobby',
+    backHome: 'Go to Login',
+    goBack: 'Go Back',
+    quickLinks: 'Quick Navigation',
+    quickLinksHint:
+      'Explore the game rules, the project breakdown, or meet the team.',
+  },
+
   game: {
     viewportLabel: 'Game viewport',
     sidebarLabel: 'Game sidebar',
