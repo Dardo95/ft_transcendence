@@ -242,6 +242,13 @@ const UI_DIALOG_FOOTER =
 const UI_LABEL =
   'flex items-center gap-2 text-sm leading-none font-medium text-foreground select-none';
 
+/*Keycap */
+const KEYCAP_BASE =
+  'inline-flex select-none items-center justify-center rounded-lg border border-b-4 font-mono text-xs font-bold tracking-wider shadow-sm transition-transform active:translate-y-0.5 active:border-b-2';
+const KEYCAP_STANDARD = 'size-10 border-input bg-secondary text-foreground';
+const KEYCAP_WIDE = 'h-10 min-w-36 px-5';
+const KEYCAP_ACCENT = 'border-primary/50 bg-primary/15 text-primary';
+
 /**
  * Single grouped token object. Import once per file: `import { UI } from ...`.
  */
@@ -433,6 +440,12 @@ export const UI = {
     md: ICON_MD,
     lg: ICON_LG,
     spinner: ICON_SPINNER,
+  },
+  keycap: {
+    base: KEYCAP_BASE,
+    standard: KEYCAP_STANDARD,
+    wide: KEYCAP_WIDE,
+    accent: KEYCAP_ACCENT,
   },
   link: {
     profileRow: LINK_PROFILE_ROW,

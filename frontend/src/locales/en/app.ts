@@ -227,29 +227,68 @@ export const appEn = {
     },
   },
   aboutGame: {
-    title: 'ft_bomberman',
+    badge: 'Guide to play ft_bomberman',
+    title: 'About the Game',
     subtitle:
-      'Inspired by Bomberman, the classic strategy and maze video game franchise originally created by Hudson Soft in 1983 and now owned by Konami. A 42 Madrid project.',
+      'Move through destructible mazes, place bombs, collect upgrades, and outlast your opponents in this online multiplayer arena.',
+    controlsTitle: 'Controls',
+    controlsSpace: 'SPACE',
+    movementTitle: 'Movement',
+    movementDescription:
+      'Move using either key set. Diagonal movement is not available.',
+    wasdLabel: 'WASD',
+    arrowKeysLabel: 'Arrow keys',
+    or: 'or',
+    moveUp: 'Move up',
+    moveDown: 'Move down',
+    moveLeft: 'Move left',
+    moveRight: 'Move right',
+    actionTitle: 'Bomb',
+    actionDescription: 'Press the Space bar to place a bomb.',
+    placeBomb: 'Place bomb',
+    objectiveTitle: 'Objective',
+    objectiveDescription:
+      'Stay alive and be the last player remaining. Bombs can eliminate you too, so plan an escape route before placing one.',
     mechanicsTitle: 'Core mechanics',
     mechanics: {
       bombPlacement: {
         label: 'Bomb placement',
         description:
-          'the player moves through a maze and strategically places explosives to destroy walls and eliminate enemies.',
+          'Place bombs to break destructible blocks and catch rivals in their blast. Watch the fuse and move to safety before detonation.',
       },
       powerUps: {
         label: 'Power-ups',
         description:
-          'breaking blocks yields upgrades such as greater explosion range, more simultaneous bombs, or increased movement speed.',
+          'Destroy blocks to find upgrades for blast range, the number of bombs you can place at once, and movement speed.',
       },
       multiplayer: {
         label: 'Multiplayer',
         description:
-          'it is known for its frenetic competitive modes, both in local and online matches for multiple players.',
+          'Compete online with friends or other players. Choose a solo practice match, a private lobby match, or open matchmaking.',
       },
     },
+    matchModesTitle: 'Choose a game mode',
+    modes: {
+      practice: {
+        label: 'Practice',
+        description:
+          'Play solo against a bot to learn the controls and test your strategy.',
+      },
+      private: {
+        label: 'Private match',
+        description:
+          'Play with 2–4 players from your current lobby in a private match.',
+      },
+      public: {
+        label: 'Public matchmaking',
+        description:
+          'Join the open queue. A match starts when at least 2 players are ready and supports up to 4 players.',
+      },
+    },
+    demoTitle: 'Try the arena',
+    demoDescription:
+      'Use the interactive preview to try moving, placing bombs, and escaping explosions.',
   },
-
   notFound: {
     badge: 'ERROR 404',
     title: 'Page Not Found',

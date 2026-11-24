@@ -228,27 +228,67 @@ export const appIt = {
     },
   },
   aboutGame: {
-    title: 'ft_bomberman',
+    badge: 'GUIDA AL GIOCO ft_bomberman',
+    title: 'Informazioni sul gioco',
     subtitle:
-      'Ispirato a Bomberman, la classica serie di videogiochi di strategia e labirinti creata originariamente da Hudson Soft nel 1983 e oggi di proprietà di Konami. Progetto di 42 Madrid.',
-    mechanicsTitle: 'Meccanica principale',
+      'Attraversa labirinti con blocchi distruttibili, piazza bombe, raccogli potenziamenti e sopravvivi agli avversari in questa arena multiplayer online.',
+    controlsTitle: 'Comandi',
+    controlsSpace: 'SPAZIO',
+    movementTitle: 'Movimento',
+    movementDescription:
+      'Muoviti usando uno dei due gruppi di tasti. Non è possibile muoversi in diagonale.',
+    wasdLabel: 'WASD',
+    arrowKeysLabel: 'Frecce',
+    or: 'oppure',
+    moveUp: 'Muovi verso l’alto',
+    moveDown: 'Muovi verso il basso',
+    moveLeft: 'Muovi a sinistra',
+    moveRight: 'Muovi a destra',
+    actionTitle: 'Bomba',
+    actionDescription: 'Premi la barra spaziatrice per piazzare una bomba.',
+    placeBomb: 'Piazza una bomba',
+    objectiveTitle: 'Obiettivo',
+    objectiveDescription:
+      'Sopravvivi e diventa l’ultimo giocatore rimasto. Le bombe possono eliminare anche te: pianifica una via di fuga prima di piazzarle.',
+    mechanicsTitle: 'Meccaniche principali',
     mechanics: {
       bombPlacement: {
         label: 'Posizionamento delle bombe',
         description:
-          'il giocatore si muove in un labirinto e posiziona esplosivi in modo strategico per distruggere muri ed eliminare i nemici.',
+          'Piazza bombe per distruggere i blocchi e intrappolare gli avversari nell’esplosione. Controlla la miccia e allontanati prima della detonazione.',
       },
       powerUps: {
         label: 'Power-up',
         description:
-          "distruggendo i blocchi si ottengono miglioramenti, come maggiore raggio dell'esplosione, più bombe simultanee o maggiore velocità di movimento.",
+          'Distruggi i blocchi per trovare potenziamenti per il raggio delle esplosioni, il numero di bombe piazzabili e la velocità di movimento.',
       },
       multiplayer: {
         label: 'Multigiocatore',
         description:
-          'è celebre per le sue frenetiche modalità competitive, sia in locale che online, per più giocatori.',
+          'Sfida amici o altri giocatori online. Scegli una partita di pratica in solitaria, una partita privata nella lobby o il matchmaking aperto.',
       },
     },
+    matchModesTitle: 'Scegli una modalità di gioco',
+    modes: {
+      practice: {
+        label: 'Pratica',
+        description:
+          'Gioca da solo contro un bot per imparare i comandi e mettere alla prova la tua strategia.',
+      },
+      private: {
+        label: 'Partita privata',
+        description:
+          'Gioca con 2–4 partecipanti della lobby attuale in una partita privata.',
+      },
+      public: {
+        label: 'Matchmaking pubblico',
+        description:
+          'Entra nella coda aperta. La partita inizia con almeno 2 giocatori e può ospitarne fino a 4.',
+      },
+    },
+    demoTitle: 'Prova l’arena',
+    demoDescription:
+      'Usa l’anteprima interattiva per provare a muoverti, piazzare bombe e sfuggire alle esplosioni.',
   },
   notFound: {
     badge: 'ERROR 404',
