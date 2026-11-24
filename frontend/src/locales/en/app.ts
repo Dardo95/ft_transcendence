@@ -121,6 +121,8 @@ export const appEn = {
     activeMatchNotice:
       'You already have a match in progress. Return to it to keep playing.',
     returnToActiveMatch: 'Return to active match',
+    activeMatchCheckFailed:
+      'Could not check whether you have an active match. Refresh the lobby and try again.',
     socketOnline: 'SOCKET ONLINE',
     socketOffline: 'SOCKET OFFLINE',
     enterLobbyPrefix: 'Welcome to the Lobby, ',

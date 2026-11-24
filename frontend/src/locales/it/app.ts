@@ -123,6 +123,8 @@ export const appIt = {
     activeMatchNotice:
       'Hai già una partita in corso. Torna a giocarla per continuare.',
     returnToActiveMatch: 'Torna alla partita in corso',
+    activeMatchCheckFailed:
+      'Impossibile verificare se hai una partita in corso. Aggiorna la lobby e riprova.',
     socketOnline: 'SOCKET ONLINE',
     socketOffline: 'SOCKET OFFLINE',
     enterLobbyPrefix: 'Benvenuto nella Lobby, ',

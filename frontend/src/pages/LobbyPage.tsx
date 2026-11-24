@@ -83,10 +83,21 @@ export function LobbyPage() {
 
   const dismissGameError = useCallback(() => setGameError(null), []);
 
+  const reportActiveGameCheckFailure = useCallback(() => {
+    setGameError(
+      t('app.lobby.activeMatchCheckFailed') ||
+        'Could not check whether you have an active match. Refresh the lobby and try again.'
+    );
+  }, [t]);
+
   const refreshActiveGame = useCallback(async () => {
-    const gameId = await fetchActiveGameId();
-    setActiveGameId(gameId);
-  }, []);
+    try {
+      const gameId = await fetchActiveGameId();
+      setActiveGameId(gameId);
+    } catch {
+      reportActiveGameCheckFailure();
+    }
+  }, [reportActiveGameCheckFailure]);
 
   const goToGame = useCallback(
     (gameId?: string) => {
@@ -144,14 +155,18 @@ export function LobbyPage() {
   useEffect(() => {
     let cancelled = false;
 
-    void fetchActiveGameId().then((gameId) => {
-      if (!cancelled) setActiveGameId(gameId);
-    });
+    void fetchActiveGameId()
+      .then((gameId) => {
+        if (!cancelled) setActiveGameId(gameId);
+      })
+      .catch(() => {
+        if (!cancelled) reportActiveGameCheckFailure();
+      });
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reportActiveGameCheckFailure]);
 
   // Keep the active match in sync with match lifecycle events.
   useEffect(() => {

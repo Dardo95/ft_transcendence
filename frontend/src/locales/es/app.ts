@@ -124,6 +124,8 @@ export const appEs = {
     activeMatchNotice:
       'Ya tienes una partida en curso. Vuelve a ella para seguir jugando.',
     returnToActiveMatch: 'Ir a partida en curso',
+    activeMatchCheckFailed:
+      'No se pudo comprobar si tienes una partida en curso. Actualiza el lobby e inténtalo de nuevo.',
     socketOnline: 'SOCKET ONLINE',
     socketOffline: 'SOCKET OFFLINE',
     enterLobbyPrefix: 'Bienvenido al Lobby, ',

@@ -29,14 +29,10 @@ export function readActiveGameId(payload: unknown): string | null {
 
 /**
  * Returns the authenticated user's active match id, including practice and
- * private matches. Failures are treated as "no active match" so the lobby
- * never becomes unusable because of a transient backend error.
+ * private matches. Request failures propagate so the lobby can report that
+ * the active match could not be checked.
  */
 export async function fetchActiveGameId(): Promise<string | null> {
-  try {
-    const response = await apiFetch<ActiveGameResponse>('/game/active');
-    return readActiveGameId(response);
-  } catch {
-    return null;
-  }
+  const response = await apiFetch<ActiveGameResponse>('/users/me/active-game');
+  return readActiveGameId(response);
 }
