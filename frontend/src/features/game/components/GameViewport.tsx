@@ -12,6 +12,7 @@ import type { EndScreenState } from '../endScreen';
 import { GameSidebar } from '../hud/GameSidebar';
 import type { HudModel } from '../hud/hudModel';
 import { GameTopBar } from '../hud/GameTopBar';
+import { UI } from '../../../components/layout/layoutStyles';
 
 /**
  * Shell React de la partida: crea/destruye el `GameEngine`,
@@ -28,11 +29,15 @@ interface GameViewportProps {
 
 export function GameViewport({ demo = false }: GameViewportProps) {
   const { t } = useLanguage();
+  const fullscreenRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
   const [hudModel, setHudModel] = useState<HudModel | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>(
     demo ? 'demo' : 'connecting'
+  );
+  const [isWideGameLayout, setIsWideGameLayout] = useState(
+    () => window.matchMedia('(min-width: 1024px)').matches
   );
   // Pantalla de fin (muerte/victoria/derrota) y su descarte
   // manual ("seguir viendo") hasta que cambie el resultado.
@@ -50,7 +55,17 @@ export function GameViewport({ demo = false }: GameViewportProps) {
   const navigate = useNavigate();
 
   const { gameIdRef, mapIdRef, debugEnabled, isSpectator } = useGameParams();
-  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
+  const { isFullscreen, toggleFullscreen } = useFullscreen(fullscreenRef);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    const updateLayout = () => setIsWideGameLayout(mediaQuery.matches);
+    mediaQuery.addEventListener('change', updateLayout);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateLayout);
+    };
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -88,6 +103,12 @@ export function GameViewport({ demo = false }: GameViewportProps) {
     // modo y `runId` lo recrea entero (reiniciar la demo).
   }, [gameIdRef, mapIdRef, demo, runId]);
 
+  useEffect(() => {
+    engineRef.current?.setFitWholeMap(
+      isFullscreen || (!demo && isWideGameLayout)
+    );
+  }, [demo, isFullscreen, isWideGameLayout, runId]);
+
   // Reinicio de la demo: limpia los avisos y recrea el motor
   // (el nuevo empieza con todos los jugadores en pie).
   const restartDemo = (): void => {
@@ -99,11 +120,22 @@ export function GameViewport({ demo = false }: GameViewportProps) {
 
   return (
     <div
-      className={`flex w-full flex-col gap-2 p-2 lg:flex-row ${
-        demo ? '' : 'lg:h-[calc(100dvh-80px)] lg:overflow-hidden'
-      }`}
+      ref={fullscreenRef}
+      className={
+        isFullscreen
+          ? UI.game.viewportFullscreenLayout
+          : demo
+            ? UI.game.viewportDemoLayout
+            : `${UI.game.viewportLayout} ${UI.game.viewportMatchLayout}`
+      }
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
+      <div
+        className={
+          isFullscreen
+            ? UI.game.viewportFullscreenColumn
+            : UI.game.viewportColumn
+        }
+      >
         {hudModel && (
           <GameTopBar
             model={hudModel}
@@ -121,31 +153,31 @@ export function GameViewport({ demo = false }: GameViewportProps) {
         )}
         <div
           ref={containerRef}
-          className={`relative overflow-hidden bg-zinc-950 ${
+          className={`${UI.game.viewportFrame} ${
             isFullscreen
-              ? 'h-screen w-screen rounded-none'
+              ? UI.game.viewportFullscreen
               : demo
-                ? 'h-[70vh] min-h-[420px] rounded-lg'
-                : 'h-[70vh] min-h-[320px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
+                ? UI.game.viewportDemo
+                : UI.game.viewportMatch
           }`}
           style={{ imageRendering: 'pixelated' }}
           aria-label={t('app.game.viewportLabel') || 'Game viewport'}
         >
           {viewMode === 'connecting' && !joinFailure && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/70">
-              <span className="text-sm text-zinc-400">
+            <div className={UI.game.loadingOverlay}>
+              <span className={UI.game.loadingText}>
                 {t('app.general.connecting') || 'Connecting...'}
               </span>
             </div>
           )}
           {joinFailure && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-zinc-950/90 px-4 text-center">
-              <p className="text-lg font-black text-zinc-100">
+            <div className={UI.game.failureOverlay}>
+              <p className={UI.game.failureTitle}>
                 {joinFailure === 'rejected'
                   ? t('app.joinFailure.notFoundTitle')
                   : t('app.joinFailure.connectionLostTitle')}
               </p>
-              <p className="text-sm text-zinc-400">
+              <p className={UI.game.failureDescription}>
                 {joinFailure === 'rejected'
                   ? t('app.joinFailure.notFoundSubtitle')
                   : t('app.joinFailure.connectionLostSubtitle')}
@@ -156,7 +188,6 @@ export function GameViewport({ demo = false }: GameViewportProps) {
                     type="button"
                     size="lg"
                     onClick={() => window.location.reload()}
-                    className="bg-orange-500 font-black text-white hover:bg-orange-600"
                   >
                     {t('app.joinFailure.retry')}
                   </Button>
@@ -181,18 +212,29 @@ export function GameViewport({ demo = false }: GameViewportProps) {
             />
           )}
           {debugEnabled && debugFps !== null && (
-            <div className="absolute right-2 bottom-2 z-10 rounded bg-zinc-950/80 px-2 py-1 font-mono text-xs text-amber-300">
-              FPS {debugFps}
-            </div>
+            <div className={UI.game.debugBadge}>FPS {debugFps}</div>
           )}
         </div>
       </div>
 
       <aside
-        className="w-full shrink-0 lg:w-72 lg:overflow-y-auto"
+        className={
+          isFullscreen
+            ? UI.game.viewportFullscreenSidebar
+            : demo
+              ? UI.game.viewportDemoSidebar
+              : UI.game.viewportSidebar
+        }
         aria-label={t('app.game.sidebarLabel') || 'Game sidebar'}
       >
-        {hudModel && <GameSidebar model={hudModel} />}
+        {hudModel && (
+          <GameSidebar
+            model={hudModel}
+            demo={demo}
+            threeColumn={!isFullscreen}
+            responsive={!demo && !isFullscreen}
+          />
+        )}
       </aside>
     </div>
   );

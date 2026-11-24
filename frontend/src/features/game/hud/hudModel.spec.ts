@@ -47,7 +47,9 @@ const PLAYERS = [
 describe('buildLocalHud', () => {
   it('reports full capacity when no own bomb is active', () => {
     expect(buildLocalHud(PLAYERS, [], 'bren')).toMatchObject({
+      id: 'bren',
       name: 'bren',
+      isBot: false,
       alive: true,
       bombCapacity: 1,
       availableBombs: 1,
@@ -105,7 +107,17 @@ describe('buildRivalHud', () => {
       'bren'
     );
 
-    expect(rivals).toEqual([{ name: 'eduardo', alive: false }]);
+    expect(rivals).toEqual([
+      { id: 'eduardo', name: 'eduardo', isBot: false, alive: false },
+    ]);
+  });
+
+  it('preserves the bot identity', () => {
+    const bot = player('practice:bot', { displayName: 'Bot', isBot: true });
+
+    expect(buildRivalHud([player('bren'), bot], 'bren')).toEqual([
+      { id: 'practice:bot', name: 'Bot', isBot: true, alive: true },
+    ]);
   });
 });
 
@@ -160,7 +172,9 @@ describe('buildHudModel', () => {
     );
 
     expect(model.local).toMatchObject({
+      id: 'bren',
       name: 'bren',
+      isBot: false,
       alive: true,
       availableBombs: 0,
     });
