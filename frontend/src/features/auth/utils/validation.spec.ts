@@ -1,4 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import {
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+} from '@transcendence/shared';
 
 import {
   AVATAR_MAX_BYTES,
@@ -18,6 +22,19 @@ describe('profile field validation', () => {
     );
     expect(validateUsername('ab')).toBe('auth.validation.usernameInvalid');
     expect(validateUsername('')).toBe('auth.validation.usernameRequired');
+  });
+
+  it('uses the shared username length bounds', () => {
+    expect(USERNAME_MIN_LENGTH).toBe(3);
+    expect(USERNAME_MAX_LENGTH).toBe(20);
+    expect(validateUsername('a'.repeat(USERNAME_MIN_LENGTH - 1))).toBe(
+      'auth.validation.usernameInvalid'
+    );
+    expect(validateUsername('a'.repeat(USERNAME_MIN_LENGTH))).toBeNull();
+    expect(validateUsername('a'.repeat(USERNAME_MAX_LENGTH))).toBeNull();
+    expect(validateUsername('a'.repeat(USERNAME_MAX_LENGTH + 1))).toBe(
+      'auth.validation.usernameInvalid'
+    );
   });
 
   it('validates email changes', () => {

@@ -25,6 +25,8 @@ export interface HudModel {
   rivals: RivalHud[];
   playersRemaining: number;
   clockMs: number;
+  isOvertime: boolean;
+  overtimeElapsedMs: number;
   mapWidth: number;
   mapHeight: number;
   mapId: string;
@@ -33,6 +35,7 @@ export interface HudModel {
 
 export interface HudModelOptions {
   durationMs?: number;
+  isOvertime?: boolean;
   map?: readonly number[][];
   mapId?: string;
   gameId?: string;
@@ -112,6 +115,7 @@ export function buildHudModel(
   elapsedMs: number,
   {
     durationMs = MATCH_DURATION_MS,
+    isOvertime = false,
     map,
     mapId = 'MAP1',
     gameId = 'demo',
@@ -122,6 +126,8 @@ export function buildHudModel(
     rivals: buildRivalHud(players, localPlayerId),
     playersRemaining: countAlivePlayers(players),
     clockMs: remainingMatchMs(elapsedMs, durationMs),
+    isOvertime,
+    overtimeElapsedMs: isOvertime ? Math.max(0, elapsedMs - durationMs) : 0,
     mapWidth: map?.[0]?.length ?? 0,
     mapHeight: map?.length ?? 0,
     mapId,

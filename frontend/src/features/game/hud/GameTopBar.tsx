@@ -45,8 +45,10 @@ export function GameTopBar({
   const stats: TopBarStat[] = [
     {
       icon: ClockIcon,
-      label: t('app.topbar.time'),
-      value: formatClock(model.clockMs),
+      label: model.isOvertime ? t('app.topbar.overtime') : t('app.topbar.time'),
+      value: model.isOvertime
+        ? `+${formatClock(model.overtimeElapsedMs)}`
+        : formatClock(model.clockMs),
     },
     {
       icon: UsersIcon,

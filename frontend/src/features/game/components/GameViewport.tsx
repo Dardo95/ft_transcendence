@@ -110,7 +110,14 @@ export function GameViewport({ demo = false }: GameViewportProps) {
             model={hudModel}
             isFullscreen={isFullscreen}
             onToggleFullscreen={toggleFullscreen}
-            onLeave={demo ? undefined : () => navigate('/lobby')}
+            onLeave={
+              demo
+                ? undefined
+                : () => {
+                    engineRef.current?.abandon();
+                    navigate('/lobby');
+                  }
+            }
           />
         )}
         <div

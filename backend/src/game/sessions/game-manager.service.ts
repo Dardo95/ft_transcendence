@@ -104,7 +104,9 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Indica si un usuario ya participa en una sesión activa.
+   * Indica si un usuario sigue vivo en una sesión no finalizada.
+   * Los jugadores eliminados o que han abandonado quedan libres para
+   * solicitar otra partida aunque la sesión anterior siga activa.
    * Acepta IDs numéricos (identidad de Prisma) y cadenas
    * para mantener compatible el motor con sus identificadores.
    */
@@ -128,13 +130,46 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
       for (const player of session.players.values()) {
         const playerIdentity = player.userId ?? player.id;
 
-        if (playerIdentity === targetId) {
+        if (player.alive && playerIdentity === targetId) {
           return session.id;
         }
       }
     }
 
     return null;
+  }
+
+  /**
+   * Elimina a un jugador humano de una partida activa. La comprobación
+   * del resultado se realiza en el siguiente tick del motor.
+   */
+  eliminatePlayer(gameId: string, userId: number | string): boolean {
+    const session = this.sessions.get(gameId);
+
+    if (!session || session.status === 'FINISHED') {
+      return false;
+    }
+
+    const expectedUserId = String(userId);
+    const player = [...session.players.values()].find(
+      (candidate) =>
+        !candidate.isBot &&
+        (candidate.userId ?? candidate.id) === expectedUserId
+    );
+
+    if (!player || !player.alive) {
+      return false;
+    }
+
+    player.alive = false;
+    player.movementInput = {
+      up: false,
+      down: false,
+      left: false,
+      right: false,
+    };
+
+    return true;
   }
 
   getNowMs(): number {
@@ -186,7 +221,10 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
       for (const currentPlayer of session.players.values()) {
         const currentIdentity = currentPlayer.userId ?? currentPlayer.id;
 
-        if (incomingIdentities.includes(currentIdentity)) {
+        if (
+          currentPlayer.alive &&
+          incomingIdentities.includes(currentIdentity)
+        ) {
           throw new Error(
             `Player ${currentIdentity} already has an active game`
           );

@@ -214,6 +214,7 @@ export const appEs = {
   topbar: {
     practiceMatch: 'Partida práctica',
     time: 'Tiempo',
+    overtime: 'Tiempo extra',
     survivors: 'Supervivientes',
     map: 'Mapa',
     exitFullscreen: 'Salir de pantalla completa',

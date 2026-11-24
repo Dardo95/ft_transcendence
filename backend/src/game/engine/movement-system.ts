@@ -19,6 +19,10 @@ export type MovementInputResult =
 
 const COLLISION_EPSILON = 1e-9;
 
+function isActiveGame(session: GameSession): boolean {
+  return session.status === 'RUNNING' || session.status === 'OVERTIME';
+}
+
 // Evita saltos excesivos por cada subpaso de movimiento.
 const MAX_SUBSTEP_DISTANCE = 0.05;
 
@@ -41,7 +45,7 @@ export function setPlayerMovementInput(
     return { success: false, reason: 'PLAYER_DEAD' };
   }
 
-  if (session.status !== 'RUNNING') {
+  if (!isActiveGame(session)) {
     return { success: false, reason: 'GAME_NOT_RUNNING' };
   }
 
@@ -165,7 +169,7 @@ export function updatePlayerMovement(
   session: GameSession,
   deltaSeconds: number
 ): void {
-  if (session.status !== 'RUNNING') {
+  if (!isActiveGame(session)) {
     return;
   }
 

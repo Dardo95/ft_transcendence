@@ -64,6 +64,15 @@ export interface PowerUpState {
   position: Position;
 }
 
+export interface OvertimeState {
+  /** Momento exacto en que se agotó el tiempo reglamentario. */
+  startedAtMs: number;
+  /** Casillas interiores ordenadas en espiral, desde fuera hacia el centro. */
+  tileOrder: Position[];
+  /** Índice de la próxima casilla que debe cerrarse. */
+  nextTileIndex: number;
+}
+
 export interface GameSession {
   id: string;
   mode: GameMode;
@@ -82,4 +91,5 @@ export interface GameSession {
   finishedAtMs: number | null;
 
   winnerId: string | null;
+  overtime: OvertimeState | null;
 }

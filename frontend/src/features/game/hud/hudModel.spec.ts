@@ -198,3 +198,23 @@ describe('buildHudModel', () => {
     expect(model.gameId).toBe('demo');
   });
 });
+
+describe('overtime clock', () => {
+  it('counts elapsed overtime from the regular match duration', () => {
+    const model = buildHudModel(PLAYERS, [], 'bren', 185_000, {
+      isOvertime: true,
+    });
+
+    expect(model.isOvertime).toBe(true);
+    expect(model.clockMs).toBe(0);
+    expect(model.overtimeElapsedMs).toBe(5_000);
+    expect(formatClock(model.overtimeElapsedMs)).toBe('00:05');
+  });
+
+  it('does not show overtime for a regular match', () => {
+    const model = buildHudModel(PLAYERS, [], 'bren', 15_000);
+
+    expect(model.isOvertime).toBe(false);
+    expect(model.overtimeElapsedMs).toBe(0);
+  });
+});

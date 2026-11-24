@@ -1,11 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/locales/useLanguage';
+
 import type { UserPublic } from '@transcendence/shared';
+import { USERNAME_MAX_LENGTH } from '@transcendence/shared';
+
+import { validateUsername } from '@/features/auth/utils/validation';
+
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { UI } from '@/components/layout/layoutStyles';
-import { useLanguage } from '@/locales/useLanguage';
 
 type FeedbackState = {
   text: string;
@@ -196,9 +201,18 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
 
   function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (targetUsername.trim()) {
-      handleSendRequest(targetUsername.trim());
+
+    const username = targetUsername.trim();
+    if (!username) return;
+
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setFeedback({ text: t(usernameError), isError: true });
+      return;
     }
+
+    setFeedback(null);
+    handleSendRequest(username);
   }
 
   const queryTrimmed = targetUsername.trim();
@@ -223,6 +237,7 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
               t('app.friends.addFriendPlaceholder') ||
               'Añadir amigo: Introducir nombre de usuario'
             }
+            maxLength={USERNAME_MAX_LENGTH}
             className={`w-full pr-7 ${isProfile ? 'text-sm' : 'text-xs'}`}
           />
 

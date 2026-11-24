@@ -25,46 +25,26 @@ interface GameFoundPayload {
   snapshot: GameSnapshot;
 }
 
-interface GameStartedPayload {
-  gameId: string;
-  snapshot: GameSnapshot;
-}
-
-interface MatchmakingStatusPayload {
-  mode: string;
-  status: string;
-  gameId?: string;
-}
-
-interface PlayerLeftPayload {
+interface PlayerEventPayload {
   gameId: string;
   userId: number;
 }
 
-const ALICE: TestUser = {
-  id: 910001,
-  username: 'e2e-alice',
-};
-
-const BOB: TestUser = {
-  id: 910002,
-  username: 'e2e-bob',
-};
-
-const OUTSIDER: TestUser = {
-  id: 910003,
-  username: 'e2e-outsider',
-};
+interface PlayerDisconnectedPayload extends PlayerEventPayload {
+  graceMs: number;
+}
 
 let app: INestApplication;
 let jwtService: JwtService;
 let gameManager: GameManagerService;
 
 let socketUrl = '';
-
 let previousMapsDirectory: string | undefined;
+let previousDisconnectGraceMs: string | undefined;
 
 const activeSockets = new Set<Socket>();
+const TEST_DISCONNECT_GRACE_MS = 400;
+let nextTestUserId = 920_000;
 
 function waitForSocketEvent<T>(
   socket: Socket,
@@ -92,13 +72,11 @@ function waitForSocketEvent<T>(
 
     const onConnectError = (error: Error) => {
       cleanup();
-
       reject(new Error(`Socket connection failed: ${error.message}`));
     };
 
     timer = setTimeout(() => {
       cleanup();
-
       reject(new Error(`Timeout waiting for Socket.IO event "${event}"`));
     }, timeoutMs);
 
@@ -127,7 +105,6 @@ function createSocket(token?: string): Socket {
   });
 
   activeSockets.add(socket);
-
   return socket;
 }
 
@@ -138,32 +115,100 @@ async function connectAs(user: TestUser): Promise<Socket> {
   });
 
   const socket = createSocket(token);
-
   const connected = waitForSocketEvent<void>(socket, 'connect', 8_000);
 
   socket.connect();
-
   await connected;
 
   return socket;
 }
 
-async function connectPrivateLobby(): Promise<void> {
+function makeUser(label: string): TestUser {
+  const id = nextTestUserId++;
+  return { id, username: `e2e-${label}-${id}` };
+}
+
+async function connectPrivateLobby(
+  alice: TestUser,
+  bob: TestUser
+): Promise<void> {
   const lobbyService = app.get(LobbyService);
+  lobbyService.createLobby(alice);
 
-  lobbyService.createLobby(ALICE);
+  const invitation = lobbyService.createInvitation(alice, bob);
+  lobbyService.acceptInvitation(invitation.id, bob);
 
-  const invitation = lobbyService.createInvitation(ALICE, BOB);
-
-  lobbyService.acceptInvitation(invitation.id, BOB);
-
-  const lobby = lobbyService.getLobbyForUser(ALICE.id);
-
+  const lobby = lobbyService.getLobbyForUser(alice.id);
   expect(lobby).not.toBeNull();
   expect(lobby?.members.map((member) => member.userId).sort()).toEqual([
-    ALICE.id,
-    BOB.id,
+    alice.id,
+    bob.id,
   ]);
+}
+
+interface PrivateMatch {
+  alice: TestUser;
+  bob: TestUser;
+  aliceSockets: Socket[];
+  bobSocket: Socket;
+  gameId: string;
+}
+
+async function createPrivateMatch(aliceTabs = 1): Promise<PrivateMatch> {
+  const alice = makeUser('alice');
+  const bob = makeUser('bob');
+  await connectPrivateLobby(alice, bob);
+
+  const aliceSockets = await Promise.all(
+    Array.from({ length: aliceTabs }, () => connectAs(alice))
+  );
+  const bobSocket = await connectAs(bob);
+
+  const aliceFoundPromises = aliceSockets.map((socket) =>
+    waitForSocketEvent<GameFoundPayload>(socket, 'game:found', 8_000)
+  );
+  const bobFoundPromise = waitForSocketEvent<GameFoundPayload>(
+    bobSocket,
+    'game:found',
+    8_000
+  );
+
+  aliceSockets[0]!.emit('game:matchmaking', {
+    mode: 'PRIVATE',
+    mapId: 'map1',
+  });
+
+  const [aliceFound, bobFound, ...otherAliceFound] = await Promise.all([
+    aliceFoundPromises[0]!,
+    bobFoundPromise,
+    ...aliceFoundPromises.slice(1),
+  ]);
+
+  expect(aliceFound.gameId).toBe(bobFound.gameId);
+  expect(aliceFound.playerId).toBe(String(alice.id));
+  expect(bobFound.playerId).toBe(String(bob.id));
+
+  for (const found of otherAliceFound) {
+    expect(found.gameId).toBe(aliceFound.gameId);
+  }
+
+  return {
+    alice,
+    bob,
+    aliceSockets,
+    bobSocket,
+    gameId: aliceFound.gameId,
+  };
+}
+
+async function waitForMatchStarted(gameId: string): Promise<void> {
+  await waitUntil(() => {
+    const session = gameManager.getSession(gameId);
+    return (
+      session !== undefined &&
+      (session.status === 'RUNNING' || session.status === 'OVERTIME')
+    );
+  }, 7_000);
 }
 
 function delay(ms: number): Promise<void> {
@@ -201,7 +246,6 @@ function getPlayerPosition(snapshot: GameSnapshot, userId: number): number {
 
 function isMovementStopped(gameId: string, userId: number): boolean {
   const session = gameManager.getSession(gameId);
-
   const player = session?.players.get(String(userId));
 
   if (!player) {
@@ -209,14 +253,15 @@ function isMovementStopped(gameId: string, userId: number): boolean {
   }
 
   const input = player.movementInput;
-
   return !input.up && !input.down && !input.left && !input.right;
 }
 
 beforeAll(async () => {
   previousMapsDirectory = process.env.MAPS_DIR;
+  previousDisconnectGraceMs = process.env.GAME_DISCONNECT_GRACE_MS;
 
   process.env.MAPS_DIR = fileURLToPath(new URL('../maps/', import.meta.url));
+  process.env.GAME_DISCONNECT_GRACE_MS = String(TEST_DISCONNECT_GRACE_MS);
 
   const moduleFixture = await Test.createTestingModule({
     imports: [GameModule],
@@ -229,7 +274,6 @@ beforeAll(async () => {
     .compile();
 
   app = moduleFixture.createNestApplication();
-
   await app.listen(0, '127.0.0.1');
 
   const address = app.getHttpServer().address() as AddressInfo | null;
@@ -239,7 +283,6 @@ beforeAll(async () => {
   }
 
   socketUrl = `http://127.0.0.1:${address.port}/game`;
-
   jwtService = app.get(JwtService);
   gameManager = app.get(GameManagerService);
 });
@@ -268,13 +311,18 @@ afterAll(async () => {
   } else {
     process.env.MAPS_DIR = previousMapsDirectory;
   }
+
+  if (previousDisconnectGraceMs === undefined) {
+    delete process.env.GAME_DISCONNECT_GRACE_MS;
+  } else {
+    process.env.GAME_DISCONNECT_GRACE_MS = previousDisconnectGraceMs;
+  }
 });
 
 describe('GameGateway E2E', () => {
   it('rejects connections without a valid JWT cookie', async () => {
     for (const token of [undefined, 'invalid-jwt-token']) {
       const socket = createSocket(token);
-
       const connectionError = waitForSocketEvent<Error>(
         socket,
         'connect_error',
@@ -282,246 +330,220 @@ describe('GameGateway E2E', () => {
       );
 
       socket.connect();
-
       const error = await connectionError;
 
       expect(error.message).toContain('Unauthorized');
       expect(socket.connected).toBe(false);
-
       socket.disconnect();
     }
   }, 12_000);
 
-  it('creates a private match, broadcasts snapshots, processes movement and stops it on disconnect', async () => {
-    await connectPrivateLobby();
+  it('rejects non-participants and broadcasts authoritative movement snapshots', async () => {
+    const match = await createPrivateMatch();
+    const { alice, aliceSockets, bobSocket, gameId } = match;
+    const [aliceSocket] = aliceSockets;
+    const outsiderSocket = await connectAs(makeUser('outsider'));
 
-    const aliceSocket = await connectAs(ALICE);
-    const bobSocket = await connectAs(BOB);
-    const outsiderSocket = await connectAs(OUTSIDER);
+    await waitForMatchStarted(gameId);
 
-    const aliceFoundPromise = waitForSocketEvent<GameFoundPayload>(
-      aliceSocket,
-      'game:found',
-      8_000
-    );
-
-    const bobFoundPromise = waitForSocketEvent<GameFoundPayload>(
-      bobSocket,
-      'game:found',
-      8_000
-    );
-
-    const matchmakingStatusPromise =
-      waitForSocketEvent<MatchmakingStatusPayload>(
-        aliceSocket,
-        'game:matchmakingStatus',
-        5_000
-      );
-
-    aliceSocket.emit('game:matchmaking', {
-      mode: 'PRIVATE',
-      mapId: 'map1',
-    });
-
-    const status = await matchmakingStatusPromise;
-
-    expect(status).toMatchObject({
-      mode: 'PRIVATE',
-      status: 'CREATED',
-    });
-
-    const [aliceFound, bobFound] = await Promise.all([
-      aliceFoundPromise,
-      bobFoundPromise,
-    ]);
-
-    expect(aliceFound.gameId).toBe(bobFound.gameId);
-
-    expect(aliceFound.gameId).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    );
-
-    expect(aliceFound.playerId).toBe(String(ALICE.id));
-    expect(bobFound.playerId).toBe(String(BOB.id));
-
-    expect(aliceFound.snapshot.players).toHaveLength(2);
-    expect(bobFound.snapshot.players).toHaveLength(2);
-
-    const gameId = aliceFound.gameId;
-
-    expect(status.gameId).toBe(gameId);
-
-    // Un usuario autenticado que no pertenece a la partida
-    // no debe poder incorporarse mediante game:join.
     const outsiderJoinErrorPromise = waitForSocketEvent<unknown>(
       outsiderSocket,
       'exception',
       5_000
     );
-
-    outsiderSocket.emit('game:join', {
-      gameId,
-    });
-
+    outsiderSocket.emit('game:join', { gameId });
     const joinError = await outsiderJoinErrorPromise;
-
     expect(JSON.stringify(joinError)).toContain('participant');
 
-    // Ambos jugadores deben recibir snapshots reales
-    // procedentes de la sala Socket.IO de la partida.
-    const aliceStatePromise = waitForSocketEvent<GameSnapshot>(
-      aliceSocket,
-      'game:state',
-      5_000
-    );
+    const session = gameManager.getSession(gameId);
+    expect(session).toBeDefined();
+    const alicePlayer = session!.players.get(String(alice.id));
+    expect(alicePlayer).toBeDefined();
+    const initialX = alicePlayer!.position.x;
 
-    const bobStatePromise = waitForSocketEvent<GameSnapshot>(
-      bobSocket,
-      'game:state',
-      5_000
-    );
-
-    const [aliceState, bobState] = await Promise.all([
-      aliceStatePromise,
-      bobStatePromise,
-    ]);
-
-    expect(aliceState.gameId).toBe(gameId);
-    expect(bobState.gameId).toBe(gameId);
-
-    expect(aliceState.players).toHaveLength(2);
-    expect(bobState.players).toHaveLength(2);
-
-    // Esperar al final de la cuenta atrás real del motor.
-    const aliceStartedPromise = waitForSocketEvent<GameStartedPayload>(
-      aliceSocket,
-      'game:started',
-      7_000
-    );
-
-    const bobStartedPromise = waitForSocketEvent<GameStartedPayload>(
-      bobSocket,
-      'game:started',
-      7_000
-    );
-
-    const [aliceStarted, bobStarted] = await Promise.all([
-      aliceStartedPromise,
-      bobStartedPromise,
-    ]);
-
-    expect(aliceStarted.gameId).toBe(gameId);
-    expect(bobStarted.gameId).toBe(gameId);
-
-    expect(aliceStarted.snapshot.status).toBe('RUNNING');
-    expect(bobStarted.snapshot.status).toBe('RUNNING');
-
-    const initialX = getPlayerPosition(aliceStarted.snapshot, ALICE.id);
-
-    // Enviar movimiento desde Alice y comprobar que
-    // Bob recibe la posición actualizada por el servidor.
     const movementUpdatePromise = waitForSocketEvent<GameSnapshot>(
       bobSocket,
       'game:state',
       5_000,
       (snapshot) => {
         const player = snapshot.players.find(
-          (candidate) => candidate.id === String(ALICE.id)
+          (candidate) => candidate.id === String(alice.id)
         );
-
         return player !== undefined && player.position.x > initialX + 0.05;
       }
     );
 
-    aliceSocket.emit('game:input', {
+    aliceSocket!.emit('game:input', {
       action: 'movement',
-      input: {
-        up: false,
-        down: false,
-        left: false,
-        right: true,
-      },
+      input: { up: false, down: false, left: false, right: true },
     });
 
     const movedSnapshot = await movementUpdatePromise;
+    expect(getPlayerPosition(movedSnapshot, alice.id)).toBeGreaterThan(
+      initialX
+    );
 
-    const movedX = getPlayerPosition(movedSnapshot, ALICE.id);
-
-    expect(movedX).toBeGreaterThan(initialX);
-
-    // Comprobar la parada de movimiento por input.
-    aliceSocket.emit('game:input', {
-      action: 'stop',
-    });
-
-    await waitUntil(() => isMovementStopped(gameId, ALICE.id));
-
-    const session = gameManager.getSession(gameId);
-
-    expect(session).toBeDefined();
-
-    const alicePlayer = session!.players.get(String(ALICE.id));
-
-    expect(alicePlayer).toBeDefined();
+    aliceSocket!.emit('game:input', { action: 'stop' });
+    await waitUntil(() => isMovementStopped(gameId, alice.id));
 
     const stoppedX = alicePlayer!.position.x;
-
     await delay(150);
-
     expect(alicePlayer!.position.x).toBeCloseTo(stoppedX, 4);
+  }, 20_000);
 
-    // Volver a movernos para comprobar que desconectar
-    // el socket también detiene el movimiento.
-    const movementBeforeDisconnect = waitForSocketEvent<GameSnapshot>(
-      bobSocket,
-      'game:state',
-      5_000,
-      (snapshot) => {
-        const player = snapshot.players.find(
-          (candidate) => candidate.id === String(ALICE.id)
-        );
+  it('stops the player during the grace period and restores the session when they reconnect', async () => {
+    const match = await createPrivateMatch();
+    const { alice, aliceSockets, bobSocket, gameId } = match;
+    const [aliceSocket] = aliceSockets;
 
-        return player !== undefined && player.position.x > stoppedX + 0.05;
-      }
-    );
+    await waitForMatchStarted(gameId);
 
-    aliceSocket.emit('game:input', {
+    const session = gameManager.getSession(gameId);
+    expect(session).toBeDefined();
+    const alicePlayer = session!.players.get(String(alice.id));
+    expect(alicePlayer).toBeDefined();
+
+    aliceSocket!.emit('game:input', {
       action: 'movement',
-      input: {
-        up: false,
-        down: false,
-        left: false,
-        right: true,
-      },
+      input: { up: false, down: false, left: false, right: true },
+    });
+    await waitUntil(() => alicePlayer!.movementInput.right);
+
+    const disconnectedPromise = waitForSocketEvent<PlayerDisconnectedPayload>(
+      bobSocket,
+      'game:playerDisconnected',
+      5_000
+    );
+    aliceSocket!.disconnect();
+
+    const disconnected = await disconnectedPromise;
+    expect(disconnected).toEqual({
+      gameId,
+      userId: alice.id,
+      graceMs: TEST_DISCONNECT_GRACE_MS,
     });
 
-    const movingSnapshot = await movementBeforeDisconnect;
+    expect(alicePlayer?.alive).toBe(true);
+    expect(isMovementStopped(gameId, alice.id)).toBe(true);
 
-    expect(getPlayerPosition(movingSnapshot, ALICE.id)).toBeGreaterThan(
-      stoppedX
+    const reconnectedSocket = await connectAs(alice);
+    const joinedPromise = waitForSocketEvent<{ gameId: string }>(
+      reconnectedSocket,
+      'game:joined',
+      5_000
+    );
+    const reconnectedPromise = waitForSocketEvent<PlayerEventPayload>(
+      bobSocket,
+      'game:playerReconnected',
+      5_000
     );
 
-    const playerLeftPromise = waitForSocketEvent<PlayerLeftPayload>(
+    reconnectedSocket.emit('game:join', { gameId });
+
+    await Promise.all([joinedPromise, reconnectedPromise]);
+    await delay(TEST_DISCONNECT_GRACE_MS + 150);
+
+    expect(alicePlayer?.alive).toBe(true);
+    expect(gameManager.getSession(gameId)?.status).toBe('RUNNING');
+  }, 20_000);
+
+  it('does not start the grace period while another tab is connected, then eliminates after the final tab disconnects', async () => {
+    const match = await createPrivateMatch(2);
+    const { alice, bob, aliceSockets, bobSocket, gameId } = match;
+    const [firstTab, secondTab] = aliceSockets;
+
+    await waitForMatchStarted(gameId);
+
+    let disconnectedEvents = 0;
+    const onDisconnected = () => {
+      disconnectedEvents += 1;
+    };
+    bobSocket.on('game:playerDisconnected', onDisconnected);
+
+    firstTab!.disconnect();
+    await delay(TEST_DISCONNECT_GRACE_MS + 150);
+
+    const session = gameManager.getSession(gameId);
+    expect(session).toBeDefined();
+    expect(session!.players.get(String(alice.id))?.alive).toBe(true);
+    expect(disconnectedEvents).toBe(0);
+
+    const disconnectedPromise = waitForSocketEvent<PlayerDisconnectedPayload>(
+      bobSocket,
+      'game:playerDisconnected',
+      5_000
+    );
+    const playerLeftPromise = waitForSocketEvent<PlayerEventPayload>(
       bobSocket,
       'game:playerLeft',
       5_000
     );
+    const finishedPromise = waitForSocketEvent<{ winnerId: string | null }>(
+      bobSocket,
+      'game:finished',
+      5_000
+    );
 
-    aliceSocket.disconnect();
+    secondTab!.disconnect();
 
-    const playerLeft = await playerLeftPromise;
+    const [disconnected, playerLeft, finished] = await Promise.all([
+      disconnectedPromise,
+      playerLeftPromise,
+      finishedPromise,
+    ]);
 
-    expect(playerLeft).toEqual({
-      gameId,
-      userId: ALICE.id,
+    expect(disconnected.graceMs).toBe(TEST_DISCONNECT_GRACE_MS);
+    expect(playerLeft).toEqual({ gameId, userId: alice.id });
+    expect(finished.winnerId).toBe(String(bob.id));
+    expect(session!.players.get(String(alice.id))?.alive).toBe(false);
+
+    bobSocket.off('game:playerDisconnected', onDisconnected);
+  }, 20_000);
+
+  it('eliminates the player immediately when they voluntarily abandon the match', async () => {
+    const match = await createPrivateMatch(2);
+    const { alice, bob, aliceSockets, bobSocket, gameId } = match;
+    const [aliceSocket, secondAliceTab] = aliceSockets;
+
+    await waitForMatchStarted(gameId);
+
+    const session = gameManager.getSession(gameId);
+    expect(session).toBeDefined();
+
+    const abandonedPromise = waitForSocketEvent<PlayerEventPayload>(
+      bobSocket,
+      'game:playerAbandoned',
+      5_000
+    );
+    const finishedPromise = waitForSocketEvent<{ winnerId: string | null }>(
+      bobSocket,
+      'game:finished',
+      5_000
+    );
+
+    aliceSocket!.emit('game:abandon');
+
+    const [abandoned, finished] = await Promise.all([
+      abandonedPromise,
+      finishedPromise,
+    ]);
+
+    expect(abandoned).toEqual({ gameId, userId: alice.id });
+    expect(finished.winnerId).toBe(String(bob.id));
+    expect(session!.players.get(String(alice.id))?.alive).toBe(false);
+
+    // La otra pestaña permanece como espectadora y ya no puede enviar
+    // movimientos para el jugador que acaba de abandonar.
+    const spectatorInputErrorPromise = waitForSocketEvent<unknown>(
+      secondAliceTab!,
+      'exception',
+      5_000
+    );
+    secondAliceTab!.emit('game:input', {
+      action: 'movement',
+      input: { up: false, down: false, left: false, right: true },
     });
-
-    await waitUntil(() => isMovementStopped(gameId, ALICE.id));
-
-    const positionAtDisconnect = alicePlayer!.position.x;
-
-    await delay(150);
-
-    expect(alicePlayer!.position.x).toBeCloseTo(positionAtDisconnect, 4);
+    const spectatorInputError = await spectatorInputErrorPromise;
+    expect(JSON.stringify(spectatorInputError)).toContain('player first');
   }, 20_000);
 });

@@ -182,6 +182,7 @@ export class GameEngine {
     capacity: -1,
     blast: -1,
     speed: -1,
+    isOvertime: false,
   };
   // Último estado de fin de partida aplicado: solo avisamos a
   // React cuando cambia el resultado.
@@ -336,6 +337,12 @@ export class GameEngine {
     }
     this.app.renderer.resize(clientWidth, clientHeight);
     this.fitMap();
+  }
+
+  /** El jugador ha elegido salir: se notifica como abandono voluntario. */
+  abandon(): void {
+    this.keyboard.destroy();
+    this.connection.abandon();
   }
 
   /** Limpieza total. Segura aunque `app.init` siga en vuelo. */
@@ -547,6 +554,7 @@ export class GameEngine {
     let scenePlayers: readonly GamePlayerSnapshot[];
     let sceneBombs: readonly BombSnapshot[];
     let elapsedMs: number;
+    let isOvertime: boolean;
     let hudLocalId: string | null;
     // Fin de partida: la rama servidor lo deriva del snapshot;
     // la demo, de sus jugadores (muerte local o bots caídos).
@@ -586,6 +594,7 @@ export class GameEngine {
       scenePlayers = snapshot.players;
       sceneBombs = snapshot.bombs;
       elapsedMs = snapshot.elapsedMs;
+      isOvertime = snapshot.status === 'OVERTIME';
     } else {
       // Bombas ambientales del fixture, desactivadas de momento:
       // solo viven las que colocan Bren y los bots. Para
@@ -709,6 +718,7 @@ export class GameEngine {
       sceneBombs = pilotBombs;
       scenePlayers = this.players;
       elapsedMs = scene.timeMs;
+      isOvertime = false;
       hudLocalId = LOCAL_PLAYER_ID;
       nextEndScreen = deriveDemoEndScreen(this.players, LOCAL_PLAYER_ID);
     }
@@ -750,6 +760,7 @@ export class GameEngine {
       bombs: sceneBombs,
       localId: hudLocalId,
       elapsedMs,
+      isOvertime,
     });
 
     if (nextHud) {
@@ -760,6 +771,7 @@ export class GameEngine {
           map: this.activeMap,
           gameId: this.gameIdRef.current,
           mapId: this.mapIdRef.current,
+          isOvertime,
         })
       );
     }

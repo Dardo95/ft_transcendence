@@ -213,6 +213,7 @@ export const appIt = {
   topbar: {
     practiceMatch: 'Partita pratica',
     time: 'Tempo',
+    overtime: 'Tempo supplementare',
     survivors: 'Sopravvissuti',
     map: 'Mappa',
     exitFullscreen: 'Esci da schermo intero',
