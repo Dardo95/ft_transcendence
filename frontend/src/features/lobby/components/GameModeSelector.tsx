@@ -25,33 +25,34 @@ export function GameModeSelector({ selectedMode, onChange, disabled }: Props) {
     {
       id: 'practice',
       icon: '🎮',
-      title: t('app.lobby.modePracticeTitle') || 'PRÁCTICA',
-      subtitle: t('app.lobby.modePracticeSub') || '1 jugador + Bot pasivo',
-      badge: t('app.lobby.modePracticeBadge') || 'IDEAL PARA PROBAR',
+      title: t('app.lobby.modePracticeTitle') || 'PRACTICE',
+      subtitle: t('app.lobby.modePracticeSub') || '1 player + passive bot',
+      badge: t('app.lobby.modePracticeBadge') || 'Great for testing',
     },
     {
       id: 'private',
       icon: '👥',
-      title: t('app.lobby.modePrivateTitle') || 'PRIVADA',
+      title: t('app.lobby.modePrivateTitle') || 'PRIVATE',
       subtitle:
-        t('app.lobby.modePrivateSub') || 'Solo los miembros de tu lobby (2–4).',
-      badge: t('app.lobby.modePrivateBadge') || 'SIN RANDOMS',
+        t('app.lobby.modePrivateSub') || 'Only members of your lobby (2–4).',
+      badge: t('app.lobby.modePrivateBadge') || 'Friends only',
     },
     {
       id: 'public',
       icon: '🌐',
-      title: t('app.lobby.modePublicTitle') || 'PÚBLICA',
-      subtitle: t('app.lobby.modePublicSub') || 'Tu lobby contra otros grupos.',
-      badge: t('app.lobby.modePublicBadge') || 'MATCHMAKING',
+      title: t('app.lobby.modePublicTitle') || 'PUBLIC',
+      subtitle:
+        t('app.lobby.modePublicSub') || 'Your lobby against other groups.',
+      badge: t('app.lobby.modePublicBadge') || 'Open matchmaking',
     },
   ];
 
   return (
     <Card className="min-w-0 p-4">
       <div className={UI.row.sectionLabel}>
-        <span>01 / {t('app.lobby.modeLabel') || 'MODO DE JUEGO'}</span>
+        <span>01 / {t('app.lobby.modeLabel') || 'GAME MODE'}</span>
         <small className={UI.text.hint}>
-          {t('app.lobby.modeHint') || 'Selecciona tu desafío'}
+          {t('app.lobby.modeHint') || 'Choose your challenge'}
         </small>
       </div>
 

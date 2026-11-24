@@ -50,16 +50,14 @@ export function InviteFriendToLobbyForm() {
   return (
     <Card className="text-foreground space-y-3 p-5">
       <h2 className={UI.text.sectionTitle}>
-        {t('app.friends.inviteLobbyTitle') || 'Invitar amigo a lobby'}
+        {t('app.friends.inviteLobbyTitle') || 'Invite friend to lobby'}
       </h2>
 
       <form onSubmit={handleInvite} className={UI.row.actions}>
         <Input
           value={friendUsername}
           onChange={handleUsernameChange}
-          placeholder={
-            t('app.friends.inviteLobbyPlaceholder') || 'Nombre de usuario'
-          }
+          placeholder={t('app.friends.inviteLobbyPlaceholder') || 'Username'}
           disabled={!isConnected || isFull || !isHost}
           maxLength={USERNAME_MAX_LENGTH}
         />
@@ -69,7 +67,7 @@ export function InviteFriendToLobbyForm() {
           disabled={!isConnected || isFull || !isHost || !friendUsername.trim()}
           className="text-xs"
         >
-          {t('app.friends.inviteLobbyButton') || 'Invitar'}
+          {t('app.friends.inviteLobbyButton') || 'Invite'}
         </Button>
       </form>
 
@@ -81,9 +79,9 @@ export function InviteFriendToLobbyForm() {
 
       <p className={UI.text.small}>
         {isFull
-          ? t('app.friends.lobbyFull') || 'El lobby está completo.'
+          ? t('app.friends.lobbyFull') || 'The lobby is full.'
           : t('app.friends.inviteOnlyFriends') ||
-            'Solo puedes invitar a amigos con una amistad aceptada.'}
+            'You can only invite friends with an accepted friendship.'}
       </p>
     </Card>
   );

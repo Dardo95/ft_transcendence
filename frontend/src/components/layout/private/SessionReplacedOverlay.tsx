@@ -15,11 +15,11 @@ export function SessionReplacedOverlay() {
     <div role="alertdialog" aria-modal="true" className={UI.ui.dialogOverlay}>
       <section className={UI.overlay.modalCard}>
         <h2 className={UI.text.sectionTitle}>
-          {t('app.general.openSession') || 'Sesión abierta en otra ventana'}
+          {t('app.general.openSession') || 'Session opened in another window'}
         </h2>
         <p className={UI.text.body}>
           {t('app.general.sessionReplaced') ||
-            'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.'}
+            'This account has been logged in on another tab or device. This window has been disconnected.'}
         </p>
         <Button
           type="button"
@@ -27,7 +27,7 @@ export function SessionReplacedOverlay() {
           onClick={() => window.location.reload()}
           className="mt-2 w-full"
         >
-          {t('app.general.reloadSession') || 'Recuperar sesión'}
+          {t('app.general.reloadSession') || 'Recover session'}
         </Button>
       </section>
     </div>,

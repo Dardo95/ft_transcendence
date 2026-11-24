@@ -8,6 +8,7 @@ import { GlobalChat } from '@/features/chat/components/GlobalChat';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { gameSocket } from '@/lib/socket';
 import { fetchActiveGameId } from '@/features/lobby/activeMatch';
+import { useLanguage } from '@/locales/useLanguage';
 import {
   countdownSeconds,
   gameRoute,
@@ -15,6 +16,7 @@ import {
   readGameFoundId,
   readMatchmakingStatus,
 } from '@/features/lobby/matchmakingEvents';
+import { resolveMatchmakingErrorKey } from '@/features/lobby/matchmakingErrorMessage';
 import { toServerMatchmakingRequest } from '@/features/lobby/matchmakingRequest';
 
 import { ActiveMatchBanner } from '@/features/lobby/components/ActiveMatchBanner';
@@ -41,27 +43,9 @@ interface MatchmakingStatusPayload {
   countdownEndsAt?: number;
 }
 
-interface SocketErrorPayload {
-  message?: string | string[];
-  error?: string;
-}
-
-function socketErrorMessage(payload: unknown): string {
-  if (typeof payload === 'string') return payload;
-
-  if (payload && typeof payload === 'object') {
-    const value = payload as SocketErrorPayload;
-
-    if (Array.isArray(value.message)) return value.message.join(', ');
-    if (typeof value.message === 'string') return value.message;
-    if (typeof value.error === 'string') return value.error;
-  }
-
-  return 'No se pudo iniciar la partida.';
-}
-
 export function LobbyPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Lobby state
   const lobby = useLobbyStore((state) => state.lobby);
@@ -254,7 +238,7 @@ export function LobbyPage() {
     };
 
     const handleException = (payload: unknown) => {
-      setGameError(socketErrorMessage(payload));
+      setGameError(t(resolveMatchmakingErrorKey(payload)));
       setMatchmaking(null);
     };
 
@@ -275,7 +259,7 @@ export function LobbyPage() {
       gameSocket.off('exception', handleException);
       gameSocket.off('game:matchmakingCancelled', handleMatchmakingCancelled);
     };
-  }, [goToGame]);
+  }, [goToGame, t]);
 
   useEffect(() => {
     if (!matchmaking?.countdownEndsAt) return;
@@ -300,7 +284,10 @@ export function LobbyPage() {
 
   const handleStartMatchmaking = (payload: MatchmakingPayload) => {
     if (!gameSocket.connected) {
-      setGameError('El servidor de juego todavía no está conectado.');
+      setGameError(
+        t('app.lobby.errorNotConnected') ||
+          'You are not connected to the server.'
+      );
       return;
     }
 

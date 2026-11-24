@@ -34,15 +34,15 @@ export function LobbyTopBanner({ isGameConnected }: Props) {
 
       <div className="relative z-10">
         <h2 className="mt-2 mb-3 text-5xl leading-10 tracking-normal">
-          {t('app.lobby.enterLobbyPrefix') || 'Bienvenido al Lobby, '}
+          {t('app.lobby.enterLobbyPrefix') || 'Welcome to the Lobby, '}
           <em className="text-primary not-italic">
             <br />
-            {user?.username || 'Jugador'}
+            {user?.username || t('app.lobby.playerFallback') || 'Player'}
           </em>
         </h2>
         <p className="text-muted-foreground max-w-[520px] text-sm leading-relaxed">
           {t('app.lobby.bannerDescription') ||
-            'Configura tu partida. El servidor controla movimiento, bombas, explosiones, mejoras y victoria.'}
+            'Configure your match. The server controls movement, bombs, explosions, power-ups, and victory.'}
         </p>
       </div>
 

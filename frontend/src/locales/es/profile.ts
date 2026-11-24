@@ -5,6 +5,7 @@
 
 export const profileEs = {
   loading: 'Cargando perfil de usuario...',
+  myProfile: 'Mi Perfil',
   userNotFound: 'Usuario no encontrado (404)',
   userNotFoundDesc: 'El usuario',
   doesNotExist: 'no existe.',

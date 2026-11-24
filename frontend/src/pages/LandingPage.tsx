@@ -46,7 +46,7 @@ export function LandingPage() {
             <div className="relative mb-4 flex w-full items-center justify-center">
               <img
                 src={logoUrl}
-                alt="ft_bomberman Logo"
+                alt={t('app.general.logoAlt') || 'ft_bomberman logo'}
                 className="h-28 w-auto object-contain sm:h-36 lg:h-44"
               />
             </div>
@@ -55,8 +55,7 @@ export function LandingPage() {
             <div className={UI.badge.header}>
               <span className="text-primary">❖</span>
               <span>
-                {t('app.general.battlefield') ||
-                  'LA COCINA ES UN CAMPO DE BATALLA'}
+                {t('app.general.battlefield') || 'THE KITCHEN IS A BATTLEFIELD'}
               </span>
               <span className="text-primary">❖</span>
             </div>

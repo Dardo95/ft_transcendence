@@ -31,10 +31,24 @@ export const appEs = {
     connected: 'Conectado al servidor',
     connecting: 'Conectando...',
     connectingStatus: 'Conectando...',
+    disconnected: 'Desconectado',
     openSession: 'Sesión abierta en otra ventana',
     sessionReplaced:
       'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.',
     reloadSession: 'Recuperar sesión',
+    underConstruction: 'En construcción.',
+    logoAlt: 'Logotipo de ft_bomberman',
+    avatarAlt: 'Avatar',
+    openMenu: 'Abrir menú de navegación',
+    closeMenu: 'Cerrar menú de navegación',
+    userMenu: 'Menú de usuario',
+    statsSubtitle:
+      'Consulta tus partidas, resultados y progreso a lo largo del tiempo.',
+    matchHistory: 'Historial de partidas',
+    statsEmpty: 'Todavía no hay partidas registradas.',
+    match: 'Partida',
+    result: 'Resultado',
+    date: 'Fecha',
   },
   lobby: {
     lobbyTitle: 'Lobby',
@@ -116,6 +130,36 @@ export const appEs = {
     bannerDescription:
       'Configura tu partida. El servidor controla movimiento, bombas, explosiones, mejoras y victoria.',
     bombsReady: 'BOMBAS LISTAS / MODO JUGADOR',
+
+    // Additional UI labels
+    playerFallback: 'Jugador',
+    cancelSearch: 'Cancelar búsqueda',
+    cancelSearchHint: 'Puedes cancelar la búsqueda en cualquier momento.',
+    confirmedPlayers: 'jugadores confirmados',
+    connectingEngine: 'Conectando con el motor del servidor...',
+    controlsLabel: 'Controles: WASD / flechas · ESPACIO para colocar una bomba',
+    creatingMatch: 'Creando partida...',
+    hostOnlyStartText: 'Solo el anfitrión puede iniciar la partida privada.',
+    mapHint: 'Elige un mapa',
+    map1Hint: '13 × 11 · clásico',
+    map2Hint: '13 × 11 · abierto',
+    map3Hint: '13 × 11 · laberinto',
+    matchStartingIn: 'La partida comienza en',
+    maxPlayers: 'máx. 4',
+    modeHint: 'Elige tu desafío',
+    modePracticeBadge: 'Ideal para probar',
+    modePrivateBadge: 'Sin desconocidos',
+    modePublicBadge: 'Emparejamiento abierto',
+    modePracticeShort: 'PRÁCTICA',
+    modePrivateShort: 'PRIVADA',
+    modePublicShort: 'PÚBLICA',
+    playersInGroup: 'jugador(es) en tu grupo',
+    preparingSearch: 'Preparando la búsqueda...',
+    readyLabel: 'LISTO PARA JUGAR',
+    searchDoesNotExpire: 'la búsqueda no caduca',
+    searchingMatch: 'BUSCANDO PARTIDA',
+    searchingPlayers: 'Buscando jugadores...',
+    settingsHint: 'Personaliza la partida',
   },
   friends: {
     friendList: 'Lista de Amigos',
@@ -135,6 +179,7 @@ export const appEs = {
     deleteFriendConfirm: '¿Estás seguro de que deseas eliminar a',
     deleteFriendConfirm2: 'de tu lista de amigos?',
     cancelButton: 'Cancelar',
+    rejectButton: 'Rechazar',
     removeButton: 'Eliminar',
     spectateTitle: 'Espectar partida',
     inviteToLobby: 'Invitar a lobby',
@@ -158,9 +203,14 @@ export const appEs = {
   },
   aboutUs: {
     title: 'Sobre Nosotros',
+    teamBadge: 'Equipo de 42 Madrid',
     subtitle:
       'Cuatro desarrolladores de 42 Madrid creando una experiencia arcade multijugador en tiempo real impulsada por arquitectura de software moderna.',
     contributionsLabel: 'Trabajo Asignado y Logros',
+    githubProfileAria: '{name} en GitHub',
+    linkedinProfileAria: '{name} en LinkedIn',
+    bombermanAccountAria: 'Cuenta de Bomberman de {name}',
+    school42ProfileAria: 'Perfil de 42 School de {name}',
     roles: {
       frontendLead: 'Project Manager QA & Líder de Desarrollo Frontend',
       frontendArchitect: 'Product Owner y Arquitecto/Diseñador Frontend',
@@ -202,6 +252,11 @@ export const appEs = {
     },
   },
 
+  game: {
+    viewportLabel: 'Área de juego',
+    sidebarLabel: 'Panel lateral de la partida',
+  },
+
   hud: {
     health: 'Vidas',
     bombs: 'Ollas',
@@ -221,6 +276,7 @@ export const appEs = {
     survivors: 'Supervivientes',
     map: 'Mapa',
     exitFullscreen: 'Salir de pantalla completa',
+    enterFullscreen: 'Entrar en pantalla completa',
     leave: 'Salir',
   },
   endScreen: {

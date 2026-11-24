@@ -99,6 +99,16 @@ export function GameTopBar({
             size="sm"
             onClick={onToggleFullscreen}
             aria-pressed={isFullscreen}
+            aria-label={
+              isFullscreen
+                ? t('app.topbar.exitFullscreen') || 'Exit fullscreen'
+                : t('app.topbar.enterFullscreen') || 'Enter fullscreen'
+            }
+            title={
+              isFullscreen
+                ? t('app.topbar.exitFullscreen') || 'Exit fullscreen'
+                : t('app.topbar.enterFullscreen') || 'Enter fullscreen'
+            }
             className="h-9 gap-2 rounded-md border-1 border-zinc-800 bg-zinc-900 px-4 font-black text-zinc-400 transition-none hover:border-zinc-800 hover:bg-zinc-800 hover:text-white focus:ring-0 focus-visible:ring-0 aria-pressed:border-orange-500 aria-pressed:bg-orange-500 aria-pressed:text-white"
           >
             {isFullscreen ? (

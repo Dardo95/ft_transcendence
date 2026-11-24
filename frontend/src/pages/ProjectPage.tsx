@@ -261,7 +261,7 @@ export function ProjectPage() {
         {/* Header Section */}
         <Card className={UI.card.header}>
           <div className={UI.badge.header}>
-            <span>42 Transcendence v21.2</span>
+            <span>{t('project.versionBadge') || '42 Transcendence v21.2'}</span>
           </div>
 
           <h1 className={UI.text.pageTitle}>
@@ -309,10 +309,12 @@ export function ProjectPage() {
               href="https://github.com/Dardo95/ft_transcendence"
               target="_blank"
               rel="noreferrer noopener"
-              aria-label="Project GitHub Repository"
+              aria-label={
+                t('project.repositoryAria') || 'Project GitHub repository'
+              }
             >
               <Icons.gitHub className={`${UI.icon.sm} shrink-0 fill-current`} />
-              Repository
+              {t('project.repository') || 'Repository'}
             </a>
           </Button>
         </Card>

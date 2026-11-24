@@ -129,7 +129,7 @@ export function GameViewport({ demo = false }: GameViewportProps) {
                 : 'h-[70vh] min-h-[320px] rounded-lg lg:h-auto lg:min-h-0 lg:flex-1'
           }`}
           style={{ imageRendering: 'pixelated' }}
-          aria-label="Game viewport"
+          aria-label={t('app.game.viewportLabel') || 'Game viewport'}
         >
           {viewMode === 'connecting' && !joinFailure && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/70">
@@ -190,7 +190,7 @@ export function GameViewport({ demo = false }: GameViewportProps) {
 
       <aside
         className="w-full shrink-0 lg:w-72 lg:overflow-y-auto"
-        aria-label="Game sidebar"
+        aria-label={t('app.game.sidebarLabel') || 'Game sidebar'}
       >
         {hudModel && <GameSidebar model={hudModel} />}
       </aside>

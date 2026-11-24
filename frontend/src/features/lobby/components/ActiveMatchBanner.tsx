@@ -20,7 +20,7 @@ export function ActiveMatchBanner({ gameId }: Props) {
     <Card className="border-primary/40 bg-primary/10 mb-4 flex flex-col items-center justify-between gap-3 p-4 text-center sm:flex-row sm:text-left">
       <p className="text-secondary-foreground text-sm font-semibold">
         {t('app.lobby.activeMatchNotice') ||
-          'Ya tienes una partida en curso. Vuelve a ella para seguir jugando.'}
+          'You already have a match in progress. Return to it to keep playing.'}
       </p>
 
       <Button
@@ -28,7 +28,7 @@ export function ActiveMatchBanner({ gameId }: Props) {
         className={`${UI.btn.action} shrink-0`}
         onClick={() => navigate(`/game/${encodeURIComponent(gameId)}`)}
       >
-        {t('app.lobby.returnToActiveMatch') || 'Ir a partida en curso'} →
+        {t('app.lobby.returnToActiveMatch') || 'Return to active match'} →
       </Button>
     </Card>
   );

@@ -12,7 +12,9 @@ export function NotFoundPage() {
           <h1 className={UI.text.pageTitle}>
             {t('app.general.notFound') || '404 Not Found'}
           </h1>
-          <p className={UI.text.pageSubtitle}>Vista en construcción.</p>
+          <p className={UI.text.pageSubtitle}>
+            {t('app.general.underConstruction') || 'Under construction.'}
+          </p>
         </Card>
       </div>
     </div>

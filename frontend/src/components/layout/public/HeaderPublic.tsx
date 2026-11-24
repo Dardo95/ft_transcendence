@@ -2,9 +2,11 @@ import { LanguageSwitcher } from '../LanguageSwitcher';
 import logoUrl from '@/assets/ui_logo.svg';
 import { useNavigate } from 'react-router-dom';
 import { UI } from '@/components/layout/layoutStyles';
+import { useLanguage } from '@/locales/useLanguage';
 
 export function HeaderPublic() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const isLoginPage = window.location.pathname === '/login';
 
   return (
@@ -13,7 +15,7 @@ export function HeaderPublic() {
         <div className="absolute top-5 left-8 flex items-center gap-2">
           <img
             src={logoUrl}
-            alt="ft_bomberman Logo"
+            alt={t('app.general.logoAlt') || 'ft_bomberman logo'}
             className={`h-12 ${UI.chrome.logo}`}
             onClick={() => navigate('/login')}
           />

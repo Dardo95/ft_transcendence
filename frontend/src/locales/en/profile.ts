@@ -5,6 +5,7 @@
 
 export const profileEn = {
   loading: 'Loading user profile...',
+  myProfile: 'My Profile',
   userNotFound: 'User Not Found (404)',
   userNotFoundDesc: 'The user',
   doesNotExist: 'does not exist.',

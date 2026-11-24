@@ -5,6 +5,7 @@
 
 export const profileIt = {
   loading: 'Caricamento del profilo...',
+  myProfile: 'Il mio profilo',
   userNotFound: 'Utente non trovato (404)',
   userNotFoundDesc: "L'utente",
   doesNotExist: 'non esiste.',
