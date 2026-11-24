@@ -6,9 +6,9 @@
 export const appEn = {
   general: {
     title: 'ft_bomberman',
-    battlefield: 'THE KITCHEN IS A BATTLEFIELD',
+    battlefield: 'ENTER THE ARENA',
     subTitle:
-      'High cuisine, destruction, pressure cookers and unleashed steam. Register or log in to access the service.',
+      'Register or log in to join multiplayer matches, compete with other players, and connect with friends.',
     userLabel: 'User',
     connectedAs: 'Logged in as',
     termsOfService: 'Terms of Service',
@@ -310,9 +310,9 @@ export const appEn = {
 
   hud: {
     health: 'Lives',
-    bombs: 'Pots',
-    blast: 'Steam',
-    speed: 'Coffee',
+    bombs: 'Bombs',
+    blast: 'Blast',
+    speed: 'Speed',
     time: 'Time',
     rivals: 'Rivals',
     remaining: 'Left',
@@ -331,7 +331,7 @@ export const appEn = {
     leave: 'Leave',
   },
   endScreen: {
-    deadTitle: 'bye bye goodbye',
+    deadTitle: 'You are dead',
     victoryTitle: 'You win',
     defeatTitle: 'You lose',
     drawTitle: 'Draw',
@@ -347,7 +347,7 @@ export const appEn = {
     retry: 'Retry',
   },
   sidebar: {
-    inKitchen: 'In the kitchen',
+    players: 'Players',
     yourStats: 'Your stats',
     you: 'You',
     bombs: 'Bombs',

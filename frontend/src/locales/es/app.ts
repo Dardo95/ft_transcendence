@@ -11,9 +11,9 @@
 export const appEs = {
   general: {
     title: 'ft_bomberman',
-    battlefield: 'LA COCINA ES UN CAMPO DE BATALLA',
+    battlefield: 'ENTRA EN LA ARENA',
     subTitle:
-      'Alta cocina, destrucción, ollas a presión y vapor desatado. Regístrate o inicia sesión para entrar al servicio.',
+      'Regístrate o inicia sesión para jugar partidas multijugador, competir con otros jugadores y conectar con tus amigos.',
     userLabel: 'Usuario',
     connectedAs: 'Conectado como',
     termsOfService: 'Términos de servicio',
@@ -311,9 +311,9 @@ export const appEs = {
 
   hud: {
     health: 'Vidas',
-    bombs: 'Ollas',
-    blast: 'Fuego',
-    speed: 'Café',
+    bombs: 'Bombas',
+    blast: 'Alcance',
+    speed: 'Velocidad',
     time: 'Tiempo',
     rivals: 'Rivales',
     remaining: 'Restantes',
@@ -332,7 +332,7 @@ export const appEs = {
     leave: 'Salir',
   },
   endScreen: {
-    deadTitle: 'chau chao adios',
+    deadTitle: 'Has muerto',
     victoryTitle: 'Ganaste',
     defeatTitle: 'Perdiste',
     drawTitle: 'Empate',
@@ -348,7 +348,7 @@ export const appEs = {
     retry: 'Reintentar',
   },
   sidebar: {
-    inKitchen: 'En la cocina',
+    players: 'Jugadores',
     yourStats: 'Tus estadísticas',
     you: 'Tú',
     bombs: 'Bombas',

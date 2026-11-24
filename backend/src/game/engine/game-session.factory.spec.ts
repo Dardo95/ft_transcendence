@@ -64,7 +64,7 @@ describe('createGameSession', () => {
     expect(human?.isBot).toBe(false);
     expect(bot?.isBot).toBe(true);
     expect(bot?.userId).toBeUndefined();
-    expect(bot?.displayName).toBe('Chef Bot');
+    expect(bot?.displayName).toBe('Bot');
 
     expect(human?.position).toEqual({ x: 1.5, y: 1.5 });
     expect(bot?.position).toEqual({ x: 5.5, y: 4.5 });

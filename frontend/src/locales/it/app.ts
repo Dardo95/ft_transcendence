@@ -11,9 +11,9 @@
 export const appIt = {
   general: {
     title: 'ft_bomberman',
-    battlefield: 'LA CUCINA È UN CAMPO DI BATTAGLIA',
+    battlefield: 'ENTRA NELL’ARENA',
     subTitle:
-      'Alta cucina, distruzione, pentole a pressione e vapore scatenato. Registrati o accedi per utilizzare il servizio.',
+      'Registrati o accedi per partecipare a partite multigiocatore, sfidare altri giocatori e connetterti con gli amici.',
     userLabel: 'Utente',
     connectedAs: 'Connesso come',
     termsOfService: 'Termini di servizio',
@@ -309,9 +309,9 @@ export const appIt = {
   },
   hud: {
     health: 'Vite',
-    bombs: 'Pentole',
-    blast: 'Vapore',
-    speed: 'Caffè',
+    bombs: 'Bombe',
+    blast: 'Raggio',
+    speed: 'Velocità',
     time: 'Tempo',
     rivals: 'Avversari',
     remaining: 'Rimanenti',
@@ -330,7 +330,7 @@ export const appIt = {
     leave: 'Esci',
   },
   endScreen: {
-    deadTitle: 'ciao ciao arrivederci',
+    deadTitle: 'Sei morto',
     victoryTitle: 'Hai vinto',
     defeatTitle: 'Hai perso',
     drawTitle: 'Pareggio',
@@ -346,7 +346,7 @@ export const appIt = {
     retry: 'Riprova',
   },
   sidebar: {
-    inKitchen: 'In cucina',
+    players: 'Giocatori',
     yourStats: 'Le tue statistiche',
     you: 'Tu',
     bombs: 'Bombe',
