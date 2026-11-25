@@ -235,7 +235,7 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
             onChange={(e) => setTargetUsername(e.target.value)}
             placeholder={
               t('app.friends.addFriendPlaceholder') ||
-              'Añadir amigo: Introducir nombre de usuario'
+              'Add friend: enter the username'
             }
             maxLength={USERNAME_MAX_LENGTH}
             className={`w-full pr-7 ${isProfile ? 'text-sm' : 'text-xs'}`}
@@ -253,7 +253,7 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
         >
           {sendingUser === queryTrimmed
             ? '...'
-            : t('app.friends.addFriendButton') || 'Enviar'}
+            : t('app.friends.addFriendButton') || 'Send'}
         </Button>
       </form>
 
@@ -281,7 +281,7 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
 
           {!isLoading && !searchError && results.length === 0 && (
             <p className="text-muted-foreground p-2 text-center text-xs">
-              {t('app.friends.noResults') || 'No se encontraron usuarios.'}
+              {t('app.friends.noResults') || 'No results found.'}
             </p>
           )}
 
@@ -329,8 +329,8 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
                   {isSubmittingThis
                     ? '...'
                     : isAlreadySent
-                      ? t('app.friends.sent') || 'Enviada'
-                      : t('app.friends.add') || '+ Añadir'}
+                      ? t('app.friends.sent') || 'Sent'
+                      : t('app.friends.add') || '+ Add'}
                 </Button>
               </div>
             );

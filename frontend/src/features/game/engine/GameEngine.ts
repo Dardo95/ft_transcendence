@@ -39,6 +39,7 @@ import { demoPlayers } from '../players/demoPlayers';
 import { GameScene } from '../pixi/GameScene';
 import {
   approach,
+  computeMapViewportFit,
   computeSceneOffset,
   type CameraViewport,
 } from '../pixi/camera';
@@ -195,6 +196,7 @@ export class GameEngine {
   // jugador local.
   private readonly viewport: CameraViewport = { width: 0, height: 0 };
   private readonly camera = { x: 0, y: 0 };
+  private fitWholeMap = false;
 
   constructor(options: GameEngineOptions) {
     this.container = options.container;
@@ -345,6 +347,15 @@ export class GameEngine {
     this.connection.abandon();
   }
 
+  setFitWholeMap(enabled: boolean): void {
+    if (this.fitWholeMap === enabled) {
+      return;
+    }
+
+    this.fitWholeMap = enabled;
+    this.fitMap();
+  }
+
   /** Limpieza total. Segura aunque `app.init` siga en vuelo. */
   destroy(): void {
     this.destroyed = true;
@@ -425,6 +436,14 @@ export class GameEngine {
   }
 
   private cameraTarget(): { x: number; y: number } | null {
+    if (this.fitWholeMap) {
+      return computeMapViewportFit(
+        this.mapSize.width,
+        this.mapSize.height,
+        this.viewport
+      ).offset;
+    }
+
     const local = this.currentLocalPlayer();
 
     if (!local) {
@@ -472,7 +491,15 @@ export class GameEngine {
     // El renderer vive exactamente en el contenedor: el mapa
     // se mueve con la cámara en vez de scrollear a mano.
     this.app.renderer.resize(cw, ch);
-    this.scene.scale.set(1);
+    this.scene.scale.set(
+      this.fitWholeMap
+        ? computeMapViewportFit(
+            this.mapSize.width,
+            this.mapSize.height,
+            this.viewport
+          ).scale
+        : 1
+    );
     this.snapCamera();
   }
 

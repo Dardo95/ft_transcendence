@@ -1,6 +1,27 @@
 import { describe, expect, it } from 'vitest';
 
-import { approach, computeSceneOffset } from './camera';
+import { approach, computeMapViewportFit, computeSceneOffset } from './camera';
+
+describe('computeMapViewportFit', () => {
+  it('keeps native scale and centers the whole map when it fits', () => {
+    expect(
+      computeMapViewportFit(1344, 768, { width: 1920, height: 1080 })
+    ).toEqual({
+      scale: 1,
+      offset: { x: 288, y: 156 },
+    });
+  });
+
+  it('scales down only when needed to show the whole map', () => {
+    const fit = computeMapViewportFit(1344, 768, {
+      width: 800,
+      height: 600,
+    });
+
+    expect(fit.scale).toBeCloseTo(800 / 1344);
+    expect(fit.offset).toEqual({ x: 0, y: 71 });
+  });
+});
 
 describe('computeSceneOffset', () => {
   it('centers a map smaller than the viewport on both axes', () => {

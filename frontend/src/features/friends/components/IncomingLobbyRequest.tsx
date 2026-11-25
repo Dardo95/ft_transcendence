@@ -36,7 +36,7 @@ export function IncomingLobbyRequest({
         <div key={invitation.id} className={cardClass}>
           <p className={UI.text.center}>
             <strong>{invitation.inviterUsername}</strong>{' '}
-            {t('app.lobby.invitesYou') || 'te invita a su lobby.'}
+            {t('app.lobby.invitesYou') || 'invites you to their lobby.'}
           </p>
 
           <div className={UI.row.actions}>
@@ -46,7 +46,7 @@ export function IncomingLobbyRequest({
               className={`${UI.btn.success} flex-1`}
               onClick={() => acceptLobbyInvitation(invitation.id)}
             >
-              {t('app.lobby.acceptButton') || 'Aceptar'}
+              {t('app.lobby.acceptButton') || 'Accept'}
             </Button>
 
             <Button
@@ -55,14 +55,14 @@ export function IncomingLobbyRequest({
               disabled={!isConnected}
               onClick={() => rejectLobbyInvitation(invitation.id)}
             >
-              {t('app.friends.cancelButton') || 'Rechazar'}
+              {t('app.friends.rejectButton') || 'Reject'}
             </Button>
           </div>
 
           {(lobby?.members.length ?? 0) > 1 && (
             <p className={UI.text.small}>
               {t('app.lobby.leaveBeforeAccept') ||
-                'Abandona tu grupo actual antes de aceptar otra invitación.'}
+                'Leave your current group before accepting another invitation.'}
             </p>
           )}
         </div>

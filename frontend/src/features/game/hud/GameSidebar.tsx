@@ -1,17 +1,31 @@
-import { ChefHatIcon, CircleIcon, CircleOffIcon, InfoIcon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { CircleIcon, CircleOffIcon, InfoIcon, Users } from 'lucide-react';
+import type { UserPublic } from '@transcendence/shared';
 
 import bombUrl from '../../../assets/sprites/bomb_pressure_cooker.png';
 import crateUrl from '../../../assets/sprites/crate_wood.png';
 import powerUpUrl from '../../../assets/sprites/powerup_extrabomb.png';
 import tileWallUrl from '../../../assets/sprites/tile_table.png';
+import defaultAvatar from '../../../assets/default.jpg';
+import { ApiError, apiFetch } from '../../../api/api';
 import { useLanguage } from '../../../locales/useLanguage';
+import { UI } from '../../../components/layout/layoutStyles';
+import { useAuthStore } from '../../auth/store/useAuthStore';
 import { PLAYER_COLORS, type PlayerColor } from '../players/types';
 import type { HudModel } from './hudModel';
 
 interface RosterEntry {
+  id: string;
   name: string;
+  avatarUrl: string | null;
+  isBot: boolean;
   alive: boolean;
   isLocal: boolean;
+}
+
+interface AvatarRequest {
+  id: string;
+  username: string;
 }
 
 interface StatBox {
@@ -19,14 +33,20 @@ interface StatBox {
   value: string;
 }
 
-// Mismos colores que los sprites de jugadores del canvas
-// (PLAYER_COLORS), para que el gorrito del sidebar coincida
-// con el personaje que se ve en el tablero.
+// Mismos colores que los marcadores de los jugadores del canvas
+// (PLAYER_COLORS), para que el borde del avatar del sidebar coincida
+// con el color del personaje que se ve en el tablero.
 const PLAYER_COLOR_CLASSES: Record<PlayerColor, string> = {
   blue: 'bg-blue-950 text-blue-300 border-blue-700',
   green: 'bg-emerald-950 text-emerald-300 border-emerald-700',
   red: 'bg-red-950 text-red-300 border-red-700',
   yellow: 'bg-yellow-950 text-yellow-300 border-yellow-700',
+};
+const PLAYER_COLOR_UNDERLINE_CLASSES: Record<PlayerColor, string> = {
+  blue: 'border-b-blue-700',
+  green: 'border-b-emerald-700',
+  red: 'border-b-red-700',
+  yellow: 'border-b-yellow-700',
 };
 
 interface LegendItem {
@@ -35,26 +55,106 @@ interface LegendItem {
 }
 
 /**
- * Panel lateral de la partida: quiénes están en la cocina,
- * tus estadísticas y la leyenda del tablero.
+ * Panel lateral de la partida: jugadores, estadísticas del jugador
+ * local y leyenda del tablero.
  */
-export function GameSidebar({ model }: { model: HudModel }) {
+export function GameSidebar({
+  model,
+  demo = false,
+  threeColumn = false,
+  responsive = false,
+}: {
+  model: HudModel;
+  demo?: boolean;
+  threeColumn?: boolean;
+  responsive?: boolean;
+}) {
   const { t } = useLanguage();
+  const gridLayout = threeColumn;
+  const localAvatarUrl = useAuthStore((state) => state.user?.avatarUrl ?? null);
+  const [rivalAvatars, setRivalAvatars] = useState<
+    Record<string, string | null>
+  >({});
+  const avatarRequests = model.rivals
+    .filter((rival) => !demo && !rival.isBot)
+    .map((rival) => ({ id: rival.id, username: rival.name }));
+  const avatarRequestKey = JSON.stringify(avatarRequests);
+  const avatarCache = useRef(new Map<string, Promise<string | null>>());
+
+  useEffect(() => {
+    let cancelled = false;
+    const requests = JSON.parse(avatarRequestKey) as AvatarRequest[];
+
+    void Promise.all(
+      requests.map(async ({ id, username }) => {
+        let avatarRequest = avatarCache.current.get(id);
+
+        if (!avatarRequest) {
+          avatarRequest = apiFetch<UserPublic>(
+            `/users/${encodeURIComponent(username)}`,
+            { method: 'GET' }
+          )
+            .then((user) => user.avatarUrl)
+            .catch((error: unknown) => {
+              if (!(error instanceof ApiError && error.status === 404)) {
+                console.warn(
+                  `[GameSidebar] Could not load avatar for ${username}.`,
+                  error
+                );
+              }
+              return null;
+            });
+          avatarCache.current.set(id, avatarRequest);
+        }
+
+        return { id, avatarUrl: await avatarRequest };
+      })
+    ).then((avatars) => {
+      if (cancelled) return;
+
+      setRivalAvatars((current) => {
+        const next = { ...current };
+        let changed = false;
+
+        for (const { id, avatarUrl } of avatars) {
+          if (current[id] !== avatarUrl) {
+            next[id] = avatarUrl;
+            changed = true;
+          }
+        }
+
+        return changed ? next : current;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [avatarRequestKey]);
+
   const totalPlayers = 1 + model.rivals.length;
 
   const roster: RosterEntry[] = [
-    { name: model.local.name, alive: model.local.alive, isLocal: true },
+    {
+      id: model.local.id,
+      name: model.local.isBot ? 'Bot' : model.local.name,
+      avatarUrl: demo || model.local.isBot ? null : localAvatarUrl,
+      isBot: model.local.isBot,
+      alive: model.local.alive,
+      isLocal: true,
+    },
     ...model.rivals.map((rival) => ({
-      name: rival.name,
+      id: rival.id,
+      name: rival.isBot ? 'Bot' : rival.name,
+      avatarUrl: demo || rival.isBot ? null : (rivalAvatars[rival.id] ?? null),
+      isBot: rival.isBot,
       alive: rival.alive,
       isLocal: false,
     })),
   ];
 
-  // Replica PlayerLayer.assignColor: primer color libre en
-  // orden de aparición. El roster va en el mismo orden que el
-  // array de jugadores del canvas, así el gorrito coincide
-  // con el personaje del tablero (bren=blue, eduardo=green…).
+  // Replica PlayerLayer.assignColor: el primer color libre sigue el
+  // orden de aparición en el roster y el canvas.
   const usedColors = new Set<PlayerColor>();
   const rosterWithColor = roster.map((entry) => {
     const color =
@@ -86,15 +186,36 @@ export function GameSidebar({ model }: { model: HudModel }) {
   ];
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Jugadores en la cocina */}
-      <section className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-zinc-100 shadow-lg">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-[11px] font-semibold text-zinc-400 uppercase">
-            <ChefHatIcon className="h-4 w-4" aria-hidden="true" />
-            {t('app.sidebar.inKitchen')}
+    <div
+      className={
+        responsive
+          ? UI.game.sidebarResponsiveGrid
+          : gridLayout
+            ? UI.game.sidebarGrid
+            : UI.game.sidebarStack
+      }
+    >
+      <section
+        className={gridLayout ? UI.game.sidebarGridPanel : UI.game.sidebarPanel}
+      >
+        {/* Jugadores de la partida */}
+        <div className={UI.game.sidebarHeader}>
+          <h2
+            className={
+              gridLayout ? UI.game.sidebarGridHeading : UI.game.sidebarHeading
+            }
+          >
+            <Users
+              className={gridLayout ? 'h-3 w-3 shrink-0' : UI.icon.sm}
+              aria-hidden="true"
+            />
+            {t('app.sidebar.players') || 'Players'}
           </h2>
-          <span className="font-mono text-sm font-bold text-amber-300">
+          <span
+            className={
+              gridLayout ? UI.game.sidebarGridCount : UI.game.sidebarCount
+            }
+          >
             {model.playersRemaining}/{totalPlayers}
           </span>
         </div>
@@ -102,30 +223,42 @@ export function GameSidebar({ model }: { model: HudModel }) {
         <ul className="mt-2 flex flex-col gap-1.5">
           {rosterWithColor.map((entry) => (
             <li
-              key={entry.name}
-              className={`flex items-center gap-2.5 rounded-md border border-zinc-800 bg-zinc-950/70 px-2.5 py-2 ${
-                entry.alive ? '' : 'opacity-60'
-              }`}
+              key={entry.id}
+              className={`${
+                gridLayout ? UI.game.sidebarGridRosterRow : UI.game.rosterRow
+              } border-b-2 ${
+                PLAYER_COLOR_UNDERLINE_CLASSES[entry.color]
+              } ${entry.alive ? '' : 'opacity-60'}`}
             >
-              <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${
-                  PLAYER_COLOR_CLASSES[entry.color]
-                }`}
-                aria-hidden="true"
+              <div
+                className={`${
+                  gridLayout
+                    ? UI.game.sidebarGridPlayerAvatar
+                    : 'size-9 shrink-0 overflow-hidden rounded-full border-4'
+                } ${PLAYER_COLOR_CLASSES[entry.color]}`}
               >
-                <ChefHatIcon className="h-4 w-4" />
-              </span>
+                <img
+                  src={
+                    demo || entry.isBot
+                      ? defaultAvatar
+                      : entry.avatarUrl || defaultAvatar
+                  }
+                  alt=""
+                  aria-hidden="true"
+                  className={`${UI.avatar.full} rounded-full`}
+                />
+              </div>
 
               <span className="min-w-0 flex-1">
                 <span
-                  className={`block truncate text-xs font-semibold ${
+                  className={`${UI.game.playerName} ${
                     entry.alive ? '' : 'line-through'
                   }`}
                 >
                   {entry.name}
                 </span>
                 {entry.isLocal && (
-                  <span className="text-[10px] font-semibold tracking-wider text-amber-400 uppercase">
+                  <span className={UI.game.localPlayer}>
                     {t('app.sidebar.you')}
                   </span>
                 )}
@@ -133,12 +266,12 @@ export function GameSidebar({ model }: { model: HudModel }) {
 
               {entry.alive ? (
                 <CircleIcon
-                  className="h-3 w-3 shrink-0 fill-emerald-400 text-emerald-400"
+                  className="fill-success text-success-foreground h-3 w-3 shrink-0"
                   aria-label={t('app.hud.alive')}
                 />
               ) : (
                 <CircleOffIcon
-                  className="h-3.5 w-3.5 shrink-0 text-zinc-600"
+                  className="text-muted-foreground h-3.5 w-3.5 shrink-0"
                   aria-label={t('app.hud.down')}
                 />
               )}
@@ -147,22 +280,38 @@ export function GameSidebar({ model }: { model: HudModel }) {
         </ul>
       </section>
 
-      {/* Estadísticas del jugador local */}
-      <section className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-zinc-100 shadow-lg">
-        <h2 className="text-[11px] font-semibold text-zinc-400 uppercase">
+      <section
+        className={gridLayout ? UI.game.sidebarGridPanel : UI.game.sidebarPanel}
+      >
+        {/* Estadísticas del jugador local */}
+        <h2
+          className={gridLayout ? UI.game.sidebarGridHeading : UI.text.sublabel}
+        >
           {t('app.sidebar.yourStats')}
         </h2>
 
-        <div className="mt-2 grid grid-cols-3 gap-2">
+        <div
+          className={gridLayout ? UI.game.sidebarGridStats : UI.game.statsGrid}
+        >
           {stats.map(({ label, value }) => (
             <div
               key={label}
-              className="rounded-md border border-zinc-800 bg-zinc-950/70 px-1 py-2 text-center"
+              className={
+                gridLayout ? UI.game.sidebarGridStatCard : UI.game.statCard
+              }
             >
-              <p className="font-mono text-lg leading-tight font-bold text-amber-300">
+              <p
+                className={
+                  gridLayout ? UI.game.sidebarGridStatValue : UI.game.statValue
+                }
+              >
                 {value}
               </p>
-              <p className="text-[9px] font-semibold tracking-wider text-zinc-500 uppercase">
+              <p
+                className={
+                  gridLayout ? UI.game.sidebarGridStatLabel : UI.game.statLabel
+                }
+              >
                 {label}
               </p>
             </div>
@@ -170,24 +319,48 @@ export function GameSidebar({ model }: { model: HudModel }) {
         </div>
       </section>
 
-      {/* Leyenda del tablero */}
-      <section className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-zinc-100 shadow-lg">
-        <h2 className="flex items-center gap-2 text-[11px] font-semibold text-zinc-400 uppercase">
-          <InfoIcon className="h-4 w-4" aria-hidden="true" />
+      <section
+        className={gridLayout ? UI.game.sidebarGridPanel : UI.game.sidebarPanel}
+      >
+        {/* Leyenda del tablero */}
+        <h2
+          className={
+            gridLayout ? UI.game.sidebarGridHeading : UI.game.sidebarHeading
+          }
+        >
+          <InfoIcon
+            className={gridLayout ? 'h-3 w-3 shrink-0' : 'h-4 w-4'}
+            aria-hidden="true"
+          />
           {t('app.legend.title')}
         </h2>
 
         <ul className="mt-2 flex flex-col gap-1.5">
           {legend.map(({ src, label }) => (
-            <li key={label} className="flex items-center gap-2.5 text-xs">
+            <li
+              key={label}
+              className={
+                gridLayout ? UI.game.sidebarGridLegendItem : UI.game.legendItem
+              }
+            >
               <img
                 src={src}
                 alt=""
                 aria-hidden="true"
-                className="h-5 w-5 shrink-0 rounded-sm border border-zinc-800 object-cover"
+                className={
+                  gridLayout
+                    ? UI.game.sidebarGridLegendIcon
+                    : UI.game.legendIcon
+                }
                 style={{ imageRendering: 'pixelated' }}
               />
-              <span className="text-zinc-300">{label}</span>
+              <span
+                className={
+                  gridLayout ? `${UI.text.body} min-w-0 truncate` : UI.text.body
+                }
+              >
+                {label}
+              </span>
             </li>
           ))}
         </ul>

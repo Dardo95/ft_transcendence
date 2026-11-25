@@ -65,8 +65,8 @@ export function GlobalChat() {
           }`}
           title={
             isConnected
-              ? t('app.general.connected') || 'Conectado'
-              : t('app.general.connecting') || 'Desconectado'
+              ? t('app.general.connected') || 'Connected to server'
+              : t('app.general.disconnected') || 'Disconnected'
           }
         />
       </div>
@@ -219,7 +219,7 @@ export function GlobalChat() {
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={
             t('app.lobby.sendMessagePlaceholder') ||
-            'Enviar mensaje a todos los jugadores...'
+            'Send a message to all players...'
           }
           disabled={!isConnected}
           maxLength={500}
@@ -236,9 +236,7 @@ export function GlobalChat() {
         >
           <SendIcon className={UI.icon.xs} />
 
-          <span className="sr-only">
-            {t('app.lobby.sendButton') || 'Enviar'}
-          </span>
+          <span className="sr-only">{t('app.lobby.sendButton') || 'Send'}</span>
         </Button>
       </form>
     </Card>

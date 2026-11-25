@@ -11,9 +11,9 @@
 export const appEs = {
   general: {
     title: 'ft_bomberman',
-    battlefield: 'LA COCINA ES UN CAMPO DE BATALLA',
+    battlefield: 'ENTRA EN LA ARENA',
     subTitle:
-      'Alta cocina, destrucción, ollas a presión y vapor desatado. Regístrate o inicia sesión para entrar al servicio.',
+      'Regístrate o inicia sesión para jugar partidas multijugador, competir con otros jugadores y conectar con tus amigos.',
     userLabel: 'Usuario',
     connectedAs: 'Conectado como',
     termsOfService: 'Términos de servicio',
@@ -31,10 +31,24 @@ export const appEs = {
     connected: 'Conectado al servidor',
     connecting: 'Conectando...',
     connectingStatus: 'Conectando...',
+    disconnected: 'Desconectado',
     openSession: 'Sesión abierta en otra ventana',
     sessionReplaced:
       'Esta cuenta se ha iniciado en otra pestaña o dispositivo. Esta ventana ha quedado desconectada.',
     reloadSession: 'Recuperar sesión',
+    underConstruction: 'En construcción.',
+    logoAlt: 'Logotipo de ft_bomberman',
+    avatarAlt: 'Avatar',
+    openMenu: 'Abrir menú de navegación',
+    closeMenu: 'Cerrar menú de navegación',
+    userMenu: 'Menú de usuario',
+    statsSubtitle:
+      'Consulta tus partidas, resultados y progreso a lo largo del tiempo.',
+    matchHistory: 'Historial de partidas',
+    statsEmpty: 'Todavía no hay partidas registradas.',
+    match: 'Partida',
+    result: 'Resultado',
+    date: 'Fecha',
   },
   lobby: {
     lobbyTitle: 'Lobby',
@@ -107,12 +121,47 @@ export const appEs = {
     matchmakingFailed: 'No se pudo iniciar la partida. Inténtalo de nuevo.',
     matchmakingActiveGame:
       'Ya tienes una partida en curso. Termínala antes de empezar otra.',
+    activeMatchNotice:
+      'Ya tienes una partida en curso. Vuelve a ella para seguir jugando.',
+    returnToActiveMatch: 'Ir a partida en curso',
+    activeMatchCheckFailed:
+      'No se pudo comprobar si tienes una partida en curso. Actualiza el lobby e inténtalo de nuevo.',
     socketOnline: 'SOCKET ONLINE',
     socketOffline: 'SOCKET OFFLINE',
     enterLobbyPrefix: 'Bienvenido al Lobby, ',
     bannerDescription:
       'Configura tu partida. El servidor controla movimiento, bombas, explosiones, mejoras y victoria.',
     bombsReady: 'BOMBAS LISTAS / MODO JUGADOR',
+
+    // Additional UI labels
+    playerFallback: 'Jugador',
+    cancelSearch: 'Cancelar búsqueda',
+    cancelSearchHint: 'Puedes cancelar la búsqueda en cualquier momento.',
+    confirmedPlayers: 'jugadores confirmados',
+    connectingEngine: 'Conectando con el motor del servidor...',
+    controlsLabel: 'Controles: WASD / flechas · ESPACIO para colocar una bomba',
+    creatingMatch: 'Creando partida...',
+    hostOnlyStartText: 'Solo el anfitrión puede iniciar la partida privada.',
+    mapHint: 'Elige un mapa',
+    map1Hint: '13 × 11 · clásico',
+    map2Hint: '13 × 11 · abierto',
+    map3Hint: '13 × 11 · laberinto',
+    matchStartingIn: 'La partida comienza en',
+    maxPlayers: 'máx. 4',
+    modeHint: 'Elige tu desafío',
+    modePracticeBadge: 'Ideal para probar',
+    modePrivateBadge: 'Sin desconocidos',
+    modePublicBadge: 'Emparejamiento abierto',
+    modePracticeShort: 'PRÁCTICA',
+    modePrivateShort: 'PRIVADA',
+    modePublicShort: 'PÚBLICA',
+    playersInGroup: 'jugador(es) en tu grupo',
+    preparingSearch: 'Preparando la búsqueda...',
+    readyLabel: 'LISTO PARA JUGAR',
+    searchDoesNotExpire: 'la búsqueda no caduca',
+    searchingMatch: 'BUSCANDO PARTIDA',
+    searchingPlayers: 'Buscando jugadores...',
+    settingsHint: 'Personaliza la partida',
   },
   friends: {
     friendList: 'Lista de Amigos',
@@ -132,6 +181,7 @@ export const appEs = {
     deleteFriendConfirm: '¿Estás seguro de que deseas eliminar a',
     deleteFriendConfirm2: 'de tu lista de amigos?',
     cancelButton: 'Cancelar',
+    rejectButton: 'Rechazar',
     removeButton: 'Eliminar',
     spectateTitle: 'Espectar partida',
     inviteToLobby: 'Invitar a lobby',
@@ -155,9 +205,14 @@ export const appEs = {
   },
   aboutUs: {
     title: 'Sobre Nosotros',
+    teamBadge: 'Equipo de 42 Madrid',
     subtitle:
       'Cuatro desarrolladores de 42 Madrid creando una experiencia arcade multijugador en tiempo real impulsada por arquitectura de software moderna.',
     contributionsLabel: 'Trabajo Asignado y Logros',
+    githubProfileAria: '{name} en GitHub',
+    linkedinProfileAria: '{name} en LinkedIn',
+    bombermanAccountAria: 'Cuenta de Bomberman de {name}',
+    school42ProfileAria: 'Perfil de 42 School de {name}',
     roles: {
       frontendLead: 'Project Manager QA & Líder de Desarrollo Frontend',
       frontendArchitect: 'Product Owner y Arquitecto/Diseñador Frontend',
@@ -176,34 +231,91 @@ export const appEs = {
     },
   },
   aboutGame: {
-    title: 'ft_bomberman',
+    badge: 'Guia para jugar ft_bomberman',
+    title: 'Sobre el Juego',
     subtitle:
-      'Inspirado en Bomberman, la clásica franquicia de estrategia y laberintos creada originalmente por Hudson Soft en 1983 y actualmente propiedad de Konami. Proyecto de 42 Madrid.',
-    mechanicsTitle: 'Mecánica principal',
+      'Recorre laberintos con bloques destructibles, coloca bombas, recoge mejoras y sobrevive a tus rivales en esta arena multijugador online.',
+    controlsTitle: 'Controles',
+    controlsSpace: 'ESPACIO',
+    movementTitle: 'Movimiento',
+    movementDescription:
+      'Muévete usando cualquiera de los dos grupos de teclas. No se permite el movimiento diagonal.',
+    wasdLabel: 'WASD',
+    arrowKeysLabel: 'Flechas',
+    or: 'o',
+    moveUp: 'Mover hacia arriba',
+    moveDown: 'Mover hacia abajo',
+    moveLeft: 'Mover hacia la izquierda',
+    moveRight: 'Mover hacia la derecha',
+    actionTitle: 'Bomba',
+    actionDescription: 'Pulsa la barra espaciadora para colocar una bomba.',
+    placeBomb: 'Colocar bomba',
+    objectiveTitle: 'Objetivo',
+    objectiveDescription:
+      'Sobrevive y sé el último jugador en pie. Las bombas también pueden eliminarte, así que planea una ruta de escape antes de colocarlas.',
+    mechanicsTitle: 'Mecánicas principales',
     mechanics: {
       bombPlacement: {
         label: 'Colocación de bombas',
         description:
-          'el jugador se desplaza por un laberinto y coloca explosivos estratégicamente para destruir muros y eliminar enemigos.',
+          'Coloca bombas para destruir bloques y atrapar a tus rivales en la explosión. Vigila la mecha y aléjate antes de que detone.',
       },
       powerUps: {
         label: 'Power-ups',
         description:
-          'al romper los bloques se obtienen mejoras, como mayor alcance de explosión, más bombas simultáneas o mayor velocidad de movimiento.',
+          'Rompe bloques para encontrar mejoras de alcance de explosión, cantidad de bombas simultáneas y velocidad de movimiento.',
       },
       multiplayer: {
         label: 'Multijugador',
         description:
-          'ofrece modos competitivos tanto en partidas locales como en línea para varios jugadores.',
+          'Compite online con amigos u otros jugadores. Elige práctica individual, una partida privada en tu lobby o emparejamiento abierto.',
       },
     },
+    matchModesTitle: 'Elige un modo de juego',
+    modes: {
+      practice: {
+        label: 'Práctica',
+        description:
+          'Juega en solitario contra un bot para aprender los controles y probar tu estrategia.',
+      },
+      private: {
+        label: 'Partida privada',
+        description:
+          'Juega con entre 2 y 4 participantes de tu lobby actual en una partida privada.',
+      },
+      public: {
+        label: 'Emparejamiento público',
+        description:
+          'Únete a la cola abierta. La partida empieza cuando hay al menos 2 jugadores y admite hasta 4.',
+      },
+    },
+    demoTitle: 'Prueba la arena',
+    demoDescription:
+      'Usa la vista interactiva para probar el movimiento, colocar bombas y escapar de las explosiones.',
+  },
+  notFound: {
+    badge: 'ERROR 404',
+    title: 'Página no encontrada',
+    subtitle:
+      'La página que buscas no existe, se ha movido o la URL no es correcta.',
+    requestedPath: 'Ruta solicitada',
+    backLobby: 'Volver al Lobby',
+    backHome: 'Ir al inicio de sesión',
+    goBack: 'Volver',
+    quickLinks: 'Navegación rápida',
+    quickLinksHint:
+      'Descubre las reglas, el desglose del proyecto o conoce al equipo.',
+  },
+  game: {
+    viewportLabel: 'Área de juego',
+    sidebarLabel: 'Panel lateral de la partida',
   },
 
   hud: {
     health: 'Vidas',
-    bombs: 'Ollas',
-    blast: 'Fuego',
-    speed: 'Café',
+    bombs: 'Bombas',
+    blast: 'Alcance',
+    speed: 'Velocidad',
     time: 'Tiempo',
     rivals: 'Rivales',
     remaining: 'Restantes',
@@ -218,10 +330,11 @@ export const appEs = {
     survivors: 'Supervivientes',
     map: 'Mapa',
     exitFullscreen: 'Salir de pantalla completa',
+    enterFullscreen: 'Entrar en pantalla completa',
     leave: 'Salir',
   },
   endScreen: {
-    deadTitle: 'chau chao adios',
+    deadTitle: 'Has muerto',
     victoryTitle: 'Ganaste',
     defeatTitle: 'Perdiste',
     drawTitle: 'Empate',
@@ -237,7 +350,7 @@ export const appEs = {
     retry: 'Reintentar',
   },
   sidebar: {
-    inKitchen: 'En la cocina',
+    players: 'Jugadores',
     yourStats: 'Tus estadísticas',
     you: 'Tú',
     bombs: 'Bombas',

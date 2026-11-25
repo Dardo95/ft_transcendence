@@ -242,6 +242,80 @@ const UI_DIALOG_FOOTER =
 const UI_LABEL =
   'flex items-center gap-2 text-sm leading-none font-medium text-foreground select-none';
 
+/*Keycap */
+const KEYCAP_BASE =
+  'inline-flex select-none items-center justify-center rounded-lg border border-b-4 font-mono text-xs font-bold tracking-wider shadow-sm transition-transform active:translate-y-0.5 active:border-b-2';
+const KEYCAP_STANDARD = 'size-10 border-input bg-secondary text-foreground';
+const KEYCAP_WIDE = 'h-10 min-w-36 px-5';
+const KEYCAP_ACCENT = 'border-primary/50 bg-primary/15 text-primary';
+
+/* Game viewport & sidebar */
+const GAME_VIEWPORT_DEMO_LAYOUT = 'flex w-full flex-col gap-3 p-3';
+const GAME_VIEWPORT_LAYOUT = `${GAME_VIEWPORT_DEMO_LAYOUT} lg:flex-row`;
+const GAME_VIEWPORT_MATCH_LAYOUT = 'lg:flex-1 lg:min-h-0 lg:overflow-hidden';
+const GAME_VIEWPORT_COLUMN = 'flex min-w-0 flex-1 flex-col gap-3 lg:min-h-0';
+const GAME_VIEWPORT_SIDEBAR =
+  'w-full shrink-0 lg:h-full lg:w-72 lg:overflow-y-auto';
+const GAME_VIEWPORT_DEMO_SIDEBAR = 'w-full shrink-0';
+const GAME_VIEWPORT_FULLSCREEN_LAYOUT =
+  'fixed inset-0 z-50 flex h-dvh w-screen flex-col gap-3 overflow-auto bg-background p-3 lg:flex-row lg:overflow-hidden';
+const GAME_VIEWPORT_FULLSCREEN_COLUMN =
+  'flex min-h-0 min-w-0 flex-1 flex-col gap-3';
+const GAME_VIEWPORT_FULLSCREEN_SIDEBAR =
+  'w-full shrink-0 lg:w-72 lg:overflow-y-auto';
+const GAME_VIEWPORT_FRAME =
+  'relative overflow-hidden rounded-lg border border-border bg-background';
+const GAME_VIEWPORT_DEMO = 'h-[70vh] min-h-[420px]';
+const GAME_VIEWPORT_MATCH =
+  'h-[70vh] min-h-[320px] lg:h-auto lg:min-h-0 lg:flex-1';
+const GAME_VIEWPORT_FULLSCREEN = 'min-h-0 min-w-0 flex-1 rounded-none border-0';
+const GAME_LOADING_OVERLAY =
+  'absolute inset-0 z-10 flex items-center justify-center bg-background/70';
+const GAME_LOADING_TEXT = 'text-sm text-muted-foreground';
+const GAME_FAILURE_OVERLAY =
+  'absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-background/90 px-4 text-center';
+const GAME_FAILURE_TITLE = 'text-foreground text-lg font-black';
+const GAME_FAILURE_DESCRIPTION = 'text-muted-foreground text-sm';
+const GAME_DEBUG_BADGE =
+  'absolute right-2 bottom-2 z-10 rounded border border-border bg-background/80 px-2 py-1 font-mono text-xs text-primary';
+const GAME_SIDEBAR_STACK = 'flex min-w-0 flex-col gap-3';
+const GAME_SIDEBAR_PANEL = `${CARD_BASE} p-3`;
+const GAME_SIDEBAR_GRID = 'grid min-w-0 grid-cols-3 gap-3 sm:gap-4';
+const GAME_SIDEBAR_RESPONSIVE_GRID = `${GAME_SIDEBAR_GRID} lg:flex lg:flex-col lg:gap-3`;
+const GAME_SIDEBAR_GRID_PANEL = `${CARD_BASE} min-w-0 overflow-hidden p-3 sm:p-4`;
+const GAME_SIDEBAR_HEADER = 'flex items-center justify-between';
+const GAME_SIDEBAR_HEADING = `flex items-center gap-2 ${SECTION_SUBLABEL}`;
+const GAME_SIDEBAR_GRID_HEADING =
+  'flex min-w-0 items-center gap-1 text-[9px] font-semibold tracking-wider text-muted-foreground uppercase';
+const GAME_SIDEBAR_COUNT = 'font-mono text-sm font-bold text-primary';
+const GAME_ROSTER_ROW = `${INNER_BOX} flex items-center gap-2.5 px-2.5 py-2`;
+const GAME_SIDEBAR_GRID_ROSTER_ROW = `${INNER_BOX} flex min-w-0 items-center gap-1 px-1 py-1`;
+const GAME_SIDEBAR_GRID_COUNT = 'font-mono text-[10px] font-bold text-primary';
+const GAME_PLAYER_NAME = 'block truncate text-xs font-semibold';
+const GAME_SIDEBAR_GRID_PLAYER_AVATAR =
+  'size-7 shrink-0 overflow-hidden rounded-full border-4';
+const GAME_LOCAL_PLAYER =
+  'text-primary text-[10px] font-semibold tracking-wider uppercase';
+const GAME_STATS_GRID = 'mt-2 grid grid-cols-3 gap-2';
+const GAME_SIDEBAR_GRID_STATS = 'mt-2 grid grid-cols-1 gap-2';
+const GAME_STAT_CARD = `${INNER_BOX} px-1 py-2 text-center`;
+const GAME_SIDEBAR_GRID_STAT_CARD = `${INNER_BOX} flex flex-col items-center gap-0.5 px-2 py-2 text-center`;
+const GAME_STAT_VALUE =
+  'font-mono text-lg leading-tight font-bold text-primary';
+const GAME_SIDEBAR_GRID_STAT_VALUE =
+  'font-mono text-sm leading-tight font-bold text-primary';
+const GAME_STAT_LABEL =
+  'text-muted-foreground text-[9px] font-semibold tracking-wider uppercase';
+const GAME_SIDEBAR_GRID_STAT_LABEL =
+  'text-muted-foreground text-[8px] font-semibold tracking-wider uppercase';
+const GAME_LEGEND_ITEM = 'flex items-center gap-2.5 text-xs';
+const GAME_SIDEBAR_GRID_LEGEND_ITEM =
+  'flex min-w-0 items-center gap-1.5 text-[10px]';
+const GAME_LEGEND_ICON =
+  'h-5 w-5 shrink-0 rounded-sm border border-input object-cover';
+const GAME_SIDEBAR_GRID_LEGEND_ICON =
+  'h-4 w-4 shrink-0 rounded-sm border border-input object-cover';
+
 /**
  * Single grouped token object. Import once per file: `import { UI } from ...`.
  */
@@ -433,6 +507,60 @@ export const UI = {
     md: ICON_MD,
     lg: ICON_LG,
     spinner: ICON_SPINNER,
+  },
+  keycap: {
+    base: KEYCAP_BASE,
+    standard: KEYCAP_STANDARD,
+    wide: KEYCAP_WIDE,
+    accent: KEYCAP_ACCENT,
+  },
+  game: {
+    viewportDemoLayout: GAME_VIEWPORT_DEMO_LAYOUT,
+    viewportLayout: GAME_VIEWPORT_LAYOUT,
+    viewportMatchLayout: GAME_VIEWPORT_MATCH_LAYOUT,
+    viewportColumn: GAME_VIEWPORT_COLUMN,
+    viewportSidebar: GAME_VIEWPORT_SIDEBAR,
+    viewportDemoSidebar: GAME_VIEWPORT_DEMO_SIDEBAR,
+    viewportFullscreenLayout: GAME_VIEWPORT_FULLSCREEN_LAYOUT,
+    viewportFullscreenColumn: GAME_VIEWPORT_FULLSCREEN_COLUMN,
+    viewportFullscreenSidebar: GAME_VIEWPORT_FULLSCREEN_SIDEBAR,
+    viewportFrame: GAME_VIEWPORT_FRAME,
+    viewportDemo: GAME_VIEWPORT_DEMO,
+    viewportMatch: GAME_VIEWPORT_MATCH,
+    viewportFullscreen: GAME_VIEWPORT_FULLSCREEN,
+    loadingOverlay: GAME_LOADING_OVERLAY,
+    loadingText: GAME_LOADING_TEXT,
+    failureOverlay: GAME_FAILURE_OVERLAY,
+    failureTitle: GAME_FAILURE_TITLE,
+    failureDescription: GAME_FAILURE_DESCRIPTION,
+    debugBadge: GAME_DEBUG_BADGE,
+    sidebarStack: GAME_SIDEBAR_STACK,
+    sidebarPanel: GAME_SIDEBAR_PANEL,
+    sidebarGrid: GAME_SIDEBAR_GRID,
+    sidebarResponsiveGrid: GAME_SIDEBAR_RESPONSIVE_GRID,
+    sidebarGridPanel: GAME_SIDEBAR_GRID_PANEL,
+    sidebarHeader: GAME_SIDEBAR_HEADER,
+    sidebarHeading: GAME_SIDEBAR_HEADING,
+    sidebarGridHeading: GAME_SIDEBAR_GRID_HEADING,
+    sidebarCount: GAME_SIDEBAR_COUNT,
+    sidebarGridCount: GAME_SIDEBAR_GRID_COUNT,
+    rosterRow: GAME_ROSTER_ROW,
+    sidebarGridRosterRow: GAME_SIDEBAR_GRID_ROSTER_ROW,
+    playerName: GAME_PLAYER_NAME,
+    sidebarGridPlayerAvatar: GAME_SIDEBAR_GRID_PLAYER_AVATAR,
+    localPlayer: GAME_LOCAL_PLAYER,
+    statsGrid: GAME_STATS_GRID,
+    sidebarGridStats: GAME_SIDEBAR_GRID_STATS,
+    statCard: GAME_STAT_CARD,
+    sidebarGridStatCard: GAME_SIDEBAR_GRID_STAT_CARD,
+    statValue: GAME_STAT_VALUE,
+    sidebarGridStatValue: GAME_SIDEBAR_GRID_STAT_VALUE,
+    statLabel: GAME_STAT_LABEL,
+    sidebarGridStatLabel: GAME_SIDEBAR_GRID_STAT_LABEL,
+    legendItem: GAME_LEGEND_ITEM,
+    sidebarGridLegendItem: GAME_SIDEBAR_GRID_LEGEND_ITEM,
+    legendIcon: GAME_LEGEND_ICON,
+    sidebarGridLegendIcon: GAME_SIDEBAR_GRID_LEGEND_ICON,
   },
   link: {
     profileRow: LINK_PROFILE_ROW,

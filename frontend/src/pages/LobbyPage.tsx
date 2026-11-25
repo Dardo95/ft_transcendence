@@ -7,6 +7,8 @@ import { FriendList } from '@/features/friends/components/FriendListCard';
 import { GlobalChat } from '@/features/chat/components/GlobalChat';
 import { useLobbyStore } from '@/features/chat/store/useLobbyStore';
 import { gameSocket } from '@/lib/socket';
+import { fetchActiveGameId } from '@/features/lobby/activeMatch';
+import { useLanguage } from '@/locales/useLanguage';
 import {
   countdownSeconds,
   gameRoute,
@@ -14,8 +16,10 @@ import {
   readGameFoundId,
   readMatchmakingStatus,
 } from '@/features/lobby/matchmakingEvents';
+import { resolveMatchmakingErrorKey } from '@/features/lobby/matchmakingErrorMessage';
 import { toServerMatchmakingRequest } from '@/features/lobby/matchmakingRequest';
 
+import { ActiveMatchBanner } from '@/features/lobby/components/ActiveMatchBanner';
 import { GameConfig } from '@/features/lobby/components/GameConfig';
 import { LobbyNotifications } from '@/features/lobby/components/LobbyNotifications';
 import { LobbyTopBanner } from '@/features/lobby/components/LobbyTopBanner';
@@ -39,27 +43,9 @@ interface MatchmakingStatusPayload {
   countdownEndsAt?: number;
 }
 
-interface SocketErrorPayload {
-  message?: string | string[];
-  error?: string;
-}
-
-function socketErrorMessage(payload: unknown): string {
-  if (typeof payload === 'string') return payload;
-
-  if (payload && typeof payload === 'object') {
-    const value = payload as SocketErrorPayload;
-
-    if (Array.isArray(value.message)) return value.message.join(', ');
-    if (typeof value.message === 'string') return value.message;
-    if (typeof value.error === 'string') return value.error;
-  }
-
-  return 'No se pudo iniciar la partida.';
-}
-
 export function LobbyPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Lobby state
   const lobby = useLobbyStore((state) => state.lobby);
@@ -77,6 +63,7 @@ export function LobbyPage() {
   const [matchmaking, setMatchmaking] = useState<MatchmakingState | null>(null);
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [gameError, setGameError] = useState<string | null>(null);
+  const [activeGameId, setActiveGameId] = useState<string | null>(null);
   const navigatedGameId = useRef<string | null>(null);
   const requestedMap = useRef<MapId>('map1');
 
@@ -95,6 +82,22 @@ export function LobbyPage() {
   const canStartPrivate = isHost && playersCount > 1;
 
   const dismissGameError = useCallback(() => setGameError(null), []);
+
+  const reportActiveGameCheckFailure = useCallback(() => {
+    setGameError(
+      t('app.lobby.activeMatchCheckFailed') ||
+        'Could not check whether you have an active match. Refresh the lobby and try again.'
+    );
+  }, [t]);
+
+  const refreshActiveGame = useCallback(async () => {
+    try {
+      const gameId = await fetchActiveGameId();
+      setActiveGameId(gameId);
+    } catch {
+      reportActiveGameCheckFailure();
+    }
+  }, [reportActiveGameCheckFailure]);
 
   const goToGame = useCallback(
     (gameId?: string) => {
@@ -122,6 +125,7 @@ export function LobbyPage() {
     const handleConnect = () => {
       setIsGameConnected(true);
       setGameError(null);
+      void refreshActiveGame();
     };
 
     const handleDisconnect = () => {
@@ -145,7 +149,61 @@ export function LobbyPage() {
         gameSocket.disconnect();
       }
     };
-  }, []);
+  }, [refreshActiveGame]);
+
+  // Recover an already running match after mounting or reloading the lobby.
+  useEffect(() => {
+    let cancelled = false;
+
+    void fetchActiveGameId()
+      .then((gameId) => {
+        if (!cancelled) setActiveGameId(gameId);
+      })
+      .catch(() => {
+        if (!cancelled) reportActiveGameCheckFailure();
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reportActiveGameCheckFailure]);
+
+  // Keep the active match in sync with match lifecycle events.
+  useEffect(() => {
+    const handleGameFinished = (payload: unknown) => {
+      const gameId = readGameFoundId(payload);
+
+      setActiveGameId((current) =>
+        !gameId || current === gameId ? null : current
+      );
+    };
+
+    const handlePlayerRemoved = (payload: unknown) => {
+      if (!user) return;
+
+      const data = payload as { gameId?: unknown; userId?: unknown };
+      if (Number(data.userId) !== user.id) return;
+
+      const gameId =
+        typeof data.gameId === 'string' && data.gameId.trim()
+          ? data.gameId
+          : null;
+
+      setActiveGameId((current) =>
+        !gameId || current === gameId ? null : current
+      );
+    };
+
+    gameSocket.on('game:finished', handleGameFinished);
+    gameSocket.on('game:playerLeft', handlePlayerRemoved);
+    gameSocket.on('game:playerAbandoned', handlePlayerRemoved);
+
+    return () => {
+      gameSocket.off('game:finished', handleGameFinished);
+      gameSocket.off('game:playerLeft', handlePlayerRemoved);
+      gameSocket.off('game:playerAbandoned', handlePlayerRemoved);
+    };
+  }, [user]);
 
   // The backend confirms the session for every mode. Practice and private
   // matches report CREATED immediately; public matches report SEARCHING until
@@ -164,6 +222,7 @@ export function LobbyPage() {
       }
 
       if (update.type === 'created') {
+        setActiveGameId(update.gameId);
         goToGame(update.gameId);
         return;
       }
@@ -188,12 +247,13 @@ export function LobbyPage() {
     const handleGameFound = (payload: unknown) => {
       const gameId = readGameFoundId(payload);
       if (gameId) {
+        setActiveGameId(gameId);
         goToGame(gameId);
       }
     };
 
     const handleException = (payload: unknown) => {
-      setGameError(socketErrorMessage(payload));
+      setGameError(t(resolveMatchmakingErrorKey(payload)));
       setMatchmaking(null);
     };
 
@@ -214,7 +274,7 @@ export function LobbyPage() {
       gameSocket.off('exception', handleException);
       gameSocket.off('game:matchmakingCancelled', handleMatchmakingCancelled);
     };
-  }, [goToGame]);
+  }, [goToGame, t]);
 
   useEffect(() => {
     if (!matchmaking?.countdownEndsAt) return;
@@ -239,7 +299,10 @@ export function LobbyPage() {
 
   const handleStartMatchmaking = (payload: MatchmakingPayload) => {
     if (!gameSocket.connected) {
-      setGameError('El servidor de juego todavía no está conectado.');
+      setGameError(
+        t('app.lobby.errorNotConnected') ||
+          'You are not connected to the server.'
+      );
       return;
     }
 
@@ -284,6 +347,8 @@ export function LobbyPage() {
         />
       )}
 
+      {activeGameId && <ActiveMatchBanner gameId={activeGameId} />}
+
       <GameConfig
         selectedMode={selectedMode}
         onModeChange={handleModeChange}
@@ -294,6 +359,7 @@ export function LobbyPage() {
         isHost={isHost}
         playersCount={playersCount}
         isSearching={isSearching}
+        disabled={isSearching || Boolean(activeGameId)}
         countdown={countdown}
         onStart={handleStartMatchmaking}
         onCancelSearch={handleCancelSearch}

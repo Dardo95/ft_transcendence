@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../locales/useLanguage';
 
 import type {
@@ -24,6 +25,12 @@ import { FriendList } from '../../friends/components/FriendListCard';
 import { BlockedUsersCard } from '../../friends/components/BlockedUsersCard';
 
 import {
+  changeMyPassword,
+  updateMyAvatar,
+  updateMyProfile,
+} from '../service/authService';
+import { useAuthStore } from '../store/useAuthStore';
+import {
   validateEmail,
   validateLoginPassword,
   validateUsername,
@@ -40,15 +47,8 @@ function apiErrorMessage(error: ApiError): string {
   return Array.isArray(message) ? message.join(' ') : String(message ?? '');
 }
 
-interface PrivateProfileViewProps {
+interface ProfilePagePrivateProps {
   user: UserPrivate;
-  onAvatarUpload: (blob: Blob) => Promise<void>;
-  onUpdateProfile: (
-    input: UpdateProfileInput
-  ) => Promise<UpdateProfileResponse>;
-  onChangePassword: (
-    input: ChangePasswordInput
-  ) => Promise<ChangePasswordResponse>;
 }
 
 /**
@@ -56,12 +56,9 @@ interface PrivateProfileViewProps {
  * Read-first layout: values stay visible as text and only the targeted field
  * switches to an inline form when its pencil button is pressed.
  */
-export function PrivateProfileView({
-  user,
-  onAvatarUpload,
-  onUpdateProfile,
-  onChangePassword,
-}: PrivateProfileViewProps) {
+export function ProfilePagePrivate({ user }: ProfilePagePrivateProps) {
+  const navigate = useNavigate();
+  const checkAuth = useAuthStore((state) => state.checkAuth);
   const { t } = useLanguage();
   const [editingField, setEditingField] = useState<EditableField | null>(null);
   const [usernameDraft, setUsernameDraft] = useState(user.username);
@@ -73,6 +70,29 @@ export function PrivateProfileView({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const onAvatarUpload = async (blob: Blob) => {
+    await updateMyAvatar(blob);
+    await checkAuth();
+  };
+
+  const onUpdateProfile = async (
+    input: UpdateProfileInput
+  ): Promise<UpdateProfileResponse> => {
+    const result = await updateMyProfile(input);
+    if (result.outcome === 'updated') {
+      const nextUsername = result.user?.username ?? input.username;
+      if (nextUsername !== undefined && nextUsername !== user.username) {
+        navigate('/profile', { replace: true });
+      }
+      await checkAuth();
+    }
+    return result;
+  };
+
+  const onChangePassword = (
+    input: ChangePasswordInput
+  ): Promise<ChangePasswordResponse> => changeMyPassword(input);
 
   // Email changes require a local password. Google-only accounts can never
   // change their email, while Google accounts with a linked local password can.

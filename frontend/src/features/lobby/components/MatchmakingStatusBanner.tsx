@@ -11,14 +11,14 @@ interface Props {
   onCancel: () => void;
 }
 
-function modeLabel(mode: string): string {
+function modeLabel(mode: string, t: (key: string) => string): string {
   switch (mode.toUpperCase()) {
     case 'PUBLIC':
-      return 'PÚBLICA';
+      return t('app.lobby.modePublicShort') || 'PUBLIC';
     case 'PRIVATE':
-      return 'PRIVADA';
+      return t('app.lobby.modePrivateShort') || 'PRIVATE';
     default:
-      return 'PRÁCTICA';
+      return t('app.lobby.modePracticeShort') || 'PRACTICE';
   }
 }
 
@@ -31,26 +31,25 @@ export function MatchmakingStatusBanner({
 
   const title =
     matchmaking.status === 'COUNTDOWN'
-      ? `${t('app.lobby.matchStartingIn') || 'La partida comienza en'} ${
+      ? `${t('app.lobby.matchStartingIn') || 'Match starting in'} ${
           countdown ?? 0
         }s`
       : matchmaking.status === 'SEARCHING'
-        ? t('app.lobby.searchingPlayers') || 'Buscando jugadores...'
+        ? t('app.lobby.searchingPlayers') || 'Searching for players...'
         : matchmaking.status === 'CREATED'
-          ? t('app.lobby.creatingMatch') || 'Creando partida...'
-          : t('app.lobby.preparingSearch') || 'Preparando búsqueda...';
+          ? t('app.lobby.creatingMatch') || 'Creating match...'
+          : t('app.lobby.preparingSearch') || 'Preparing matchmaking...';
 
   const detail =
     matchmaking.status === 'COUNTDOWN'
       ? `${matchmaking.playersInCurrentMatch ?? 0} ${
-          t('app.lobby.confirmedPlayers') || 'jugadores confirmados'
-        } · máx. 4`
+          t('app.lobby.confirmedPlayers') || 'players confirmed'
+        } · ${t('app.lobby.maxPlayers') || 'max. 4'}`
       : matchmaking.status === 'SEARCHING'
         ? `${matchmaking.playerCount ?? 1} ${
-            t('app.lobby.playersInGroup') || 'jugador(es) en tu grupo'
-          } · ${t('app.lobby.searchDoesNotExpire') || 'la búsqueda no caduca'}`
-        : t('app.lobby.connectingEngine') ||
-          'Conectando con el motor del servidor';
+            t('app.lobby.playersInGroup') || 'player(s) in your group'
+          } · ${t('app.lobby.searchDoesNotExpire') || 'the search does not expire'}`
+        : t('app.lobby.connectingEngine') || 'Connecting to the game engine...';
 
   const canCancel =
     matchmaking.status === 'SEARCHING' ||
@@ -62,8 +61,8 @@ export function MatchmakingStatusBanner({
       <div className="border-primary/20 border-t-primary h-8 w-8 shrink-0 animate-spin rounded-full border-[3px]" />
       <div className="min-w-0 flex-1">
         <span className={UI.text.eyebrow}>
-          {t('app.lobby.searchingMatch') || 'BUSCANDO PARTIDA'} ·{' '}
-          {modeLabel(matchmaking.mode)}
+          {t('app.lobby.searchingMatch') || 'SEARCHING FOR A MATCH'} ·{' '}
+          {modeLabel(matchmaking.mode, t)}
         </span>
         <strong className="text-foreground mt-1 block text-[0.95rem]">
           {title}
@@ -80,7 +79,7 @@ export function MatchmakingStatusBanner({
           className={UI.btn.action}
           onClick={onCancel}
         >
-          {t('app.lobby.cancelSearch') || 'Cancelar búsqueda'}
+          {t('app.lobby.cancelSearch') || 'Cancel search'}
         </Button>
       )}
     </Card>

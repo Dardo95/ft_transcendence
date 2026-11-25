@@ -5,9 +5,10 @@
 
 export const profileEn = {
   loading: 'Loading user profile...',
-  userNotFound: 'User Not Found (404)',
-  userNotFoundDesc: 'The user',
-  doesNotExist: 'does not exist.',
+  myProfile: 'My Profile',
+  userNotFound: 'User Not Found',
+  userNotFoundSubtitle:
+    'The profile you are looking for could not be found. Check the URL or return to the lobby.',
   backToLobby: 'Back to Lobby',
   publicProfile: 'View public profile',
   joined: 'Registered on',

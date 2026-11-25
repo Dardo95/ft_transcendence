@@ -56,7 +56,7 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
         <div className="flex items-center gap-2">
           {isLoading && (
             <span className="text-muted-foreground animate-pulse text-[10px]">
-              {t('app.general.connecting') || 'Cargando...'}
+              {t('app.general.connecting') || 'Loading...'}
             </span>
           )}
           <span className={UI.badge.pill}>
@@ -82,7 +82,7 @@ export function FriendList({ onSpectate, variant = 'lobby' }: FriendListProps) {
       >
         {friends.length === 0 && !isLoading ? (
           <p className={UI.list.profileEmpty}>
-            {t('app.friends.noFriendsYet') || 'No tienes amigos añadidos aún.'}
+            {t('app.friends.noFriendsYet') || 'You have no friends added yet.'}
           </p>
         ) : (
           friends.map((friend) => (

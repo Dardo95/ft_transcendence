@@ -66,7 +66,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
         size="icon-lg"
         onClick={onOpenDrawer}
         className={UI.nav.iconBtn}
-        aria-label="Open sidebar menu"
+        aria-label={t('app.general.openMenu') || 'Open navigation menu'}
       >
         <MenuIcon className={UI.icon.md} aria-hidden="true" />
       </Button>
@@ -75,7 +75,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
       <div className="flex gap-2">
         <img
           src={logoUrl}
-          alt="ft_bomberman Logo"
+          alt={t('app.general.logoAlt') || 'ft_bomberman logo'}
           className={`absolute top-1/2 left-1/2 m-0 h-12 -translate-x-1/2 -translate-y-1/2 ${UI.chrome.logo}`}
           onClick={() => navigate('/lobby')}
         />
@@ -93,11 +93,11 @@ export function Header({ onOpenDrawer }: HeaderProps) {
             size="icon-lg"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             className="hover:ring-primary/60 rounded-full p-0.5 hover:ring-2"
-            aria-label="User menu"
+            aria-label={t('app.general.userMenu') || 'User menu'}
           >
             <img
               src={user?.avatarUrl || defaultAvatar}
-              alt={user?.username || 'Avatar'}
+              alt={user?.username || t('app.general.avatarAlt') || 'Avatar'}
               className="border-input bg-secondary h-full w-full cursor-pointer rounded-full border object-cover"
               onError={(e) => {
                 // Fallback icon if image fails to load (lucide chef-hat)
@@ -115,7 +115,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
                   {t('app.general.connectedAs') || 'Logged in as'}
                 </p>
                 <p className="text-foreground m-2 truncate text-center text-sm font-bold">
-                  {user?.username || 'User'}
+                  {user?.username || t('app.general.userLabel') || 'User'}
                 </p>
               </div>
 

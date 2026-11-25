@@ -9,6 +9,7 @@ interface Props {
   onChange: (settings: GameSettings) => void;
   isHost: boolean;
   isPublicMode: boolean;
+  disabled?: boolean;
 }
 
 interface SettingRowProps {
@@ -54,9 +55,10 @@ export function GameSettingsCard({
   onChange,
   isHost,
   isPublicMode,
+  disabled = false,
 }: Props) {
   const { t } = useLanguage();
-  const isDisabled = isPublicMode || !isHost;
+  const isDisabled = disabled || isPublicMode || !isHost;
 
   return (
     <Card
@@ -65,19 +67,19 @@ export function GameSettingsCard({
       }`}
     >
       <div className={UI.row.sectionLabel}>
-        <span>03 / {t('app.lobby.settingsLabel') || 'AJUSTES'}</span>
+        <span>03 / {t('app.lobby.settingsLabel') || 'SETTINGS'}</span>
         <small className={UI.text.hint}>
           {isPublicMode
-            ? t('app.lobby.fixedPublicLabel') || 'Valores fijos en público'
+            ? t('app.lobby.fixedPublicLabel') || 'Fixed values in public'
             : !isHost
-              ? t('app.lobby.hostOnlyLabel') || 'Solo anfitrión'
-              : t('app.lobby.settingsHint') || 'Personaliza la partida'}
+              ? t('app.lobby.hostOnlyLabel') || 'Host only'
+              : t('app.lobby.settingsHint') || 'Customize the match'}
         </small>
       </div>
 
       <div className={UI.shell.grid3Tight}>
         <SettingRow
-          label={t('app.lobby.initialBombsLabel') || 'Bombas iniciales'}
+          label={t('app.lobby.initialBombsLabel') || 'Initial bombs'}
           value={String(settings.initialBombs)}
           min={1}
           max={3}
@@ -87,7 +89,7 @@ export function GameSettingsCard({
         />
 
         <SettingRow
-          label={t('app.lobby.initialSpeedLabel') || 'Velocidad base'}
+          label={t('app.lobby.initialSpeedLabel') || 'Base speed'}
           value={String(settings.initialSpeed)}
           min={1}
           max={3}
@@ -97,7 +99,7 @@ export function GameSettingsCard({
         />
 
         <SettingRow
-          label={t('app.lobby.fuseTimeLabel') || 'Mecha'}
+          label={t('app.lobby.fuseTimeLabel') || 'Fuse'}
           value={`${settings.fuseTime}s`}
           min={2}
           max={5}

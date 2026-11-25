@@ -66,7 +66,7 @@ export function LobbyNotifications({
         <div role="status" className={UI.feedback.success}>
           {t(`app.lobby.${notice}`) || notice}
           {notice === 'noticeInvitationSent' && noticeData && (
-            <span className="ms-2 text-sm">a {noticeData}</span>
+            <span className="ms-2 text-sm">{noticeData}</span>
           )}
         </div>
       )}

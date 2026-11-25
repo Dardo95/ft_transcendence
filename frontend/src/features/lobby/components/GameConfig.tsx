@@ -24,6 +24,7 @@ interface Props {
   isHost: boolean;
   playersCount: number;
   isSearching: boolean;
+  disabled?: boolean;
   countdown: number | null;
   onStart: (payload: MatchmakingPayload) => void;
   onCancelSearch: () => void;
@@ -40,6 +41,7 @@ export function GameConfig({
   isHost,
   playersCount,
   isSearching,
+  disabled = false,
   countdown,
   onStart,
   onCancelSearch,
@@ -54,6 +56,7 @@ export function GameConfig({
   // En práctica el jugador configura su propia partida, aunque no sea el
   // anfitrión de la lobby.
   const canEditSettings = selectedMode === 'practice' || isHost;
+  const controlsDisabled = disabled || isSearching;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(290px,0.9fr)]">
@@ -61,13 +64,13 @@ export function GameConfig({
         <GameModeSelector
           selectedMode={selectedMode}
           onChange={onModeChange}
-          disabled={isSearching}
+          disabled={controlsDisabled}
         />
 
         <MapSelector
           selectedMap={selectedMap}
           onChange={onMapChange}
-          disabled={isSearching}
+          disabled={controlsDisabled}
         />
 
         <GameSettingsCard
@@ -75,6 +78,7 @@ export function GameConfig({
           onChange={onSettingsChange}
           isHost={canEditSettings}
           isPublicMode={selectedMode === 'public'}
+          disabled={disabled}
         />
 
         <MatchmakingButton
@@ -83,6 +87,7 @@ export function GameConfig({
           playersCount={playersCount}
           isHost={isHost}
           isSearching={isSearching}
+          disabled={disabled}
           countdown={countdown}
           onStart={onStart}
           onCancelSearch={onCancelSearch}

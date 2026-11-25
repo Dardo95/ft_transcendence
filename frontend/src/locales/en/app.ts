@@ -6,9 +6,9 @@
 export const appEn = {
   general: {
     title: 'ft_bomberman',
-    battlefield: 'THE KITCHEN IS A BATTLEFIELD',
+    battlefield: 'ENTER THE ARENA',
     subTitle:
-      'High cuisine, destruction, pressure cookers and unleashed steam. Register or log in to access the service.',
+      'Register or log in to join multiplayer matches, compete with other players, and connect with friends.',
     userLabel: 'User',
     connectedAs: 'Logged in as',
     termsOfService: 'Terms of Service',
@@ -26,10 +26,23 @@ export const appEn = {
     connected: 'Connected to server',
     connecting: 'Connecting...',
     connectingStatus: 'Connecting...',
+    disconnected: 'Disconnected',
     openSession: 'Session opened in another window',
     sessionReplaced:
       'This account has been logged in on another tab or device. This window has been disconnected.',
     reloadSession: 'Recover session',
+    underConstruction: 'Under construction.',
+    logoAlt: 'ft_bomberman logo',
+    avatarAlt: 'Avatar',
+    openMenu: 'Open navigation menu',
+    closeMenu: 'Close navigation menu',
+    userMenu: 'User menu',
+    statsSubtitle: 'Track your matches, results and progression over time.',
+    matchHistory: 'Match history',
+    statsEmpty: 'No matches recorded yet.',
+    match: 'Match',
+    result: 'Result',
+    date: 'Date',
   },
   lobby: {
     lobbyTitle: 'Lobby',
@@ -105,12 +118,47 @@ export const appEn = {
     matchmakingFailed: 'The match could not be started. Try again.',
     matchmakingActiveGame:
       'You already have a match in progress. Finish it before starting another one.',
+    activeMatchNotice:
+      'You already have a match in progress. Return to it to keep playing.',
+    returnToActiveMatch: 'Return to active match',
+    activeMatchCheckFailed:
+      'Could not check whether you have an active match. Refresh the lobby and try again.',
     socketOnline: 'SOCKET ONLINE',
     socketOffline: 'SOCKET OFFLINE',
     enterLobbyPrefix: 'Welcome to the Lobby, ',
     bannerDescription:
       'Configure your match. The server controls movement, bombs, explosions, power-ups, and victory.',
     bombsReady: 'BOMBS READY / PLAYER MODE',
+
+    // Additional UI labels
+    playerFallback: 'Player',
+    cancelSearch: 'Cancel search',
+    cancelSearchHint: 'You can cancel the search at any time.',
+    confirmedPlayers: 'players confirmed',
+    connectingEngine: 'Connecting to the game engine...',
+    controlsLabel: 'Controls: WASD / arrows · SPACE to drop a bomb',
+    creatingMatch: 'Creating match...',
+    hostOnlyStartText: 'Only the host can start the private match.',
+    mapHint: 'Choose a map',
+    map1Hint: '13 × 11 · classic',
+    map2Hint: '13 × 11 · open',
+    map3Hint: '13 × 11 · maze',
+    matchStartingIn: 'Match starting in',
+    maxPlayers: 'max. 4',
+    modeHint: 'Choose your challenge',
+    modePracticeBadge: 'Great for testing',
+    modePrivateBadge: 'Friends only',
+    modePublicBadge: 'Open matchmaking',
+    modePracticeShort: 'PRACTICE',
+    modePrivateShort: 'PRIVATE',
+    modePublicShort: 'PUBLIC',
+    playersInGroup: 'player(s) in your group',
+    preparingSearch: 'Preparing matchmaking...',
+    readyLabel: 'READY TO PLAY',
+    searchDoesNotExpire: 'the search does not expire',
+    searchingMatch: 'SEARCHING FOR A MATCH',
+    searchingPlayers: 'Searching for players...',
+    settingsHint: 'Customize the match',
   },
   friends: {
     friendList: 'Friend List',
@@ -131,6 +179,7 @@ export const appEn = {
     deleteFriendConfirm: 'Are you sure you want to remove',
     deleteFriendConfirm2: 'from your friend list?',
     cancelButton: 'Cancel',
+    rejectButton: 'Reject',
     removeButton: 'Remove',
     spectateTitle: 'Spectate game',
     inviteToLobby: 'Invite to lobby',
@@ -154,9 +203,14 @@ export const appEn = {
   },
   aboutUs: {
     title: 'About Us',
+    teamBadge: '42 Madrid Team',
     subtitle:
       'Four 42 Madrid developers building a real-time multiplayer arcade experience driven by modern software architecture.',
     contributionsLabel: 'Assigned Work & Highlights',
+    githubProfileAria: '{name} on GitHub',
+    linkedinProfileAria: '{name} on LinkedIn',
+    bombermanAccountAria: '{name} Bomberman account',
+    school42ProfileAria: '{name} 42 School profile',
     roles: {
       frontendLead: 'Project Manager QA & Frontend Lead Developer',
       frontendArchitect: 'Product Owner & Frontend Architect/Designer',
@@ -175,34 +229,92 @@ export const appEn = {
     },
   },
   aboutGame: {
-    title: 'ft_bomberman',
+    badge: 'Guide to play ft_bomberman',
+    title: 'About the Game',
     subtitle:
-      'Inspired by Bomberman, the classic strategy and maze video game franchise originally created by Hudson Soft in 1983 and now owned by Konami. A 42 Madrid project.',
+      'Move through destructible mazes, place bombs, collect upgrades, and outlast your opponents in this online multiplayer arena.',
+    controlsTitle: 'Controls',
+    controlsSpace: 'SPACE',
+    movementTitle: 'Movement',
+    movementDescription:
+      'Move using either key set. Diagonal movement is not available.',
+    wasdLabel: 'WASD',
+    arrowKeysLabel: 'Arrow keys',
+    or: 'or',
+    moveUp: 'Move up',
+    moveDown: 'Move down',
+    moveLeft: 'Move left',
+    moveRight: 'Move right',
+    actionTitle: 'Bomb',
+    actionDescription: 'Press the Space bar to place a bomb.',
+    placeBomb: 'Place bomb',
+    objectiveTitle: 'Objective',
+    objectiveDescription:
+      'Stay alive and be the last player remaining. Bombs can eliminate you too, so plan an escape route before placing one.',
     mechanicsTitle: 'Core mechanics',
     mechanics: {
       bombPlacement: {
         label: 'Bomb placement',
         description:
-          'the player moves through a maze and strategically places explosives to destroy walls and eliminate enemies.',
+          'Place bombs to break destructible blocks and catch rivals in their blast. Watch the fuse and move to safety before detonation.',
       },
       powerUps: {
         label: 'Power-ups',
         description:
-          'breaking blocks yields upgrades such as greater explosion range, more simultaneous bombs, or increased movement speed.',
+          'Destroy blocks to find upgrades for blast range, the number of bombs you can place at once, and movement speed.',
       },
       multiplayer: {
         label: 'Multiplayer',
         description:
-          'it is known for its frenetic competitive modes, both in local and online matches for multiple players.',
+          'Compete online with friends or other players. Choose a solo practice match, a private lobby match, or open matchmaking.',
       },
     },
+    matchModesTitle: 'Choose a game mode',
+    modes: {
+      practice: {
+        label: 'Practice',
+        description:
+          'Play solo against a bot to learn the controls and test your strategy.',
+      },
+      private: {
+        label: 'Private match',
+        description:
+          'Play with 2–4 players from your current lobby in a private match.',
+      },
+      public: {
+        label: 'Public matchmaking',
+        description:
+          'Join the open queue. A match starts when at least 2 players are ready and supports up to 4 players.',
+      },
+    },
+    demoTitle: 'Try the arena',
+    demoDescription:
+      'Use the interactive preview to try moving, placing bombs, and escaping explosions.',
+  },
+  notFound: {
+    badge: 'ERROR 404',
+    title: 'Page Not Found',
+    subtitle:
+      'The page you are looking for does not exist, has been moved, or the URL is incorrect.',
+    requestedPath: 'Requested path',
+    backLobby: 'Back to Lobby',
+    backHome: 'Go to Login',
+    goBack: 'Go Back',
+    quickLinks: 'Quick Navigation',
+    quickLinksHint:
+      'Explore the game rules, the project breakdown, or meet the team.',
+  },
+
+  game: {
+    viewportLabel: 'Game viewport',
+    sidebarLabel: 'Game sidebar',
   },
 
   hud: {
     health: 'Lives',
-    bombs: 'Pots',
-    blast: 'Steam',
-    speed: 'Coffee',
+    bombs: 'Bombs',
+    blast: 'Blast',
+    speed: 'Speed',
     time: 'Time',
     rivals: 'Rivals',
     remaining: 'Left',
@@ -217,10 +329,11 @@ export const appEn = {
     survivors: 'Survivors',
     map: 'Map',
     exitFullscreen: 'Exit fullscreen',
+    enterFullscreen: 'Enter fullscreen',
     leave: 'Leave',
   },
   endScreen: {
-    deadTitle: 'bye bye goodbye',
+    deadTitle: 'You are dead',
     victoryTitle: 'You win',
     defeatTitle: 'You lose',
     drawTitle: 'Draw',
@@ -236,7 +349,7 @@ export const appEn = {
     retry: 'Retry',
   },
   sidebar: {
-    inKitchen: 'In the kitchen',
+    players: 'Players',
     yourStats: 'Your stats',
     you: 'You',
     bombs: 'Bombs',
