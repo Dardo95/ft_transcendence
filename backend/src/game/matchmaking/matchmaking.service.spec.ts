@@ -387,6 +387,19 @@ describe('MatchmakingService', () => {
     service.onModuleDestroy();
   });
 
+  it('rejects a private match started by a member who is not the host', () => {
+    const { service, createSession } = createHarness([
+      createLobby('lobby-private', [1, 2]),
+    ]);
+
+    expect(() =>
+      service.requestMatchmaking(user(2), request('PRIVATE'))
+    ).toThrow(/Only the lobby host/);
+    expect(createSession).not.toHaveBeenCalled();
+
+    service.onModuleDestroy();
+  });
+
   it('creates a practice match with one human; the engine factory adds the bot', () => {
     const { service, createSession } = createHarness([
       createLobby('lobby-a', [1]),

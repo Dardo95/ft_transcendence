@@ -128,10 +128,6 @@ export class ChatGateway
       this.server
         .to(`lobby:${result.lobby.id}`)
         .emit('lobby:updated', result.lobby);
-
-      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
-        username: user.username,
-      });
     }, PRESENCE_DISCONNECT_GRACE_MS);
 
     this.pendingDisconnects.set(user.id, timeout);
@@ -229,8 +225,9 @@ export class ChatGateway
       const inviter = client.data.user as WsUser;
 
       // 1. Buscar al destinatario por su nombre de usuario.
-      const invitee = await this.prisma.user.findUnique({
-        where: { username },
+      // Usernames are unique case-insensitively (see registration), so match the same way.
+      const invitee = await this.prisma.user.findFirst({
+        where: { username: { equals: username, mode: 'insensitive' } },
         select: { id: true, username: true },
       });
 
@@ -418,9 +415,9 @@ export class ChatGateway
 
     // Notificar salida del lobby
     if (result?.lobby) {
-      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
-        username: user.username,
-      });
+      // Tell the leaving client first, so its store shows the notice
+      // before lobby:state hands it its new solo lobby.
+      client.emit('lobby:left', { lobbyId: result.lobbyId });
 
       // Actualizamos a los antiguos compañeros.
       this.server
