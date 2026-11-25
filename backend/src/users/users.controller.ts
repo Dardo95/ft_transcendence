@@ -146,6 +146,10 @@ export class UsersController {
         result
       );
     }
+    if (result.outcome === 'accepted') {
+      this.emitToUser(Number(result.requesterId), 'friend:accepted', result);
+      this.emitToUser(Number(result.addresseeId), 'friend:updated', result);
+    }
     return result;
   }
 
