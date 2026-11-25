@@ -9,6 +9,32 @@ export interface CameraTarget {
   y: number;
 }
 
+export interface MapViewportFit {
+  scale: number;
+  offset: { x: number; y: number };
+}
+
+/** Calcula escala y centrado para mostrar el mapa entero sin ampliarlo. */
+export function computeMapViewportFit(
+  mapWidth: number,
+  mapHeight: number,
+  viewport: CameraViewport
+): MapViewportFit {
+  const scale = Math.min(
+    1,
+    viewport.width / mapWidth,
+    viewport.height / mapHeight
+  );
+
+  return {
+    scale,
+    offset: {
+      x: Math.round((viewport.width - mapWidth * scale) / 2),
+      y: Math.round((viewport.height - mapHeight * scale) / 2),
+    },
+  };
+}
+
 /**
  * Desplazamiento de la escena (píxeles) para que el viewport
  * enfoque al jugador sin mostrar el vacío fuera del mapa:

@@ -1,9 +1,15 @@
-import { ChefHatIcon, CircleIcon, CircleOffIcon } from 'lucide-react';
+import { CircleIcon, CircleOffIcon } from 'lucide-react';
 
+import defaultAvatar from '../../../assets/default.jpg';
+import { UI } from '../../../components/layout/layoutStyles';
 import { useLanguage } from '../../../locales/useLanguage';
 import type { PlayerColor } from '../players/types';
 import { formatMatchClock, type HudModel, type LocalHud } from './hudModel';
-import { assignRosterColors, PLAYER_COLOR_CLASSES } from './rosterColors';
+import {
+  assignRosterColors,
+  PLAYER_COLOR_CLASSES,
+  PLAYER_COLOR_UNDERLINE_CLASSES,
+} from './rosterColors';
 import { HUD } from './hudStyles';
 
 interface PlayerPanelProps {
@@ -16,9 +22,10 @@ interface PlayerPanelProps {
 }
 
 /**
- * Tarjeta de jugador del overlay de pantalla completa: gorrito
- * con el color del sprite, nombre (tachado si está fuera) e
- * indicador de vida. La del jugador local añade sus stats.
+ * Tarjeta de jugador del overlay de pantalla completa: fila con
+ * los estilos del sidebar de partida (avatar redondo con borde
+ * de color, subrayado de color y nombre tachado si está fuera),
+ * indicador de vida y, en el local, sus stats.
  */
 function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
   const { t } = useLanguage();
@@ -33,31 +40,37 @@ function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
 
   return (
     <div className={`${HUD.surface.playerCard} ${alive ? '' : 'opacity-60'}`}>
-      <div className="flex items-center gap-2.5">
-        <span
-          className={`${HUD.surface.avatarBox} ${PLAYER_COLOR_CLASSES[color]}`}
+      <div
+        className={`flex items-center gap-2.5 border-b-2 pb-2 ${PLAYER_COLOR_UNDERLINE_CLASSES[color]}`}
+      >
+        <div
+          className={`size-9 shrink-0 overflow-hidden rounded-full border-4 ${PLAYER_COLOR_CLASSES[color]}`}
           aria-hidden="true"
         >
-          <ChefHatIcon className={HUD.icon.section} />
-        </span>
+          <img
+            src={defaultAvatar}
+            alt=""
+            className={`${UI.avatar.full} rounded-full`}
+          />
+        </div>
 
         <span className="min-w-0 flex-1">
-          <span className={alive ? HUD.text.name : HUD.text.nameOut}>
+          <span className={`${UI.game.playerName} ${alive ? '' : 'line-through'}`}>
             {name}
           </span>
           {isLocal && (
-            <span className={HUD.text.you}>{t('app.sidebar.you')}</span>
+            <span className={UI.game.localPlayer}>{t('app.sidebar.you')}</span>
           )}
         </span>
 
         {alive ? (
           <CircleIcon
-            className={HUD.icon.alive}
+            className="fill-success text-success-foreground h-3 w-3 shrink-0"
             aria-label={t('app.hud.alive')}
           />
         ) : (
           <CircleOffIcon
-            className={HUD.icon.down}
+            className="text-muted-foreground h-3.5 w-3.5 shrink-0"
             aria-label={t('app.hud.down')}
           />
         )}

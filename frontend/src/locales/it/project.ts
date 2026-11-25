@@ -10,7 +10,10 @@
  */
 
 export const projectIt = {
-  title: 'Sul Progetto',
+  title: 'Informazioni sul Progetto',
+  versionBadge: '42 Transcendence v21.2',
+  repository: 'Repository',
+  repositoryAria: 'Repository GitHub del progetto',
   subtitle:
     'Specifiche tecniche, architettura di sistema e suddivisione dei moduli valutati secondo il regolamento ufficiale di 42 (v21.2).',
   summaryMandatory: 'Obbligatorio',

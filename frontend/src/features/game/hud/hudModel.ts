@@ -7,7 +7,9 @@ import {
 export const MATCH_DURATION_MS = GAME_DEFAULTS.matchDurationMs;
 
 export interface LocalHud {
+  id: string;
   name: string;
+  isBot: boolean;
   alive: boolean;
   bombCapacity: number;
   availableBombs: number;
@@ -16,7 +18,9 @@ export interface LocalHud {
 }
 
 export interface RivalHud {
+  id: string;
   name: string;
+  isBot: boolean;
   alive: boolean;
 }
 
@@ -61,7 +65,9 @@ export function buildLocalHud(
   ).length;
 
   return {
+    id: local.id,
     name: local.displayName ?? local.id,
+    isBot: local.isBot,
     alive: local.alive,
     bombCapacity: local.bombCapacity,
     availableBombs: Math.max(0, local.bombCapacity - activeOwnBombs),
@@ -79,7 +85,9 @@ export function buildRivalHud(
     .filter((player) => player.id !== localPlayerId)
     .slice(0, 3)
     .map((player) => ({
+      id: player.id,
       name: player.displayName ?? player.id,
+      isBot: player.isBot,
       alive: player.alive,
     }));
 }

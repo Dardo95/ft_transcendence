@@ -108,7 +108,7 @@ export function AboutUsPage() {
         {/* Header Section */}
         <Card className={UI.card.header}>
           <div className={UI.badge.header}>
-            <span>42 Madrid Team</span>
+            <span>{t('app.aboutUs.teamBadge') || '42 Madrid Team'}</span>
           </div>
 
           <h1 className={UI.text.pageTitle}>
@@ -165,7 +165,9 @@ export function AboutUsPage() {
                   href={member.githubUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  aria-label={`${member.name} GitHub`}
+                  aria-label={(
+                    t('app.aboutUs.githubProfileAria') || '{name} on GitHub'
+                  ).replace('{name}', member.name)}
                   className={UI.btn.social}
                 >
                   <Icons.gitHub
@@ -178,7 +180,9 @@ export function AboutUsPage() {
                   href={member.linkedinUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  aria-label={`${member.name} LinkedIn`}
+                  aria-label={(
+                    t('app.aboutUs.linkedinProfileAria') || '{name} on LinkedIn'
+                  ).replace('{name}', member.name)}
                   className={UI.btn.social}
                 >
                   <Icons.linkedIn
@@ -191,7 +195,10 @@ export function AboutUsPage() {
                   href={member.bombermanUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  aria-label={`${member.name} Bomberman Account`}
+                  aria-label={(
+                    t('app.aboutUs.bombermanAccountAria') ||
+                    '{name} Bomberman account'
+                  ).replace('{name}', member.name)}
                   className={UI.btn.social}
                 >
                   <Bomb className={`${UI.icon.sm} shrink-0`} />
@@ -202,7 +209,10 @@ export function AboutUsPage() {
                   href={`https://profile.intra.42.fr/users/${member.school42Name}`}
                   target="_blank"
                   rel="noreferrer noopener"
-                  aria-label={`${member.name} 42 School Profile`}
+                  aria-label={(
+                    t('app.aboutUs.school42ProfileAria') ||
+                    '{name} 42 School profile'
+                  ).replace('{name}', member.name)}
                   className={UI.btn.social}
                 >
                   <Icons.school42

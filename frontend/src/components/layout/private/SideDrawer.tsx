@@ -35,7 +35,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         <div className="flex flex-col gap-6">
           <div className="border-border flex items-center justify-between border-b pb-4">
             <h2 className="text-primary text-lg font-bold">
-              {t('app.general.title') || 'ft_boomberman'}
+              {t('app.general.title') || 'ft_bomberman'}
             </h2>
             <Button
               type="button"
@@ -43,7 +43,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               size="icon-sm"
               onClick={onClose}
               className={UI.nav.iconBtn}
-              aria-label="Close navigation drawer"
+              aria-label={t('app.general.closeMenu') || 'Close navigation menu'}
             >
               <XIcon className={UI.icon.md} aria-hidden="true" />
             </Button>
@@ -53,7 +53,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           <nav className="flex flex-col gap-2">
             <Link to="/lobby" onClick={onClose} className={UI.nav.drawerLink}>
               <GamepadIcon className={UI.icon.sm} aria-hidden="true" />
-              <span>{t('app.lobby') || 'Lobby'}</span>
+              <span>{t('app.lobby.lobbyTitle') || 'Lobby'}</span>
             </Link>
 
             {/* <Link to="/stats" onClick={onClose} className={UI.nav.drawerLink}>

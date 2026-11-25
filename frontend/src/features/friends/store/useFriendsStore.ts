@@ -73,7 +73,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       });
     } catch (err: unknown) {
       set({
-        error: err instanceof Error ? err.message : 'Error al cargar amigos',
+        error: err instanceof Error ? err.message : 'Could not load friends',
         isLoading: false,
       });
     }

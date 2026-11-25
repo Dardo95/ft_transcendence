@@ -48,7 +48,7 @@ export interface CreateGameSessionOptions {
   nowMs?: number;
 }
 
-const BOT_DISPLAY_NAME = 'Chef Bot';
+const BOT_DISPLAY_NAME = 'Bot';
 
 function validatePlayers(
   mode: GameMode,

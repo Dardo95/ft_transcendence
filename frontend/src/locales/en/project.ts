@@ -11,6 +11,9 @@
 
 export const projectEn = {
   title: 'About the Project',
+  versionBadge: '42 Transcendence v21.2',
+  repository: 'Repository',
+  repositoryAria: 'Project GitHub repository',
   subtitle:
     'Technical specification, system architecture, and module breakdown evaluated under the official 42 guidelines (v21.2).',
   summaryMandatory: 'Mandatory',

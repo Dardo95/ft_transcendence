@@ -10,6 +10,14 @@ export const PLAYER_COLOR_CLASSES: Record<PlayerColor, string> = {
   yellow: 'bg-yellow-950 text-yellow-300 border-yellow-700',
 };
 
+/** Subrayado de color bajo la fila de cada jugador. */
+export const PLAYER_COLOR_UNDERLINE_CLASSES: Record<PlayerColor, string> = {
+  blue: 'border-b-blue-700',
+  green: 'border-b-emerald-700',
+  red: 'border-b-red-700',
+  yellow: 'border-b-yellow-700',
+};
+
 /**
  * Replica PlayerLayer.assignColor: primer color libre en orden
  * de aparición. El roster va en el mismo orden que el array de

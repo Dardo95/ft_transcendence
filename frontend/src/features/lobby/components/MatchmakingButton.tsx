@@ -11,6 +11,7 @@ interface Props {
   playersCount: number;
   isHost: boolean;
   isSearching: boolean;
+  disabled?: boolean;
   countdown: number | null;
   onStart: (payload: MatchmakingPayload) => void;
   onCancelSearch: () => void;
@@ -24,25 +25,21 @@ function actionLabel(
   t: (key: string) => string
 ): string {
   if (isSearching) {
-    const base = t('app.lobby.searchingText') || 'BUSCANDO...';
+    const base = t('app.lobby.searchingText') || 'SEARCHING...';
     return countdown !== null ? `${base} (${countdown}s)` : base;
   }
 
   if (mode === 'practice') {
-    return t('app.lobby.matchmakingPracticeText') || 'EMPEZAR PRÁCTICA';
+    return t('app.lobby.matchmakingPracticeText') || 'START PRACTICE MATCH';
   }
 
   if (mode === 'private') {
     return isHost
-      ? t('app.lobby.matchmakingPrivateHostText') || 'EMPEZAR PARTIDA PRIVADA'
-      : t('app.lobby.matchmakingPrivateGuestText') ||
-          'ESPERANDO AL ANFITRIÓN...';
+      ? t('app.lobby.matchmakingPrivateHostText') || 'START PRIVATE MATCH'
+      : t('app.lobby.matchmakingPrivateGuestText') || 'WAITING FOR HOST...';
   }
 
-  return (
-    t('app.lobby.matchmakingPublicText') ||
-    'EMPEZAR SERVICIO (BUSCAR JUGADORES)'
-  );
+  return t('app.lobby.matchmakingPublicText') || 'SEARCH PLAYERS FOR A MATCH';
 }
 
 export function MatchmakingButton({
@@ -51,6 +48,7 @@ export function MatchmakingButton({
   playersCount,
   isHost,
   isSearching,
+  disabled = false,
   countdown,
   onStart,
   onCancelSearch,
@@ -58,33 +56,34 @@ export function MatchmakingButton({
   const { t } = useLanguage();
   const canStartPrivate = isHost && playersCount > 1;
   const isEnabled =
-    mode === 'practice' ? true : mode === 'private' ? canStartPrivate : true;
+    !disabled &&
+    (mode === 'practice' ? true : mode === 'private' ? canStartPrivate : true);
 
   return (
     <Card className="flex flex-col items-stretch gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <strong className="text-foreground block text-xs tracking-wider">
-          {t('app.lobby.readyLabel') || 'LISTO PARA JUGAR'}
+          {t('app.lobby.readyLabel') || 'READY TO PLAY'}
         </strong>
         <span className="text-muted-foreground mt-1 block text-[0.68rem]">
           {t('app.lobby.controlsLabel') ||
-            'Controles: WASD / flechas · ESPACIO para bomba'}
+            'Controls: WASD / arrows · SPACE to drop a bomb'}
         </span>
 
         {mode === 'private' && !canStartPrivate && (
           <span className="text-warning mt-1 block text-[0.62rem]">
             {isHost
               ? t('app.lobby.needPrivateText') ||
-                'Necesitas al menos 2 jugadores en la lobby para empezar.'
+                'You need at least 2 players in the lobby to start.'
               : t('app.lobby.hostOnlyStartText') ||
-                'Solo el anfitrión puede iniciar la partida privada.'}
+                'Only the host can start the private match.'}
           </span>
         )}
 
         {isSearching && (
           <span className="text-primary mt-1 block text-[0.62rem]">
-            {t('app.lobby.searchInfoText') ||
-              'Puedes cancelar la búsqueda en cualquier momento.'}
+            {t('app.lobby.cancelSearchHint') ||
+              'You can cancel the search at any time.'}
           </span>
         )}
       </div>

@@ -9,7 +9,7 @@ import { GameViewport } from '../features/game';
  */
 export function GamePage() {
   return (
-    <div className="h-full w-full">
+    <div className="text-foreground mx-auto w-full max-w-[1440px] lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
       <GameViewport />
     </div>
   );

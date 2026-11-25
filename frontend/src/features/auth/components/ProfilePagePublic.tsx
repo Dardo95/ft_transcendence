@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import type { UserPublic } from '@transcendence/shared';
-import { toast } from 'sonner';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useFriendsStore } from '../../friends/store/useFriendsStore';
+
+import type { UserPublic } from '@transcendence/shared';
+
+import { UI } from '@/components/layout/layoutStyles';
 import { LevelProgress } from './LevelProgress';
 import { Button } from '../../../components/ui/button';
 import { Card } from '../../../components/ui/card';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,12 +20,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../../../components/ui/alert-dialog';
-import { UI } from '@/components/layout/layoutStyles';
 
 import { Ban, Unlock, UserCheck, UserPlus, UserRound } from 'lucide-react';
 import defaultAvatar from '../../../assets/default.jpg';
 
-interface PublicProfileViewProps {
+interface ProfilePagePublicProps {
   user: UserPublic;
 }
 
@@ -32,7 +34,7 @@ interface PublicProfileViewProps {
  * About Us and Project pages. Blocked users lose every social action and
  * their online status is hidden.
  */
-export function PublicProfileView({ user }: PublicProfileViewProps) {
+export function ProfilePagePublic({ user }: ProfilePagePublicProps) {
   const { t } = useLanguage();
   const friends = useFriendsStore((state) => state.friends);
   const blockedUsers = useFriendsStore((state) => state.blockedUsers);

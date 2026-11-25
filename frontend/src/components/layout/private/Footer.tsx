@@ -21,7 +21,7 @@ export function Footer() {
     <footer className={UI.chrome.footer}>
       <nav className={UI.chrome.footerNav}>
         {/* Year and Application Title */}
-        <span>© 2026 {t('app.general.title') || 'ft_boomberman'}</span>
+        <span>© 2026 {t('app.general.title') || 'ft_bomberman'}</span>
 
         <span aria-hidden="true">✦</span>
 

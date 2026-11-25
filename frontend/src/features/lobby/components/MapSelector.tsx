@@ -27,26 +27,26 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
     {
       id: 'map1',
       name: t('app.lobby.map1Name') || 'ARENA 01',
-      subtitle: '13 × 11 · clásico',
+      subtitle: t('app.lobby.map1Hint') || '13 × 11 · classic',
     },
     {
       id: 'map2',
       name: t('app.lobby.map2Name') || 'ARENA 02',
-      subtitle: '13 × 11 · abierto',
+      subtitle: t('app.lobby.map2Hint') || '13 × 11 · open',
     },
     {
       id: 'map3',
       name: t('app.lobby.map3Name') || 'ARENA 03',
-      subtitle: '13 × 11 · laberinto',
+      subtitle: t('app.lobby.map3Hint') || '13 × 11 · maze',
     },
   ];
 
   return (
     <Card className="min-w-0 p-4">
       <div className={UI.row.sectionLabel}>
-        <span>02 / {t('app.lobby.mapLabel') || 'ESCENARIO'}</span>
+        <span>02 / {t('app.lobby.mapLabel') || 'MAP'}</span>
         <small className={UI.text.hint}>
-          {t('app.lobby.mapHint') || 'Elige el mapa'}
+          {t('app.lobby.mapHint') || 'Choose a map'}
         </small>
       </div>
 
@@ -73,7 +73,7 @@ export function MapSelector({ selectedMap, onChange, disabled }: Props) {
                 <span className="from-background/55 via-background/5 absolute inset-0 bg-gradient-to-t to-transparent" />
                 {isSelected && (
                   <span className="bg-primary/90 text-primary-foreground absolute top-1.5 right-1.5 rounded px-1.5 py-0.5 text-[0.52rem] font-black tracking-wider">
-                    {t('app.lobby.activeLabel') || 'ACTIVO'}
+                    {t('app.lobby.activeLabel') || 'ACTIVE'}
                   </span>
                 )}
               </span>

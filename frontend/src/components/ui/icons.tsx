@@ -58,7 +58,7 @@ export const Icons = {
       width="24"
       height="24"
       fill="currentColor"
-      aria-label="42 School"
+      aria-hidden="true"
       {...props}
     >
       {/* Número 4 */}

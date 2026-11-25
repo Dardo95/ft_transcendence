@@ -96,6 +96,16 @@ export function GameTopBar({
             size="sm"
             onClick={onToggleFullscreen}
             aria-pressed={isFullscreen}
+            aria-label={
+              isFullscreen
+                ? t('app.topbar.exitFullscreen') || 'Exit fullscreen'
+                : t('app.topbar.enterFullscreen') || 'Enter fullscreen'
+            }
+            title={
+              isFullscreen
+                ? t('app.topbar.exitFullscreen') || 'Exit fullscreen'
+                : t('app.topbar.enterFullscreen') || 'Enter fullscreen'
+            }
             className={HUD.button.active}
           >
             {isFullscreen ? (

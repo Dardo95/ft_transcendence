@@ -47,7 +47,8 @@ export function StatsPage() {
               <tbody className="text-muted-foreground">
                 <tr className={UI.table.row}>
                   <td colSpan={3} className="px-4 py-8 text-center text-sm">
-                    Vista en construcción.
+                    {t('app.general.underConstruction') ||
+                      'Under construction.'}
                   </td>
                 </tr>
               </tbody>
