@@ -225,8 +225,9 @@ export class ChatGateway
       const inviter = client.data.user as WsUser;
 
       // 1. Buscar al destinatario por su nombre de usuario.
-      const invitee = await this.prisma.user.findUnique({
-        where: { username },
+      // Usernames are unique case-insensitively (see registration), so match the same way.
+      const invitee = await this.prisma.user.findFirst({
+        where: { username: { equals: username, mode: 'insensitive' } },
         select: { id: true, username: true },
       });
 
