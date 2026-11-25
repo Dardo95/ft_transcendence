@@ -90,7 +90,7 @@ export const appEn = {
     hostOnlyLabel: 'Host only',
 
     // Matchmaking button
-    matchmakingPracticeText: 'Start Practice Match',
+    matchmakingPracticeText: 'Start Practice',
     matchmakingPrivateHostText: 'Start Private Match',
     matchmakingPrivateGuestText: 'Waiting for host...',
     matchmakingPublicText: 'Search Players for Match Start',
@@ -320,6 +320,9 @@ export const appEn = {
     remaining: 'Left',
     alive: 'Up',
     down: 'Out',
+    finalSeconds: 'Last 20 seconds!',
+    suddenDeath: 'Sudden death!',
+    suddenDeathSub: 'Walls are closing in',
   },
 
   topbar: {

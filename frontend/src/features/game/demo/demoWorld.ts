@@ -271,6 +271,58 @@ export class DemoWorld {
     }
   }
 
+  /**
+   * Cierra una casilla con un muro indestructible (muerte
+   * súbita, igual que `closeTile` del backend): quita el
+   * power-up y la bomba de la celda y mata a los jugadores
+   * vivos cuya hitbox solape la casilla. Devuelve sus ids.
+   */
+  closeWall(
+    x: number,
+    y: number,
+    players: readonly GamePlayerSnapshot[]
+  ): string[] {
+    const tile = this.map[y]?.[x];
+
+    if (tile !== TileType.FLOOR && tile !== TileType.BLOCK) {
+      return [];
+    }
+
+    this.map[y][x] = TileType.WALL;
+    this.mapChanged = true;
+
+    // Hacia atrás: se borra mientras se itera la lista.
+    for (let i = this.powerUps.length - 1; i >= 0; i--) {
+      const powerUp = this.powerUps[i];
+
+      if (powerUp.position.x === x && powerUp.position.y === y) {
+        this.powerUps.splice(i, 1);
+        this.powerUpsChanged = true;
+      }
+    }
+
+    // La bomba deja de existir (bloqueo incluido). Nota: la
+    // lista propia del piloto no se toca, así que una bomba
+    // atrapada aún podrá detonar después, pero su explosión no
+    // quema muros.
+    for (const [bombId, bomb] of this.bombs) {
+      if (bomb.position.x === x && bomb.position.y === y) {
+        this.bombs.delete(bombId);
+      }
+    }
+
+    const killedPlayerIds: string[] = [];
+
+    for (const player of players) {
+      if (player.alive && overlapsTile(player.position, { x, y })) {
+        player.alive = false;
+        killedPlayerIds.push(player.id);
+      }
+    }
+
+    return killedPlayerIds;
+  }
+
   /** true si el mapa cambió desde el último consumo. */
   consumeMapChanged(): boolean {
     const changed = this.mapChanged;

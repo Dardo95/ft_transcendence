@@ -1,6 +1,10 @@
-import type { BombSnapshot, GamePlayerSnapshot } from '@transcendence/shared';
-// Igual que GAME_DEFAULTS.matchDurationMs del backend.
-export const MATCH_DURATION_MS = 180_000;
+import {
+  GAME_DEFAULTS,
+  type BombSnapshot,
+  type GamePlayerSnapshot,
+} from '@transcendence/shared';
+
+export const MATCH_DURATION_MS = GAME_DEFAULTS.matchDurationMs;
 
 export interface LocalHud {
   id: string;
@@ -100,6 +104,51 @@ export function remainingMatchMs(
   durationMs: number = MATCH_DURATION_MS
 ): number {
   return Math.max(0, durationMs - elapsedMs);
+}
+
+/**
+ * Reloj de la partida para el HUD: "MM:SS" durante el tiempo
+ * regular y "+MM:SS" durante la muerte súbita. Lo comparten
+ * el topbar y la caja de tiempo del HUD fullscreen.
+ */
+export function formatMatchClock(
+  model: Pick<HudModel, 'clockMs' | 'isOvertime' | 'overtimeElapsedMs'>
+): string {
+  if (model.isOvertime) {
+    return `+${formatClock(model.overtimeElapsedMs)}`;
+  }
+
+  return formatClock(model.clockMs);
+}
+
+/**
+ * Aviso de muerte súbita: visible solo los primeros
+ * `windowMs` de overtime, justo cuando el reloj regular
+ * llega a 0 y empiezan a cerrar los muros.
+ */
+export function showSuddenDeathAlert(
+  model: Pick<HudModel, 'isOvertime' | 'overtimeElapsedMs'>,
+  windowMs = 5_000
+): boolean {
+  return model.isOvertime && model.overtimeElapsedMs < windowMs;
+}
+
+/**
+ * Cuenta atrás de los últimos veinte segundos del tiempo
+ * regular: el aviso aparece al abrirse la ventana de 20 s y
+ * solo dura 5 s (se oculta al quedar menos de 15). Solo
+ * antes del overtime.
+ */
+export function showFinalSecondsAlert(
+  model: Pick<HudModel, 'isOvertime' | 'clockMs'>,
+  thresholdMs = 20_000,
+  windowMs = 5_000
+): boolean {
+  return (
+    !model.isOvertime &&
+    model.clockMs > thresholdMs - windowMs &&
+    model.clockMs <= thresholdMs
+  );
 }
 
 /** "MM:SS" con redondeo hacia arriba: 165 000 → "02:45". */

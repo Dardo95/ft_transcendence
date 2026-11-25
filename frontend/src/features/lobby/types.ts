@@ -1,4 +1,7 @@
-import type { GameSettings as SharedGameSettings } from '@transcendence/shared';
+import {
+  GAME_DEFAULTS,
+  type GameSettings as SharedGameSettings,
+} from '@transcendence/shared';
 
 export type GameMode = 'practice' | 'private' | 'public';
 
@@ -11,6 +14,15 @@ export const DEFAULT_GAME_SETTINGS: GameSettings = {
   initialSpeed: 1,
   fuseTime: 3,
 };
+
+/**
+ * Nivel del lobby (1–3) → casillas/s que verá el jugador en
+ * partida. Mismo mapeo que `resolveGameSettings` del backend,
+ * para que el valor mostrado aquí coincida con el del HUD.
+ */
+export function speedTilesPerSecond(level: number): number {
+  return GAME_DEFAULTS.defaultSpeedTilesPerSecond + (level - 1);
+}
 
 export interface MatchmakingPayload {
   mode: GameMode;

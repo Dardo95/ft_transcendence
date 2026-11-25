@@ -18,7 +18,7 @@ export const demoPlayers: readonly GamePlayerSnapshot[] = [
   {
     id: 'eduardo',
     displayName: 'Eduardo',
-    position: { x: 19.5, y: 1.5 },
+    position: { x: 15.5, y: 1.5 },
     ...DEFAULT_STATS,
   },
   {
@@ -30,7 +30,7 @@ export const demoPlayers: readonly GamePlayerSnapshot[] = [
   {
     id: 'raul',
     displayName: 'Raúl',
-    position: { x: 19.5, y: 8.5 },
+    position: { x: 15.5, y: 9.5 },
     ...DEFAULT_STATS,
   },
 ];
