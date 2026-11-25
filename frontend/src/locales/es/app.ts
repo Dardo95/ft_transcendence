@@ -92,7 +92,7 @@ export const appEs = {
     fixedPublicLabel: 'Valores fijos en público',
     hostOnlyLabel: 'Solo anfitrión',
 
-    matchmakingPracticeText: 'Empezar Partida dePráctica',
+    matchmakingPracticeText: 'Empezar Práctica',
     matchmakingPrivateHostText: 'Empezar Partida Privada',
     matchmakingPrivateGuestText: 'Esperando al anfitrión...',
     matchmakingPublicText: 'Buscar jugadores para empezar partida',
@@ -321,6 +321,9 @@ export const appEs = {
     remaining: 'Restantes',
     alive: 'En pie',
     down: 'Fuera',
+    finalSeconds: '¡Últimos 20 segundos!',
+    suddenDeath: '¡Muerte súbita!',
+    suddenDeathSub: 'Los muros se cierran',
   },
 
   topbar: {

@@ -1,9 +1,18 @@
-import type { Position } from '@transcendence/shared';
+import {
+  createOvertimeSpiral,
+  overlapsTile,
+  pickOvertimeCorner,
+  type Position,
+} from '@transcendence/shared';
 
 import { GAME_DEFAULTS } from '../config/game-defaults.js';
-import { overlapsTile } from './collision-geometry.js';
 import { getTerrainAt } from './game-board.js';
 import type { GameSession, OvertimeState } from './game-state.js';
+
+// La lógica pura vive en shared (fuente única con la demo):
+// se re-exporta aquí para no romper los imports existentes.
+export { createOvertimeSpiral } from '@transcendence/shared';
+export type { OvertimeStartCorner } from '@transcendence/shared';
 
 const STOPPED_MOVEMENT = {
   up: false,
@@ -11,16 +20,6 @@ const STOPPED_MOVEMENT = {
   left: false,
   right: false,
 } as const;
-
-export type OvertimeStartCorner =
-  'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
-
-const OVERTIME_START_CORNERS: OvertimeStartCorner[] = [
-  'top-left',
-  'top-right',
-  'bottom-right',
-  'bottom-left',
-];
 
 export interface OvertimeUpdateResult {
   /** True only on the tick that changes RUNNING to OVERTIME. */
@@ -35,99 +34,6 @@ function emptyResult(started = false): OvertimeUpdateResult {
   return { started, closedTiles: [], killedPlayerIds: [] };
 }
 
-function getRing(
-  left: number,
-  right: number,
-  top: number,
-  bottom: number
-): Position[] {
-  const ring: Position[] = [];
-
-  for (let x = left; x <= right; x++) {
-    ring.push({ x, y: top });
-  }
-
-  for (let y = top + 1; y <= bottom; y++) {
-    ring.push({ x: right, y });
-  }
-
-  if (top < bottom) {
-    for (let x = right - 1; x >= left; x--) {
-      ring.push({ x, y: bottom });
-    }
-  }
-
-  if (left < right) {
-    for (let y = bottom - 1; y > top; y--) {
-      ring.push({ x: left, y });
-    }
-  }
-
-  return ring;
-}
-
-/**
- * Returns the playable cells in a clockwise spiral, starting at the
- * requested inner corner and ending at the centre. The outer map border
- * is excluded because it is already indestructible.
- */
-export function createOvertimeSpiral(
-  width: number,
-  height: number,
-  startCorner: OvertimeStartCorner = 'top-left'
-): Position[] {
-  if (
-    !Number.isInteger(width) ||
-    !Number.isInteger(height) ||
-    width < 3 ||
-    height < 3
-  ) {
-    return [];
-  }
-
-  const positions: Position[] = [];
-  let left = 1;
-  let right = width - 2;
-  let top = 1;
-  let bottom = height - 2;
-
-  while (left <= right && top <= bottom) {
-    const ring = getRing(left, right, top, bottom);
-    const startPosition: Position = {
-      x: startCorner.endsWith('right') ? right : left,
-      y: startCorner.startsWith('bottom') ? bottom : top,
-    };
-    const startIndex = ring.findIndex(
-      (position) =>
-        position.x === startPosition.x && position.y === startPosition.y
-    );
-
-    const offset = Math.max(0, startIndex);
-    for (let index = 0; index < ring.length; index++) {
-      positions.push(ring[(offset + index) % ring.length]);
-    }
-
-    left++;
-    right--;
-    top++;
-    bottom--;
-  }
-
-  return positions;
-}
-
-function getSessionStartCorner(sessionId: string): OvertimeStartCorner {
-  // FNV-1a: orientación estable por partida, sin depender de Math.random.
-  let hash = 0x811c9dc5;
-
-  for (let index = 0; index < sessionId.length; index++) {
-    hash ^= sessionId.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193);
-  }
-
-  return OVERTIME_START_CORNERS[(hash >>> 0) % OVERTIME_START_CORNERS.length];
-}
-
 function createOvertimeState(
   session: GameSession,
   startedAtMs: number
@@ -135,7 +41,7 @@ function createOvertimeState(
   const tileOrder = createOvertimeSpiral(
     session.board.width,
     session.board.height,
-    getSessionStartCorner(session.id)
+    pickOvertimeCorner(session.id)
   )
     // Existing indestructible tiles already form part of the closing barrier.
     .filter(

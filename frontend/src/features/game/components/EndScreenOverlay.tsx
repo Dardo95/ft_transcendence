@@ -1,6 +1,10 @@
+import { CrownIcon, ScaleIcon, SkullIcon, type LucideIcon } from 'lucide-react';
+
 import { Button } from '../../../components/ui/button';
+import { UI } from '../../../components/layout/layoutStyles';
 import { useLanguage } from '../../../locales/useLanguage';
 import type { EndScreenState } from '../endScreen';
+import { HUD } from '../hud/hudStyles';
 
 interface EndScreenOverlayProps {
   state: Exclude<EndScreenState, 'playing'>;
@@ -33,11 +37,22 @@ export function EndScreenOverlay({
           ? t('app.endScreen.drawTitle')
           : t('app.endScreen.defeatTitle');
 
+  const ICONS: Record<Exclude<EndScreenState, 'playing'>, LucideIcon> = {
+    dead: SkullIcon,
+    victory: CrownIcon,
+    defeat: SkullIcon,
+    draw: ScaleIcon,
+  };
+  const Icon = ICONS[state];
+
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 bg-zinc-950/85">
-      <p className="text-center text-3xl font-black tracking-wide text-zinc-100">
-        {title}
-      </p>
+      <div className={HUD.surface.alert} role="status">
+        <div className="flex items-center gap-3">
+          <Icon className={HUD.icon.alert} aria-hidden="true" />
+          <p className={UI.text.pageTitle}>{title}</p>
+        </div>
+      </div>
 
       <div className="flex flex-wrap justify-center gap-3">
         <Button

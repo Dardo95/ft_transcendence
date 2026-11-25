@@ -128,15 +128,15 @@ describe('DemoPilot', () => {
   });
 
   it('burns a crate through the shared world', () => {
-    // Caja de testMap en (6,2): la bomba en (6,1) la alcanza.
-    const { pilot, world } = createPilot(6.5, 1.5);
+    // Caja de testMap en (5,2): la bomba en (5,1) la alcanza.
+    const { pilot, world } = createPilot(5.5, 1.5);
 
     pilot.placeBomb();
-    expect(world.map[2][6]).toBe(TileType.BLOCK);
+    expect(world.map[2][5]).toBe(TileType.BLOCK);
 
     pilot.update(FUSE_MS + 1, 16);
 
-    expect(world.map[2][6]).toBe(TileType.FLOOR);
+    expect(world.map[2][5]).toBe(TileType.FLOOR);
     expect(world.consumeMapChanged()).toBe(true);
   });
 

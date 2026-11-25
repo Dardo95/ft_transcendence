@@ -10,8 +10,14 @@ import { Button } from '../../../components/ui/button';
 import { EndScreenOverlay } from './EndScreenOverlay';
 import type { EndScreenState } from '../endScreen';
 import { GameSidebar } from '../hud/GameSidebar';
-import type { HudModel } from '../hud/hudModel';
+import {
+  showFinalSecondsAlert,
+  showSuddenDeathAlert,
+  type HudModel,
+} from '../hud/hudModel';
 import { GameTopBar } from '../hud/GameTopBar';
+import { FullscreenHud } from '../hud/FullscreenHud';
+import { MatchAlertBanner } from '../hud/MatchAlertBanner';
 import { UI } from '../../../components/layout/layoutStyles';
 
 /**
@@ -55,7 +61,10 @@ export function GameViewport({ demo = false }: GameViewportProps) {
   const navigate = useNavigate();
 
   const { gameIdRef, mapIdRef, debugEnabled, isSpectator } = useGameParams();
-  const { isFullscreen, toggleFullscreen } = useFullscreen(fullscreenRef);
+  // Opción fullscreen sobre el canvas: solo el viewport del
+  // juego entra en pantalla completa y el FullscreenHud es la
+  // única UI visible (el topbar y el sidebar quedan fuera).
+  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -120,7 +129,6 @@ export function GameViewport({ demo = false }: GameViewportProps) {
 
   return (
     <div
-      ref={fullscreenRef}
       className={
         isFullscreen
           ? UI.game.viewportFullscreenLayout
@@ -151,6 +159,7 @@ export function GameViewport({ demo = false }: GameViewportProps) {
             }
           />
         )}
+        {/* El contenedor define el tamaño del canvas: +64 px en modos de 70vh, espacio flexible en escritorio y pantalla completa al maximizar. */}
         <div
           ref={containerRef}
           className={`${UI.game.viewportFrame} ${
@@ -214,6 +223,22 @@ export function GameViewport({ demo = false }: GameViewportProps) {
           {debugEnabled && debugFps !== null && (
             <div className={UI.game.debugBadge}>FPS {debugFps}</div>
           )}
+          {/* Avisos de reloj: "¡Últimos 20 segundos!" solo los
+              primeros 5 s de la ventana (20→15 s restantes) y
+              muerte súbita los primeros 5 s de overtime.
+              Dentro del viewport para verse en modo ventana y
+              fullscreen; z-10 < EndScreenOverlay (z-20). */}
+          {hudModel && showFinalSecondsAlert(hudModel) && (
+            <MatchAlertBanner kind="finalSeconds" />
+          )}
+          {hudModel && showSuddenDeathAlert(hudModel) && (
+            <MatchAlertBanner kind="suddenDeath" />
+          )}
+          {/* HUD superpuesto solo en pantalla completa: el
+              topbar y el sidebar quedan fuera del elemento
+              fullscreen, así que este overlay es la única UI.
+              z-10 < EndScreenOverlay (z-20); sin eventos. */}
+          {isFullscreen && hudModel && <FullscreenHud model={hudModel} />}
         </div>
       </div>
 

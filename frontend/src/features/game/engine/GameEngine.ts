@@ -24,6 +24,7 @@ import { nextHudGate, type HudGateState } from '../hud/hudGate';
 import { buildHudModel, type HudModel } from '../hud/hudModel';
 import { DemoPilot } from '../input/demoPilot';
 import { DemoWorld } from '../demo/demoWorld';
+import { DemoOvertime } from '../demo/demoOvertime';
 import {
   initialBotBrainState,
   isMoving,
@@ -145,6 +146,8 @@ export class GameEngine {
   private readonly bots: DemoBot[];
   /** Mundo vivo de la demo: mapa (cajas quemadas) y power-ups. */
   private readonly demoWorld: DemoWorld;
+  /** Muerte súbita de la demo: cierra muros como el backend. */
+  private readonly demoOvertime: DemoOvertime;
 
   // Estado del modo servidor: el último snapshot recibido y
   // el último ya aplicado a la escena (20 Hz, por identidad).
@@ -216,6 +219,7 @@ export class GameEngine {
     // los bots y la escena.
     this.demoWorld = new DemoWorld(testMap);
     this.activeMap = this.demoWorld.map;
+    this.demoOvertime = new DemoOvertime(this.demoWorld, this.mapIdRef.current);
 
     this.pilot = new DemoPilot(this.demoWorld, this.players, LOCAL_PLAYER_ID);
 
@@ -717,6 +721,15 @@ export class GameEngine {
         ]);
       }
 
+      // Muerte súbita: a los 180 s cierra muros en espiral
+      // igual que `overtime-system` del backend; mata a quien
+      // pise una casilla recién cerrada.
+      const wallKills = this.demoOvertime.update(scene.timeMs, this.players);
+
+      if (wallKills.length > 0) {
+        scene.setPlayers(this.players);
+      }
+
       // Cajas destruidas y power-ups: el mundo se actualiza
       // dentro de los updates de los pilotos (al detonar) y
       // aquí se aplican sus cambios a la escena.
@@ -745,7 +758,7 @@ export class GameEngine {
       sceneBombs = pilotBombs;
       scenePlayers = this.players;
       elapsedMs = scene.timeMs;
-      isOvertime = false;
+      isOvertime = this.demoOvertime.isOvertime;
       hudLocalId = LOCAL_PLAYER_ID;
       nextEndScreen = deriveDemoEndScreen(this.players, LOCAL_PLAYER_ID);
     }

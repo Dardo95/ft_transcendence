@@ -2,7 +2,7 @@ import { useLanguage } from '@/locales/useLanguage';
 import { Card } from '@/components/ui/card';
 import { UI } from '@/components/layout/layoutStyles';
 
-import type { GameSettings } from '../types';
+import { speedTilesPerSecond, type GameSettings } from '../types';
 
 interface Props {
   settings: GameSettings;
@@ -90,7 +90,7 @@ export function GameSettingsCard({
 
         <SettingRow
           label={t('app.lobby.initialSpeedLabel') || 'Base speed'}
-          value={String(settings.initialSpeed)}
+          value={String(speedTilesPerSecond(settings.initialSpeed))}
           min={1}
           max={3}
           current={settings.initialSpeed}
