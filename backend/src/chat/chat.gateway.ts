@@ -128,10 +128,6 @@ export class ChatGateway
       this.server
         .to(`lobby:${result.lobby.id}`)
         .emit('lobby:updated', result.lobby);
-
-      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
-        username: user.username,
-      });
     }, PRESENCE_DISCONNECT_GRACE_MS);
 
     this.pendingDisconnects.set(user.id, timeout);
@@ -416,11 +412,11 @@ export class ChatGateway
       await client.leave(`lobby:${previousLobby.id}`);
     }
 
-    // Notificar salida del lobby
+        // Notificar salida del lobby
     if (result?.lobby) {
-      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
-        username: user.username,
-      });
+      // Tell the leaving client first, so its store shows the notice
+      // before lobby:state hands it its new solo lobby.
+      client.emit('lobby:left', { lobbyId: result.lobbyId });
 
       // Actualizamos a los antiguos compañeros.
       this.server
