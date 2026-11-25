@@ -413,7 +413,7 @@ export class ChatGateway
       await client.leave(`lobby:${previousLobby.id}`);
     }
 
-        // Notificar salida del lobby
+    // Notificar salida del lobby
     if (result?.lobby) {
       // Tell the leaving client first, so its store shows the notice
       // before lobby:state hands it its new solo lobby.
