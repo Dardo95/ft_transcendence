@@ -22,7 +22,7 @@ function resolveJwtSecret(): string {
     JwtModule.register({
       global: true,
       secret: resolveJwtSecret(),
-      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any },
+      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '24h') as any },
     }),
   ],
   controllers: [AuthController],
