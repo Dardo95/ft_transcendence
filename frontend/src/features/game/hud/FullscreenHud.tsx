@@ -55,7 +55,9 @@ function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
         </div>
 
         <span className="min-w-0 flex-1">
-          <span className={`${UI.game.playerName} ${alive ? '' : 'line-through'}`}>
+          <span
+            className={`${UI.game.playerName} ${alive ? '' : 'line-through'}`}
+          >
             {name}
           </span>
           {isLocal && (
