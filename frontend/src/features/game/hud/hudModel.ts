@@ -134,14 +134,21 @@ export function showSuddenDeathAlert(
 }
 
 /**
- * Cuenta atrás de los últimos veinte segundos del tiempo regular.
- * Solo antes del overtime y mientras quede algo de tiempo.
+ * Cuenta atrás de los últimos veinte segundos del tiempo
+ * regular: el aviso aparece al abrirse la ventana de 20 s y
+ * solo dura 5 s (se oculta al quedar menos de 15). Solo
+ * antes del overtime.
  */
 export function showFinalSecondsAlert(
   model: Pick<HudModel, 'isOvertime' | 'clockMs'>,
-  thresholdMs = 20_000
+  thresholdMs = 20_000,
+  windowMs = 5_000
 ): boolean {
-  return !model.isOvertime && model.clockMs > 0 && model.clockMs <= thresholdMs;
+  return (
+    !model.isOvertime &&
+    model.clockMs > thresholdMs - windowMs &&
+    model.clockMs <= thresholdMs
+  );
 }
 
 /** "MM:SS" con redondeo hacia arriba: 165 000 → "02:45". */

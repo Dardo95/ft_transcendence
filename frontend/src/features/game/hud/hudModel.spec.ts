@@ -287,12 +287,20 @@ describe('showFinalSecondsAlert', () => {
     expect(showFinalSecondsAlert(model)).toBe(false);
   });
 
-  it('is visible during the last twenty seconds', () => {
-    const boundary = buildHudModel(PLAYERS, [], 'bren', 160_000);
-    const lastSecond = buildHudModel(PLAYERS, [], 'bren', 179_000);
+  it('is visible from the twenty second mark for five seconds', () => {
+    const opening = buildHudModel(PLAYERS, [], 'bren', 160_000);
+    const fourLeft = buildHudModel(PLAYERS, [], 'bren', 176_000);
 
-    expect(showFinalSecondsAlert(boundary)).toBe(true);
-    expect(showFinalSecondsAlert(lastSecond)).toBe(true);
+    expect(showFinalSecondsAlert(opening)).toBe(true);
+    expect(showFinalSecondsAlert(fourLeft)).toBe(true);
+  });
+
+  it('hides after its five second window', () => {
+    const windowClosed = buildHudModel(PLAYERS, [], 'bren', 175_000);
+    const oneLeft = buildHudModel(PLAYERS, [], 'bren', 179_000);
+
+    expect(showFinalSecondsAlert(windowClosed)).toBe(false);
+    expect(showFinalSecondsAlert(oneLeft)).toBe(false);
   });
 
   it('hides at zero and during overtime', () => {

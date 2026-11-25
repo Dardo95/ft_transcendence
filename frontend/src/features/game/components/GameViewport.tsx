@@ -222,8 +222,9 @@ export function GameViewport({ demo = false }: GameViewportProps) {
           {debugEnabled && debugFps !== null && (
             <div className={UI.game.debugBadge}>FPS {debugFps}</div>
           )}
-          {/* Avisos de reloj: cuenta atrás de los últimos 20 s
-              y muerte súbita los primeros 5 s de overtime.
+          {/* Avisos de reloj: "¡Últimos 20 segundos!" solo los
+              primeros 5 s de la ventana (20→15 s restantes) y
+              muerte súbita los primeros 5 s de overtime.
               Dentro del viewport para verse en modo ventana y
               fullscreen; z-10 < EndScreenOverlay (z-20). */}
           {hudModel && showFinalSecondsAlert(hudModel) && (
