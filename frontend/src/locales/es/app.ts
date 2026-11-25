@@ -108,6 +108,31 @@ export const appEs = {
     // Error texts
     errorNotConnected: 'No estás conectado al servidor',
     errorEnterUsername: 'Introduce un nombre de usuario',
+    errorLobbyOperationFailed:
+      'No se pudo completar la acción del lobby. Inténtalo de nuevo.',
+    dismissNotification: 'Descartar notificación',
+    retry: 'Reintentar',
+    lobbyErrorUsernameRequired:
+      'Introduce un nombre de usuario para enviar la invitación.',
+    lobbyErrorUserNotFound: 'No hemos encontrado a ese jugador.',
+    lobbyErrorNotFriends:
+      'Solo puedes invitar a jugadores de tu lista de amigos.',
+    lobbyErrorOnlyHostCanInvite:
+      'Solo el anfitrión del lobby puede invitar jugadores.',
+    lobbyErrorCannotInviteSelf: 'No puedes invitarte a ti mismo.',
+    lobbyErrorInviteeInGroup: 'Ese jugador ya está en otro lobby.',
+    lobbyErrorLobbyFull: 'Este lobby está lleno.',
+    lobbyErrorInvitationExists: 'Ya has invitado a ese jugador.',
+    lobbyErrorInvitationNotFound: 'Esa invitación ya no está disponible.',
+    lobbyErrorLobbyGone: 'Este lobby ya no existe. Hemos actualizado tu lobby.',
+    lobbyErrorNotInLobby: 'Ahora mismo no estás en un lobby.',
+    lobbyErrorAlreadyInLobby: 'Ya estás en un lobby.',
+    lobbyErrorInvitationIdRequired:
+      'A la invitación le falta su identificador.',
+    lobbyErrorMessageLength:
+      'Los mensajes deben tener entre 1 y 500 caracteres.',
+    lobbyErrorGeneric:
+      'No se pudo completar la acción del lobby. Inténtalo de nuevo.',
 
     // Info texts
     searchInfoText:
@@ -121,6 +146,19 @@ export const appEs = {
     matchmakingFailed: 'No se pudo iniciar la partida. Inténtalo de nuevo.',
     matchmakingActiveGame:
       'Ya tienes una partida en curso. Termínala antes de empezar otra.',
+    matchmakingPrivatePlayers:
+      'Una partida privada necesita entre 2 y 4 jugadores.',
+    matchmakingDifferentMap:
+      'Tu lobby ya está buscando en otro mapa. Cancela esa búsqueda antes de elegir otro.',
+    matchmakingNotInLobby:
+      'Ya no estás en un lobby. Vuelve a unirte a un grupo e inténtalo de nuevo.',
+    matchmakingHostOnly:
+      'Solo el anfitrión del lobby puede iniciar una partida privada.',
+    matchmakingTimeout:
+      'La partida está tardando demasiado en abrirse. Inténtalo de nuevo.',
+    connectingToMatch: 'Conectando a la partida...',
+    connectingToMatchHint: 'Espera mientras se abre la arena.',
+    connectingMatchEyebrow: 'PARTIDA LISTA',
     activeMatchNotice:
       'Ya tienes una partida en curso. Vuelve a ella para seguir jugando.',
     returnToActiveMatch: 'Ir a partida en curso',

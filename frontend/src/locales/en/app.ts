@@ -106,6 +106,28 @@ export const appEn = {
     // Error texts
     errorNotConnected: 'You are not connected to the server',
     errorEnterUsername: 'Enter a username',
+    errorLobbyOperationFailed:
+      'The lobby action could not be completed. Please try again.',
+    dismissNotification: 'Dismiss notification',
+    retry: 'Retry',
+    lobbyErrorUsernameRequired: 'Enter a username to send an invitation.',
+    lobbyErrorUserNotFound: 'We could not find that player.',
+    lobbyErrorNotFriends: 'You can only invite players on your friends list.',
+    lobbyErrorOnlyHostCanInvite: 'Only the lobby host can invite players.',
+    lobbyErrorCannotInviteSelf: 'You cannot invite yourself.',
+    lobbyErrorInviteeInGroup: 'That player is already in another lobby.',
+    lobbyErrorLobbyFull: 'This lobby is full.',
+    lobbyErrorInvitationExists: 'You already invited that player.',
+    lobbyErrorInvitationNotFound: 'That invitation is no longer available.',
+    lobbyErrorLobbyGone:
+      'This lobby no longer exists. We refreshed your lobby.',
+    lobbyErrorNotInLobby: 'You are not in a lobby right now.',
+    lobbyErrorAlreadyInLobby: 'You are already in a lobby.',
+    lobbyErrorInvitationIdRequired: 'The invitation is missing its identifier.',
+    lobbyErrorMessageLength:
+      'Messages must contain between 1 and 500 characters.',
+    lobbyErrorGeneric:
+      'The lobby action could not be completed. Please try again.',
 
     // Info texts
     searchInfoText:
@@ -118,6 +140,17 @@ export const appEn = {
     matchmakingFailed: 'The match could not be started. Try again.',
     matchmakingActiveGame:
       'You already have a match in progress. Finish it before starting another one.',
+    matchmakingPrivatePlayers: 'A private match needs between 2 and 4 players.',
+    matchmakingDifferentMap:
+      'Your lobby is already searching on another map. Cancel that search before choosing a new one.',
+    matchmakingNotInLobby:
+      'You are no longer in a lobby. Rejoin a group and try again.',
+    matchmakingHostOnly: 'Only the lobby host can start a private match.',
+    matchmakingTimeout:
+      'The match is taking too long to open. Please try again.',
+    connectingToMatch: 'Connecting to match...',
+    connectingToMatchHint: 'Hold on while the arena opens.',
+    connectingMatchEyebrow: 'MATCH READY',
     activeMatchNotice:
       'You already have a match in progress. Return to it to keep playing.',
     returnToActiveMatch: 'Return to active match',

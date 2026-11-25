@@ -35,7 +35,6 @@ interface GameViewportProps {
 
 export function GameViewport({ demo = false }: GameViewportProps) {
   const { t } = useLanguage();
-  const fullscreenRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
   const [hudModel, setHudModel] = useState<HudModel | null>(null);

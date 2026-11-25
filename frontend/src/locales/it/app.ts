@@ -107,6 +107,30 @@ export const appIt = {
     // Error texts
     errorNotConnected: 'Non sei connesso al server',
     errorEnterUsername: 'Inserisci un nome utente',
+    errorLobbyOperationFailed:
+      "Impossibile completare l'azione del lobby. Riprova.",
+    dismissNotification: 'Ignora notifica',
+    retry: 'Riprova',
+    lobbyErrorUsernameRequired:
+      "Inserisci un nome utente per inviare l'invito.",
+    lobbyErrorUserNotFound: 'Non abbiamo trovato quel giocatore.',
+    lobbyErrorNotFriends:
+      'Puoi invitare solo i giocatori della tua lista amici.',
+    lobbyErrorOnlyHostCanInvite:
+      "Solo l'host del lobby può invitare i giocatori.",
+    lobbyErrorCannotInviteSelf: 'Non puoi invitare te stesso.',
+    lobbyErrorInviteeInGroup: 'Quel giocatore è già in un altro lobby.',
+    lobbyErrorLobbyFull: 'Questo lobby è pieno.',
+    lobbyErrorInvitationExists: 'Hai già invitato quel giocatore.',
+    lobbyErrorInvitationNotFound: 'Quel invito non è più disponibile.',
+    lobbyErrorLobbyGone:
+      'Questo lobby non esiste più. Abbiamo aggiornato il tuo lobby.',
+    lobbyErrorNotInLobby: 'Al momento non sei in un lobby.',
+    lobbyErrorAlreadyInLobby: 'Sei già in un lobby.',
+    lobbyErrorInvitationIdRequired: "All'invito manca il suo identificatore.",
+    lobbyErrorMessageLength:
+      'I messaggi devono contenere tra 1 e 500 caratteri.',
+    lobbyErrorGeneric: "Impossibile completare l'azione del lobby. Riprova.",
 
     // Info texts
     searchInfoText:
@@ -120,6 +144,19 @@ export const appIt = {
     matchmakingFailed: 'Impossibile avviare la partita. Riprova.',
     matchmakingActiveGame:
       'Hai già una partita in corso. Falla terminare prima di iniziarne una nuova.',
+    matchmakingPrivatePlayers:
+      'Una partita privata richiede tra 2 e 4 giocatori.',
+    matchmakingDifferentMap:
+      'Il tuo lobby sta già cercando su un’altra mappa. Annulla quella ricerca prima di sceglierne un’altra.',
+    matchmakingNotInLobby:
+      'Non sei più in un lobby. Unisciti di nuovo a un gruppo e riprova.',
+    matchmakingHostOnly:
+      "Solo l'host del lobby può avviare una partita privata.",
+    matchmakingTimeout:
+      'La partita sta impiegando troppo tempo ad aprirsi. Riprova.',
+    connectingToMatch: 'Connessione alla partita...',
+    connectingToMatchHint: "Attendi mentre l'arena si apre.",
+    connectingMatchEyebrow: 'PARTITA PRONTA',
     activeMatchNotice:
       'Hai già una partita in corso. Torna a giocarla per continuare.',
     returnToActiveMatch: 'Torna alla partita in corso',
