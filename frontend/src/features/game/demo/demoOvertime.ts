@@ -18,15 +18,17 @@ import type { DemoWorld } from './demoWorld';
  * por intervalo, matando a quien pise una casilla ya cerrada.
  */
 export class DemoOvertime {
+  private readonly world: DemoWorld;
+  private readonly mapId: string;
   private tileOrder: Position[] = [];
   private nextTileIndex = 0;
   private startedAtMs: number | null = null;
   private active = false;
 
-  constructor(
-    private readonly world: DemoWorld,
-    private readonly mapId: string
-  ) {}
+  constructor(world: DemoWorld, mapId: string) {
+    this.world = world;
+    this.mapId = mapId;
+  }
 
   /** true una vez superada la duración de la partida. */
   get isOvertime(): boolean {

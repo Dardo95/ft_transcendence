@@ -219,10 +219,7 @@ export class GameEngine {
     // los bots y la escena.
     this.demoWorld = new DemoWorld(testMap);
     this.activeMap = this.demoWorld.map;
-    this.demoOvertime = new DemoOvertime(
-      this.demoWorld,
-      this.mapIdRef.current
-    );
+    this.demoOvertime = new DemoOvertime(this.demoWorld, this.mapIdRef.current);
 
     this.pilot = new DemoPilot(this.demoWorld, this.players, LOCAL_PLAYER_ID);
 

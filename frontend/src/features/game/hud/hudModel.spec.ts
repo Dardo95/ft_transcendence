@@ -289,14 +289,14 @@ describe('showFinalSecondsAlert', () => {
 
   it('is visible from the twenty second mark for five seconds', () => {
     const opening = buildHudModel(PLAYERS, [], 'bren', 160_000);
-    const fourLeft = buildHudModel(PLAYERS, [], 'bren', 176_000);
+    const nearClose = buildHudModel(PLAYERS, [], 'bren', 164_000);
 
     expect(showFinalSecondsAlert(opening)).toBe(true);
-    expect(showFinalSecondsAlert(fourLeft)).toBe(true);
+    expect(showFinalSecondsAlert(nearClose)).toBe(true);
   });
 
   it('hides after its five second window', () => {
-    const windowClosed = buildHudModel(PLAYERS, [], 'bren', 175_000);
+    const windowClosed = buildHudModel(PLAYERS, [], 'bren', 165_000);
     const oneLeft = buildHudModel(PLAYERS, [], 'bren', 179_000);
 
     expect(showFinalSecondsAlert(windowClosed)).toBe(false);

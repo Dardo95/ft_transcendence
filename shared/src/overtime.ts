@@ -1,4 +1,4 @@
-import type { Position, WorldPosition } from './game.js';
+import type { Position, WorldPosition } from "./game.js";
 
 /**
  * Lógica pura de la muerte súbita (overtime): espiral de cierre,
@@ -8,22 +8,16 @@ import type { Position, WorldPosition } from './game.js';
  * servidor.
  */
 
-export type OvertimeStartCorner =
-  'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
+export type OvertimeStartCorner = "top-left" | "top-right" | "bottom-right" | "bottom-left";
 
 const OVERTIME_START_CORNERS: OvertimeStartCorner[] = [
-  'top-left',
-  'top-right',
-  'bottom-right',
-  'bottom-left',
+  "top-left",
+  "top-right",
+  "bottom-right",
+  "bottom-left",
 ];
 
-function getRing(
-  left: number,
-  right: number,
-  top: number,
-  bottom: number
-): Position[] {
+function getRing(left: number, right: number, top: number, bottom: number): Position[] {
   const ring: Position[] = [];
 
   for (let x = left; x <= right; x++) {
@@ -57,14 +51,9 @@ function getRing(
 export function createOvertimeSpiral(
   width: number,
   height: number,
-  startCorner: OvertimeStartCorner = 'top-left'
+  startCorner: OvertimeStartCorner = "top-left",
 ): Position[] {
-  if (
-    !Number.isInteger(width) ||
-    !Number.isInteger(height) ||
-    width < 3 ||
-    height < 3
-  ) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 3 || height < 3) {
     return [];
   }
 
@@ -77,12 +66,11 @@ export function createOvertimeSpiral(
   while (left <= right && top <= bottom) {
     const ring = getRing(left, right, top, bottom);
     const startPosition: Position = {
-      x: startCorner.endsWith('right') ? right : left,
-      y: startCorner.startsWith('bottom') ? bottom : top,
+      x: startCorner.endsWith("right") ? right : left,
+      y: startCorner.startsWith("bottom") ? bottom : top,
     };
     const startIndex = ring.findIndex(
-      (position) =>
-        position.x === startPosition.x && position.y === startPosition.y
+      (position) => position.x === startPosition.x && position.y === startPosition.y,
     );
 
     const offset = Math.max(0, startIndex);
@@ -132,7 +120,5 @@ export function overlapsTile(position: WorldPosition, tile: Position): boolean {
   const top = position.y - PLAYER_HALF_SIZE + EPSILON;
   const bottom = position.y + PLAYER_HALF_SIZE - EPSILON;
 
-  return (
-    right > tile.x && left < tile.x + 1 && bottom > tile.y && top < tile.y + 1
-  );
+  return right > tile.x && left < tile.x + 1 && bottom > tile.y && top < tile.y + 1;
 }
