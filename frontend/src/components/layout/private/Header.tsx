@@ -13,9 +13,11 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOutIcon, MenuIcon, UserIcon } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/store/useAuthStore';
+import { useMatchGuardStore } from '../../../features/game/store/useMatchGuardStore';
 import { useLanguage } from '../../../locales/useLanguage';
 import { Button } from '@/components/ui/button';
 import { UI } from '@/components/layout/layoutStyles';
@@ -35,6 +37,8 @@ export function Header({ onOpenDrawer }: HeaderProps) {
   const { t } = useLanguage();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const requestGuard = useMatchGuardStore((state) => state.request);
+  const abandon = useMatchGuardStore((state) => state.abandon);
   const navigate = useNavigate();
 
   // Close dropdown when clicking outside
@@ -51,10 +55,39 @@ export function Header({ onOpenDrawer }: HeaderProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  async function handleLogout() {
-    setIsDropdownOpen(false);
+  async function doLogout() {
     await logout();
     navigate('/login', { replace: true });
+  }
+
+  function handleLogout() {
+    setIsDropdownOpen(false);
+    // el modal elige entre abandonar
+    // (derrota), cancelar o continuar (GAME-F-17)
+    requestGuard({
+      abandon,
+      proceed: () => {
+        void doLogout();
+      },
+    });
+  }
+
+  function guardLink(to: string) {
+    return (event: ReactMouseEvent<HTMLAnchorElement>): void => {
+      if (
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      setIsDropdownOpen(false);
+      requestGuard({ abandon, proceed: () => navigate(to) });
+    };
   }
 
   return (
@@ -77,7 +110,9 @@ export function Header({ onOpenDrawer }: HeaderProps) {
           src={logoUrl}
           alt={t('app.general.logoAlt') || 'ft_bomberman logo'}
           className={`absolute top-1/2 left-1/2 m-0 h-12 -translate-x-1/2 -translate-y-1/2 ${UI.chrome.logo}`}
-          onClick={() => navigate('/lobby')}
+          onClick={() =>
+            requestGuard({ abandon, proceed: () => navigate('/lobby') })
+          }
         />
       </div>
 
@@ -122,7 +157,7 @@ export function Header({ onOpenDrawer }: HeaderProps) {
               {/* Profile navigation link */}
               <Link
                 to="/profile"
-                onClick={() => setIsDropdownOpen(false)}
+                onClick={guardLink('/profile')}
                 className={UI.chrome.dropdownItem}
               >
                 <UserIcon className={UI.icon.sm} aria-hidden="true" />

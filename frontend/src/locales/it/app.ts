@@ -308,6 +308,14 @@ export const appIt = {
   game: {
     viewportLabel: 'Area di gioco',
     sidebarLabel: 'Pannello laterale della partita',
+    leaveConfirm: {
+      title: 'Uscire dalla partita?',
+      description:
+        'Se abbandoni, conta come sconfitta. Puoi anche lasciare la partita in background e tornare più tardi.',
+      abandon: 'Abbandona',
+      background: 'Lascia in background',
+      cancel: 'Annulla',
+    },
   },
   hud: {
     health: 'Vite',

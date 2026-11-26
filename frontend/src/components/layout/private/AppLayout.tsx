@@ -22,6 +22,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { SideDrawer } from './SideDrawer';
 import { SessionReplacedOverlay } from './SessionReplacedOverlay';
+import { LeaveMatchDialog } from '@/features/game/components/LeaveMatchDialog';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useChatStore } from '@/features/chat/store/useChatStore';
 import { useSocketStore } from '@/stores/useSocketStore';
@@ -50,6 +51,9 @@ export function AppLayout() {
     <div className={UI.chrome.appFrame}>
       {/* Overlay for session replacement */}
       <SessionReplacedOverlay />
+
+      {/* Confirmación de salida (GAME-F-17) */}
+      <LeaveMatchDialog />
 
       {/* Top navigation bar */}
       <Header onOpenDrawer={() => setIsDrawerOpen(true)} />

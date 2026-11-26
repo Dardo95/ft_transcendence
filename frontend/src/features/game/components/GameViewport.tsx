@@ -6,6 +6,7 @@ import { useFullscreen } from '../hooks/useFullscreen';
 import { useGameParams } from '../hooks/useGameParams';
 import { GameEngine, type ViewMode } from '../engine/GameEngine';
 import type { GameJoinFailure } from '../net/gameConnection';
+import { useMatchGuardStore } from '../store/useMatchGuardStore';
 import { Button } from '../../../components/ui/button';
 import { EndScreenOverlay } from './EndScreenOverlay';
 import type { EndScreenState } from '../endScreen';
@@ -73,7 +74,11 @@ export function GameViewport({ demo = false }: GameViewportProps) {
   // única UI visible (el topbar y el sidebar quedan fuera).
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
 
-  // Aviso breve del HUD.
+  // salida (GAME-F-17) y aviso breve del HUD.
+  const armGuard = useMatchGuardStore((state) => state.arm);
+  const disarmGuard = useMatchGuardStore((state) => state.disarm);
+  const requestGuard = useMatchGuardStore((state) => state.request);
+
   const triggerHudFlash = useCallback((flash: HudFlash) => {
     setHudFlash(flash);
 
@@ -95,6 +100,26 @@ export function GameViewport({ demo = false }: GameViewportProps) {
       }
     };
   }, []);
+
+  // salida (GAME-F-17)
+  const guardArmed =
+    !demo &&
+    !isSpectator &&
+    !joinFailure &&
+    viewMode === 'server' &&
+    endScreenState === 'playing';
+
+  useEffect(() => {
+    if (!guardArmed) {
+      return undefined;
+    }
+
+    armGuard(() => engineRef.current?.abandon());
+
+    return () => {
+      disarmGuard();
+    };
+  }, [guardArmed, armGuard, disarmGuard]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -184,8 +209,13 @@ export function GameViewport({ demo = false }: GameViewportProps) {
               demo
                 ? undefined
                 : () => {
-                    engineRef.current?.abandon();
-                    navigate('/lobby');
+                    // (GAME-F-17) salida del juego
+                    requestGuard({
+                      abandon: () => engineRef.current?.abandon(),
+                      proceed: () => {
+                        navigate('/lobby');
+                      },
+                    });
                   }
             }
           />
