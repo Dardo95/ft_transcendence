@@ -21,9 +21,12 @@ function createHost() {
 
 describe('HttpExceptionFilter', () => {
   const filter = new HttpExceptionFilter();
+  let errorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    errorSpy = vi
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -87,6 +90,6 @@ describe('HttpExceptionFilter', () => {
       error: 'Internal Server Error',
       message: 'Internal server error',
     });
-    expect(Logger.prototype.error).toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalled();
   });
 });

@@ -20,9 +20,12 @@ function createHost(pattern: string) {
 
 describe('WsExceptionsFilter', () => {
   const filter = new WsExceptionsFilter();
+  let errorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    errorSpy = vi
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -75,6 +78,6 @@ describe('WsExceptionsFilter', () => {
       event: 'game:input',
       message: 'Internal server error',
     });
-    expect(Logger.prototype.error).toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalled();
   });
 });

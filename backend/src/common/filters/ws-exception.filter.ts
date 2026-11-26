@@ -3,8 +3,9 @@ import {
   Catch,
   HttpException,
   Logger,
+  type WsExceptionFilter,
 } from '@nestjs/common';
-import { WsException, type WsExceptionFilter } from '@nestjs/websockets';
+import { WsException } from '@nestjs/websockets';
 import type { Socket } from 'socket.io';
 import {
   INTERNAL_ERROR_MESSAGE,
