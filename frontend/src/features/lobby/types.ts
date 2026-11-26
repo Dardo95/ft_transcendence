@@ -12,7 +12,7 @@ export type GameSettings = SharedGameSettings;
 export const DEFAULT_GAME_SETTINGS: GameSettings = {
   initialBombs: 1,
   initialSpeed: 1,
-  fuseTime: 3,
+  fuseTime: GAME_DEFAULTS.defaultFuseTime,
 };
 
 /**

@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { demoBombStateAt } from './demoBombs';
 
-// Ciclo = 2500 mecha + 500 explosión + 500 pausa = 3500 ms.
-const FUSE_MS = 2500;
-const EXPLOSION_END_MS = 3000;
-const CYCLE_MS = 3500;
+const FUSE_MS = 3000;
+const EXPLOSION_END_MS = 3500;
+const CYCLE_MS = 4000;
 
 describe('demoBombStateAt', () => {
   it('has a bomb and no explosion while the fuse burns', () => {

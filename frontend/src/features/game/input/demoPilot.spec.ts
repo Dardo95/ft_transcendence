@@ -107,7 +107,7 @@ describe('DemoPilot', () => {
       ownerId: 'bren',
       position: { x: 1, y: 1 },
       blastRadius: 2,
-      detonateAt: 2500,
+      detonateAt: FUSE_MS,
     });
   });
 
@@ -115,7 +115,7 @@ describe('DemoPilot', () => {
     const { pilot } = createPilot(1.5, 1.5);
 
     pilot.placeBomb();
-    pilot.update(2500, 16);
+    pilot.update(FUSE_MS, 16);
 
     expect(pilot.getBombs()).toHaveLength(0);
     expect(pilot.getExplosions()).toHaveLength(1);
@@ -123,7 +123,7 @@ describe('DemoPilot', () => {
     expect(pilot.getExplosions()[0].cells).toContainEqual({ x: 3, y: 1 });
     expect(pilot.getExplosions()[0].cells).not.toContainEqual({ x: 0, y: 1 });
 
-    pilot.update(3000, 16);
+    pilot.update(FUSE_MS + 500, 16);
     expect(pilot.getExplosions()).toHaveLength(0);
   });
 
@@ -152,7 +152,7 @@ describe('DemoPilot', () => {
     }
 
     pilot.setMovement({ up: false, down: false, left: false, right: false });
-    pilot.update(2500, 16);
+    pilot.update(FUSE_MS, 16);
 
     expect(players[0].alive).toBe(true);
 
@@ -189,7 +189,7 @@ describe('DemoPilot', () => {
     const { pilot, players } = createPilot(1.5, 1.5);
 
     pilot.placeBomb();
-    pilot.update(2500, 16);
+    pilot.update(FUSE_MS, 16);
 
     expect(players[0].alive).toBe(false);
     expect(pilot.consumeMoved()).toBe(true);
@@ -199,11 +199,11 @@ describe('DemoPilot', () => {
     const { pilot, players } = createPilot(1.5, 1.5);
 
     pilot.placeBomb();
-    pilot.update(2500, 16);
+    pilot.update(FUSE_MS, 16);
 
     const deadX = players[0].position.x;
     pilot.setMovement({ up: false, down: false, left: false, right: true });
-    pilot.update(2600, 16);
+    pilot.update(FUSE_MS + 100, 16);
     pilot.placeBomb();
 
     expect(players[0].position.x).toBe(deadX);

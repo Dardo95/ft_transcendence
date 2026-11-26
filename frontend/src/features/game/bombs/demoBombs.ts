@@ -3,8 +3,9 @@ import type {
   ExplosionSnapshot,
   Position,
 } from '@transcendence/shared';
+import { GAME_DEFAULTS } from '@transcendence/shared';
 
-export const FUSE_MS = 2500;
+export const FUSE_MS = GAME_DEFAULTS.defaultFuseTime * 1000;
 export const EXPLOSION_MS = 500;
 const PAUSE_MS = 500;
 const CYCLE_MS = FUSE_MS + EXPLOSION_MS + PAUSE_MS;

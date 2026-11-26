@@ -11,7 +11,7 @@ import { GAME_DEFAULTS } from './game-defaults.js';
 export const DEFAULT_GAME_SETTINGS: GameSettings = {
   initialBombs: GAME_DEFAULTS.defaultBombCapacity,
   initialSpeed: 1,
-  fuseTime: 3,
+  fuseTime: GAME_DEFAULTS.defaultFuseTime,
 };
 
 export const GAME_SETTINGS_LIMITS = {

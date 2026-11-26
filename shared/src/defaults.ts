@@ -2,7 +2,7 @@
  * Constantes de configuración de partida, fuente única para el
  * backend (motor) y el frontend (lobby, HUD). El backend las
  * re-exporta desde `backend/src/game/config/game-defaults.ts`
- * para no romper sus imports existentes.
+ * y el frontend desde `shared/src/defaults.ts`.
  */
 export const GAME_DEFAULTS = {
   // Simulación
@@ -18,6 +18,8 @@ export const GAME_DEFAULTS = {
 
   // Bombas y explosiones
   bombFuseMs: 2_500,
+  // Default del ajuste del lobby, expresado en segundos.
+  defaultFuseTime: 3,
   explosionDurationMs: 500,
 
   // Estadísticas iniciales del jugador
