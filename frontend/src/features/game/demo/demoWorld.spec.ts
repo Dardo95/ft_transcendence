@@ -171,6 +171,22 @@ describe('DemoWorld', () => {
     expect(bren.bombCapacity).toBe(2);
   });
 
+  it('collects when the hitbox touches a neighboring flame tile', () => {
+    const world = new DemoWorld(roomMap(), { random: () => 0 });
+    world.detonate(BOMB);
+    const bren = playerAt({ position: { x: 2.2, y: 2.5 } });
+    const neighboringFlame: ExplosionSnapshot = {
+      id: 'flame',
+      cells: [{ x: 1, y: 2 }],
+      expiresAt: 2_000,
+    };
+
+    world.collect([bren], [neighboringFlame], 1_000);
+
+    expect(world.getPowerUps()).toHaveLength(0);
+    expect(bren.bombCapacity).toBe(2);
+  });
+
   describe('bomb solidity', () => {
     // Bomba en (2,1), una casilla de piso de la sala.
     const PLACED = { id: 'bomb-1', position: { x: 2, y: 1 } };

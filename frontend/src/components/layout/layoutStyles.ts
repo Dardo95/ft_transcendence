@@ -300,6 +300,7 @@ const GAME_STATS_GRID = 'mt-2 grid grid-cols-3 gap-2';
 const GAME_SIDEBAR_GRID_STATS = 'mt-2 grid grid-cols-1 gap-2';
 const GAME_STAT_CARD = `${INNER_BOX} px-1 py-2 text-center`;
 const GAME_SIDEBAR_GRID_STAT_CARD = `${INNER_BOX} flex flex-col items-center gap-0.5 px-2 py-2 text-center`;
+const GAME_STAT_FLASH = 'ring-2 ring-primary';
 const GAME_STAT_VALUE =
   'font-mono text-lg leading-tight font-bold text-primary';
 const GAME_SIDEBAR_GRID_STAT_VALUE =
@@ -553,6 +554,7 @@ export const UI = {
     sidebarGridStats: GAME_SIDEBAR_GRID_STATS,
     statCard: GAME_STAT_CARD,
     sidebarGridStatCard: GAME_SIDEBAR_GRID_STAT_CARD,
+    statFlash: GAME_STAT_FLASH,
     statValue: GAME_STAT_VALUE,
     sidebarGridStatValue: GAME_SIDEBAR_GRID_STAT_VALUE,
     statLabel: GAME_STAT_LABEL,

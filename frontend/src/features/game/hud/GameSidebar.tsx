@@ -12,7 +12,7 @@ import { useLanguage } from '../../../locales/useLanguage';
 import { UI } from '../../../components/layout/layoutStyles';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { PLAYER_COLORS, type PlayerColor } from '../players/types';
-import type { HudModel } from './hudModel';
+import type { HudFlash, HudModel } from './hudModel';
 
 interface RosterEntry {
   id: string;
@@ -63,11 +63,13 @@ export function GameSidebar({
   demo = false,
   threeColumn = false,
   responsive = false,
+  flash = null,
 }: {
   model: HudModel;
   demo?: boolean;
   threeColumn?: boolean;
   responsive?: boolean;
+  flash?: HudFlash | null;
 }) {
   const { t } = useLanguage();
   const gridLayout = threeColumn;
@@ -293,12 +295,16 @@ export function GameSidebar({
         <div
           className={gridLayout ? UI.game.sidebarGridStats : UI.game.statsGrid}
         >
-          {stats.map(({ label, value }) => (
+          {stats.map(({ label, value }, index) => (
             <div
               key={label}
-              className={
+              className={`${
                 gridLayout ? UI.game.sidebarGridStatCard : UI.game.statCard
-              }
+              }${
+                flash !== null && (flash === 'statUp' || index === 0)
+                  ? ` ${UI.game.statFlash}`
+                  : ''
+              }`}
             >
               <p
                 className={

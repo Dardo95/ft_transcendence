@@ -12,6 +12,7 @@ import type { GameSnapshot } from '@transcendence/shared';
 import {
   GameConnection,
   JOIN_TIMEOUT_MS,
+  type GameInputRejected,
   type GameJoinFailure,
   type GameSocketLike,
 } from './gameConnection';
@@ -84,6 +85,7 @@ describe('GameConnection', () => {
   let onJoined: Mock<(snapshot: GameSnapshot) => void>;
   let onState: Mock<(snapshot: GameSnapshot) => void>;
   let onFailed: Mock<(reason: GameJoinFailure) => void>;
+  let onInputRejected: Mock<(rejected: GameInputRejected) => void>;
   let connection: GameConnection;
 
   beforeEach(() => {
@@ -92,11 +94,18 @@ describe('GameConnection', () => {
     onJoined = vi.fn<(snapshot: GameSnapshot) => void>();
     onState = vi.fn<(snapshot: GameSnapshot) => void>();
     onFailed = vi.fn<(reason: GameJoinFailure) => void>();
-    connection = new GameConnection(socket, { onJoined, onState, onFailed });
+    onInputRejected = vi.fn<(rejected: GameInputRejected) => void>();
+    connection = new GameConnection(socket, {
+      onJoined,
+      onState,
+      onFailed,
+      onInputRejected,
+    });
   });
 
   afterEach(() => {
     connection.destroy();
+    vi.restoreAllMocks();
     vi.useRealTimers();
   });
 
@@ -299,5 +308,67 @@ describe('GameConnection', () => {
     connection.destroy();
 
     expect(socket.emitted('game:input')).toHaveLength(0);
+  });
+
+  it('reports rejected inputs after a successful join', () => {
+    connection.join('abc');
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
+
+    socket.fire('game:inputRejected', {
+      action: 'place-bomb',
+      reason: 'bomb-capacity',
+    });
+
+    expect(onInputRejected).toHaveBeenCalledWith({
+      action: 'place-bomb',
+      reason: 'bomb-capacity',
+    });
+  });
+
+  it('ignores rejected inputs before the join settles', () => {
+    connection.join('abc');
+
+    socket.fire('game:inputRejected', {
+      action: 'place-bomb',
+      reason: 'bomb-capacity',
+    });
+
+    expect(onInputRejected).not.toHaveBeenCalled();
+  });
+
+  it('removes the rejected-input listener when destroyed', () => {
+    connection.join('abc');
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
+
+    connection.destroy();
+    socket.fire('game:inputRejected', {
+      action: 'place-bomb',
+      reason: 'bomb-capacity',
+    });
+
+    expect(onInputRejected).not.toHaveBeenCalled();
+  });
+
+  it('ignores malformed game:inputRejected payloads', () => {
+    connection.join('abc');
+    socket.fire('game:joined', {
+      gameId: 'abc',
+      snapshot: makeSnapshot('abc'),
+    });
+
+    socket.fire('game:inputRejected', { nope: true });
+    socket.fire('game:inputRejected', 'nope');
+    socket.fire('game:inputRejected', {
+      action: 'place-bomb',
+      reason: 42,
+    });
+
+    expect(onInputRejected).not.toHaveBeenCalled();
   });
 });

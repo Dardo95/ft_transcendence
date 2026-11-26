@@ -20,8 +20,12 @@ import {
   deriveEndScreen,
   type EndScreenState,
 } from '../endScreen';
-import { nextHudGate, type HudGateState } from '../hud/hudGate';
-import { buildHudModel, type HudModel } from '../hud/hudModel';
+import {
+  hasStatIncrease,
+  nextHudGate,
+  type HudGateState,
+} from '../hud/hudGate';
+import { buildHudModel, type HudFlash, type HudModel } from '../hud/hudModel';
 import { DemoPilot } from '../input/demoPilot';
 import { DemoWorld } from '../demo/demoWorld';
 import { DemoOvertime } from '../demo/demoOvertime';
@@ -82,6 +86,8 @@ export interface GameEngineCallbacks {
   onFps: (fps: number) => void;
   /** El join inicial falló: sin sala (`rejected`) o sin servidor (`timeout`). */
   onJoinFailed: (reason: GameJoinFailure) => void;
+  /** Aviso breve del HUD: power-up recogido o bomba rechazada. */
+  onHudFlash?: (flash: HudFlash) => void;
 }
 
 export interface GameEngineOptions {
@@ -280,6 +286,16 @@ export class GameEngine {
 
         this.connection.destroy();
         this.callbacks.onJoinFailed(reason);
+      },
+      onInputRejected: (rejected) => {
+        if (this.destroyed) {
+          return;
+        }
+
+        // Solo interesa la bomba para el aviso del HUD.
+        if (rejected.action === 'place-bomb') {
+          this.callbacks.onHudFlash?.('bombRejected');
+        }
       },
     });
 
@@ -804,7 +820,16 @@ export class GameEngine {
     });
 
     if (nextHud) {
+      // Aviso de power-up
+      const prevHud = this.lastHudGate;
+      const isFirstGate = prevHud.second === -1;
+      const statUp = !isFirstGate && hasStatIncrease(prevHud, nextHud);
+
       this.lastHudGate = nextHud;
+
+      if (statUp) {
+        this.callbacks.onHudFlash?.('statUp');
+      }
 
       this.callbacks.onHud(
         buildHudModel(scenePlayers, sceneBombs, hudLocalId, elapsedMs, {

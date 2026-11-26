@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../../../locales/useLanguage';
 
 import { useFullscreen } from '../hooks/useFullscreen';
@@ -13,12 +13,16 @@ import { GameSidebar } from '../hud/GameSidebar';
 import {
   showFinalSecondsAlert,
   showSuddenDeathAlert,
+  type HudFlash,
   type HudModel,
 } from '../hud/hudModel';
 import { GameTopBar } from '../hud/GameTopBar';
 import { FullscreenHud } from '../hud/FullscreenHud';
 import { MatchAlertBanner } from '../hud/MatchAlertBanner';
 import { UI } from '../../../components/layout/layoutStyles';
+
+// Duración del aviso breve del HUD (power-up / bomba rechazada).
+const HUD_FLASH_MS = 600;
 
 /**
  * Shell React de la partida: crea/destruye el `GameEngine`,
@@ -57,6 +61,10 @@ export function GameViewport({ demo = false }: GameViewportProps) {
   // Id de montaje del motor: incrementarlo lo recrea entero
   // (botón "Reiniciar" de la demo en Rules).
   const [runId, setRunId] = useState(0);
+  // Aviso breve del HUD (power-up recogido / bomba rechazada):
+  // se limpia solo para no dejar la clase de resalte pegada.
+  const [hudFlash, setHudFlash] = useState<HudFlash | null>(null);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
   const { gameIdRef, mapIdRef, debugEnabled, isSpectator } = useGameParams();
@@ -64,6 +72,29 @@ export function GameViewport({ demo = false }: GameViewportProps) {
   // juego entra en pantalla completa y el FullscreenHud es la
   // única UI visible (el topbar y el sidebar quedan fuera).
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
+
+  // Aviso breve del HUD.
+  const triggerHudFlash = useCallback((flash: HudFlash) => {
+    setHudFlash(flash);
+
+    if (flashTimerRef.current !== null) {
+      clearTimeout(flashTimerRef.current);
+    }
+
+    flashTimerRef.current = setTimeout(() => {
+      flashTimerRef.current = null;
+      setHudFlash(null);
+    }, HUD_FLASH_MS);
+  }, []);
+
+  // Limpia el temporizador del flash al desmontar.
+  useEffect(() => {
+    return () => {
+      if (flashTimerRef.current !== null) {
+        clearTimeout(flashTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -97,6 +128,7 @@ export function GameViewport({ demo = false }: GameViewportProps) {
         },
         onFps: setDebugFps,
         onJoinFailed: setJoinFailure,
+        onHudFlash: triggerHudFlash,
       },
     });
     engineRef.current = engine;
@@ -109,7 +141,7 @@ export function GameViewport({ demo = false }: GameViewportProps) {
     // Las refs del hook son estables (useRef): listarlas calma
     // a exhaustive-deps sin recrear el motor. `demo` cambia el
     // modo y `runId` lo recrea entero (reiniciar la demo).
-  }, [gameIdRef, mapIdRef, demo, runId]);
+  }, [gameIdRef, mapIdRef, demo, runId, triggerHudFlash]);
 
   useEffect(() => {
     engineRef.current?.setFitWholeMap(
@@ -237,7 +269,9 @@ export function GameViewport({ demo = false }: GameViewportProps) {
               topbar y el sidebar quedan fuera del elemento
               fullscreen, así que este overlay es la única UI.
               z-10 < EndScreenOverlay (z-20); sin eventos. */}
-          {isFullscreen && hudModel && <FullscreenHud model={hudModel} />}
+          {isFullscreen && hudModel && (
+            <FullscreenHud model={hudModel} flash={hudFlash} />
+          )}
         </div>
       </div>
 
@@ -257,6 +291,7 @@ export function GameViewport({ demo = false }: GameViewportProps) {
             demo={demo}
             threeColumn={!isFullscreen}
             responsive={!demo && !isFullscreen}
+            flash={hudFlash}
           />
         )}
       </aside>

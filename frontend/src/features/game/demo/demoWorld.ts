@@ -72,15 +72,23 @@ function bombOverlaps(
   );
 }
 
+/**
+ * true si la casilla del jugador (misma regla por casilla que
+ * `checkDeath` del piloto) está en una llama activa: vive ⇒
+ * recogible, aunque la hitbox de 0.3 roce la casilla vecina.
+ */
 function isInActiveFlame(
   position: { x: number; y: number },
   explosions: readonly ExplosionSnapshot[],
   nowMs: number
 ): boolean {
+  const tileX = Math.floor(position.x);
+  const tileY = Math.floor(position.y);
+
   return explosions.some(
     (explosion) =>
       nowMs < explosion.expiresAt &&
-      explosion.cells.some((cell) => overlapsTile(position, cell))
+      explosion.cells.some((cell) => cell.x === tileX && cell.y === tileY)
   );
 }
 

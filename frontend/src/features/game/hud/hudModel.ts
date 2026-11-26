@@ -6,6 +6,13 @@ import {
 
 export const MATCH_DURATION_MS = GAME_DEFAULTS.matchDurationMs;
 
+/**
+ * Aviso breve del HUD (se limpia solo tras `HUD_FLASH_MS`):
+ * `statUp` al recoger un power-up, `bombRejected` cuando el
+ * servidor rechaza una bomba por capacidad.
+ */
+export type HudFlash = 'statUp' | 'bombRejected';
+
 export interface LocalHud {
   id: string;
   name: string;

@@ -4,7 +4,12 @@ import defaultAvatar from '../../../assets/default.jpg';
 import { UI } from '../../../components/layout/layoutStyles';
 import { useLanguage } from '../../../locales/useLanguage';
 import type { PlayerColor } from '../players/types';
-import { formatMatchClock, type HudModel, type LocalHud } from './hudModel';
+import {
+  formatMatchClock,
+  type HudFlash,
+  type HudModel,
+  type LocalHud,
+} from './hudModel';
 import {
   assignRosterColors,
   PLAYER_COLOR_CLASSES,
@@ -19,6 +24,8 @@ interface PlayerPanelProps {
   color: PlayerColor;
   /** Stats bombas/fuego/velocidad: solo se muestran en el local. */
   local?: LocalHud;
+  /** Aviso breve del HUD (solo se pinta en el panel local). */
+  flash?: HudFlash | null;
 }
 
 /**
@@ -27,7 +34,14 @@ interface PlayerPanelProps {
  * de color, subrayado de color y nombre tachado si está fuera),
  * indicador de vida y, en el local, sus stats.
  */
-function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
+function PlayerPanel({
+  name,
+  alive,
+  isLocal,
+  color,
+  local,
+  flash = null,
+}: PlayerPanelProps) {
   const { t } = useLanguage();
 
   const stats = local
@@ -80,8 +94,15 @@ function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
 
       {local && (
         <div className={HUD.surface.statGridTight}>
-          {stats.map(({ label, value }) => (
-            <div key={label} className={HUD.surface.statBoxTight}>
+          {stats.map(({ label, value }, index) => (
+            <div
+              key={label}
+              className={`${HUD.surface.statBoxTight}${
+                flash !== null && (flash === 'statUp' || index === 0)
+                  ? ` ${UI.game.statFlash}`
+                  : ''
+              }`}
+            >
               <p className={HUD.text.valueSmall}>{value}</p>
               <p className={HUD.text.statLabelCompact}>{label}</p>
             </div>
@@ -101,7 +122,13 @@ function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
  * la izquierda, 2P/4P a la derecha). Capa sin eventos: no
  * interfiere con el juego y la salida es con Escape.
  */
-export function FullscreenHud({ model }: { model: HudModel }) {
+export function FullscreenHud({
+  model,
+  flash = null,
+}: {
+  model: HudModel;
+  flash?: HudFlash | null;
+}) {
   const { t } = useLanguage();
 
   const roster = assignRosterColors([
@@ -126,6 +153,7 @@ export function FullscreenHud({ model }: { model: HudModel }) {
       isLocal={entry.isLocal}
       color={entry.color}
       local={entry.isLocal ? model.local : undefined}
+      flash={entry.isLocal ? flash : null}
     />
   );
 

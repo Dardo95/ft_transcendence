@@ -21,6 +21,17 @@ export interface HudGateInputs {
   isOvertime: boolean;
 }
 
+export function hasStatIncrease(
+  previous: Pick<HudGateState, 'capacity' | 'blast' | 'speed'>,
+  next: Pick<HudGateState, 'capacity' | 'blast' | 'speed'>
+): boolean {
+  return (
+    next.capacity > previous.capacity ||
+    next.blast > previous.blast ||
+    next.speed > previous.speed
+  );
+}
+
 /**
  * Devuelve el próximo estado del gate si algo visible cambió,
  * o `null` si el HUD no necesita repintarse.

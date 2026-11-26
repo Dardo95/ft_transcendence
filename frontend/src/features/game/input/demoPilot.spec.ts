@@ -49,6 +49,16 @@ describe('DemoPilot', () => {
     expect(pilot.consumeMoved()).toBe(false);
   });
 
+  it('uses the player speed after a speed power-up', () => {
+    const { pilot, players } = createPilot(1.5, 1.5);
+
+    players[0].speed = 4.5;
+    pilot.setMovement({ up: false, down: false, left: false, right: true });
+    pilot.update(0, 50);
+
+    expect(players[0].position.x).toBeCloseTo(1.725, 5);
+  });
+
   it('does not move when no key is held', () => {
     const { pilot, players } = createPilot(1.5, 1.5);
 

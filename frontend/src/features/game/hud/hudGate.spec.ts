@@ -1,7 +1,7 @@
 import type { BombSnapshot, GamePlayerSnapshot } from '@transcendence/shared';
 import { describe, expect, it } from 'vitest';
 
-import { nextHudGate, type HudGateState } from './hudGate';
+import { hasStatIncrease, nextHudGate, type HudGateState } from './hudGate';
 
 function player(
   overrides: Partial<GamePlayerSnapshot> = {}
@@ -53,6 +53,16 @@ const INPUTS = {
 describe('nextHudGate', () => {
   it('returns null when nothing visible changed', () => {
     expect(nextHudGate(BASE, INPUTS)).toBeNull();
+  });
+
+  describe('hasStatIncrease', () => {
+    it('detects an increase to any local stat', () => {
+      expect(hasStatIncrease(BASE, { ...BASE, speed: 4.5 })).toBe(true);
+    });
+
+    it('does not treat a stat decrease as a power-up', () => {
+      expect(hasStatIncrease(BASE, { ...BASE, capacity: 0 })).toBe(false);
+    });
   });
 
   it('changes when the clock second advances', () => {

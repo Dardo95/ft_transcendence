@@ -19,10 +19,17 @@ export const JOIN_TIMEOUT_MS = 3000;
 
 export type GameJoinFailure = 'timeout' | 'rejected';
 
+/** Payload de `game:inputRejected`: qué input y por qué. */
+export interface GameInputRejected {
+  action: 'place-bomb' | 'movement' | string;
+  reason: string;
+}
+
 export interface GameConnectionCallbacks {
   onJoined: (snapshot: GameSnapshot) => void;
   onState: (snapshot: GameSnapshot) => void;
   onFailed: (reason: GameJoinFailure) => void;
+  onInputRejected?: (rejected: GameInputRejected) => void;
 }
 
 /**
@@ -231,6 +238,30 @@ export class GameConnection {
     this.fail('rejected');
   };
 
+  private readonly handleInputRejected = (payload: unknown): void => {
+    if (!this.joined) {
+      return;
+    }
+
+    if (typeof payload !== 'object' || payload === null) {
+      return;
+    }
+
+    const candidate = payload as Partial<GameInputRejected>;
+
+    if (
+      typeof candidate.action !== 'string' ||
+      typeof candidate.reason !== 'string'
+    ) {
+      return;
+    }
+
+    this.callbacks.onInputRejected?.({
+      action: candidate.action,
+      reason: candidate.reason,
+    });
+  };
+
   private readonly handleConnect = (): void => {
     // Solo re-entrar tras una desconexión real: si el socket
     // estaba caído al hacer `join()`, socket.io ya bufferizó y
@@ -249,6 +280,7 @@ export class GameConnection {
   private addListeners(): void {
     this.socket.on('game:joined', this.handleJoined);
     this.socket.on('game:state', this.handleState);
+    this.socket.on('game:inputRejected', this.handleInputRejected);
     this.socket.on('exception', this.handleException);
     this.socket.on('connect', this.handleConnect);
     this.socket.on('disconnect', this.handleDisconnect);
@@ -257,6 +289,7 @@ export class GameConnection {
   private removeListeners(): void {
     this.socket.off('game:joined', this.handleJoined);
     this.socket.off('game:state', this.handleState);
+    this.socket.off('game:inputRejected', this.handleInputRejected);
     this.socket.off('exception', this.handleException);
     this.socket.off('connect', this.handleConnect);
     this.socket.off('disconnect', this.handleDisconnect);

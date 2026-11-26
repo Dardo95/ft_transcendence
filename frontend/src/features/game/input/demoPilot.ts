@@ -9,10 +9,8 @@ import { EXPLOSION_MS, FUSE_MS } from '../bombs/demoBombs';
 import { DemoWorld } from '../demo/demoWorld';
 import { TileType } from '../map/types';
 
-// Igual que el stat `speed` del fixture (tiles por segundo): el
-// piloto lee `player.speed` en cada paso, que los power-ups
-// SPEED incrementan.
-const SPEED_TILES_PER_SECOND = 4;
+// El piloto lee `player.speed` en cada paso
+// los power-ups SPEED lo incrementan en el mundo de la demo.
 const PLAYER_HALF_SIZE = 0.4;
 // Tope de delta para que una pestaña suspendida no atraviese muros.
 const MAX_STEP_MS = 50;
@@ -189,7 +187,7 @@ export class DemoPilot {
       return;
     }
 
-    const distance = (SPEED_TILES_PER_SECOND * deltaMs) / 1000;
+    const distance = (localPlayer.speed * deltaMs) / 1000;
     const dx = directionX * distance;
     const dy = directionY * distance;
 
