@@ -1,4 +1,5 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
 import { randomUUID } from 'node:crypto';
 
@@ -225,7 +226,9 @@ export class GameManagerService implements OnModuleInit, OnModuleDestroy {
           currentPlayer.alive &&
           incomingIdentities.includes(currentIdentity)
         ) {
-          throw new Error(
+          // WsException: the client sees this message instead of
+          // a generic "Internal server error" (AUTH-B-14).
+          throw new WsException(
             `Player ${currentIdentity} already has an active game`
           );
         }
