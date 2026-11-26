@@ -230,6 +230,16 @@ export const appEs = {
     add: '+ Añadir',
     sent: 'Enviada',
     noResults: 'No se encontraron usuarios.',
+    retry: 'Reintentar',
+    dismissNotification: 'Descartar notificación',
+    loadingFriends: 'Cargando amigos...',
+    loadingBlockedUsers: 'Cargando usuarios bloqueados...',
+    noIncomingRequests: 'No hay solicitudes pendientes.',
+    errorFriendsLoad: 'No se pudieron cargar tus amigos. Inténtalo de nuevo.',
+    errorFriendsPartialLoad:
+      'No se pudieron cargar algunos datos de amigos. Inténtalo de nuevo.',
+    errorFriendsBlockedLoad:
+      'No se pudieron cargar los usuarios bloqueados. Inténtalo de nuevo.',
 
     // Info texts
     friendSearchError: 'Error buscando usuarios',

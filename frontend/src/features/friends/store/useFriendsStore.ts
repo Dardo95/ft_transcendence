@@ -21,7 +21,9 @@ interface FriendsState {
   incomingFriendRequests: FriendRequestItem[];
   blockedUsers: UserPublic[];
   isLoading: boolean;
+  isBlockedLoading: boolean;
   error: string | null;
+  blockedError: string | null;
 
   initListeners: () => () => void;
   loadFriendsData: () => Promise<void>;
@@ -32,14 +34,22 @@ interface FriendsState {
   deleteFriend: (username: string) => Promise<void>;
   blockUser: (username: string) => Promise<void>;
   unblockUser: (username: string) => Promise<void>;
+  clearError: () => void;
+  clearBlockedError: () => void;
 }
+
+const FRIENDS_LOAD_ERROR = 'errorFriendsLoad';
+const FRIENDS_PARTIAL_ERROR = 'errorFriendsPartialLoad';
+const BLOCKED_LOAD_ERROR = 'errorFriendsBlockedLoad';
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
   friends: [],
   incomingFriendRequests: [],
   blockedUsers: [],
   isLoading: false,
+  isBlockedLoading: false,
   error: null,
+  blockedError: null,
 
   initListeners: () => {
     const reload = () => get().loadFriendsData();
@@ -59,32 +69,60 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
   loadFriendsData: async () => {
     set({ isLoading: true, error: null });
-    try {
-      const [friendsList, requests, blocked] = await Promise.all([
-        fetchFriends().catch(() => []),
-        fetchIncomingRequests().catch(() => []),
-        getBlockedUsers().catch(() => []),
+
+    // Use allSettled so one failing endpoint does not discard the lists that
+    // did load. The UI can then keep partial data and surface a retry banner.
+    const [friendsResult, requestsResult, blockedResult] =
+      await Promise.allSettled([
+        fetchFriends(),
+        fetchIncomingRequests(),
+        getBlockedUsers(),
       ]);
-      set({
-        friends: friendsList,
-        incomingFriendRequests: requests,
-        blockedUsers: blocked.map((entry) => entry.user),
-        isLoading: false,
-      });
-    } catch (err: unknown) {
-      set({
-        error: err instanceof Error ? err.message : 'Could not load friends',
-        isLoading: false,
-      });
+
+    const next: Partial<FriendsState> = { isLoading: false };
+
+    if (friendsResult.status === 'fulfilled') {
+      next.friends = friendsResult.value;
     }
+
+    if (requestsResult.status === 'fulfilled') {
+      next.incomingFriendRequests = requestsResult.value;
+    }
+
+    if (blockedResult.status === 'fulfilled') {
+      next.blockedUsers = blockedResult.value.map((entry) => entry.user);
+      next.blockedError = null;
+    } else {
+      next.blockedError = BLOCKED_LOAD_ERROR;
+    }
+
+    const friendsFailed = friendsResult.status === 'rejected';
+    const requestsFailed = requestsResult.status === 'rejected';
+
+    if (friendsFailed && requestsFailed) {
+      next.error = FRIENDS_LOAD_ERROR;
+    } else if (friendsFailed || requestsFailed) {
+      next.error = FRIENDS_PARTIAL_ERROR;
+    }
+
+    set(next);
   },
 
   fetchBlockedUsers: async () => {
+    set({ isBlockedLoading: true, blockedError: null });
+
     try {
       const blocked = await getBlockedUsers();
-      set({ blockedUsers: blocked.map((entry) => entry.user) });
+      set({
+        blockedUsers: blocked.map((entry) => entry.user),
+        blockedError: null,
+      });
     } catch {
-      // Keep the current list when the endpoint is temporarily unavailable.
+      // Keep the current list when the endpoint is temporarily unavailable,
+      // but let the card render a recoverable retry action.
+      set({ blockedError: BLOCKED_LOAD_ERROR });
+    } finally {
+      set({ isBlockedLoading: false });
     }
   },
 
@@ -138,4 +176,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       blockedUsers: state.blockedUsers.filter((u) => u.username !== username),
     }));
   },
+
+  clearError: () => set({ error: null }),
+  clearBlockedError: () => set({ blockedError: null }),
 }));

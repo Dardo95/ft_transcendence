@@ -228,6 +228,16 @@ export const appIt = {
     add: '+ Aggiungi',
     sent: 'Inviata',
     noResults: 'Nessun risultato trovato.',
+    retry: 'Riprova',
+    dismissNotification: 'Chiudi notifica',
+    loadingFriends: 'Caricamento amici...',
+    loadingBlockedUsers: 'Caricamento utenti bloccati...',
+    noIncomingRequests: 'Nessuna richiesta in sospeso.',
+    errorFriendsLoad: 'Impossibile caricare gli amici. Riprova.',
+    errorFriendsPartialLoad:
+      'Impossibile caricare alcuni dati degli amici. Riprova.',
+    errorFriendsBlockedLoad:
+      'Impossibile caricare gli utenti bloccati. Riprova.',
 
     // Info texts
     friendSearchError: 'Errore nella ricerca di utenti',

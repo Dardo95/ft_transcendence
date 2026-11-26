@@ -5,6 +5,11 @@
 
 export const profileEs = {
   loading: 'Cargando perfil de usuario...',
+  loadErrorTitle: 'No se pudo cargar este perfil',
+  loadError: 'No se pudo conectar con el servidor. Inténtalo de nuevo.',
+  retry: 'Reintentar',
+  sessionMissingTitle: 'Sesión no disponible',
+  sessionMissing: 'Inicia sesión de nuevo para ver tu perfil.',
   myProfile: 'Mi Perfil',
   userNotFound: 'Usuario no encontrado',
   userNotFoundSubtitle:
@@ -88,4 +93,6 @@ export const profileEs = {
   unblockedSuccess: 'Usuario desbloqueado correctamente.',
   blockFailed: 'No se pudo bloquear al usuario. Inténtalo de nuevo.',
   unblockFailed: 'No se pudo desbloquear al usuario. Inténtalo de nuevo.',
+  addFriendFailed:
+    'No se pudo enviar la solicitud de amistad. Inténtalo de nuevo.',
 };

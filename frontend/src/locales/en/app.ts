@@ -223,6 +223,16 @@ export const appEn = {
     sent: 'Sent',
     add: '+ Add',
     noResults: 'No results found.',
+    retry: 'Retry',
+    dismissNotification: 'Dismiss notification',
+    loadingFriends: 'Loading friends...',
+    loadingBlockedUsers: 'Loading blocked users...',
+    noIncomingRequests: 'No pending requests.',
+    errorFriendsLoad: 'Could not load your friends. Please try again.',
+    errorFriendsPartialLoad:
+      'Some friend data could not be loaded. Please try again.',
+    errorFriendsBlockedLoad:
+      'Could not load your blocked users. Please try again.',
 
     // Info texts
     friendSearchError: 'Error searching users',
