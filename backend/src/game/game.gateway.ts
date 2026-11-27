@@ -2,6 +2,7 @@ import {
   Logger,
   type OnModuleDestroy,
   type OnModuleInit,
+  UseFilters,
 } from '@nestjs/common';
 import {
   ConnectedSocket,
@@ -23,6 +24,7 @@ import type { Namespace, Socket } from 'socket.io';
 
 import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
 import { ChatGateway } from '../chat/chat.gateway.js';
+import { WsExceptionsFilter } from '../common/filters/ws-exception.filter.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
 
 import { placeBomb } from './engine/bomb-system.js';
@@ -66,6 +68,7 @@ const DEFAULT_DISCONNECT_GRACE_MS = 30_000;
   namespace: '/game',
   ...websocketOptions,
 })
+@UseFilters(new WsExceptionsFilter())
 export class GameGateway
   implements OnGatewayInit, OnGatewayDisconnect, OnModuleInit, OnModuleDestroy
 {

@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import cookieParser from 'cookie-parser';
 import { PrismaService } from './database/prisma.service.js';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -26,6 +27,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     })
   );
+  // Same error shape for every endpoint: { statusCode, error, message }.
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(process.env.PORT || 3000);
 }
