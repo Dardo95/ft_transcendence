@@ -310,8 +310,6 @@ export const appEn = {
     sidebarLabel: 'Game sidebar',
     leaveConfirm: {
       title: 'Leave the match?',
-      description:
-        'If you abandon, it counts as a defeat. You can also leave the match in the background and come back later.',
       abandon: 'Abandon',
       background: 'Leave in background',
       cancel: 'Cancel',

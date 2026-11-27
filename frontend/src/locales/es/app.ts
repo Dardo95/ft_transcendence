@@ -311,10 +311,8 @@ export const appEs = {
     sidebarLabel: 'Panel lateral de la partida',
     leaveConfirm: {
       title: '¿Salir de la partida?',
-      description:
-        'Si abandonas, se contará como derrota. También puedes dejar la partida en segundo plano y volver más tarde.',
       abandon: 'Abandonar',
-      background: 'Dejar en segundo plano',
+      background: 'Ya vuelvo',
       cancel: 'Cancelar',
     },
   },

@@ -5,11 +5,11 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { UI } from '@/components/layout/layoutStyles';
 import { useLanguage } from '../../../locales/useLanguage';
 import { useMatchGuardStore } from '../store/useMatchGuardStore';
 
@@ -63,22 +63,18 @@ export function LeaveMatchDialog() {
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
+          <AlertDialogTitle className={`${UI.text.pageTitle} text-center`}>
             {t('app.game.leaveConfirm.title') || 'Leave the match?'}
           </AlertDialogTitle>
-          <AlertDialogDescription>
-            {t('app.game.leaveConfirm.description') ||
-              'If you abandon, it counts as a defeat. You can also leave the match in the background and come back later.'}
-          </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex items-center justify-end gap-2">
-          <AlertDialogCancel onClick={cancel}>
+        <AlertDialogFooter className="flex items-center justify-center gap-2 border-0 bg-transparent sm:justify-center">
+          <AlertDialogCancel variant="default" onClick={cancel}>
             {t('app.game.leaveConfirm.cancel') || 'Cancel'}
           </AlertDialogCancel>
           <AlertDialogAction onClick={confirmBackground}>
             {t('app.game.leaveConfirm.background') || 'Leave in background'}
           </AlertDialogAction>
-          <AlertDialogAction variant="destructive" onClick={confirmAbandon}>
+          <AlertDialogAction onClick={confirmAbandon}>
             {t('app.game.leaveConfirm.abandon') || 'Abandon'}
           </AlertDialogAction>
         </AlertDialogFooter>
