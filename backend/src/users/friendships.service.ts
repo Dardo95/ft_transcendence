@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import type { BlockedUser, UserPublic } from '@transcendence/shared';
 import { PrismaService } from '../database/prisma.service.js';
+import { Prisma } from '@prisma/client';
 import { GameManagerService } from '../game/sessions/game-manager.service.js';
 import { SocketRegistryService } from '../realtime/socket-registry.service.js';
 import { toUserPublic, userPublicSelect } from './user.mapper.js';
@@ -27,8 +28,12 @@ export class FriendshipsService {
     return user;
   }
 
-  private findBetween(a: number, b: number) {
-    return this.prisma.friendship.findFirst({
+  private findBetween(
+    a: number,
+    b: number,
+    db: Prisma.TransactionClient = this.prisma
+  ) {
+    return db.friendship.findFirst({
       where: {
         OR: [
           { requesterId: a, addresseeId: b },
@@ -52,16 +57,51 @@ export class FriendshipsService {
       return { outcome: 'self' as const };
     }
 
-    const existing = await this.findBetween(meId, other.id);
+    // Serializable: two requests between the same pair at the same time
+    // cannot both see "no row" and insert. The loser is retried once and
+    // then finds the other request.
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await this.prisma.$transaction(
+          (tx) => this.requestInTransaction(tx, meId, other.id),
+          { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+        );
+      } catch (error) {
+        const isSerializationFailure =
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2034';
+        if (attempt === 0 && isSerializationFailure) continue;
+        throw error;
+      }
+    }
+  }
+
+  private async requestInTransaction(
+    tx: Prisma.TransactionClient,
+    meId: number,
+    otherId: number
+  ) {
+    const existing = await this.findBetween(meId, otherId, tx);
+
     if (existing) {
       if (existing.status === 'BLOCKED') {
         return { outcome: 'blocked' as const };
       }
+
+      // The other user already asked me: accept it instead of a second row.
+      if (existing.status === 'PENDING' && existing.requesterId === otherId) {
+        const accepted = await tx.friendship.update({
+          where: { id: existing.id },
+          data: { status: 'ACCEPTED' },
+        });
+        return { outcome: 'accepted' as const, ...accepted };
+      }
+
       return { outcome: 'already_exists' as const, status: existing.status };
     }
 
-    const friendship = await this.prisma.friendship.create({
-      data: { requesterId: meId, addresseeId: other.id },
+    const friendship = await tx.friendship.create({
+      data: { requesterId: meId, addresseeId: otherId },
     });
 
     return { outcome: 'created' as const, ...friendship };

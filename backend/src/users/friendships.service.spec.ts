@@ -2,6 +2,7 @@ import type { PrismaService } from '../database/prisma.service.js';
 import type { GameManagerService } from '../game/sessions/game-manager.service.js';
 import type { SocketRegistryService } from '../realtime/socket-registry.service.js';
 import { FriendshipsService } from './friendships.service.js';
+import { Prisma } from '@prisma/client';
 
 const ME = {
   id: 1,
@@ -177,5 +178,98 @@ describe('FriendshipsService.listBlocked', () => {
     prisma.friendship.findMany.mockResolvedValue([]);
 
     await expect(service.listBlocked(ME.id)).resolves.toEqual([]);
+  });
+});
+
+describe('FriendshipsService.request', () => {
+  const OTHER = { id: 2, username: 'raul' };
+
+  function createRequestPrisma(existing: unknown) {
+    const tx = {
+      friendship: {
+        findFirst: vi.fn().mockResolvedValue(existing),
+        update: vi
+          .fn()
+          .mockImplementation(({ where, data }) =>
+            Promise.resolve({ ...(existing as object), id: where.id, ...data })
+          ),
+        create: vi
+          .fn()
+          .mockImplementation(({ data }) =>
+            Promise.resolve({ id: 99, status: 'PENDING', ...data })
+          ),
+      },
+    };
+    const prisma = {
+      user: { findUnique: vi.fn().mockResolvedValue(OTHER) },
+      $transaction: vi.fn((fn: (client: typeof tx) => unknown) => fn(tx)),
+    };
+    return { prisma, tx };
+  }
+
+  function createRequestService(prisma: unknown) {
+    return new FriendshipsService(
+      prisma as PrismaService,
+      {} as GameManagerService,
+      {} as SocketRegistryService
+    );
+  }
+
+  it('accepts a pending reverse request instead of creating a second row', async () => {
+    const { prisma, tx } = createRequestPrisma({
+      id: 7,
+      requesterId: OTHER.id,
+      addresseeId: ME.id,
+      status: 'PENDING',
+    });
+
+    const result = await createRequestService(prisma).request(
+      ME.id,
+      OTHER.username
+    );
+
+    expect(result).toMatchObject({
+      outcome: 'accepted',
+      id: 7,
+      status: 'ACCEPTED',
+    });
+    expect(tx.friendship.create).not.toHaveBeenCalled();
+  });
+
+  it('keeps already_exists when my own request is still pending', async () => {
+    const { prisma, tx } = createRequestPrisma({
+      id: 7,
+      requesterId: ME.id,
+      addresseeId: OTHER.id,
+      status: 'PENDING',
+    });
+
+    const result = await createRequestService(prisma).request(
+      ME.id,
+      OTHER.username
+    );
+
+    expect(result).toEqual({ outcome: 'already_exists', status: 'PENDING' });
+    expect(tx.friendship.update).not.toHaveBeenCalled();
+  });
+
+  it('retries once when the serializable transaction collides', async () => {
+    const { prisma } = createRequestPrisma(null);
+    const conflict = new Prisma.PrismaClientKnownRequestError('conflict', {
+      code: 'P2034',
+      clientVersion: 'test',
+    });
+    const realTransaction = prisma.$transaction.getMockImplementation()!;
+    prisma.$transaction
+      .mockRejectedValueOnce(conflict)
+      .mockImplementation(realTransaction);
+
+    const result = await createRequestService(prisma).request(
+      ME.id,
+      OTHER.username
+    );
+
+    expect(result).toMatchObject({ outcome: 'created' });
+    expect(prisma.$transaction).toHaveBeenCalledTimes(2);
   });
 });
