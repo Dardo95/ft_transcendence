@@ -10,6 +10,7 @@
 
 /* Superficies */
 const PANEL = 'rounded-lg border border-zinc-800 bg-zinc-900/90 shadow-lg';
+const PLAYER_CARD_BASE = `px-3 py-2 text-zinc-100 ${PANEL}`;
 const ROW = 'rounded-md border border-zinc-800 bg-zinc-950/70';
 
 /* Controles del topbar */
@@ -24,7 +25,9 @@ const VALUE = 'font-mono font-bold text-zinc-100 uppercase';
 export const HUD = {
   surface: {
     topbar: `shrink-0 px-4 py-3 text-zinc-100 ${PANEL}`,
-    playerCard: `w-56 px-3 py-2 text-zinc-100 ${PANEL}`,
+    playerCard: `w-56 ${PLAYER_CARD_BASE}`,
+    /** Fluid variant for grid layouts (spectator scoreboard). */
+    playerCardFluid: `w-full min-w-0 ${PLAYER_CARD_BASE}`,
     timerBox: `px-6 py-2 text-center ${PANEL}`,
     alert:
       'flex flex-col items-center rounded-xl bg-zinc-950/90 px-8 py-4 text-center shadow-xl',

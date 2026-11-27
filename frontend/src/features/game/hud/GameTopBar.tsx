@@ -40,22 +40,24 @@ export function GameTopBar({
   onLeave,
 }: GameTopBarProps) {
   const { t } = useLanguage();
-  const totalPlayers = 1 + model.rivals.length;
+  const totalPlayers = (model.local ? 1 : 0) + model.rivals.length;
 
   const stats: TopBarStat[] = [
     {
       icon: ClockIcon,
-      label: model.isOvertime ? t('app.topbar.overtime') : t('app.topbar.time'),
+      label: model.isOvertime
+        ? t('app.topbar.overtime') || 'Overtime'
+        : t('app.topbar.time') || 'Time',
       value: formatMatchClock(model),
     },
     {
       icon: UsersIcon,
-      label: t('app.topbar.survivors'),
+      label: t('app.topbar.survivors') || 'Survivors',
       value: `${model.playersRemaining}/${totalPlayers}`,
     },
     {
       icon: MapIcon,
-      label: t('app.topbar.map'),
+      label: t('app.topbar.map') || 'Map',
       value: model.mapId,
     },
   ];
@@ -64,7 +66,9 @@ export function GameTopBar({
     <header className={HUD.surface.topbar}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className={HUD.text.eyebrow}>{t('app.topbar.practiceMatch')}</p>
+          <p className={HUD.text.eyebrow}>
+            {t('app.topbar.practiceMatch') || 'Practice match'}
+          </p>
           <p className={HUD.text.meta}>
             {model.mapWidth} × {model.mapHeight} ·{' '}
             <span className={HUD.text.metaAccent}>{model.gameId}</span>
@@ -78,15 +82,15 @@ export function GameTopBar({
               variant="outline"
               size="sm"
               onClick={onLeave}
-              aria-label={t('app.topbar.leave')}
-              title={t('app.topbar.leave')}
+              aria-label={t('app.topbar.leave') || 'Leave'}
+              title={t('app.topbar.leave') || 'Leave'}
               className={HUD.button.base}
             >
               <LogOutIcon
                 className={HUD.icon.topbarAccent}
                 aria-hidden="true"
               />
-              <span>{t('app.topbar.leave')}</span>
+              <span>{t('app.topbar.leave') || 'Leave'}</span>
             </Button>
           )}
 

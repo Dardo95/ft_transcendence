@@ -214,6 +214,29 @@ describe('buildHudModel', () => {
     expect(model.mapId).toBe('MAP1');
     expect(model.gameId).toBe('demo');
   });
+
+  it('builds a neutral spectator model with null local and full player stats', () => {
+    const model = buildHudModel(PLAYERS, [bomb('bren')], null, 15_000, {
+      mapWidth: 13,
+      mapHeight: 11,
+      mapId: 'KITCHEN',
+      gameId: 'match-7',
+    });
+
+    expect(model.local).toBeNull();
+    expect(model.rivals).toHaveLength(4);
+    expect(model.players).toHaveLength(4);
+    expect(model.players[0]).toMatchObject({
+      id: 'bren',
+      availableBombs: 0,
+      blastRadius: 2,
+      speed: 4,
+    });
+    expect(model.mapWidth).toBe(13);
+    expect(model.mapHeight).toBe(11);
+    expect(model.mapId).toBe('KITCHEN');
+    expect(model.gameId).toBe('match-7');
+  });
 });
 
 describe('overtime clock', () => {

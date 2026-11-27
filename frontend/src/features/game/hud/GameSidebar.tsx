@@ -132,6 +132,10 @@ export function GameSidebar({
     };
   }, [avatarRequestKey]);
 
+  if (!model.local) {
+    return null;
+  }
+
   const totalPlayers = 1 + model.rivals.length;
 
   const roster: RosterEntry[] = [

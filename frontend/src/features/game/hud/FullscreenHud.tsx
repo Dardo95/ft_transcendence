@@ -12,13 +12,26 @@ import {
 } from './rosterColors';
 import { HUD } from './hudStyles';
 
-interface PlayerPanelProps {
+export interface PlayerPanelStat {
+  label: string;
+  value: string;
+}
+
+export interface PlayerPanelProps {
   name: string;
   alive: boolean;
-  isLocal: boolean;
+  isLocal?: boolean;
   color: PlayerColor;
   /** Stats bombas/fuego/velocidad: solo se muestran en el local. */
   local?: LocalHud;
+  /** Explicit stats override (used by the spectator scoreboard for all players). */
+  stats?: PlayerPanelStat[];
+  /** Interactive focus target (used by the spectator scoreboard). */
+  onClick?: () => void;
+  focused?: boolean;
+  ariaLabel?: string;
+  /** Stretch to fill grid cells instead of using the fixed fullscreen overlay width. */
+  fullWidth?: boolean;
 }
 
 /**
@@ -26,20 +39,45 @@ interface PlayerPanelProps {
  * los estilos del sidebar de partida (avatar redondo con borde
  * de color, subrayado de color y nombre tachado si está fuera),
  * indicador de vida y, en el local, sus stats.
+ *
+ * Also reused by the spectator scoreboard with explicit stats and
+ * click-to-focus support.
  */
-function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
+export function PlayerPanel({
+  name,
+  alive,
+  isLocal = false,
+  color,
+  local,
+  stats,
+  onClick,
+  focused = false,
+  ariaLabel,
+  fullWidth = false,
+}: PlayerPanelProps) {
   const { t } = useLanguage();
 
-  const stats = local
-    ? [
-        { label: t('app.sidebar.bombs'), value: String(local.availableBombs) },
-        { label: t('app.sidebar.blast'), value: String(local.blastRadius) },
-        { label: t('app.sidebar.speed'), value: local.speed.toFixed(1) },
-      ]
-    : [];
+  const statEntries =
+    stats ??
+    (local
+      ? [
+          {
+            label: t('app.sidebar.bombs') || 'Bombs',
+            value: String(local.availableBombs),
+          },
+          {
+            label: t('app.sidebar.blast') || 'Blast',
+            value: String(local.blastRadius),
+          },
+          {
+            label: t('app.sidebar.speed') || 'Speed',
+            value: local.speed.toFixed(1),
+          },
+        ]
+      : []);
 
-  return (
-    <div className={`${HUD.surface.playerCard} ${alive ? '' : 'opacity-60'}`}>
+  const content = (
+    <>
       <div
         className={`flex items-center gap-2.5 border-b-2 pb-2 ${PLAYER_COLOR_UNDERLINE_CLASSES[color]}`}
       >
@@ -68,19 +106,19 @@ function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
         {alive ? (
           <CircleIcon
             className="fill-success text-success-foreground h-3 w-3 shrink-0"
-            aria-label={t('app.hud.alive')}
+            aria-label={t('app.hud.alive') || 'Up'}
           />
         ) : (
           <CircleOffIcon
             className="text-muted-foreground h-3.5 w-3.5 shrink-0"
-            aria-label={t('app.hud.down')}
+            aria-label={t('app.hud.down') || 'Out'}
           />
         )}
       </div>
 
-      {local && (
+      {statEntries.length > 0 && (
         <div className={HUD.surface.statGridTight}>
-          {stats.map(({ label, value }) => (
+          {statEntries.map(({ label, value }) => (
             <div key={label} className={HUD.surface.statBoxTight}>
               <p className={HUD.text.valueSmall}>{value}</p>
               <p className={HUD.text.statLabelCompact}>{label}</p>
@@ -88,8 +126,31 @@ function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
           ))}
         </div>
       )}
-    </div>
+    </>
   );
+
+  const cardSurface = fullWidth
+    ? HUD.surface.playerCardFluid
+    : HUD.surface.playerCard;
+  const className = `${cardSurface} ${
+    alive ? '' : 'opacity-60'
+  } ${focused ? 'ring-primary ring-2' : ''}`;
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-pressed={focused}
+        aria-label={ariaLabel}
+        className={`${className} cursor-pointer text-left transition-transform hover:-translate-y-0.5`}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
 }
 
 /**
@@ -101,17 +162,42 @@ function PlayerPanel({ name, alive, isLocal, color, local }: PlayerPanelProps) {
  * la izquierda, 2P/4P a la derecha). Capa sin eventos: no
  * interfiere con el juego y la salida es con Escape.
  */
-export function FullscreenHud({ model }: { model: HudModel }) {
+export function FullscreenHud({
+  model,
+  showAllStats = false,
+}: {
+  model: HudModel;
+  /** Spectator fullscreen: display power-up stats on every player card. */
+  showAllStats?: boolean;
+}) {
   const { t } = useLanguage();
 
-  const roster = assignRosterColors([
-    { name: model.local.name, alive: model.local.alive, isLocal: true },
-    ...model.rivals.map((rival) => ({
-      name: rival.name,
-      alive: rival.alive,
-      isLocal: false,
-    })),
-  ]);
+  const roster = assignRosterColors(
+    showAllStats || !model.local
+      ? model.players.map((player) => ({
+          id: player.id,
+          name: player.name,
+          alive: player.alive,
+          isLocal: model.local?.id === player.id,
+          playerHud: player,
+        }))
+      : [
+          {
+            id: model.local.id,
+            name: model.local.name,
+            alive: model.local.alive,
+            isLocal: true,
+            playerHud: model.local,
+          },
+          ...model.rivals.map((rival) => ({
+            id: rival.id,
+            name: rival.name,
+            alive: rival.alive,
+            isLocal: false,
+            playerHud: undefined,
+          })),
+        ]
+  );
 
   // Como la referencia: 1P y 3P en el lateral izquierdo,
   // 2P y 4P en el derecho, ambos centrados en vertical.
@@ -120,12 +206,12 @@ export function FullscreenHud({ model }: { model: HudModel }) {
 
   const renderPanel = (entry: (typeof roster)[number]) => (
     <PlayerPanel
-      key={entry.name}
+      key={entry.id}
       name={entry.name}
       alive={entry.alive}
       isLocal={entry.isLocal}
       color={entry.color}
-      local={entry.isLocal ? model.local : undefined}
+      local={showAllStats || entry.isLocal ? entry.playerHud : undefined}
     />
   );
 

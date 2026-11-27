@@ -5,7 +5,7 @@ export interface HudGateState {
   second: number;
   ownBombs: number;
   aliveCount: number;
-  localId: string;
+  localId: string | null;
   localAlive: boolean;
   capacity: number;
   blast: number;
@@ -16,7 +16,7 @@ export interface HudGateState {
 export interface HudGateInputs {
   players: readonly GamePlayerSnapshot[];
   bombs: readonly BombSnapshot[];
-  localId: string;
+  localId: string | null;
   elapsedMs: number;
   isOvertime: boolean;
 }
@@ -48,7 +48,12 @@ export function nextHudGate(
       aliveCount++;
     }
 
-    if (player.id === localId) {
+    if (localId === null) {
+      // Spectator mode: aggregate all players so any stat change refreshes the HUD.
+      capacity += player.bombCapacity;
+      blast += player.blastRadius;
+      speed += player.speed;
+    } else if (player.id === localId) {
       localAlive = player.alive;
       capacity = player.bombCapacity;
       blast = player.blastRadius;
@@ -57,7 +62,7 @@ export function nextHudGate(
   }
 
   for (const bomb of bombs) {
-    if (bomb.ownerId === localId) {
+    if (localId === null || bomb.ownerId === localId) {
       ownBombs++;
     }
   }

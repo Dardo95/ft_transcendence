@@ -82,6 +82,11 @@ export interface GameEngineCallbacks {
   onFps: (fps: number) => void;
   /** El join inicial falló: sin sala (`rejected`) o sin servidor (`timeout`). */
   onJoinFailed: (reason: GameJoinFailure) => void;
+  /**
+   * Latest server snapshot (only when a new one arrives).
+   * The spectator view uses it for its neutral HUD.
+   */
+  onSnapshotUpdate?: (snapshot: GameSnapshot) => void;
 }
 
 export interface GameEngineOptions {
@@ -96,6 +101,11 @@ export interface GameEngineOptions {
    * true: partida real contra el backend.
    */
   server?: boolean;
+  /**
+   * Forces spectator mode (`?mode=spectator`). When omitted, the
+   * URL flag is read for backwards compatibility.
+   */
+  spectator?: boolean;
   callbacks: GameEngineCallbacks;
 }
 
@@ -200,6 +210,8 @@ export class GameEngine {
   private readonly viewport: CameraViewport = { width: 0, height: 0 };
   private readonly camera = { x: 0, y: 0 };
   private fitWholeMap = false;
+  // Spectator: player followed by the camera (null = full arena).
+  private focusedPlayerId: string | null = null;
 
   constructor(options: GameEngineOptions) {
     this.container = options.container;
@@ -245,6 +257,7 @@ export class GameEngine {
     this.debugFpsEnabled =
       new URLSearchParams(window.location.search).get('debug') === '1';
     this.spectatorMode =
+      options.spectator ??
       new URLSearchParams(window.location.search).get('mode') === 'spectator';
 
     // GameConnection owns join/reconnect/input protocol details. This
@@ -257,6 +270,7 @@ export class GameEngine {
 
         this.latestSnapshot = snapshot;
         this.setMode('server');
+        this.callbacks.onSnapshotUpdate?.(snapshot);
         void this.ensureScene(
           boardToTileMap(snapshot.board.tiles),
           snapshot.players
@@ -307,7 +321,11 @@ export class GameEngine {
    * montado (el shell lo hace dentro de su effect).
    */
   start(): void {
-    this.keyboard.attach();
+    // Spectators do not control any player: the keyboard is not
+    // attached (the connection also ignores spectator input).
+    if (!this.spectatorMode) {
+      this.keyboard.attach();
+    }
 
     void this.init();
 
@@ -358,6 +376,19 @@ export class GameEngine {
 
     this.fitWholeMap = enabled;
     this.fitMap();
+  }
+
+  /**
+   * Spectator: follows a specific player with the camera.
+   * `null` returns to the full arena view.
+   */
+  setFocusedPlayerId(playerId: string | null): void {
+    if (this.focusedPlayerId === playerId) {
+      return;
+    }
+
+    this.focusedPlayerId = playerId;
+    this.snapCamera();
   }
 
   /** Limpieza total. Segura aunque `app.init` siga en vuelo. */
@@ -440,6 +471,21 @@ export class GameEngine {
   }
 
   private cameraTarget(): { x: number; y: number } | null {
+    const focused = this.focusedPlayer();
+
+    // The spectator focus overrides the full-map framing.
+    if (focused) {
+      return computeSceneOffset(
+        this.mapSize.width,
+        this.mapSize.height,
+        this.viewport,
+        {
+          x: focused.position.x * TILE_SIZE + TILE_SIZE / 2,
+          y: focused.position.y * TILE_SIZE + TILE_SIZE / 2,
+        }
+      );
+    }
+
     if (this.fitWholeMap) {
       return computeMapViewportFit(
         this.mapSize.width,
@@ -462,6 +508,19 @@ export class GameEngine {
         x: local.position.x * TILE_SIZE + TILE_SIZE / 2,
         y: local.position.y * TILE_SIZE + TILE_SIZE / 2,
       }
+    );
+  }
+
+  /** Player followed by the spectator camera, if still in the match. */
+  private focusedPlayer(): GamePlayerSnapshot | null {
+    if (!this.focusedPlayerId) {
+      return null;
+    }
+
+    return (
+      this.latestSnapshot?.players.find(
+        (player) => player.id === this.focusedPlayerId
+      ) ?? null
     );
   }
 
@@ -603,12 +662,15 @@ export class GameEngine {
       // Mismo fallback que la cámara: si la identidad local no
       // está disponible aún, se pinta con el primer jugador en
       // vez de dejar el HUD vacío.
-      hudLocalId = this.serverLocalId() ?? snapshot.players[0]?.id ?? null;
+      hudLocalId = this.spectatorMode
+        ? null
+        : (this.serverLocalId() ?? snapshot.players[0]?.id ?? null);
 
       // Aplicar el snapshot solo cuando llega uno nuevo: el
       // resto de frames se encarga la interpolación.
       if (isNewSnapshot) {
         this.appliedSnapshot = snapshot;
+        this.callbacks.onSnapshotUpdate?.(snapshot);
         scene.setPlayers(snapshot.players);
         scene.setBombs(snapshot.bombs);
         scene.setExplosions(snapshot.explosions);
@@ -786,8 +848,8 @@ export class GameEngine {
     }
 
     if (
-      !hudLocalId ||
-      !scenePlayers.some((player) => player.id === hudLocalId)
+      !this.spectatorMode &&
+      (!hudLocalId || !scenePlayers.some((player) => player.id === hudLocalId))
     ) {
       return;
     }

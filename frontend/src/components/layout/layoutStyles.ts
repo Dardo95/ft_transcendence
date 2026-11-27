@@ -316,6 +316,25 @@ const GAME_LEGEND_ICON =
 const GAME_SIDEBAR_GRID_LEGEND_ICON =
   'h-4 w-4 shrink-0 rounded-sm border border-input object-cover';
 
+/* Spectator mode */
+const SPECTATOR_PAGE_LAYOUT =
+  'flex w-full flex-col gap-3 p-3 lg:min-h-0 lg:flex-1';
+const SPECTATOR_HEADER_CARD =
+  'flex-row flex-wrap items-center justify-between gap-3 px-4 py-3';
+const SPECTATOR_HEADER_TITLE =
+  'flex items-center gap-2 font-heading text-base font-bold text-foreground sm:text-lg';
+const SPECTATOR_BODY_LAYOUT = 'flex min-h-0 flex-1 flex-col gap-3 lg:flex-row';
+const SPECTATOR_ARENA_COLUMN = 'flex min-w-0 flex-1 flex-col gap-3 lg:min-h-0';
+const SPECTATOR_SCOREBOARD_PANEL = `${CARD_BASE} w-full shrink-0 p-3 lg:w-[28rem] lg:overflow-y-auto`;
+const SPECTATOR_SCOREBOARD_GRID = 'mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2';
+const SPECTATOR_SCOREBOARD_FOOTER =
+  'mt-3 flex items-center justify-between gap-2';
+const SPECTATOR_LIVE_BADGE =
+  'border-destructive/40 bg-destructive/15 text-destructive-foreground';
+const SPECTATOR_LIVE_TEXT = 'font-mono text-[10px] font-bold tracking-wider';
+const SPECTATOR_ERROR_CARD = `${CARD_BASE} flex flex-col items-center gap-4 p-6 text-center`;
+const SPECTATOR_ERROR_ACTIONS = 'flex flex-wrap justify-center gap-3';
+
 /**
  * Single grouped token object. Import once per file: `import { UI } from ...`.
  */
@@ -561,6 +580,20 @@ export const UI = {
     sidebarGridLegendItem: GAME_SIDEBAR_GRID_LEGEND_ITEM,
     legendIcon: GAME_LEGEND_ICON,
     sidebarGridLegendIcon: GAME_SIDEBAR_GRID_LEGEND_ICON,
+  },
+  spectator: {
+    pageLayout: SPECTATOR_PAGE_LAYOUT,
+    headerCard: SPECTATOR_HEADER_CARD,
+    headerTitle: SPECTATOR_HEADER_TITLE,
+    bodyLayout: SPECTATOR_BODY_LAYOUT,
+    arenaColumn: SPECTATOR_ARENA_COLUMN,
+    scoreboardPanel: SPECTATOR_SCOREBOARD_PANEL,
+    scoreboardGrid: SPECTATOR_SCOREBOARD_GRID,
+    scoreboardFooter: SPECTATOR_SCOREBOARD_FOOTER,
+    liveBadge: SPECTATOR_LIVE_BADGE,
+    liveText: SPECTATOR_LIVE_TEXT,
+    errorCard: SPECTATOR_ERROR_CARD,
+    errorActions: SPECTATOR_ERROR_ACTIONS,
   },
   link: {
     profileRow: LINK_PROFILE_ROW,

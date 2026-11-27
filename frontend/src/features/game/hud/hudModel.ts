@@ -25,8 +25,10 @@ export interface RivalHud {
 }
 
 export interface HudModel {
-  local: LocalHud;
+  local: LocalHud | null;
   rivals: RivalHud[];
+  /** Full roster with stats (used by spectator fullscreen HUD). */
+  players: LocalHud[];
   playersRemaining: number;
   clockMs: number;
   isOvertime: boolean;
@@ -41,8 +43,31 @@ export interface HudModelOptions {
   durationMs?: number;
   isOvertime?: boolean;
   map?: readonly number[][];
+  mapWidth?: number;
+  mapHeight?: number;
   mapId?: string;
   gameId?: string;
+}
+
+/** Builds per-player HUD stats (available bombs, blast radius, speed). */
+function buildPlayerHud(
+  player: GamePlayerSnapshot,
+  bombs: readonly BombSnapshot[]
+): LocalHud {
+  const activeOwnBombs = bombs.filter(
+    (bomb) => bomb.ownerId === player.id
+  ).length;
+
+  return {
+    id: player.id,
+    name: player.displayName ?? player.id,
+    isBot: player.isBot,
+    alive: player.alive,
+    bombCapacity: player.bombCapacity,
+    availableBombs: Math.max(0, player.bombCapacity - activeOwnBombs),
+    blastRadius: player.blastRadius,
+    speed: player.speed,
+  };
 }
 
 /**
@@ -60,20 +85,7 @@ export function buildLocalHud(
     throw new Error(`[hudModel] Local player not found: ${localPlayerId}`);
   }
 
-  const activeOwnBombs = bombs.filter(
-    (bomb) => bomb.ownerId === localPlayerId
-  ).length;
-
-  return {
-    id: local.id,
-    name: local.displayName ?? local.id,
-    isBot: local.isBot,
-    alive: local.alive,
-    bombCapacity: local.bombCapacity,
-    availableBombs: Math.max(0, local.bombCapacity - activeOwnBombs),
-    blastRadius: local.blastRadius,
-    speed: local.speed,
-  };
+  return buildPlayerHud(local, bombs);
 }
 
 /** Rivales (sin el local), tope de 3 como en FRONTEND_STYLE. */
@@ -164,25 +176,42 @@ export function formatClock(ms: number): string {
 export function buildHudModel(
   players: readonly GamePlayerSnapshot[],
   bombs: readonly BombSnapshot[],
-  localPlayerId: string,
+  localPlayerId: string | null,
   elapsedMs: number,
   {
     durationMs = MATCH_DURATION_MS,
     isOvertime = false,
     map,
+    mapWidth,
+    mapHeight,
     mapId = 'MAP1',
     gameId = 'demo',
   }: HudModelOptions = {}
 ): HudModel {
+  const local =
+    localPlayerId !== null
+      ? buildLocalHud(players, bombs, localPlayerId)
+      : null;
+  const rivals =
+    localPlayerId !== null
+      ? buildRivalHud(players, localPlayerId)
+      : players.slice(0, 4).map((player) => ({
+          id: player.id,
+          name: player.displayName ?? player.id,
+          isBot: player.isBot,
+          alive: player.alive,
+        }));
+
   return {
-    local: buildLocalHud(players, bombs, localPlayerId),
-    rivals: buildRivalHud(players, localPlayerId),
+    local,
+    rivals,
+    players: players.map((player) => buildPlayerHud(player, bombs)),
     playersRemaining: countAlivePlayers(players),
     clockMs: remainingMatchMs(elapsedMs, durationMs),
     isOvertime,
     overtimeElapsedMs: isOvertime ? Math.max(0, elapsedMs - durationMs) : 0,
-    mapWidth: map?.[0]?.length ?? 0,
-    mapHeight: map?.length ?? 0,
+    mapWidth: mapWidth ?? map?.[0]?.length ?? 0,
+    mapHeight: mapHeight ?? map?.length ?? 0,
     mapId,
     gameId,
   };

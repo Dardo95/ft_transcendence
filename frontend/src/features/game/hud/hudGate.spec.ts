@@ -123,4 +123,45 @@ describe('nextHudGate', () => {
 
     expect(next?.isOvertime).toBe(true);
   });
+
+  it('tracks aggregate player stats and bombs in spectator mode (localId null)', () => {
+    const initial = nextHudGate(BASE, {
+      players: [
+        player({ id: 'p1', blastRadius: 2 }),
+        player({ id: 'p2', blastRadius: 2 }),
+      ],
+      bombs: [],
+      localId: null,
+      elapsedMs: 0,
+      isOvertime: false,
+    });
+
+    expect(initial?.localId).toBeNull();
+    expect(initial?.blast).toBe(4);
+
+    const unchanged = nextHudGate(initial!, {
+      players: [
+        player({ id: 'p1', blastRadius: 2 }),
+        player({ id: 'p2', blastRadius: 2 }),
+      ],
+      bombs: [],
+      localId: null,
+      elapsedMs: 500,
+      isOvertime: false,
+    });
+    expect(unchanged).toBeNull();
+
+    const upgraded = nextHudGate(initial!, {
+      players: [
+        player({ id: 'p1', blastRadius: 2 }),
+        player({ id: 'p2', blastRadius: 3 }),
+      ],
+      bombs: [bomb({ ownerId: 'p2' })],
+      localId: null,
+      elapsedMs: 500,
+      isOvertime: false,
+    });
+    expect(upgraded?.blast).toBe(5);
+    expect(upgraded?.ownBombs).toBe(1);
+  });
 });

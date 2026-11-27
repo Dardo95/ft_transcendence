@@ -9,9 +9,13 @@ import { HUD } from '../hud/hudStyles';
 interface EndScreenOverlayProps {
   state: Exclude<EndScreenState, 'playing'>;
   onReturnToLobby: () => void;
-  onKeepWatching: () => void;
+  onKeepWatching?: () => void;
   /** En la demo (Rules), reinicia la partida en vez de volver. */
   onRestart?: () => void;
+  /** Spectator mode: custom heading override (e.g. winner name or draw). */
+  title?: string;
+  /** Optional eyebrow label shown above the heading. */
+  subtitle?: string;
 }
 
 /**
@@ -25,17 +29,20 @@ export function EndScreenOverlay({
   onReturnToLobby,
   onKeepWatching,
   onRestart,
+  title: customTitle,
+  subtitle,
 }: EndScreenOverlayProps) {
   const { t } = useLanguage();
 
-  const title =
+  const defaultTitle =
     state === 'dead'
-      ? t('app.endScreen.deadTitle')
+      ? t('app.endScreen.deadTitle') || 'You are dead'
       : state === 'victory'
-        ? t('app.endScreen.victoryTitle')
+        ? t('app.endScreen.victoryTitle') || 'You win'
         : state === 'draw'
-          ? t('app.endScreen.drawTitle')
-          : t('app.endScreen.defeatTitle');
+          ? t('app.endScreen.drawTitle') || 'Draw'
+          : t('app.endScreen.defeatTitle') || 'You lose';
+  const title = customTitle ?? defaultTitle;
 
   const ICONS: Record<Exclude<EndScreenState, 'playing'>, LucideIcon> = {
     dead: SkullIcon,
@@ -48,6 +55,7 @@ export function EndScreenOverlay({
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 bg-zinc-950/85">
       <div className={HUD.surface.alert} role="status">
+        {subtitle && <p className={HUD.text.eyebrow}>{subtitle}</p>}
         <div className="flex items-center gap-3">
           <Icon className={HUD.icon.alert} aria-hidden="true" />
           <p className={UI.text.pageTitle}>{title}</p>
@@ -62,18 +70,18 @@ export function EndScreenOverlay({
           className="bg-orange-500 font-black text-white hover:bg-orange-600"
         >
           {onRestart
-            ? t('app.endScreen.restart')
-            : t('app.endScreen.returnLobby')}
+            ? t('app.endScreen.restart') || 'Restart'
+            : t('app.endScreen.returnLobby') || 'Back to lobby'}
         </Button>
 
-        {state === 'dead' && (
+        {state === 'dead' && onKeepWatching && (
           <Button
             type="button"
             variant="outline"
             size="lg"
             onClick={onKeepWatching}
           >
-            {t('app.endScreen.keepWatching')}
+            {t('app.endScreen.keepWatching') || 'Keep watching'}
           </Button>
         )}
       </div>
