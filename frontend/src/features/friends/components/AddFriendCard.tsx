@@ -86,7 +86,9 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
         );
 
         if (!res.ok) {
-          setSearchError(t('app.friends.friendSearchError'));
+          setSearchError(
+            t('app.friends.friendSearchError') || 'Error searching users.'
+          );
           return;
         }
 
@@ -96,7 +98,9 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
         if (err instanceof DOMException && err.name === 'AbortError') {
           return; // Intentionally cancelled by a newer keystroke
         }
-        setSearchError(t('app.friends.networkError'));
+        setSearchError(
+          t('app.friends.networkError') || 'Could not connect to the server.'
+        );
       } finally {
         if (abortControllerRef.current === controller) {
           setIsLoading(false);
@@ -179,19 +183,17 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
         isError: false,
       });
     } catch (err: unknown) {
-      // Ignore network / abort errors (no console noise)
+      // Ignore abort errors only; network failures must stay visible so the
+      // user knows the request did not complete.
       if (err instanceof DOMException && err.name === 'AbortError') return;
-      if (
-        err instanceof TypeError &&
-        (err.message?.includes('fetch') ||
-          err.message?.includes('Failed to fetch'))
-      )
-        return;
       setFeedback({
         text:
-          err instanceof Error && err.message
-            ? err.message
-            : t('app.friends.sendRequestError'),
+          err instanceof TypeError
+            ? t('app.friends.networkError') ||
+              'Could not connect to the server.'
+            : err instanceof Error && err.message
+              ? err.message
+              : t('app.friends.sendRequestError') || 'Error sending request',
         isError: true,
       });
     } finally {
@@ -242,7 +244,10 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
           />
 
           {isLoading && (
-            <span className="border-primary absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 animate-spin rounded-full border-2 border-t-transparent" />
+            <span
+              className={`${UI.icon.spinner} border-primary/30 border-t-primary absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 rounded-full border-2`}
+              aria-hidden="true"
+            />
           )}
         </div>
 
@@ -260,6 +265,7 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
       {/* General success or error feedback */}
       {feedback && (
         <p
+          role={feedback.isError ? 'alert' : 'status'}
           className={`${UI.feedback.banner} ${
             feedback.isError ? UI.feedback.error : UI.feedback.success
           }`}
@@ -274,7 +280,10 @@ export function AddFriendCard({ variant = 'lobby' }: AddFriendCardProps) {
           className={`max-h-56 w-full overflow-y-auto p-1.5 shadow-2xl ${UI.card.inner} ${UI.row.dividerList}`}
         >
           {searchError && (
-            <p className="text-destructive p-2 text-center text-xs">
+            <p
+              role="alert"
+              className={`${UI.feedback.inlineError} p-2 text-center`}
+            >
               {searchError}
             </p>
           )}

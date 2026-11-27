@@ -5,6 +5,11 @@
 
 export const profileEn = {
   loading: 'Loading user profile...',
+  loadErrorTitle: 'Could not load this profile',
+  loadError: 'We could not reach the server. Please try again.',
+  retry: 'Retry',
+  sessionMissingTitle: 'Session not available',
+  sessionMissing: 'Please sign in again to view your profile.',
   myProfile: 'My Profile',
   userNotFound: 'User Not Found',
   userNotFoundSubtitle:
@@ -87,4 +92,5 @@ export const profileEn = {
   unblockedSuccess: 'User unblocked successfully.',
   blockFailed: 'Could not block the user. Try again.',
   unblockFailed: 'Could not unblock the user. Try again.',
+  addFriendFailed: 'Could not send the friend request. Try again.',
 };

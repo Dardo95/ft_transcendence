@@ -20,6 +20,7 @@ import { resolveMatchmakingErrorKey } from '@/features/lobby/matchmakingErrorMes
 import { toServerMatchmakingRequest } from '@/features/lobby/matchmakingRequest';
 
 import { ActiveMatchBanner } from '@/features/lobby/components/ActiveMatchBanner';
+import { ConnectingToMatchBanner } from '@/features/lobby/components/ConnectingToMatchBanner';
 import { GameConfig } from '@/features/lobby/components/GameConfig';
 import { LobbyNotifications } from '@/features/lobby/components/LobbyNotifications';
 import { LobbyTopBanner } from '@/features/lobby/components/LobbyTopBanner';
@@ -43,6 +44,12 @@ interface MatchmakingStatusPayload {
   countdownEndsAt?: number;
 }
 
+/**
+ * Safety net for the transition state: if navigation never completes after
+ * the server accepted the match, the lobby must not stay blocked forever.
+ */
+const CONNECTING_TIMEOUT_MS = 15_000;
+
 export function LobbyPage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -63,9 +70,12 @@ export function LobbyPage() {
   const [matchmaking, setMatchmaking] = useState<MatchmakingState | null>(null);
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [gameError, setGameError] = useState<string | null>(null);
+  const [canRetryGameError, setCanRetryGameError] = useState(false);
+  const [isConnectingRequested, setIsConnectingRequested] = useState(false);
   const [activeGameId, setActiveGameId] = useState<string | null>(null);
   const navigatedGameId = useRef<string | null>(null);
   const requestedMap = useRef<MapId>('map1');
+  const lastMatchmakingPayload = useRef<MatchmakingPayload | null>(null);
 
   // Game settings state
   const [selectedMode, setSelectedMode] = useState<GameMode>('practice');
@@ -81,7 +91,10 @@ export function LobbyPage() {
   const isSearching = matchmaking !== null;
   const canStartPrivate = isHost && playersCount > 1;
 
-  const dismissGameError = useCallback(() => setGameError(null), []);
+  const dismissGameError = useCallback(() => {
+    setGameError(null);
+    setCanRetryGameError(false);
+  }, []);
 
   const reportActiveGameCheckFailure = useCallback(() => {
     setGameError(
@@ -104,6 +117,7 @@ export function LobbyPage() {
       if (!gameId || navigatedGameId.current === gameId) return;
 
       navigatedGameId.current = gameId;
+      setIsConnectingRequested(true);
       setMatchmaking(null);
       navigate(gameRoute(gameId, requestedMap.current));
     },
@@ -125,12 +139,15 @@ export function LobbyPage() {
     const handleConnect = () => {
       setIsGameConnected(true);
       setGameError(null);
+      setCanRetryGameError(false);
       void refreshActiveGame();
     };
 
     const handleDisconnect = () => {
       setIsGameConnected(false);
       setMatchmaking(null);
+      // Never leave the player on an infinite connecting screen.
+      setIsConnectingRequested(false);
     };
 
     gameSocket.on('connect', handleConnect);
@@ -218,11 +235,13 @@ export function LobbyPage() {
 
       if (update.type === 'cancelled') {
         setMatchmaking(null);
+        setIsConnectingRequested(false);
         return;
       }
 
       if (update.type === 'created') {
         setActiveGameId(update.gameId);
+        setIsConnectingRequested(true);
         goToGame(update.gameId);
         return;
       }
@@ -230,6 +249,9 @@ export function LobbyPage() {
       const statusPayload = payload as MatchmakingStatusPayload;
       if (update.type === 'countdown') {
         setClockNow(Date.now());
+      } else {
+        // A fresh search is no longer a terminal connection transition.
+        setIsConnectingRequested(false);
       }
 
       setMatchmaking({
@@ -248,18 +270,23 @@ export function LobbyPage() {
       const gameId = readGameFoundId(payload);
       if (gameId) {
         setActiveGameId(gameId);
+        setIsConnectingRequested(true);
         goToGame(gameId);
       }
     };
 
     const handleException = (payload: unknown) => {
       setGameError(t(resolveMatchmakingErrorKey(payload)));
+      setCanRetryGameError(Boolean(lastMatchmakingPayload.current));
       setMatchmaking(null);
+      // Recoverable: release the transition state so the player can retry.
+      setIsConnectingRequested(false);
     };
 
     const handleMatchmakingCancelled = (payload: unknown) => {
       if (readCancelResult(payload)) {
         setMatchmaking(null);
+        setIsConnectingRequested(false);
       }
     };
 
@@ -287,6 +314,30 @@ export function LobbyPage() {
     ? countdownSeconds(matchmaking.countdownEndsAt, clockNow)
     : null;
 
+  // A public countdown that reaches zero means the server is about to create
+  // the match, so the transition is derived instead of set from an effect.
+  const countdownResolved =
+    matchmaking?.status === 'COUNTDOWN' && countdown !== null && countdown <= 0;
+  const isConnectingToMatch = isConnectingRequested || countdownResolved;
+
+  // Recoverable timeout: if the transition never finishes, release the lobby
+  // and offer a retry instead of leaving the controls disabled forever.
+  useEffect(() => {
+    if (!isConnectingToMatch) return;
+
+    const timer = window.setTimeout(() => {
+      setIsConnectingRequested(false);
+      setMatchmaking(null);
+      setCanRetryGameError(Boolean(lastMatchmakingPayload.current));
+      setGameError(
+        t('app.lobby.matchmakingTimeout') ||
+          'The match is taking too long to open. Please try again.'
+      );
+    }, CONNECTING_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [isConnectingToMatch, t]);
+
   const handleModeChange = (mode: GameMode) => {
     setSelectedMode(mode);
 
@@ -298,6 +349,10 @@ export function LobbyPage() {
   };
 
   const handleStartMatchmaking = (payload: MatchmakingPayload) => {
+    if (isConnectingToMatch) {
+      return;
+    }
+
     if (!gameSocket.connected) {
       setGameError(
         t('app.lobby.errorNotConnected') ||
@@ -310,7 +365,9 @@ export function LobbyPage() {
       return;
     }
 
+    lastMatchmakingPayload.current = payload;
     setGameError(null);
+    setCanRetryGameError(false);
     navigatedGameId.current = null;
     requestedMap.current = payload.mapId;
     setMatchmaking({
@@ -318,11 +375,26 @@ export function LobbyPage() {
       status: 'REQUESTING',
     });
 
+    // Practice and private matches are created immediately, so the player is
+    // already transitioning. Public matches keep searching until the
+    // countdown resolves or `game:found` arrives.
+    setIsConnectingRequested(payload.mode !== 'public');
+
     gameSocket.emit('game:matchmaking', toServerMatchmakingRequest(payload));
   };
 
   const handleCancelSearch = () => {
+    setIsConnectingRequested(false);
+    setMatchmaking(null);
     gameSocket.emit('game:cancelMatchmaking');
+  };
+
+  const handleRetryMatchmaking = () => {
+    const payload = lastMatchmakingPayload.current;
+
+    if (payload) {
+      handleStartMatchmaking(payload);
+    }
   };
 
   return (
@@ -337,17 +409,26 @@ export function LobbyPage() {
         onDismissError={clearError}
         onDismissGameError={dismissGameError}
         onDismissNotice={clearNotice}
+        onRetryGameError={
+          canRetryGameError ? handleRetryMatchmaking : undefined
+        }
       />
 
-      {matchmaking && (
-        <MatchmakingStatusBanner
-          matchmaking={matchmaking}
-          countdown={countdown}
-          onCancel={handleCancelSearch}
-        />
+      {isConnectingToMatch ? (
+        <ConnectingToMatchBanner />
+      ) : (
+        matchmaking && (
+          <MatchmakingStatusBanner
+            matchmaking={matchmaking}
+            countdown={countdown}
+            onCancel={handleCancelSearch}
+          />
+        )
       )}
 
-      {activeGameId && <ActiveMatchBanner gameId={activeGameId} />}
+      {!isConnectingToMatch && activeGameId && (
+        <ActiveMatchBanner gameId={activeGameId} />
+      )}
 
       <GameConfig
         selectedMode={selectedMode}
@@ -359,7 +440,7 @@ export function LobbyPage() {
         isHost={isHost}
         playersCount={playersCount}
         isSearching={isSearching}
-        disabled={isSearching || Boolean(activeGameId)}
+        disabled={isConnectingToMatch || isSearching || Boolean(activeGameId)}
         countdown={countdown}
         onStart={handleStartMatchmaking}
         onCancelSearch={handleCancelSearch}
