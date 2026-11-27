@@ -10,7 +10,7 @@ export const GAME_DEFAULTS = {
 
   // Inicio y duración
   countdownMs: 3_000,
-  matchDurationMs: 90_000,
+  matchDurationMs: 150_000,
 
   // Overtime: first tile closes after a short warning, then one tile per interval.
   overtimeFirstWallDelayMs: 1_000,
@@ -33,5 +33,5 @@ export const GAME_DEFAULTS = {
 
   // Probabilidad de que un muro destruido revele
   // un power-up
-  powerUpDropChance: 0.35,
+  powerUpDropChance: 0.3,
 } as const;
