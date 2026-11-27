@@ -42,6 +42,48 @@ const RIGHT = {
   right: true,
 };
 
+const DOWN = {
+  up: false,
+  down: true,
+  left: false,
+  right: false,
+};
+
+const HORIZONTAL_CORNER_MAP = [
+  '#######',
+  '#1...2#',
+  '#..#..#',
+  '#.....#',
+  '#3...4#',
+  '#######',
+].join('\n');
+
+const VERTICAL_CORNER_MAP = [
+  '#######',
+  '#1...2#',
+  '#.....#',
+  '#.#...#',
+  '#.....#',
+  '#3...4#',
+  '#######',
+].join('\n');
+
+function createCornerSession(id: string, mapText: string) {
+  const map = parseMapText('corner-map', mapText);
+  const session = createGameSession({
+    id,
+    mode: 'PRIVATE',
+    map,
+    players: [
+      { id: 'alice', displayName: 'Alice' },
+      { id: 'bob', displayName: 'Bob' },
+    ],
+  });
+
+  session.status = 'RUNNING';
+  return session;
+}
+
 describe('continuous movement', () => {
   it('moves according to speed and elapsed time', () => {
     const session = createRunningSession();
@@ -71,6 +113,58 @@ describe('continuous movement', () => {
     expect(position.x).toBeGreaterThan(2.65);
     expect(position.x).toBeLessThanOrEqual(2.700001);
     expect(position.y).toBeCloseTo(1.5);
+  });
+
+  it('corrects a one-pixel corner misalignment instead of sticking', () => {
+    const session = createCornerSession('corner-test', HORIZONTAL_CORNER_MAP);
+    const alice = session.players.get('alice')!;
+
+    // El bloque está en (3, 2). A y=1.71 la hitbox roza su
+    // esquina inferior por menos de un píxel de mundo.
+    alice.position = { x: 2.5, y: 1.71 };
+
+    setPlayerMovementInput(session, 'alice', RIGHT);
+    updatePlayerMovement(session, 0.1);
+
+    expect(alice.position.x).toBeGreaterThan(2.7);
+    expect(alice.position.y).toBeLessThan(1.71);
+    expect(alice.position.y).toBeGreaterThan(1.64);
+  });
+
+  it('applies the same corner correction while moving vertically', () => {
+    const session = createCornerSession(
+      'vertical-corner-test',
+      VERTICAL_CORNER_MAP
+    );
+    const alice = session.players.get('alice')!;
+
+    // El bloque está en (2, 3); la hitbox roza su esquina izquierda.
+    alice.position = { x: 1.71, y: 2.5 };
+
+    setPlayerMovementInput(session, 'alice', DOWN);
+    updatePlayerMovement(session, 0.1);
+
+    expect(alice.position.y).toBeGreaterThan(2.7);
+    expect(alice.position.x).toBeLessThan(1.71);
+    expect(alice.position.x).toBeGreaterThan(1.64);
+  });
+
+  it('does not over-correct a badly misaligned player', () => {
+    const session = createCornerSession(
+      'corner-limit-test',
+      HORIZONTAL_CORNER_MAP
+    );
+    const alice = session.players.get('alice')!;
+
+    // Centrar esta posición requeriría más de los cuatro píxeles
+    // de tolerancia: el bloque debe seguir siendo infranqueable.
+    alice.position = { x: 2.5, y: 1.8 };
+
+    setPlayerMovementInput(session, 'alice', RIGHT);
+    updatePlayerMovement(session, 0.1);
+
+    expect(alice.position.x).toBeLessThanOrEqual(2.700001);
+    expect(alice.position.y).toBeCloseTo(1.8);
   });
 
   it('rejects diagonal input without changing the accepted movement', () => {

@@ -22,7 +22,7 @@ export const GAME_DEFAULTS = {
 
   // Estadísticas iniciales del jugador
   defaultBombCapacity: 1,
-  defaultBlastRadius: 2,
+  defaultBlastRadius: 1,
   defaultSpeedTilesPerSecond: 4,
 
   // Límites de las mejoras

@@ -26,6 +26,13 @@ function isActiveGame(session: GameSession): boolean {
 // Evita saltos excesivos por cada subpaso de movimiento.
 const MAX_SUBSTEP_DISTANCE = 0.05;
 
+// El mapa se renderiza con 64 píxeles por casilla. Si un jugador
+// roza una esquina por unos pocos píxeles, permitimos alinearlo
+// hacia el centro de su pasillo antes de rechazar el movimiento.
+const WORLD_PIXELS_PER_TILE = 64;
+const CORNER_CORRECTION_STEP = 1 / WORLD_PIXELS_PER_TILE;
+const MAX_CORNER_CORRECTION = 4 / WORLD_PIXELS_PER_TILE;
+
 export function setPlayerMovementInput(
   session: GameSession,
   playerId: string,
@@ -113,15 +120,88 @@ function collidesWithObstacle(
   return false;
 }
 
+/**
+ * Intenta avanzar un subpaso cardinal. Si la hitbox choca justo
+ * con la esquina de un bloque, busca una corrección perpendicular
+ * de hasta cuatro píxeles hacia el centro de la casilla actual.
+ * La corrección y el avance deben estar libres de colisión.
+ */
+function movePlayerStep(
+  session: GameSession,
+  player: GamePlayer,
+  directionX: number,
+  directionY: number,
+  distance: number
+): boolean {
+  const nextX = player.position.x + directionX * distance;
+  const nextY = player.position.y + directionY * distance;
+
+  if (!collidesWithObstacle(session, player.id, nextX, nextY)) {
+    player.position.x = nextX;
+    player.position.y = nextY;
+    return true;
+  }
+
+  // El eje perpendicular al movimiento es el único que podemos
+  // corregir: nunca se introduce movimiento diagonal en el input.
+  const perpendicularPosition =
+    directionX !== 0 ? player.position.y : player.position.x;
+  const perpendicularCenter = Math.floor(perpendicularPosition) + 0.5;
+  const correctionDirection = Math.sign(
+    perpendicularCenter - perpendicularPosition
+  );
+
+  // Ya estamos centrados en la casilla: no hay alineación pequeña
+  // que pueda resolver este bloqueo sin cambiar de carril.
+  if (correctionDirection === 0) {
+    return false;
+  }
+
+  const correctionSteps = Math.floor(
+    MAX_CORNER_CORRECTION / CORNER_CORRECTION_STEP
+  );
+
+  for (let step = 1; step <= correctionSteps; step++) {
+    const correction =
+      correctionDirection * step * CORNER_CORRECTION_STEP;
+    const correctedX =
+      directionX !== 0 ? player.position.x : player.position.x + correction;
+    const correctedY =
+      directionY !== 0 ? player.position.y : player.position.y + correction;
+    const correctedNextX = correctedX + directionX * distance;
+    const correctedNextY = correctedY + directionY * distance;
+
+    // No se permite ni penetrar el obstáculo al alinearse ni
+    // atravesarlo al avanzar después de la corrección.
+    if (
+      collidesWithObstacle(session, player.id, correctedX, correctedY) ||
+      collidesWithObstacle(
+        session,
+        player.id,
+        correctedNextX,
+        correctedNextY
+      )
+    ) {
+      continue;
+    }
+
+    player.position.x = correctedNextX;
+    player.position.y = correctedNextY;
+    return true;
+  }
+
+  return false;
+}
+
 function movePlayerByDelta(
   session: GameSession,
   player: GamePlayer,
   deltaSeconds: number
 ): void {
-  let directionX =
+  const directionX =
     Number(player.movementInput.right) - Number(player.movementInput.left);
 
-  let directionY =
+  const directionY =
     Number(player.movementInput.down) - Number(player.movementInput.up);
 
   // El servidor solo permite movimiento cardinal. Esta comprobación
@@ -135,25 +215,22 @@ function movePlayerByDelta(
   }
 
   const distance = player.speedTilesPerSecond * deltaSeconds;
-
   const steps = Math.max(1, Math.ceil(distance / MAX_SUBSTEP_DISTANCE));
-
-  const stepX = (directionX * distance) / steps;
-  const stepY = (directionY * distance) / steps;
+  const stepDistance = distance / steps;
 
   for (let i = 0; i < steps; i++) {
-    // Resolver X e Y por separado permite deslizarse
-    // junto a un muro cuando uno de los ejes está bloqueado.
-    const nextX = player.position.x + stepX;
-
-    if (!collidesWithObstacle(session, player.id, nextX, player.position.y)) {
-      player.position.x = nextX;
-    }
-
-    const nextY = player.position.y + stepY;
-
-    if (!collidesWithObstacle(session, player.id, player.position.x, nextY)) {
-      player.position.y = nextY;
+    // Si ni el avance directo ni la pequeña corrección de esquina
+    // son posibles, los subpasos restantes tampoco lo serán.
+    if (
+      !movePlayerStep(
+        session,
+        player,
+        directionX,
+        directionY,
+        stepDistance
+      )
+    ) {
+      break;
     }
   }
 }
