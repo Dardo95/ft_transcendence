@@ -9,6 +9,30 @@ describe('resolveMatchmakingErrorKey', () => {
     ).toBe('app.lobby.matchmakingActiveGame');
   });
 
+  it('maps recoverable room failures to their own keys', () => {
+    expect(
+      resolveMatchmakingErrorKey(
+        'Private matches require between 2 and 4 players'
+      )
+    ).toBe('app.lobby.matchmakingPrivatePlayers');
+
+    expect(
+      resolveMatchmakingErrorKey(
+        'Your lobby is already searching on a different map'
+      )
+    ).toBe('app.lobby.matchmakingDifferentMap');
+
+    expect(
+      resolveMatchmakingErrorKey(
+        'Only the lobby host can start a private match'
+      )
+    ).toBe('app.lobby.matchmakingHostOnly');
+
+    expect(resolveMatchmakingErrorKey('You are not in a lobby')).toBe(
+      'app.lobby.matchmakingNotInLobby'
+    );
+  });
+
   it('recognises the marker inside an object payload', () => {
     expect(
       resolveMatchmakingErrorKey({

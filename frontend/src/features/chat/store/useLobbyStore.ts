@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { chatSocket } from '@/lib/socket';
+import { shouldResyncLobby } from '@/features/lobby/lobbyErrorMessage';
 
 export interface LobbyMember {
   userId: number;
@@ -125,8 +126,20 @@ export const useLobbyStore = create<LobbyState>((set) => ({
       }));
     };
 
-    const handleError = (data: { message: string }) => {
-      set({ error: data.message, notice: null, noticeData: null });
+    const handleError = (data: { message?: string } | undefined) => {
+      const message =
+        typeof data?.message === 'string' && data.message.trim()
+          ? data.message
+          : 'errorLobbyOperationFailed';
+
+      set({ error: message, notice: null, noticeData: null });
+
+      // A vanished/full lobby or a consumed invitation leaves the local
+      // snapshot stale. Ask the server for a fresh lobby and invitations list
+      // so the UI recovers without a manual reload.
+      if (shouldResyncLobby(message) && chatSocket.connected) {
+        chatSocket.emit('lobby:sync');
+      }
     };
 
     chatSocket.on('connect', handleConnect);

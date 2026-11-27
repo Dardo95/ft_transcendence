@@ -312,7 +312,9 @@ export class MatchmakingService implements OnModuleDestroy {
     settings: GameSettings
   ): CreatedMatchmakingResult {
     const lobby = this.getUserLobby(user.id);
-
+    if (lobby.hostUserId !== user.id) {
+      throw new WsException('Only the lobby host can start a private match');
+    }
     if (
       lobby.members.length < 2 ||
       lobby.members.length > MAX_PLAYERS_PER_MATCH

@@ -108,27 +108,6 @@ const demoFriendships = [
   ['enogueir', 'testuser'],
 ];
 
-const achievements = [
-  {
-    key: 'first_blood',
-    name: 'First Blood',
-    description: 'Win your first match',
-    xpReward: 50,
-  },
-  {
-    key: 'survivor',
-    name: 'Survivor',
-    description: 'Win without dying',
-    xpReward: 100,
-  },
-  {
-    key: 'hat_trick',
-    name: 'Hat Trick',
-    description: 'Win three matches in a row',
-    xpReward: 150,
-  },
-];
-
 // Fixed dates so the seed is reproducible.
 const demoMatches = [
   {
@@ -347,20 +326,12 @@ async function main() {
     await ensureFriendship(idByUsername.get(a), idByUsername.get(b));
   }
 
-  for (const achievement of achievements) {
-    await prisma.achievement.upsert({
-      where: { key: achievement.key },
-      update: {},
-      create: achievement,
-    });
-  }
-
   for (const match of demoMatches) {
     await ensureMatch(match, idByUsername);
   }
 
   console.log(
-    `Seed OK: ${users.length} users, ${demoFriendships.length} friendships, ${achievements.length} achievements, ${demoMatches.length} matches`
+    `Seed OK: ${users.length} users, ${demoFriendships.length} friendships, ${demoMatches.length} matches`
   );
   console.log(`Login: ${demoUsers[0].email} / ${DEMO_PASSWORD}`);
 }

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { OnModuleInit } from '@nestjs/common';
+import { type OnModuleInit, UseFilters } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,15 +9,17 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  // WsException,
+  WsException,
 } from '@nestjs/websockets';
 import type { Namespace, Socket } from 'socket.io';
 import { LobbyService } from '../lobby/lobby.service.js';
 import { PrismaService } from '../database/prisma.service.js';
 
 import { WsJwtAuthService, type WsUser } from '../auth/ws-jwt-auth.service.js';
+import { WsExceptionsFilter } from '../common/filters/ws-exception.filter.js';
 import { websocketOptions } from '../realtime/websocket-options.js';
 import { SocketRegistryService } from '../realtime/socket-registry.service.js';
+import { ChatRateLimiter } from './chat-rate-limiter.js';
 
 const PRESENCE_DISCONNECT_GRACE_MS = 1000;
 
@@ -25,6 +27,7 @@ const PRESENCE_DISCONNECT_GRACE_MS = 1000;
   namespace: '/chat',
   ...websocketOptions,
 })
+@UseFilters(new WsExceptionsFilter())
 export class ChatGateway
   implements
     OnGatewayInit,
@@ -46,6 +49,9 @@ export class ChatGateway
     number,
     ReturnType<typeof setTimeout>
   >();
+
+  // CHAT-B-06: at most 2 global chat messages per second per user.
+  private readonly chatLimiter = new ChatRateLimiter();
 
   async onModuleInit(): Promise<void> {
     // Al arrancar no hay nadie conectado: limpiamos la presencia
@@ -114,6 +120,8 @@ export class ChatGateway
 
       if (this.registry.isOnline('chat', user.id)) return;
 
+      this.chatLimiter.forget(user.id);
+
       this.prisma.user
         .update({ where: { id: user.id }, data: { isOnline: false } })
         .catch(() => undefined);
@@ -128,10 +136,6 @@ export class ChatGateway
       this.server
         .to(`lobby:${result.lobby.id}`)
         .emit('lobby:updated', result.lobby);
-
-      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
-        username: user.username,
-      });
     }, PRESENCE_DISCONNECT_GRACE_MS);
 
     this.pendingDisconnects.set(user.id, timeout);
@@ -220,24 +224,21 @@ export class ChatGateway
       const username = this.readString(body, 'username').trim();
 
       if (!username) {
-        client.emit('lobby:error', {
-          message: 'Username is required',
-        });
+        this.emitLobbyError(client, 'lobby:invite', 'Username is required');
         return;
       }
 
       const inviter = client.data.user as WsUser;
 
       // 1. Buscar al destinatario por su nombre de usuario.
-      const invitee = await this.prisma.user.findUnique({
-        where: { username },
+      // Usernames are unique case-insensitively (see registration), so match the same way.
+      const invitee = await this.prisma.user.findFirst({
+        where: { username: { equals: username, mode: 'insensitive' } },
         select: { id: true, username: true },
       });
 
       if (!invitee) {
-        client.emit('lobby:error', {
-          message: 'User not found',
-        });
+        this.emitLobbyError(client, 'lobby:invite', 'User not found');
         return;
       }
 
@@ -260,9 +261,11 @@ export class ChatGateway
       });
 
       if (!friendship) {
-        client.emit('lobby:error', {
-          message: 'You can only invite accepted friends',
-        });
+        this.emitLobbyError(
+          client,
+          'lobby:invite',
+          'You can only invite accepted friends'
+        );
         return;
       }
 
@@ -278,7 +281,7 @@ export class ChatGateway
         username: invitee.username,
       });
     } catch (error) {
-      this.emitLobbyError(client, error);
+      this.emitLobbyError(client, 'lobby:invite', error);
     }
   }
 
@@ -292,11 +295,19 @@ export class ChatGateway
     return typeof value === 'string' ? value : '';
   }
 
-  private emitLobbyError(client: Socket, error: unknown): void {
+  /**
+   * Lobby actions report their errors on `lobby:error`, which the lobby UI
+   * shows. Same shape as the `exception` event: `{ event, message }`.
+   */
+  private emitLobbyError(client: Socket, event: string, error: unknown): void {
     const message =
-      error instanceof Error ? error.message : 'Lobby operation failed';
+      typeof error === 'string'
+        ? error
+        : error instanceof Error
+          ? error.message
+          : 'Lobby operation failed';
 
-    client.emit('lobby:error', { message });
+    client.emit('lobby:error', { event, message });
   }
 
   @SubscribeMessage('lobby:accept')
@@ -308,9 +319,11 @@ export class ChatGateway
       const invitationId = this.readString(body, 'invitationId');
 
       if (!invitationId) {
-        client.emit('lobby:error', {
-          message: 'Invitation ID is required',
-        });
+        this.emitLobbyError(
+          client,
+          'lobby:accept',
+          'Invitation ID is required'
+        );
         return;
       }
 
@@ -336,7 +349,7 @@ export class ChatGateway
       // 6. Notificar a los miembros del lobby de destino.
       this.server.to(`lobby:${lobby.id}`).emit('lobby:updated', lobby);
     } catch (error) {
-      this.emitLobbyError(client, error);
+      this.emitLobbyError(client, 'lobby:accept', error);
     }
   }
 
@@ -349,9 +362,11 @@ export class ChatGateway
       const invitationId = this.readString(body, 'invitationId');
 
       if (!invitationId) {
-        client.emit('lobby:error', {
-          message: 'Invitation ID is required',
-        });
+        this.emitLobbyError(
+          client,
+          'lobby:reject',
+          'Invitation ID is required'
+        );
         return;
       }
 
@@ -363,7 +378,7 @@ export class ChatGateway
         invitationId,
       });
     } catch (error) {
-      this.emitLobbyError(client, error);
+      this.emitLobbyError(client, 'lobby:reject', error);
     }
   }
 
@@ -418,9 +433,9 @@ export class ChatGateway
 
     // Notificar salida del lobby
     if (result?.lobby) {
-      this.server.to(`lobby:${result.lobbyId}`).emit('user:left_lobby', {
-        username: user.username,
-      });
+      // Tell the leaving client first, so its store shows the notice
+      // before lobby:state hands it its new solo lobby.
+      client.emit('lobby:left', { lobbyId: result.lobbyId });
 
       // Actualizamos a los antiguos compañeros.
       this.server
@@ -451,11 +466,16 @@ export class ChatGateway
     // 1. Leer y validar el texto.
     const text = this.readString(body, 'text').trim();
 
+    // Errors reach the client through WsExceptionsFilter as `exception`
+    // (event 'chat:send'), not through lobby:error.
     if (!text || text.length > 500) {
-      client.emit('lobby:error', {
-        message: 'Message must contain between 1 and 500 characters',
-      });
-      return;
+      throw new WsException(
+        'Message must contain between 1 and 500 characters'
+      );
+    }
+
+    if (!this.chatLimiter.tryAcquire(user.id)) {
+      throw new WsException('You are sending messages too fast');
     }
 
     // 2. Recuperar el avatar actual del remitente para adjuntarlo al mensaje.

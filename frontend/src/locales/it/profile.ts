@@ -5,6 +5,11 @@
 
 export const profileIt = {
   loading: 'Caricamento del profilo...',
+  loadErrorTitle: 'Impossibile caricare questo profilo',
+  loadError: 'Impossibile raggiungere il server. Riprova.',
+  retry: 'Riprova',
+  sessionMissingTitle: 'Sessione non disponibile',
+  sessionMissing: 'Accedi di nuovo per visualizzare il tuo profilo.',
   myProfile: 'Il mio profilo',
   userNotFound: 'Utente non trovato',
   userNotFoundSubtitle:
@@ -88,4 +93,5 @@ export const profileIt = {
   unblockedSuccess: 'Utente sbloccato correttamente.',
   blockFailed: "Impossibile bloccare l'utente. Riprova.",
   unblockFailed: "Impossibile sbloccare l'utente. Riprova.",
+  addFriendFailed: 'Impossibile inviare la richiesta di amicizia. Riprova.',
 };

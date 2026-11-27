@@ -1,24 +1,45 @@
 import type { TranslationKey } from '@/locales/translations';
 
 /**
- * Clave i18n para un `exception` emitido por el gateway de juego.
+ * Translation key for an `exception` emitted by the game gateway.
  *
- * Responsable:
- * - Traducir el fallo de `game:matchmaking` a una clave propia.
+ * Responsible for:
+ * - Turning a failed `game:matchmaking` request into its own localized key.
  *
- * No:
- * - Escuchar el socket (lo hace `LobbyPage`).
- * - Conocer el payload exacto: el backend lanza `WsException`
- *   con texto en inglés y sin código de error, así que se
- *   localiza el fragmento conocido en el payload serializado.
+ * Does not:
+ * - Listen to the socket (it is handled by `LobbyPage`).
+ * - Know the exact payload shape: the backend throws `WsException` with
+ *   plain English text and no error code, so the known fragment is matched
+ *   against the serialized payload.
  */
 
-/**
- * Fragmento de `Player <id> already has an active game`
- * (`matchmaking.service.ts`). Es el fallo previsible al reintentar
- * una partida que aún no ha terminado en el servidor.
- */
-const ACTIVE_GAME_MARKER = 'already has an active game';
+interface MatchmakingErrorRule {
+  marker: string;
+  key: TranslationKey;
+}
+
+const MATCHMAKING_ERROR_RULES: MatchmakingErrorRule[] = [
+  {
+    marker: 'already has an active game',
+    key: 'app.lobby.matchmakingActiveGame',
+  },
+  {
+    marker: 'between 2 and 4 players',
+    key: 'app.lobby.matchmakingPrivatePlayers',
+  },
+  {
+    marker: 'already searching on a different map',
+    key: 'app.lobby.matchmakingDifferentMap',
+  },
+  {
+    marker: 'only the lobby host can start a private match',
+    key: 'app.lobby.matchmakingHostOnly',
+  },
+  {
+    marker: 'not in a lobby',
+    key: 'app.lobby.matchmakingNotInLobby',
+  },
+];
 
 function serialize(payload: unknown): string {
   if (typeof payload === 'string') {
@@ -33,7 +54,10 @@ function serialize(payload: unknown): string {
 }
 
 export function resolveMatchmakingErrorKey(payload: unknown): TranslationKey {
-  return serialize(payload).includes(ACTIVE_GAME_MARKER)
-    ? 'app.lobby.matchmakingActiveGame'
-    : 'app.lobby.matchmakingFailed';
+  const serialized = serialize(payload).toLowerCase();
+  const rule = MATCHMAKING_ERROR_RULES.find(({ marker }) =>
+    serialized.includes(marker)
+  );
+
+  return rule?.key ?? 'app.lobby.matchmakingFailed';
 }

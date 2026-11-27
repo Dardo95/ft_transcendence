@@ -26,9 +26,6 @@ model User {
   matchPlayers      MatchPlayer[]
   sentFriendships   Friendship[]  @relation("requester")
   receivedFriendships Friendship[] @relation("addressee")
-  sentMessages      ChatMessage[] @relation("sender")
-  receivedMessages  ChatMessage[] @relation("receiver")
-  userAchievements  UserAchievement[]
 
   @@map("users")
 }
@@ -44,7 +41,6 @@ model Match {
   finishedAt  DateTime?
 
   players          MatchPlayer[]
-  tournamentMatch  TournamentMatch?
 
   @@map("matches")
 }
@@ -83,70 +79,6 @@ model Friendship {
   @@map("friendships")
 }
 
-// ─── TOURNAMENTS ────────────────────────────────────────────
-model Tournament {
-  id        Int              @id @default(autoincrement())
-  name      String
-  status    TournamentStatus @default(OPEN)
-  createdAt DateTime         @default(now())
-
-  matches  TournamentMatch[]
-
-  @@map("tournaments")
-}
-
-model TournamentMatch {
-  id           Int @id @default(autoincrement())
-  tournamentId Int
-  matchId      Int @unique
-  round        Int
-
-  tournament  Tournament @relation(fields: [tournamentId], references: [id])
-  match       Match      @relation(fields: [matchId], references: [id])
-
-  @@map("tournament_matches")
-}
-
-// ─── GAMIFICATION ───────────────────────────────────────────
-model Achievement {
-  id          Int    @id @default(autoincrement())
-  key         String @unique  // "first_blood", "survivor", etc.
-  name        String
-  description String
-  xpReward    Int    @default(0)
-
-  userAchievements  UserAchievement[]
-
-  @@map("achievements")
-}
-
-model UserAchievement {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  achievementId Int
-  earnedAt      DateTime @default(now())
-
-  user        User        @relation(fields: [userId], references: [id])
-  achievement Achievement @relation(fields: [achievementId], references: [id])
-
-  @@unique([userId, achievementId])
-  @@map("user_achievements")
-}
-
-// ─── CHAT ───────────────────────────────────────────────────
-model ChatMessage {
-  id         Int      @id @default(autoincrement())
-  senderId   Int
-  receiverId Int
-  content    String
-  createdAt  DateTime @default(now())
-
-  sender    User @relation("sender",   fields: [senderId],   references: [id])
-  receiver  User @relation("receiver", fields: [receiverId], references: [id])
-
-  @@map("chat_messages")
-}
-
 // ─── ENUMS ──────────────────────────────────────────────────
 enum MatchStatus {
   WAITING
@@ -163,12 +95,6 @@ enum FriendshipStatus {
   PENDING
   ACCEPTED
   BLOCKED
-}
-
-enum TournamentStatus {
-  OPEN
-  IN_PROGRESS
-  FINISHED
 }
 
 enum MatchPlayerResult {

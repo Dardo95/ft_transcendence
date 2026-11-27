@@ -1,4 +1,5 @@
-import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEmail } from 'class-validator';
+import { IsPassword } from '../../users/password.rules.js';
 import { IsUsername } from '../../users/username.rules.js';
 
 export class RegisterDto {
@@ -8,8 +9,6 @@ export class RegisterDto {
   @IsUsername()
   username: string;
 
-  @IsString()
-  @MinLength(8)
-  @MaxLength(128)
+  @IsPassword()
   password: string;
 }

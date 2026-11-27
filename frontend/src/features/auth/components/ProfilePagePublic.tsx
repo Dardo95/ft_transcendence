@@ -74,6 +74,21 @@ export function ProfilePagePublic({ user }: ProfilePagePublicProps) {
     },
   ];
 
+  const handleSendRequest = async () => {
+    setIsPending(true);
+    setActionError(null);
+    try {
+      await sendRequest(user.username);
+    } catch {
+      setActionError(
+        t('profile.addFriendFailed') ||
+          'Could not send the friend request. Try again.'
+      );
+    } finally {
+      setIsPending(false);
+    }
+  };
+
   const handleBlock = async () => {
     setIsPending(true);
     setActionError(null);
@@ -198,7 +213,8 @@ export function ProfilePagePublic({ user }: ProfilePagePublicProps) {
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => sendRequest(user.username)}
+                      disabled={isPending}
+                      onClick={() => void handleSendRequest()}
                       className="gap-2 text-xs font-semibold"
                     >
                       <UserPlus className={UI.icon.sm} aria-hidden="true" />
